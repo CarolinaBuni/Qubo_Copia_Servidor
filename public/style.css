@@ -1,0 +1,704 @@
+/* Always set the map height explicitly to define the size of the div
+ * element that contains the map. */
+#gmp-map {
+     height: 100%;
+     position: relative;
+}
+
+/* Fuente Roboto*/
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+/* Optional: Makes the sample page fill the window. */
+html,
+body {
+     height: 100%;
+     margin: 0;
+     padding: 0;
+}
+
+* {
+     list-style: none;
+     text-decoration: none;
+     box-sizing: border-box;
+     margin: 0;
+     padding: 0;
+     font-family: "Roboto", sans-serif;
+}
+
+body {
+     position: relative;
+}
+
+:root {
+     --color-verde-qubo: #08ecc4;
+}
+
+#pac-input {
+     /* position: absolute; */
+     z-index: 2;
+     top: 12px;
+     right: 20px;
+     left: 199px;
+     width: 625px;
+     height: 58px;
+     border-radius: 10px;
+     transition: all 1s ease-in-out;
+     padding-left: 40px;
+}
+
+#pac-input::placeholder {
+     padding-left: 10px;
+     color: #8e8e8e;
+}
+
+#input-container {
+     position: relative;
+     display: none;
+     transition: opacity 1s ease-in-out, max-height 1s ease-in-out;
+     opacity: 0;
+}
+
+.search-icon {
+     position: absolute;
+     margin-left: 5px;
+     left: 5px;
+     /* Ajusta la posición izquierda de la lupa */
+     top: 50%;
+     /* Centra la lupa verticalmente */
+     transform: translateY(-50%);
+     cursor: pointer;
+}
+
+/* .pac-container {
+   background-color: rgba(0, 0, 0, 0.8);
+   font-family: 'Roboto', sans-serif;
+ } */
+
+/* .pac-container:hover {
+   background-color: rgba(0, 0, 0, 0.8);
+ 
+ } */
+
+#test-video {
+     color: #08ecc4;
+}
+
+svg {
+     cursor: pointer;
+}
+
+/* BORRAR SI ES NECESARIO*/
+
+.nav-container {
+     /* Asegúrate de agregar esta clase al contenedor de tu nav-bar si no lo has hecho */
+     display: flex;
+     justify-content: center;
+     position: fixed;
+     width: 100%;
+     bottom: 0;
+     z-index: 1;
+     /* Asegura que la barra de navegación esté por encima de otros elementos */
+}
+
+.nav-bar {
+     /* width: 100%; */
+     position: fixed;
+     z-index: 1;
+     bottom: 0%;
+     display: flex;
+     justify-content: center;
+}
+
+.nav-bar>ul {
+     background-color: rgba(0, 0, 0, 0.8);
+     display: flex;
+     align-items: baseline;
+     justify-content: center;
+     padding: 15px 37px;
+     border-radius: 35px;
+     gap: 20px;
+     flex-wrap: wrap;
+     margin-bottom: 5px;
+     position: relative;
+}
+
+/* .nav-bar>ul li {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+} */
+
+.segunda-barra>ul>li {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+}
+
+.nav-bar>ul li a {
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+}
+
+.segunda-barra {
+     /* background-color: rgba(0, 0, 0, 0.8); */
+     display: block;
+     position: absolute;
+     bottom: 10rem;
+
+     box-sizing: border-box;
+     z-index: 2;
+     /* height: 141px; */
+
+     border-radius: 35px;
+     width: 100%;
+}
+
+.segunda-barra>ul {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 20px;
+     padding: 15px 37px;
+     align-items: baseline;
+     background-color: rgba(0, 0, 0, 0.8);
+     border-radius: 35px;
+     position: relative;
+}
+
+.segunda-barra>ul>li>a {
+     color: white;
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+}
+
+.sub-nav-bar-mobility {
+     width: auto !important;
+}
+
+#alerts {
+     background-color: #de274c;
+}
+
+.bar-buttons {
+     background-color: white;
+     width: 60px;
+     height: 60px;
+     padding: 12px;
+     border-radius: 100%;
+     margin-top: 10px;
+     transition: all 0.8s ease-in-out;
+}
+
+.bar-buttons:hover {
+     background-color: #08ecc4;
+     transition: all 0.8s ease-in-out;
+}
+
+span {
+     color: white;
+     font-size: 12px;
+     text-align: center;
+     margin-bottom: 10px;
+     transition: all 0.8s ease-in-out;
+}
+
+span:hover {
+     color: #08ecc4;
+     transition: all 0.8s ease-in-out;
+}
+
+.links-propiedades {
+     color: white;
+     transition: all 0.8s ease-in-out;
+}
+
+.links-propiedades:hover {
+     color: #08ecc4;
+     transition: all 0.8s ease-in-out;
+}
+
+.info-box {
+     display: none;
+     position: absolute;
+     background-color: rgba(0, 0, 0, 0.8);
+     width: 500px;
+     height: 700px;
+     z-index: 1;
+     color: #e5e5e5;
+     left: 10%;
+     top: 10%;
+     border-radius: 25px;
+     padding: 20px;
+     overflow-x: hidden;
+
+     /* Estilos adicionales, como posición y apariencia, pueden agregarse aquí */
+}
+
+.info-box p {
+     font-size: 17px;
+     font-weight: 700;
+     line-height: 24px;
+     /* 120% */
+     letter-spacing: -0.3px;
+     font-family: "Montserrat", sans-serif;
+}
+
+.info-box::-webkit-scrollbar {
+     height: 10px;
+     width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+     border-radius: 5px;
+     background-color: #dfe9eb;
+}
+
+*::-webkit-scrollbar-track:hover {
+     background-color: #b8c0c2;
+}
+
+*::-webkit-scrollbar-track:active {
+     background-color: #b8c0c2;
+}
+
+*::-webkit-scrollbar-thumb {
+     border-radius: 5px;
+     background-color: var(--color-verde-qubo);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+     background-color: #4ba3a3;
+}
+
+*::-webkit-scrollbar-thumb:active {
+     background-color: #4ba3a3;
+}
+
+.incidence {
+     width: 100%;
+}
+
+.nameContainer {
+     display: flex;
+     flex-direction: row;
+     justify-content: space-between;
+     padding-top: 3rem;
+     gap: 127px;
+     align-items: center;
+}
+
+.nameContainer>p:first-child {
+     color: var(--color-verde-qubo);
+     font-size: 20px;
+     font-weight: 700;
+     line-height: 24px;
+     letter-spacing: -0.3px;
+}
+
+.nameContainer>p:last-child {
+     font-size: 15px;
+     font-weight: 700;
+     line-height: 24px;
+     letter-spacing: -0.225px;
+}
+
+#cerrar-info-box {
+     cursor: pointer;
+     background: transparent;
+     border: none;
+     position: absolute;
+     /* border: 2px solid white; */
+     left: 93%;
+     top: 14px;
+}
+
+.share {
+     border: none;
+     background-color: transparent;
+     position: relative;
+     top: 2rem;
+}
+
+.cerrar {
+     position: absolute;
+     right: 15px;
+     top: 11px;
+
+     border: none;
+     cursor: pointer;
+}
+
+#cerrar-sub-nav-bar>img {
+     position: absolute;
+     right: 15px;
+     top: 11px;
+
+     border: none;
+     cursor: pointer;
+}
+
+body>div.info-box {
+     flex-direction: column;
+     gap: 23px;
+}
+
+#share {
+     display: flex;
+     flex-direction: row;
+}
+
+.activo {
+     background-color: #08ecc4;
+}
+
+#toggleBarrios.active {
+     color: #08ecc4;
+}
+
+#search-direction-button.active {
+     color: #08ecc4;
+}
+
+#cameras-button.active {
+     color: #08ecc4;
+}
+
+/* .boton img.activo {
+     background-color: #08ECC4; 
+ } */
+/* BORRAR */
+
+/*Botón toggle barrios*/
+.buttonContainer,
+#locate-button,
+#addQubo,
+#toggleBarrios,
+#dashboard-button,
+#button3d,
+#button2d,
+#cameras-button,
+#search-direction-button {
+     background-color: transparent;
+     color: white;
+     cursor: pointer;
+     z-index: 3;
+     border: none;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     font-weight: bold;
+     letter-spacing: 1.5px;
+     transition: all 0.5s ease-in-out;
+}
+
+/* #addQubo:hover,
+#locate-button:hover,
+#toggleBarrios:hover,
+#dashboard-button:hover,
+#button3d:hover,
+#button2d:hover,
+#cameras-button:hover,
+#search-direction-button:hover {
+     color: #08ecc4;
+     transition: all 0.5s ease-in-out;
+} */
+
+.configContainer {
+     position: relative;
+     z-index: 3;
+     top: 1%;
+     margin-left: 50px;
+     /* left: 50rem; */
+     display: flex;
+     align-items: center;
+     /* border: 2px solid red; */
+     /* width: max-content; */
+     flex-wrap: wrap;
+     gap: 2rem;
+}
+
+.button-title-container p {
+     transition: color 0.5s ease;
+}
+
+.topBottoms {
+     /* border: 2px solid red; */
+     position: absolute;
+     display: flex;
+     flex-direction: row;
+     flex-wrap: wrap;
+     align-items: center;
+     /* position: relative; */
+     margin-top: 15px;
+     z-index: 1;
+}
+.img-container {
+     width: 59.52px;
+     height: 58px;
+     background-color: rgba(0, 0, 0, 0.8);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     border-radius: 30px;
+}
+
+
+.configContainer li:hover .img-container img {
+     filter: brightness(0) saturate(100%) invert(75%) sepia(76%) saturate(2096%) hue-rotate(114deg) brightness(100%) contrast(94%);
+     
+
+ }
+ .configContainer li:hover .button-title-container p {
+     color:#08ecc4;
+ }
+
+
+
+.buttonContainer {
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     color: white;
+}
+
+
+
+
+
+
+#inputCategories {
+     position: relative;
+     z-index: 99999;
+     left: 50%;
+     top: 50%;
+}
+
+.progress-bar {
+     position: relative;
+     /* Posición relativa para alinear el porcentaje */
+     width: 300px;
+     /* Ancho de la barra de progreso */
+     height: 30px;
+     /* Altura de la barra de progreso */
+     border: 1px solid #0fd7b4;
+     /* Borde de la barra de progreso */
+     border-radius: 5px;
+     /* Bordes redondeados */
+     overflow: hidden;
+     /* Para ocultar cualquier contenido que se desborde */
+}
+
+.progress {
+     height: 100%;
+     /* Altura de la barra de progreso */
+     background-color: #0fd7b4;
+     /* Color de fondo de la barra de progreso */
+     width: 0;
+     /* Ancho inicial de la barra de progreso (0%) */
+     transition: width 0.5s ease;
+     /* Animación de transición */
+}
+
+.capacity-label {
+     text-align: center;
+     /* Centrar el texto */
+     margin-top: 5px;
+     /* Espacio superior */
+}
+
+.progress-text {
+     position: absolute;
+     /* Posición absoluta para alinear el texto */
+     top: 50%;
+     /* Alinear verticalmente en el centro */
+     left: 50%;
+     /* Alinear horizontalmente en el centro */
+     transform: translate(-50%, -50%);
+     /* Centrar el texto */
+     color: #0fd7b4;
+     /* Color del texto */
+}
+
+/*********************************************************/
+
+.form-container {
+     background-color: #333;
+     /* Fondo oscuro del formulario */
+     color: white;
+     width: 450px;
+     max-width: 600px;
+     margin: 40px auto;
+     padding: 20px;
+     border-radius: 8px;
+     position: fixed;
+     /* cursor: move; */
+     z-index: 999999999;
+}
+
+#cerrar-form {
+     top: 4px;
+     right: 9px;
+}
+
+.form-container form {
+     display: grid;
+     gap: 15px;
+}
+
+.form-group label {
+     font-size: 16px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="url"],
+.form-group input[type="datetime-local"],
+.form-group select,
+.form-group textarea {
+     width: 100%;
+     padding: 10px;
+     margin-top: 5px;
+     border-radius: 4px;
+     border: none;
+     background-color: #555;
+     /* Fondo de los campos de entrada */
+     color: white;
+}
+
+.form-group input[type="file"] {
+     border: none;
+}
+
+.form-group input[type="checkbox"] {
+     margin-right: 5px;
+}
+
+/* Ajustar el estilo del botón de envío */
+.submit-button {
+     background-color: #08ecc4;
+     /* Color verde azulado para el botón */
+     color: #fff;
+     padding: 10px 15px;
+     border: none;
+     border-radius: 4px;
+     cursor: pointer;
+     transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+     background-color: #07cca1;
+     /* Color un poco más oscuro para el hover */
+}
+
+.form-group.anonymous-checkbox {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+}
+
+.date-input {
+     background-color: #555;
+     /* Fondo de los campos de entrada */
+     border: 1px solid #333;
+     /* Añade o elimina el borde según tu preferencia */
+     color: white;
+     padding: 10px;
+     border-radius: 4px;
+     width: calc(100% - 22px);
+     /* Ajusta esto dependiendo de tu padding y border */
+     cursor: pointer;
+     /* Para indicar que el campo es interactivo */
+}
+
+.date-input::placeholder {
+     color: #bbb;
+     /* Color para el placeholder que se ajuste a tu diseño */
+}
+
+/* Media Queries para ajustar el formulario en pantallas más pequeñas */
+@media (max-width: 768px) {
+     .form-container {
+          width: 95%;
+          margin: 20px auto;
+     }
+}
+
+#messageBox {
+     display: none;
+     position: fixed;
+     top: 20px;
+     left: 50%;
+     transform: translateX(-50%);
+     background-color: rgba(0, 0, 0, 0.8);
+     color: white;
+     padding: 10px;
+     border-radius: 5px;
+     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+     z-index: 1000000000;
+     /* Asegúrate de que sea suficientemente alto */
+}
+
+.own {
+     width: 450px;
+     height: 300px;
+}
+
+.own>img {
+     width: 100%;
+     object-fit: cover;
+     overflow: hidden;
+}
+
+/* Estilos para el input de archivo y su label */
+.upload-input {
+     width: 0.1px;
+     height: 0.1px;
+     opacity: 0;
+     overflow: hidden;
+     position: absolute;
+     z-index: -1;
+}
+
+.upload-label {
+     background-color: #08ecc4;
+     /* Tu color de acento */
+     color: white;
+     padding: 10px 20px;
+     border-radius: 5px;
+     display: inline-block;
+     cursor: pointer;
+     transition: background-color 0.3s;
+}
+
+.upload-label:hover {
+     background-color: #07cca1;
+     /* Un poco más oscuro en el hover */
+}
+
+/* Estilo para cuando se selecciona un archivo */
+.upload-input:valid+.upload-label {
+     background-color: #06b48f;
+}
+
+.upload-input:valid+.upload-label:after {
+     content: "Archivo seleccionado";
+     display: inline-block;
+     padding-left: 10px;
+}
+
+.hidden {
+     display: none;
+}
+
+
+.buttonPrueba > div > img:hover {
+     filter: brightness(0) saturate(100%) invert(75%) sepia(76%) saturate(2096%) hue-rotate(114deg) brightness(100%) contrast(94%);
+}
+
+
