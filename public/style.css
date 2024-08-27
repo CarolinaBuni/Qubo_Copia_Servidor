@@ -123,18 +123,15 @@ svg {
      position: relative;
 }
 
-/* .nav-bar>ul li {
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     justify-content: center;
-} */
+
 
 .segunda-barra>ul>li {
      display: flex;
      flex-direction: column;
      align-items: center;
      justify-content: center;
+     width: 78.58px;
+     height: 122px;
 }
 
 .nav-bar>ul li a {
@@ -144,9 +141,15 @@ svg {
      align-items: center;
 }
 
+.nav-bar>ul li {
+     width: 78.58px;
+     height: 122px;
+}
+
 .segunda-barra {
      /* background-color: rgba(0, 0, 0, 0.8); */
-     display: block;
+     display: flex;
+     justify-content: center;
      position: absolute;
      bottom: 10rem;
 
@@ -167,6 +170,7 @@ svg {
      background-color: rgba(0, 0, 0, 0.8);
      border-radius: 35px;
      position: relative;
+     /* width: 60%; */
 }
 
 .segunda-barra>ul>li>a {
@@ -229,7 +233,7 @@ span:hover {
      background-color: rgba(0, 0, 0, 0.8);
      width: 500px;
      height: 700px;
-     z-index: 1;
+     z-index: 100000;
      color: #e5e5e5;
      left: 10%;
      top: 10%;
@@ -280,6 +284,52 @@ span:hover {
      background-color: #4ba3a3;
 }
 
+/* Barra de ocupación de parking */
+/* .parking-bar-container {
+     width: 100%;
+     height: 20px;
+     background-color: #ddd;
+     border-radius: 10px;
+     margin: 10px 0;
+     border: 1px solid #333;
+ }
+ 
+ .parking-bar {
+     height: 100%;
+     background-color: var(--color-verde-qubo); 
+     border-radius: 10px;
+ } */
+
+/* Barra de ocupación de parking */
+.parking-bar-container {
+     width: 100%;
+     height: 20px;
+     background-color: #ddd;
+     border-radius: 10px;
+     margin: 10px 0;
+     border: 1px solid #333;
+     position: relative; /* Añadir position relative para usar positioning en el texto */
+ }
+ 
+ .parking-bar {
+     height: 100%;
+     background-color: var(--color-verde-qubo); 
+     border-radius: 10px;
+     position: relative;
+ }
+ 
+ .parking-bar-text {
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     transform: translate(-50%, -50%); /* Centra el texto dentro del contenedor */
+     font-weight: bold;
+     color: black;
+     /* text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);  */
+     white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+ }
+ 
+
 .incidence {
      width: 100%;
 }
@@ -308,7 +358,7 @@ span:hover {
      letter-spacing: -0.225px;
 }
 
-#cerrar-info-box {
+#cerrar-info-box, #cerrar-info-box-tracking, #cerrar-info-box-ships, #cerrar-info-box-trucks {
      cursor: pointer;
      background: transparent;
      border: none;
@@ -348,6 +398,13 @@ body>div.info-box {
      gap: 23px;
 }
 
+.drag {
+     height: 40px;
+     width: 100%;
+     background-color: #06b48f;
+     cursor: move;
+}
+
 #share {
      display: flex;
      flex-direction: row;
@@ -376,6 +433,7 @@ body>div.info-box {
 
 /*Botón toggle barrios*/
 .buttonContainer,
+#option-item,
 #locate-button,
 #addQubo,
 #toggleBarrios,
@@ -423,6 +481,10 @@ body>div.info-box {
      gap: 2rem;
 }
 
+.configContainer li {
+     justify-content: center;
+}
+
 .button-title-container p {
      transition: color 0.5s ease;
 }
@@ -438,6 +500,13 @@ body>div.info-box {
      margin-top: 15px;
      z-index: 1;
 }
+
+
+.topBottoms>ul li {
+     width: 141.63px;
+     height: 76.67px;
+}
+
 .img-container {
      width: 59.52px;
      height: 58px;
@@ -451,12 +520,13 @@ body>div.info-box {
 
 .configContainer li:hover .img-container img {
      filter: brightness(0) saturate(100%) invert(75%) sepia(76%) saturate(2096%) hue-rotate(114deg) brightness(100%) contrast(94%);
-     
 
- }
- .configContainer li:hover .button-title-container p {
-     color:#08ecc4;
- }
+
+}
+
+.configContainer li:hover .button-title-container p {
+     color: #08ecc4;
+}
 
 
 
@@ -622,10 +692,30 @@ body>div.info-box {
 }
 
 /* Media Queries para ajustar el formulario en pantallas más pequeñas */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
      .form-container {
           width: 95%;
           margin: 20px auto;
+     }
+} */
+
+@media screen and (max-width: 376px) {
+
+
+     #nav-bar>ul {
+          gap: 5px;
+          padding: 0;
+     }
+
+     .bar-buttons {
+          background-color: white;
+          /* width: 70px;
+          height: 70px; */
+          padding: 10px;
+     }
+
+     .nav-item>a>.bar-buttons {
+          color: #de274c;
      }
 }
 
@@ -697,8 +787,120 @@ body>div.info-box {
 }
 
 
-.buttonPrueba > div > img:hover {
+.buttonPrueba>div>img:hover {
      filter: brightness(0) saturate(100%) invert(75%) sepia(76%) saturate(2096%) hue-rotate(114deg) brightness(100%) contrast(94%);
 }
 
+.minimize-button {
+     display: none;
+     position: absolute;
+     top: 10px;
+     right: 10px;
+     border: none;
+     background-color: transparent;
+     padding: 5px 10px;
+     cursor: pointer;
+     border-radius: 5px;
+}
 
+
+strong {
+     color: #08ecc4;
+}
+
+
+ 
+ 
+ 
+
+@media screen and (max-width: 674px) {
+     .topBottoms>.configContainer {
+          margin-left: auto;
+          justify-content: center;
+     }
+
+     .configContainer {
+          gap: 8px;
+     }
+
+     .button-title-container p {
+          font-size: smaller;
+          font-weight: normal;
+     }
+
+     .bar-buttons {
+          width: 70px;
+          height: 70px;
+     }
+
+     .nav-bar>ul {
+          gap: 11px;
+          padding: 15px 23px;
+     }
+
+     .nav-bar>ul li {
+          width: auto;
+          height: auto;
+     }
+
+     .minimize-button {
+          display: block;
+          z-index: 99999;
+     }
+
+     .minimize-button>img {
+          width: 25px;
+     }
+
+
+
+     #option-button .img-container img {
+          width: 60px;
+          height: 60px;
+          border-radius: 100%;
+          padding: 12px;
+          /* background-color: white; */
+     }
+
+     .segunda-barra>ul {
+          justify-content: center;
+          gap: 0;
+     }
+
+}
+
+@media screen and (max-width: 430px) {
+     .topBottoms>.configContainer {
+          justify-content: center;
+     }
+
+     .topBottoms>ul li {
+          width: 70.58px;
+          height: auto;
+     }
+
+     .configContainer {
+          gap: 14px;
+     }
+
+     .minimize-button {
+          bottom: 10px;
+          top: auto;
+     }
+
+     .bar-buttons {
+          width: 60px;
+          height: 60px;
+     }
+
+     .segunda-barra {
+          bottom: 0;
+     }
+}
+
+
+@media screen and (max-width: 390px) {
+     .segunda-barra>ul {
+          padding: 0;
+     }
+}

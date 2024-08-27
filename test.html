@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Document</title>
+</head>
+<body>
+     <script>
+
+//! Función para Marcadores de SHIPS
+const marcadoresShips = {};
+
+function iniciarShipsEnMapa( shipsId, iconUrl, title, apiUrl ) {
+     // Verificar si el marcador ya existe
+     if ( marcadoresShips[ shipsId ] ) {
+          // Si el marcador ya existe, detener el movimiento y eliminar el marcador
+          clearInterval( marcadoresShips[ shipsId ].intervaloId );
+          marcadoresShips[ shipsId ].marker.setMap( null );
+          delete marcadoresShips[ shipsId ]; // Eliminar el marcador del objeto
+          return; // Salir de la función
+     }
+
+     // Crear el marcador para la ambulancia
+     const shipsMarker = new google.maps.Marker( {
+          map: map,
+          title: title,
+          icon: iconUrl,
+     } );
+
+     // Función para obtener las coordenadas de la ambulancia de la API y mover el marcador
+     function obtenerYmoverShips() {
+          fetch( apiUrl )
+               .then( response => response.json() )
+               .then( data => {
+                    // Asegurarse de que los datos están en el formato esperado
+                    if ( data.location.coordinates && Array.isArray( data.location.coordinates ) ) {
+                         const coordenadas = data.location.coordinates.map( coord => ( {
+                              lat: parseFloat( coord.lat ),
+                              lng: parseFloat( coord.lng )
+                         } ) );
+
+                         // Mover el marcador de la ambulancia con las coordenadas obtenidas
+                         const intervaloId = iniciarMovimientoMarcador( shipsMarker, coordenadas, 2000 );
+                         marcadoresShips[ shipsId ] = {
+                              marker: shipsMarker,
+                              intervaloId: intervaloId,
+                              datosShips: data // Almacenar los datos de la ambulancia aquí
+                         };
+                    } else {
+                         console.error( 'Los datos de la ambulancia no tienen el formato esperado:', data );
+                    }
+               } )
+               .catch( error => console.error( 'Error al obtener coordenadas de la ambulancia:', error ) );
+     }
+
+     // Iniciar el proceso de mover la ambulancia
+     obtenerYmoverShips();
+
+     // Añadir un evento click al marcador de la ambulancia para mostrar información
+     shipsMarker.addListener( "click", function () {
+          const infoBox = document.querySelector( ".info-box" );
+          infoBox.style.display = "flex";
+          const datosShips = marcadoresShips[ shipsId ].datosShips;
+          infoBox.innerHTML = `
+   <img src="${ datosShips.ImagenURL }" alt="Imagen del Ship"/>
+   <div>Tipo: ${ datosShips.type }</div>
+   <div>Name: ${ datosShips.name}</div>
+   <div>Model: ${ datosShips.model }</div>
+   <div>Manufacturer: ${ datosShips.manufacturer }</div>
+   <div>Owner: ${ datosShips.owner.name }</div>
+   <div>Contact: ${ datosShips.owner.contact }</div>
+   <button id="cerrar-info-box">
+       <img src="./assets/botonCerrar.svg" alt="Cerrar">
+   </button>
+   `;
+          document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
+               infoBox.style.display = "none";
+          } );
+     } );
+}
+
+const eventShips = document.getElementById( "ships-sub-nav-item" );
+eventShips.addEventListener( 'click', function () {
+     iniciarShipsEnMapa( 1, './assets/shipsQubo.svg', 'Ship 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/barco_tang_alg.json?sp=r&st=2024-07-21T10:44:45Z&se=2090-01-01T19:44:45Z&sv=2022-11-02&sr=b&sig=UepaUkYI15pFs8O0brKvheGzrQwpJPZrMQS0v7Bt3II%3D' );
+     
+} );
+
+
+
+
+     </script>
+</body>
+</html>

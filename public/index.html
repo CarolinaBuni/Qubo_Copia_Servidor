@@ -2,11 +2,14 @@
 <html>
 
 <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <title>QUBO CITY</title>
      <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
      <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=&v=weekly&libraries=places&callback=initMap" defer></script> -->
      <script
-          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=places&v=weekly"
+     
+          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=places&v=weekly$"
           defer></script>
      <script src="https://cdn.rawgit.com/geocodezip/geoxml3/master/polys/geoxml3.js"></script>
 
@@ -50,7 +53,6 @@
                     </div>
                     
                </li>
-
 
                <li id="cameras-button">
                     <div class="img-container">
@@ -101,7 +103,23 @@
                <input id="pac-input" class="controls" type="text" placeholder="Search places" />
                <img class="search-icon" src="./assets/searchIcon.svg" alt="">
           </div>
+          <button id="minimize-topBottoms" class="minimize-button">
+               <img src="./assets/minimize.svg" alt="Minimizeicon">
+          </button>
      </nav>
+      <!-- Botón "Option" que aparece al minimizar -->
+      <nav id="option-button" class="topBottoms" style="display: none;">
+          <ul class="configContainer">
+              <li id="option-item">
+                  <div class="img-container">
+                      <img src="./assets/buttonOption.svg" alt="Option icon">
+                  </div>
+                  <div class="button-title-container">
+                      <p>Option</p>
+                  </div>
+              </li>
+          </ul>
+      </nav>
 
      <div class="form-container hidden" data-target="form">
           <div class="drag-handle">Arrastra aquí para mover</div>
@@ -191,6 +209,10 @@
 
      <!-- <div class="info-box"></div> -->
      <div class="info-box"></div>
+     <div class="info-box-ships info-box"></div>
+     <div class="info-box-trucks info-box"></div>
+     <div class="info-box-tracking info-box"></div>
+
      <div class="nav-container">
           <nav class="nav-bar barra" id="nav-bar">
                <ul>
@@ -324,7 +346,7 @@
                          <span><br>Under<br>Construction</span>
                     </a>
                </li>
-               <img class="cerrar" id="cerrar-sub-nav-bar" data-target="barra-buildings" src="./assets/botonCerrar.svg"
+               <img class="cerrar" id="cerrar-sub-nav-bar" data-target="barra-buildings" src="./assets/minimize 3.svg"
                     alt="">
           </ul>
           <!-- <button id="cerrar-sub-nav-bar" class="cerrar">
@@ -351,13 +373,13 @@
                          <span><br>Car Traffic</span>
                     </a>
                </li>
-               <li>
+               <li id="parking-sub-nav-item">
                     <a href="#">
                          <img class="bar-buttons subLevel" src="./assets/iconParking.svg" alt="Icon Parking">
                          <span><br>Parking</span>
                     </a>
                </li>
-               <li>
+               <li id="eCar-sub-nav-item">
                     <a href="#">
                          <img class="bar-buttons subLevel" src="./assets/iconeE-carStations.svg"
                               alt="Icon E-Car Stations">
@@ -432,7 +454,7 @@
                          <span><br>Boats</span>
                     </a>
                </li>
-               <img class="cerrar" src="./assets/botonCerrar.svg" data-target="barra-mobility" alt="">
+               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-mobility" alt="">
           </ul>
           <!-- <button id="cerrar-sub-nav-bar-mobility" class="cerrar">
           </button> -->
@@ -478,7 +500,7 @@
                          <span><br>Ambulances</span>
                     </a>
                </li>
-               <img class="cerrar" data-target="barra-health" src="./assets/botonCerrar.svg" alt="">
+               <img class="cerrar" data-target="barra-health" src="./assets/minimize 3.svg" alt="">
           </ul>
           <!-- <button id="cerrar-sub-nav-bar-health" class="cerrar">
           </button> -->
@@ -512,7 +534,7 @@
                          <span><br>Cybersecurity</span>
                     </a>
                </li>
-               <img class="cerrar" src="./assets/botonCerrar.svg" data-target="barra-security" alt="">
+               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-security" alt="">
           </ul>
           <!-- <button id="cerrar-sub-nav-bar-security" class="cerrar">
           </button> -->
@@ -520,7 +542,7 @@
      <!-- Barra secundaria para Infrastructure -->
      <div id="barra-infraestructure" class="segunda-barra" style="display: none;">
           <ul>
-               <li>
+               <li id="waste-sub-nav-item">
                     <a href="#">
                          <img class="bar-buttons subLevel" src="./assets/iconWaste.svg" alt="Icon Waste">
                          <span><br>Waste</span>
@@ -544,13 +566,13 @@
                          <span><br>Sewage</span>
                     </a>
                </li>
-               <li>
+               <li id="internet-sub-nav-item">
                     <a href="#">
                          <img class="bar-buttons subLevel" src="./assets/iconInternet.svg" alt="Icon Internet">
                          <span><br>Internet</span>
                     </a>
                </li>
-               <img class="cerrar" src="./assets/botonCerrar.svg" data-target="barra-infraestructure" alt="">
+               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-infraestructure" alt="">
           </ul>
           <!-- <button id="cerrar-sub-nav-bar-infraestructure" class="cerrar">
           </button> -->
@@ -558,20 +580,50 @@
      <!-- Barra secundaria para Logistics -->
      <div id="barra-logistics" class="segunda-barra" style="display: none;">
           <ul>
-               <li>
+               <li id="pick-upPoints-sub-nav-item">
                     <a href="#">
                          <img class="bar-buttons subLevel" src="./assets/iconPickUpPoints.svg"
                               alt="Icon Pick-up Points">
                          <span><br>Pick-up Points</span>
                     </a>
                </li>
-               <li>
+               <li id="pack-location-sub-nav-item">
                     <a href="#">
                          <img class="bar-buttons subLevel" src="./assets/iconPackLocation.svg" alt="Icon Pack Location">
                          <span><br>Pack Location</span>
                     </a>
                </li>
-               <img class="cerrar" src="./assets/botonCerrar.svg" data-target="barra-logistics" alt="">
+               <li id="tracking-sub-nav-item">
+                    <a href="#">
+                         <img class="bar-buttons subLevel" src="./assets/iconTracking.svg" alt="Icon Tracking">
+                         <span><br>Tracking</span>
+                    </a>
+               </li>
+               <li id="ports-sub-nav-item">
+                    <a href="#">
+                         <img class="bar-buttons subLevel" src="./assets/iconPorts.svg" alt="Icon Ports">
+                         <span><br>Ports</span>
+                    </a>
+               </li>
+               <li id="ships-sub-nav-item">
+                    <a href="#">
+                         <img class="bar-buttons subLevel" src="./assets/iconShips.svg" alt="Icon Ships">
+                         <span><br>Ships</span>
+                    </a>
+               </li>
+               <li id="trucks-sub-nav-item">
+                    <a href="#">
+                         <img class="bar-buttons subLevel" src="./assets/iconTrucks.svg" alt="Icon Trucks">
+                         <span><br>Trucks</span>
+                    </a>
+               </li>
+               <li id="stores-sub-nav-item">
+                    <a href="#">
+                         <img class="bar-buttons subLevel" src="./assets/iconStores.svg" alt="Icon Stores">
+                         <span><br>Stores</span>
+                    </a>
+               </li>
+               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-logistics" alt="">
           </ul>
           <!-- <button id="cerrar-sub-nav-bar-logistics" class="cerrar">
           </button> -->
@@ -661,7 +713,7 @@
                          <span><br>Water usage</span>
                     </a>
                </li>
-               <img class="cerrar" src="./assets/botonCerrar.svg" data-target="barra-environment" alt="">
+               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-environment" alt="">
           </ul>
 
      </div>
@@ -732,7 +784,7 @@
                          <span><br>Museums</span>
                     </a>
                </li>
-               <img class="cerrar" src="./assets/botonCerrar.svg" data-target="barra-entertainment" alt="">
+               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-entertainment" alt="">
           </ul>
      </div>
      <!-- Barra secundaria para Services -->
@@ -757,7 +809,7 @@
                          <span><br>Education</span>
                     </a>
                </li>
-               <img class="cerrar" src="./assets/botonCerrar.svg" data-target="barra-services" alt="">
+               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-services" alt="">
           </ul>
      </div>
      <!-- Barra secundaria para Incidences -->
@@ -832,7 +884,7 @@
                          <span><br />Incidences</span>
                     </a>
                </li>
-               <img class="cerrar" src="./assets/botonCerrar.svg" data-target="barra-alerts" alt="">
+               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-alerts" alt="">
           </ul>
      </div>
 
