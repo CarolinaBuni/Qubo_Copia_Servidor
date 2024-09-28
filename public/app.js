@@ -9247,7 +9247,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
      const navBar = document.getElementById( 'nav-bar' );
      const secondBars = document.querySelectorAll( '.segunda-barra' );
      const navItems = navBar.querySelectorAll( 'ul > li' );
-     const mediaQuery = window.matchMedia( '(max-width: 390px)' );
+     const mediaQuery = window.matchMedia( '(max-width: 430px)' );
 
      navItems.forEach( item => {
           item.addEventListener( 'click', () => {
