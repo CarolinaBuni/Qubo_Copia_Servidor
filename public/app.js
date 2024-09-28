@@ -1219,11 +1219,15 @@ function initMap() {
      const basesBiciMadKmzUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bases_de_BiciMad.kmz?sp=r&st=2024-03-19T20:24:26Z&se=2090-01-01T04:24:26Z&sv=2022-11-02&sr=b&sig=xI3PqT5cwc75iysCXnjus42YQTZMMokLtZgTLWEEOmE%3D";
      const biciparkKmzUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicipark.kmz?sp=r&st=2024-04-06T21:26:44Z&se=2090-01-01T06:26:44Z&sv=2022-11-02&sr=b&sig=edWyV5%2FwJnAqWLtWlPSZXqXVgNX5CQtyqFGMQESy0qk%3D";
      const biciparkApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Fiware_Mobility_Biciparks-00001?sp=r&st=2024-07-26T14:43:20Z&se=2089-12-31T23:43:20Z&sv=2022-11-02&sr=b&sig=jppSvtms%2BZDJyZ3MRW3zXoaNCMm4TtMUZK3HtdTeOTc%3D";
+     const aparcaBicisUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/APARCABICIS_2022.kml?sp=r&st=2024-03-19T20:51:56Z&se=2090-01-01T04:51:56Z&sv=2022-11-02&sr=b&sig=IUIlZ4eNBPH2cwjICkfnd1zL5yVH%2BSLiRtw%2FfEsl62E%3D";
+     const callesTranquilasUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bici%20Calles%20Tranquilas.kml?sp=r&st=2024-03-19T21:21:47Z&se=2090-01-01T05:21:47Z&sv=2022-11-02&sr=b&sig=cLIk%2F4tbVhdZ1Cz%2FMl4ekhBGZxo4UFRgRVnyZ%2FeOuDE%3D";
 
      // Variables para mantener las capas KML
      let kmlLayerCarrilesBici = null;
      let kmlLayerBasesBiciMad = null;
      let kmlLayerBicipark = null;
+     let kmlLayerAparcaBicis = null;
+     let kmlLayerCallesTranquilas = null;
 
 
      // Función para cargar y mostrar los marcadores de Biciparks
@@ -1297,50 +1301,84 @@ function initMap() {
 
      function toggleKmlLayerBici() {
           // Manejar la capa KML de los carriles de bicicleta
-          if ( !kmlLayerCarrilesBici ) {
-               kmlLayerCarrilesBici = new google.maps.KmlLayer( {
-                    url: carrilesBiciKmzUrl,
-                    map: map,
-                    preserveViewport: true
-               } );
+          if (!kmlLayerCarrilesBici) {
+              kmlLayerCarrilesBici = new google.maps.KmlLayer({
+                  url: carrilesBiciKmzUrl,
+                  map: map,
+                  preserveViewport: true
+              });
+              console.log("Capa de carriles bici cargada.");
           } else {
-               kmlLayerCarrilesBici.setMap( kmlLayerCarrilesBici.getMap() ? null : map );
+              kmlLayerCarrilesBici.setMap(kmlLayerCarrilesBici.getMap() ? null : map);
+              console.log("Capa de carriles bici alternada.");
           }
-
+      
           // Manejar la capa KML de las bases de BiciMad
-          if ( !kmlLayerBasesBiciMad ) {
-               kmlLayerBasesBiciMad = new google.maps.KmlLayer( {
-                    url: basesBiciMadKmzUrl,
-                    map: map,
-                    preserveViewport: true
-               } );
+          if (!kmlLayerBasesBiciMad) {
+              kmlLayerBasesBiciMad = new google.maps.KmlLayer({
+                  url: basesBiciMadKmzUrl,
+                  map: map,
+                  preserveViewport: true
+              });
+              console.log("Capa de bases BiciMad cargada.");
           } else {
-               kmlLayerBasesBiciMad.setMap( kmlLayerBasesBiciMad.getMap() ? null : map );
+              kmlLayerBasesBiciMad.setMap(kmlLayerBasesBiciMad.getMap() ? null : map);
+              console.log("Capa de bases BiciMad alternada.");
           }
-
+      
           // Manejar la capa KML de Bicipark
-          if ( !kmlLayerBicipark ) {
-               kmlLayerBicipark = new google.maps.KmlLayer( {
-                    url: biciparkKmzUrl,
-                    map: map,
-                    preserveViewport: true
-               } );
+          if (!kmlLayerBicipark) {
+              kmlLayerBicipark = new google.maps.KmlLayer({
+                  url: biciparkKmzUrl,
+                  map: map,
+                  preserveViewport: true
+              });
+              console.log("Capa de Bicipark cargada.");
           } else {
-               kmlLayerBicipark.setMap( kmlLayerBicipark.getMap() ? null : map );
+              kmlLayerBicipark.setMap(kmlLayerBicipark.getMap() ? null : map);
+              console.log("Capa de Bicipark alternada.");
           }
-
+      
+          // Manejar la capa KML de AparcaBicis
+          if (!kmlLayerAparcaBicis) {
+              kmlLayerAparcaBicis = new google.maps.KmlLayer({
+                  url: aparcaBicisUrl,
+                  map: map,
+                  preserveViewport: true
+              });
+              console.log("Capa de AparcaBicis cargada.");
+          } else {
+              kmlLayerAparcaBicis.setMap(kmlLayerAparcaBicis.getMap() ? null : map);
+              console.log("Capa de AparcaBicis alternada.");
+          }
+      
+          // Manejar la capa KML de Calles Tranquilas
+          if (!kmlLayerCallesTranquilas) {
+              kmlLayerCallesTranquilas = new google.maps.KmlLayer({
+                  url: callesTranquilasUrl,
+                  map: map,
+                  preserveViewport: true
+              });
+              console.log("Capa de Calles Tranquilas cargada.");
+          } else {
+              kmlLayerCallesTranquilas.setMap(kmlLayerCallesTranquilas.getMap() ? null : map);
+              console.log("Capa de Calles Tranquilas alternada.");
+          }
+      
           // Alternar la visibilidad de los marcadores de Biciparks
-          toggleMarcadores( markersBiciparks, biciparksVisible );
+          toggleMarcadores(markersBiciparks, biciparksVisible);
           biciparksVisible = !biciparksVisible; // Cambia la bandera de visibilidad
-
+      
           // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
-          if ( markersBiciparks.length === 0 && biciparksVisible ) {
-               cargarMarcadoresBiciparks();
+          if (markersBiciparks.length === 0 && biciparksVisible) {
+              cargarMarcadoresBiciparks();
+              console.log("Marcadores de Biciparks cargados.");
           }
-
+      
           // Llamar a la función para inicializar las bicicletas en el mapa
           iniciarBicicletasEnMapa();
-     };
+      }
+      
      // Función para Marcadores de BICICLETAS
      const marcadoresBicicletas = {};
 
@@ -1432,145 +1470,307 @@ function initMap() {
      let markersBiciparks = []; // Array para almacenar los marcadores de Biciparks
      let biciparksVisible = false; // Bandera para el estado de visibilidad
      botonBicycle.addEventListener( 'click', toggleKmlLayerBici );
+ 
 
 
      //* ---------------------------------------------------------------------------------
      //* BOTÓN INCIDENCES MOBILITY (OPERACIÓN ASFALTO) (INCIDENCIAS VÍA PÚBLICA)
 
-     // URL de la capa KML
-     const kmlAlertsMobilityUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Operacion_asfalto_2021_kml.kmz?sp=r&st=2024-03-19T21:27:54Z&se=2090-01-01T05:27:54Z&sv=2022-11-02&sr=b&sig=%2FN8Ez5X9F5hzPDYb2P7iZJX%2FiSXkynMgdm8LitO4qgg%3D";
+     // // URL de la capa KML
+     // const kmlAlertsMobilityUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Operacion_asfalto_2021_kml.kmz?sp=r&st=2024-03-19T21:27:54Z&se=2090-01-01T05:27:54Z&sv=2022-11-02&sr=b&sig=%2FN8Ez5X9F5hzPDYb2P7iZJX%2FiSXkynMgdm8LitO4qgg%3D";
 
-     // URL de la API de alertas de movilidad
-     const urlAlertsMobility = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Fiware_Incidences_Mobility?sp=r&st=2024-07-26T13:05:48Z&se=2090-01-01T22:05:48Z&sv=2022-11-02&sr=b&sig=1XeWef46jcbbCgOKIPGENLNDuTAOqDjfq%2Fr3p59BT5A%3D";
+     
 
-     // Botón de alertas de movilidad
-     const botonAlertsMobility = document.getElementById( 'alerts-mobility-nav-item' );
+     // // URL de la API de alertas de movilidad
+     // const urlAlertsMobility = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Fiware_Incidences_Mobility?sp=r&st=2024-07-26T13:05:48Z&se=2090-01-01T22:05:48Z&sv=2022-11-02&sr=b&sig=1XeWef46jcbbCgOKIPGENLNDuTAOqDjfq%2Fr3p59BT5A%3D";
 
-     let kmlLayerAlertsMobility = null; // Variable para la capa KML
-     let markersAlertsMobility = []; // Array para almacenar los marcadores de alertas
-     let alertsMobilityVisible = false; // Bandera para el estado de visibilidad
+     // // Botón de alertas de movilidad
+     // const botonAlertsMobility = document.getElementById( 'alerts-mobility-nav-item' );
 
-     // Función para cargar la capa KML
-     function cargarCapaKML( url ) {
-          if ( kmlLayerAlertsMobility ) {
-               kmlLayerAlertsMobility.setMap( kmlLayerAlertsMobility.getMap() ? null : map );
-          } else {
-               kmlLayerAlertsMobility = new google.maps.KmlLayer( {
-                    url: url,
-                    map: map
-               } );
-          }
-     }
+     // let kmlLayerAlertsMobility = null; // Variable para la capa KML
+     // let markersAlertsMobility = []; // Array para almacenar los marcadores de alertas
+     // let alertsMobilityVisible = false; // Bandera para el estado de visibilidad
 
-     // Función para cargar y mostrar marcadores de alertas de movilidad
-     function cargarMarcadoresAlertsMobility() {
-          fetch( urlAlertsMobility )
-               .then( response => response.json() )
-               .then( data => {
-                    data.alerts0002.forEach( item => {
-                         const {
-                              id,
-                              ubicacion,
-                              name,
-                              category,
-                              description,
-                              streetAddress,
-                              postalCode,
-                              addressLocality,
-                              addressRegion,
-                              addressCountry,
-                              neighborhood,
-                              district,
-                              source,
-                              owner
-                         } = parseFiwareData( item );
+     // // Función para cargar la capa KML
+     // function cargarCapaKML( url ) {
+     //      if ( kmlLayerAlertsMobility ) {
+     //           kmlLayerAlertsMobility.setMap( kmlLayerAlertsMobility.getMap() ? null : map );
+     //      } else {
+     //           kmlLayerAlertsMobility = new google.maps.KmlLayer( {
+     //                url: url,
+     //                map: map
+     //           } );
+     //      }
+     // }
 
-                         if ( ubicacion && name ) {
-                              const marker = new google.maps.Marker( {
-                                   position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
-                                   map: map,
-                                   title: name,
-                                   icon: "./assets/incidencesMobilityQubo.svg"
-                              } );
+     // // Función para cargar y mostrar marcadores de alertas de movilidad
+     // function cargarMarcadoresAlertsMobility() {
+     //      fetch( urlAlertsMobility )
+     //           .then( response => response.json() )
+     //           .then( data => {
+     //                data.alerts0002.forEach( item => {
+     //                     const {
+     //                          id,
+     //                          ubicacion,
+     //                          name,
+     //                          category,
+     //                          description,
+     //                          streetAddress,
+     //                          postalCode,
+     //                          addressLocality,
+     //                          addressRegion,
+     //                          addressCountry,
+     //                          neighborhood,
+     //                          district,
+     //                          source,
+     //                          owner
+     //                     } = parseFiwareData( item );
 
-                              marker.addListener( "click", () => {
-                                   const infoBox = document.querySelector( ".info-box" );
-                                   infoBox.style.display = "flex";
-                                   infoBox.innerHTML = `
+     //                     if ( ubicacion && name ) {
+     //                          const marker = new google.maps.Marker( {
+     //                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+     //                               map: map,
+     //                               title: name,
+     //                               icon: "./assets/incidencesMobilityQubo.svg"
+     //                          } );
+
+     //                          marker.addListener( "click", () => {
+     //                               const infoBox = document.querySelector( ".info-box" );
+     //                               infoBox.style.display = "flex";
+     //                               infoBox.innerHTML = `
+     //                        <div class='nameContainer'>
+     //                            <p>${ category }</p>
+     //                            <p>${ name }</p>
+     //                        </div>
+     //                        <p>Address: ${ streetAddress }</p>
+     //                        <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
+     //                        <p>${ addressCountry }</p>
+     //                        <p>${ description }</p>
+     //                        <p>ID: ${ id }</p>
+     //                        <p>Source: <a href="${ source }" target="_blank">${ source }</a></p>
+     //                        <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+     //                        <button class='share'><img src='./assets/shareIcon.svg'></button>
+     //                    `;
+     //                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
+     //                                    infoBox.style.display = "none";
+     //                               } );
+     //                          } );
+
+     //                          markersAlertsMobility.push( marker ); // Añade el marcador al array de alertas
+     //                     }
+     //                } );
+     //           } )
+     //           .catch( error => console.error( "Error al cargar los marcadores de alertas de movilidad:", error ) );
+     // }
+
+     // // Evento para el botón de alertas de movilidad
+     // botonAlertsMobility.addEventListener( "click", () => {
+     //      // Alternar la visibilidad de la capa KML de alertas de movilidad
+     //      cargarCapaKML( kmlAlertsMobilityUrl );
+
+     //      // Alternar la visibilidad de los marcadores de alertas de movilidad
+     //      toggleMarcadores( markersAlertsMobility, alertsMobilityVisible );
+     //      alertsMobilityVisible = !alertsMobilityVisible; // Cambia la bandera de visibilidad
+
+     //      // Si los marcadores aún no se han cargado, cargarlos
+     //      if ( markersAlertsMobility.length === 0 && alertsMobilityVisible ) {
+     //           cargarMarcadoresAlertsMobility(); // Llama a la función para cargar los marcadores de alertas de movilidad
+     //      }
+     // } );
+
+     // URL de la capa KML de Operación Asfalto
+const kmlAlertsMobilityUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Operacion_asfalto_2021_kml.kmz?sp=r&st=2024-03-19T21:27:54Z&se=2090-01-01T05:27:54Z&sv=2022-11-02&sr=b&sig=%2FN8Ez5X9F5hzPDYb2P7iZJX%2FiSXkynMgdm8LitO4qgg%3D";
+
+// URL de la nueva capa KML de Incidencias Vía Pública
+const kmlIncidenciasViaPublicaUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Incidencias%20Via%20Publica.kml?sp=r&st=2024-03-19T21:30:08Z&se=2090-01-01T05:30:08Z&sv=2022-11-02&sr=b&sig=KpdNugI91fHozgP79RHLCDrrygV5Ge22KOgoGSD79Cg%3D";
+
+// URL de la API de alertas de movilidad
+const urlAlertsMobility = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Fiware_Incidences_Mobility?sp=r&st=2024-07-26T13:05:48Z&se=2090-01-01T22:05:48Z&sv=2022-11-02&sr=b&sig=1XeWef46jcbbCgOKIPGENLNDuTAOqDjfq%2Fr3p59BT5A%3D";
+
+// Botón de alertas de movilidad
+const botonAlertsMobility = document.getElementById('alerts-mobility-nav-item');
+
+let kmlLayerAlertsMobility = null; // Variable para la capa KML de Operación Asfalto
+let kmlLayerIncidenciasViaPublica = null; // Variable para la nueva capa KML de Incidencias Vía Pública
+let markersAlertsMobility = []; // Array para almacenar los marcadores de alertas
+let alertsMobilityVisible = false; // Bandera para el estado de visibilidad
+
+// Función para cargar la capa KML
+function cargarCapaKML(url, kmlLayer) {
+    if (kmlLayer) {
+        kmlLayer.setMap(kmlLayer.getMap() ? null : map);
+    } else {
+        kmlLayer = new google.maps.KmlLayer({
+            url: url,
+            map: map,
+            preserveViewport: true
+        });
+    }
+    return kmlLayer; // Devolver la capa para que se asigne a la variable adecuada
+}
+
+// Función para cargar y mostrar marcadores de alertas de movilidad
+function cargarMarcadoresAlertsMobility() {
+    fetch(urlAlertsMobility)
+        .then(response => response.json())
+        .then(data => {
+            data.alerts0002.forEach(item => {
+                const {
+                    id,
+                    ubicacion,
+                    name,
+                    category,
+                    description,
+                    streetAddress,
+                    postalCode,
+                    addressLocality,
+                    addressRegion,
+                    addressCountry,
+                    neighborhood,
+                    district,
+                    source,
+                    owner
+                } = parseFiwareData(item);
+
+                if (ubicacion && name) {
+                    const marker = new google.maps.Marker({
+                        position: { lat: ubicacion[1], lng: ubicacion[0] },
+                        map: map,
+                        title: name,
+                        icon: "./assets/incidencesMobilityQubo.svg"
+                    });
+
+                    marker.addListener("click", () => {
+                        const infoBox = document.querySelector(".info-box");
+                        infoBox.style.display = "flex";
+                        infoBox.innerHTML = `
                             <div class='nameContainer'>
-                                <p>${ category }</p>
-                                <p>${ name }</p>
+                                <p>${category}</p>
+                                <p>${name}</p>
                             </div>
-                            <p>Address: ${ streetAddress }</p>
-                            <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                            <p>${ addressCountry }</p>
-                            <p>${ description }</p>
-                            <p>ID: ${ id }</p>
-                            <p>Source: <a href="${ source }" target="_blank">${ source }</a></p>
+                            <p>Address: ${streetAddress}</p>
+                            <p>Localización: ${addressLocality}, ${addressRegion}</p>
+                            <p>${addressCountry}</p>
+                            <p>${description}</p>
+                            <p>ID: ${id}</p>
+                            <p>Source: <a href="${source}" target="_blank">${source}</a></p>
                             <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                             <button class='share'><img src='./assets/shareIcon.svg'></button>
                         `;
-                                   document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                                        infoBox.style.display = "none";
-                                   } );
-                              } );
+                        document.getElementById("cerrar-info-box").addEventListener("click", () => {
+                            infoBox.style.display = "none";
+                        });
+                    });
 
-                              markersAlertsMobility.push( marker ); // Añade el marcador al array de alertas
-                         }
-                    } );
-               } )
-               .catch( error => console.error( "Error al cargar los marcadores de alertas de movilidad:", error ) );
-     }
+                    markersAlertsMobility.push(marker); // Añade el marcador al array de alertas
+                }
+            });
+        })
+        .catch(error => console.error("Error al cargar los marcadores de alertas de movilidad:", error));
+}
 
-     // Evento para el botón de alertas de movilidad
-     botonAlertsMobility.addEventListener( "click", () => {
-          // Alternar la visibilidad de la capa KML de alertas de movilidad
-          cargarCapaKML( kmlAlertsMobilityUrl );
+// Evento para el botón de alertas de movilidad
+botonAlertsMobility.addEventListener("click", () => {
+    // Alternar la visibilidad de la capa KML de Operación Asfalto
+    kmlLayerAlertsMobility = cargarCapaKML(kmlAlertsMobilityUrl, kmlLayerAlertsMobility);
 
-          // Alternar la visibilidad de los marcadores de alertas de movilidad
-          toggleMarcadores( markersAlertsMobility, alertsMobilityVisible );
-          alertsMobilityVisible = !alertsMobilityVisible; // Cambia la bandera de visibilidad
+    // Alternar la visibilidad de la nueva capa KML de Incidencias Vía Pública
+    kmlLayerIncidenciasViaPublica = cargarCapaKML(kmlIncidenciasViaPublicaUrl, kmlLayerIncidenciasViaPublica);
 
-          // Si los marcadores aún no se han cargado, cargarlos
-          if ( markersAlertsMobility.length === 0 && alertsMobilityVisible ) {
-               cargarMarcadoresAlertsMobility(); // Llama a la función para cargar los marcadores de alertas de movilidad
-          }
-     } );
+    // Alternar la visibilidad de los marcadores de alertas de movilidad
+    toggleMarcadores(markersAlertsMobility, alertsMobilityVisible);
+    alertsMobilityVisible = !alertsMobilityVisible; // Cambia la bandera de visibilidad
+
+    // Si los marcadores aún no se han cargado, cargarlos
+    if (markersAlertsMobility.length === 0 && alertsMobilityVisible) {
+        cargarMarcadoresAlertsMobility(); // Llama a la función para cargar los marcadores de alertas de movilidad
+    }
+});
+
 
 
      //* ---------------------------------------------------------------------------------
      //* CÁMARAS DE TRÁFICO MADRID
 
+     // const bajasEmisiones = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Car%20Traffic/camaras_zonabajasemisiones_mc.kmz?sp=r&st=2024-03-19T20:34:37Z&se=2090-01-01T04:34:37Z&sv=2022-11-02&sr=b&sig=gn9rV3AAOe4XD4okscc0T82THsCzH4Um71649lsB8Y4%3D";
+
+
+
+
+     // let kmlLayerbajasEmisiones = null;
+
+     // // Función para manejar la capa KML de cámaras de tráfico
+     // function toggleKmlLayerbajasEmisiones() {
+     //      if ( kmlLayerbajasEmisiones ) {
+     //           // Si la capa KML ya existe, alternar su visibilidad
+     //           kmlLayerbajasEmisiones.setMap( kmlLayerbajasEmisiones.getMap() ? null : map );
+     //      } else {
+     //           // Si la capa KML no existe, crearla y añadirla al mapa
+     //           kmlLayerbajasEmisiones = new google.maps.KmlLayer( {
+     //                url: bajasEmisiones,
+     //                map: map,
+     //                preserveViewport: true
+     //           } );
+     //      }
+     //      kmlLayerbajasEmisiones.addListener( 'status_changed', function () {
+     //           console.log( 'KML Layer status changed to: ' + kmlLayerbajasEmisiones.getStatus() );
+     //      } );
+     // }
+
+
+     // const botonbajasEmisiones = document.getElementById( 'traffic-sub-nav-item' );
+
+     // // Vincular el controlador de eventos al nuevo botón de cámaras de tráfico
+     // botonbajasEmisiones.addEventListener( 'click', toggleKmlLayerbajasEmisiones );
+
      const bajasEmisiones = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Car%20Traffic/camaras_zonabajasemisiones_mc.kmz?sp=r&st=2024-03-19T20:34:37Z&se=2090-01-01T04:34:37Z&sv=2022-11-02&sr=b&sig=gn9rV3AAOe4XD4okscc0T82THsCzH4Um71649lsB8Y4%3D";
-
-
+     const radaresFijos = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Car%20Traffic/RADARES_FIJOS_vDTT.kml?sp=r&st=2024-03-19T20:49:53Z&se=2090-01-01T04:49:53Z&sv=2022-11-02&sr=b&sig=a3gFUKDbBUkzjb4dXmgYkgYhAe%2F%2FJQIh1uuOL77t1qY%3D";
 
 
      let kmlLayerbajasEmisiones = null;
+     let kmlLayerRadaresFijos = null;
 
-     // Función para manejar la capa KML de cámaras de tráfico
-     function toggleKmlLayerbajasEmisiones() {
+
+     // Función para manejar las capas KML de cámaras de tráfico
+     function toggleKmlLayers() {
+          // Alternar visibilidad de la capa de bajas emisiones
           if ( kmlLayerbajasEmisiones ) {
-               // Si la capa KML ya existe, alternar su visibilidad
                kmlLayerbajasEmisiones.setMap( kmlLayerbajasEmisiones.getMap() ? null : map );
           } else {
-               // Si la capa KML no existe, crearla y añadirla al mapa
                kmlLayerbajasEmisiones = new google.maps.KmlLayer( {
                     url: bajasEmisiones,
                     map: map,
-                    preserveViewport: true
+                    preserveViewport: true,
+                    suppressInfoWindows: true // Evita ventanas emergentes automáticas
                } );
           }
+
+          // Alternar visibilidad de la capa de CCTV
+          if ( kmlLayerRadaresFijos ) {
+               kmlLayerRadaresFijos.setMap( kmlLayerRadaresFijos.getMap() ? null : map );
+          } else {
+               kmlLayerRadaresFijos = new google.maps.KmlLayer( {
+                    url: radaresFijos,
+                    map: map,
+                    preserveViewport: true,
+                    suppressInfoWindows: true // Evita ventanas emergentes automáticas
+               } );
+          }
+
+          // Listeners para verificar el estado de las capas
           kmlLayerbajasEmisiones.addListener( 'status_changed', function () {
-               console.log( 'KML Layer status changed to: ' + kmlLayerbajasEmisiones.getStatus() );
+               console.log( 'KML Layer bajasEmisiones status changed to: ' + kmlLayerbajasEmisiones.getStatus() );
+          } );
+          kmlLayerRadaresFijos.addListener( 'status_changed', function () {
+               console.log( 'KML Layer Radares Fijos status changed to: ' + kmlLayerRadaresFijos.getStatus() );
           } );
      }
 
-
      const botonbajasEmisiones = document.getElementById( 'traffic-sub-nav-item' );
 
-     // Vincular el controlador de eventos al nuevo botón de cámaras de tráfico
-     botonbajasEmisiones.addEventListener( 'click', toggleKmlLayerbajasEmisiones );
+     // Vincular el controlador de eventos al botón para manejar ambas capas
+     botonbajasEmisiones.addEventListener( 'click', toggleKmlLayers );
+
 
 
 
@@ -1750,6 +1950,12 @@ function initMap() {
 
      // URL para el marcador de Air Quality Stations
      const urlMarkerAirQuality = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Environment/Fiware_EnvAndSust_AirQualityStations-00001?sp=r&st=2024-04-01T12:52:31Z&se=2090-01-01T21:52:31Z&sv=2022-11-02&sr=b&sig=nykV2ypz1eiG3UtGZqKX%2B4M9aFzAayeAmI6Id42pg4w%3D";
+
+     // URL de la capa KML de residuos peligrosos
+const urlKmlResiduosPeligrosos = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Environment/Residuos_Peligrosos._Comunidad_de_Madrid..kml?sp=r&st=2024-03-19T21:58:39Z&se=2090-01-01T05:58:39Z&sv=2022-11-02&sr=b&sig=YholeRFpXhE%2B1Iwe3I0rILPDtAG0WD6qI2OUbZ6RokU%3D";
+
+// Variable para mantener la capa KML de residuos peligrosos
+let kmlLayerResiduosPeligrosos = null;
      const cargarYMostrarMarcadoresAirQuality = async ( url ) => {
           try {
                const response = await fetch( url );
@@ -1810,6 +2016,22 @@ function initMap() {
 
      // Estado de visibilidad para los marcadores de Air Quality Stations
      let airQualityMarkersVisible = false;
+     let residuosPeligrososLayerVisible = false;
+
+     // Función para cargar la capa KML de residuos peligrosos
+const cargarCapaKmlResiduosPeligrosos = () => {
+     if (!kmlLayerResiduosPeligrosos) {
+         kmlLayerResiduosPeligrosos = new google.maps.KmlLayer({
+             url: urlKmlResiduosPeligrosos,
+             map: map,
+             preserveViewport: true
+         });
+         console.log("Capa KML de residuos peligrosos cargada.");
+     } else {
+         kmlLayerResiduosPeligrosos.setMap(kmlLayerResiduosPeligrosos.getMap() ? null : map);
+         console.log("Capa KML de residuos peligrosos alternada.");
+     }
+ };
 
      botonEnvironment.addEventListener( 'click', async () => {
           // Alternar la visibilidad de los marcadores de Air Quality Stations
@@ -1820,6 +2042,8 @@ function initMap() {
           if ( markersAirQuality.length === 0 && airQualityMarkersVisible ) {
                await cargarYMostrarMarcadoresAirQuality( urlMarkerAirQuality );
           }
+
+          cargarCapaKmlResiduosPeligrosos()
      } );
 
 
@@ -2924,6 +3148,7 @@ function initMap() {
           iniciarTaxiEnMapa( 12, './assets/taxi_Qubo.svg', 'Taxi 12', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_22.json?sp=r&st=2024-05-15T13:34:57Z&se=2090-01-01T22:34:57Z&sv=2022-11-02&sr=b&sig=lKKeD5irdWvgQiWTyH%2FKiqbB8%2BjUjT2DWRl3YCsHqns%3D' );
           iniciarTaxiEnMapa( 13, './assets/taxi_Qubo.svg', 'Taxi 13', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_23.json?sp=r&st=2024-05-15T13:35:17Z&se=2090-01-01T22:35:17Z&sv=2022-11-02&sr=b&sig=kFe1qCr%2Fw%2F4oihwBQB%2B1GNHvgKFkozDfzWxxXBS4yvI%3D' );
           iniciarTaxiEnMapa( 14, './assets/taxi_Qubo.svg', 'Taxi 14', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_24.json?sp=r&st=2024-05-15T13:35:34Z&se=2090-01-01T22:35:34Z&sv=2022-11-02&sr=b&sig=mXSP7BflqkYkIPNPR5tijhSoZ8bCm5wkXVbk0SzW3DA%3D' );
+
      } );
 
 
@@ -2931,116 +3156,257 @@ function initMap() {
 
      //************************************************************ */
      //!Función para Marcadores VTC's
+     // const marcadoresVTC = {};
+     // function iniciarMarcadorVTC( iconUrl, title, apiUrl ) {
+     //      // Verificar si el marcador ya existe
+     //      if ( marcadoresVTC[ title ] ) {
+     //           // Si el marcador ya existe, detener el movimiento y eliminar el marcador
+     //           clearInterval( marcadoresVTC[ title ].intervaloId );
+     //           marcadoresVTC[ title ].marker.setMap( null );
+     //           delete marcadoresVTC[ title ]; // Eliminar el marcador del objeto
+     //           return; // Salir de la función
+     //      }
+
+     //      // Crear el marcador para el VTC
+     //      const vtcMarker = new google.maps.Marker( {
+     //           map: map,
+     //           title: title,
+     //           icon: iconUrl,
+     //      } );
+
+     //      // Función para obtener las coordenadas del VTC de la API y mover el marcador
+     //      function obtenerYmoverVTC() {
+     //           fetch( apiUrl )
+     //                .then( response => response.json() )
+     //                .then( data => {
+     //                     // Asegurarse de que los datos están en el formato esperado
+     //                     if ( data.features && data.features[ 0 ].geometry.coordinates ) {
+     //                          const coordenadas = data.features[ 0 ].geometry.coordinates;
+
+     //                          // Mover el marcador del VTC con las coordenadas obtenidas
+     //                          iniciarMovimientoMarcador( vtcMarker, coordenadas, 2000 );
+
+     //                          // Almacenar los datos del VTC en el objeto marcadoresVTC
+     //                          marcadoresVTC[ title ].datosVTC = data.features[ 0 ].properties;
+     //                     } else {
+     //                          console.error( 'Los datos del VTC no tienen el formato esperado:', data );
+     //                     }
+     //                } )
+     //                .catch( error => console.error( 'Error al obtener coordenadas del VTC:', error ) );
+     //      }
+
+     //      // Iniciar el proceso de mover el VTC
+     //      obtenerYmoverVTC();
+
+     //      // Almacenar el marcador y su intervalo en el objeto marcadoresVTC
+     //      marcadoresVTC[ title ] = {
+     //           marker: vtcMarker,
+     //           intervaloId: null, // Aquí deberías almacenar el ID del intervalo si estás usando setInterval para mover el marcador
+     //           datosVTC: null // Almacenar los datos del VTC aquí
+     //      };
+
+     //      // Añadir un evento click al marcador del VTC para mostrar información
+     //      vtcMarker.addListener( "click", function () {
+     //           const infoBox = document.querySelector( ".info-box" );
+     //           infoBox.style.display = "flex";
+     //           const datosVTC = marcadoresVTC[ title ].datosVTC;
+     //           infoBox.innerHTML = `
+     //                     <p>Nombre: ${ datosVTC.nombre }</p>
+     //                     <p>Estado: ${ datosVTC.Estado }</p>
+     //                     <p>Matricula: ${ datosVTC.Matricula }</p>
+     //                     <p>Conductor: ${ datosVTC.Conductor }</p>
+     //                     <button id="cerrar-info-box">
+     //                          <img src="./assets/botonCerrar.svg" alt="Cerrar">
+     //                     </button>
+     //                `;
+     //           document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
+     //                infoBox.style.display = "none";
+     //           } );
+     //      } );
+     // }
+
+     function iniciarMovimientoMarcadorVTC( marker, coordinates, interval, isGeoJSON = false ) {
+          let index = 0;
+          const totalCoords = coordinates.length;
+
+          const intervalId = setInterval( () => {
+               if ( isGeoJSON ) {
+                    // Si es GeoJSON, las coordenadas vienen en [lng, lat]
+                    marker.setPosition( new google.maps.LatLng( coordinates[ index ][ 1 ], coordinates[ index ][ 0 ] ) );
+               } else {
+                    // Si es JSON regular, las coordenadas vienen en {lat, lng}
+                    marker.setPosition( new google.maps.LatLng( coordinates[ index ].lat, coordinates[ index ].lng ) );
+               }
+
+               index++;
+
+               if ( index >= totalCoords ) {
+                    clearInterval( intervalId ); // Detener el movimiento al final de las coordenadas
+               }
+          }, interval );
+
+          return intervalId;
+     }
+
      const marcadoresVTC = {};
+
      function iniciarMarcadorVTC( iconUrl, title, apiUrl ) {
           // Verificar si el marcador ya existe
           if ( marcadoresVTC[ title ] ) {
-               // Si el marcador ya existe, detener el movimiento y eliminar el marcador
                clearInterval( marcadoresVTC[ title ].intervaloId );
                marcadoresVTC[ title ].marker.setMap( null );
                delete marcadoresVTC[ title ]; // Eliminar el marcador del objeto
                return; // Salir de la función
           }
 
-          // Crear el marcador para el VTC
           const vtcMarker = new google.maps.Marker( {
                map: map,
                title: title,
                icon: iconUrl,
           } );
 
-          // Función para obtener las coordenadas del VTC de la API y mover el marcador
           function obtenerYmoverVTC() {
                fetch( apiUrl )
                     .then( response => response.json() )
                     .then( data => {
-                         // Asegurarse de que los datos están en el formato esperado
+                         let coordenadas;
+                         let datosVTC;
+                         let isGeoJSON = false;
+
                          if ( data.features && data.features[ 0 ].geometry.coordinates ) {
-                              const coordenadas = data.features[ 0 ].geometry.coordinates;
-
-                              // Mover el marcador del VTC con las coordenadas obtenidas
-                              iniciarMovimientoMarcador( vtcMarker, coordenadas, 2000 );
-
-                              // Almacenar los datos del VTC en el objeto marcadoresVTC
-                              marcadoresVTC[ title ].datosVTC = data.features[ 0 ].properties;
+                              // Formato GeoJSON
+                              coordenadas = data.features[ 0 ].geometry.coordinates;
+                              datosVTC = data.features[ 0 ].properties;
+                              isGeoJSON = true;
+                         } else if ( data.Coordenadas ) {
+                              // Nuevo formato JSON
+                              coordenadas = data.Coordenadas;
+                              datosVTC = data;
                          } else {
-                              console.error( 'Los datos del VTC no tienen el formato esperado:', data );
+                              console.error( "El formato de los datos no es válido" );
+                              return;
                          }
+
+                         const intervaloId = iniciarMovimientoMarcadorVTC( vtcMarker, coordenadas, 2000, isGeoJSON );
+
+                         marcadoresVTC[ title ] = {
+                              marker: vtcMarker,
+                              intervaloId: intervaloId,
+                              datosVTC: datosVTC,
+                         };
+
+                         vtcMarker.addListener( "click", function () {
+                              const infoBox = document.querySelector( ".info-box" );
+                              infoBox.style.display = "flex";
+                              const datosVTC = marcadoresVTC[ title ].datosVTC;
+
+                              if ( datosVTC.Empresa ) {
+                                   // Nuevo formato JSON
+                                   infoBox.innerHTML = `
+                                  <img style="width: 450px;height: 450px;" src="${ datosVTC.ImagenURL }" alt="Imagen VTC"/>
+                                  <div><strong>Empresa:</strong> ${ datosVTC.Empresa }</div>
+                                  <div><strong>Estado:</strong> ${ datosVTC.Estado }</div>
+                                  <div><strong>Matrícula:</strong> ${ datosVTC.Matricula }</div>
+                                  <div><strong>Licencia:</strong> ${ datosVTC.Licencia }</div>
+                                  <div><strong>Ocupantes Máx:</strong> ${ datosVTC[ "Numero max de ocupantes" ] }</div>
+                                  <button id="cerrar-info-box">
+                                      <img src="./assets/botonCerrar.svg" alt="Cerrar">
+                                  </button>
+                              `;
+                              } else {
+                                   // Formato GeoJSON
+                                   infoBox.innerHTML = `
+                                  <div><strong>Nombre:</strong> ${ datosVTC.nombre }</div>
+                                  <div><strong>Estado:</strong> ${ datosVTC.Estado }</div>
+                                  <div><strong>Matrícula:</strong> ${ datosVTC.Matricula }</div>
+                                  <div><strong>Conductor:</strong> ${ datosVTC.Conductor }</div>
+                                  <button id="cerrar-info-box">
+                                      <img src="./assets/botonCerrar.svg" alt="Cerrar">
+                                  </button>
+                              `;
+                              }
+
+                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
+                                   infoBox.style.display = "none";
+                              } );
+                         } );
                     } )
-                    .catch( error => console.error( 'Error al obtener coordenadas del VTC:', error ) );
+                    .catch( error => console.error( "Error al obtener coordenadas del VTC:", error ) );
           }
 
-          // Iniciar el proceso de mover el VTC
           obtenerYmoverVTC();
-
-          // Almacenar el marcador y su intervalo en el objeto marcadoresVTC
-          marcadoresVTC[ title ] = {
-               marker: vtcMarker,
-               intervaloId: null, // Aquí deberías almacenar el ID del intervalo si estás usando setInterval para mover el marcador
-               datosVTC: null // Almacenar los datos del VTC aquí
-          };
-
-          // Añadir un evento click al marcador del VTC para mostrar información
-          vtcMarker.addListener( "click", function () {
-               const infoBox = document.querySelector( ".info-box" );
-               infoBox.style.display = "flex";
-               const datosVTC = marcadoresVTC[ title ].datosVTC;
-               infoBox.innerHTML = `
-                         <p>Nombre: ${ datosVTC.nombre }</p>
-                         <p>Estado: ${ datosVTC.Estado }</p>
-                         <p>Matricula: ${ datosVTC.Matricula }</p>
-                         <p>Conductor: ${ datosVTC.Conductor }</p>
-                         <button id="cerrar-info-box">
-                              <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                         </button>
-                    `;
-               document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                    infoBox.style.display = "none";
-               } );
-          } );
      }
+
+
+
+
      // Modificar el evento del botón para manejar todos los marcadores
      const eventVTC = document.getElementById( "vtc-sub-nav-item" );
      eventVTC.addEventListener( 'click', function () {
           // Ejemplo de cómo llamar a la función genérica para cada VTC
-          const vtc1IconUrl = "./assets/vtc_Qubo.svg";
-          const vtc1Title = "VTC MockApi 1";
-          const vtc1ApiUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%201.geojson?sp=r&st=2024-04-01T16:22:01Z&se=2090-01-01T01:22:01Z&sv=2022-11-02&sr=b&sig=8i9smCqqzKHcPPwhxMn%2FpLB0xts8%2B1qJi6yBASFzwlY%3D';
-          iniciarMarcadorVTC( vtc1IconUrl, vtc1Title, vtc1ApiUrl );
+          // const vtc1IconUrl = "./assets/vtc_Qubo.svg";
+          // const vtc1Title = "VTC MockApi 1";
+          // const vtc1ApiUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%201.geojson?sp=r&st=2024-04-01T16:22:01Z&se=2090-01-01T01:22:01Z&sv=2022-11-02&sr=b&sig=8i9smCqqzKHcPPwhxMn%2FpLB0xts8%2B1qJi6yBASFzwlY%3D';
+          // iniciarMarcadorVTC( vtc1IconUrl, vtc1Title, vtc1ApiUrl );
 
-          const vtc2IconUrl = "./assets/vtc_Qubo.svg";
-          const vtc2Title = "VTC MockApi 2";
-          const vtc2ApiUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%202.geojson?sp=r&st=2024-04-01T16:34:25Z&se=2090-01-01T01:34:25Z&sv=2022-11-02&sr=b&sig=5u9j0ygTWCeU6SCuyHRvbBCcH8bE2%2ByrTTCoPPCgBQ8%3D';
-          iniciarMarcadorVTC( vtc2IconUrl, vtc2Title, vtc2ApiUrl );
+          // const vtc2IconUrl = "./assets/vtc_Qubo.svg";
+          // const vtc2Title = "VTC MockApi 2";
+          // const vtc2ApiUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%202.geojson?sp=r&st=2024-04-01T16:34:25Z&se=2090-01-01T01:34:25Z&sv=2022-11-02&sr=b&sig=5u9j0ygTWCeU6SCuyHRvbBCcH8bE2%2ByrTTCoPPCgBQ8%3D';
+          // iniciarMarcadorVTC( vtc2IconUrl, vtc2Title, vtc2ApiUrl );
 
-          const vtc3IconUrl = "./assets/vtc_Qubo.svg";
-          const vtc3Title = "VTC 3";
-          const vtc3ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%203.geojson?sp=r&st=2024-04-01T16:36:07Z&se=2090-01-01T01:36:07Z&sv=2022-11-02&sr=b&sig=eN6tTU8vWB%2F%2BC7E2DqfiG87cqwGXPLgBJ5zWg9X6plE%3D";
-          iniciarMarcadorVTC( vtc3IconUrl, vtc3Title, vtc3ApiUrl );
-
-
-          const vtc4IconUrl = "./assets/vtc_Qubo.svg";
-          const vtc4Title = "VTC 4";
-          const vtc4ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%204.geojson?sp=r&st=2024-04-01T16:37:12Z&se=2090-01-01T01:37:12Z&sv=2022-11-02&sr=b&sig=uCmFmLdScuPNmZBgLBQZ3uD4EaUb%2B4hIKdH4xVi5RAY%3D";
-          iniciarMarcadorVTC( vtc4IconUrl, vtc4Title, vtc4ApiUrl );
+          // const vtc3IconUrl = "./assets/vtc_Qubo.svg";
+          // const vtc3Title = "VTC 3";
+          // const vtc3ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%203.geojson?sp=r&st=2024-04-01T16:36:07Z&se=2090-01-01T01:36:07Z&sv=2022-11-02&sr=b&sig=eN6tTU8vWB%2F%2BC7E2DqfiG87cqwGXPLgBJ5zWg9X6plE%3D";
+          // iniciarMarcadorVTC( vtc3IconUrl, vtc3Title, vtc3ApiUrl );
 
 
-          const vtc5IconUrl = "./assets/vtc_Qubo.svg";
-          const vtc5Title = "VTC 5";
-          const vtc5ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%205.geojson?sp=r&st=2024-04-01T16:38:08Z&se=2090-01-01T01:38:08Z&sv=2022-11-02&sr=b&sig=x8pfs1PLuDZjgtINnVOqbTO9vzRE33EHxD67%2BYbSNkg%3D";
-          iniciarMarcadorVTC( vtc5IconUrl, vtc5Title, vtc5ApiUrl );
+          // const vtc4IconUrl = "./assets/vtc_Qubo.svg";
+          // const vtc4Title = "VTC 4";
+          // const vtc4ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%204.geojson?sp=r&st=2024-04-01T16:37:12Z&se=2090-01-01T01:37:12Z&sv=2022-11-02&sr=b&sig=uCmFmLdScuPNmZBgLBQZ3uD4EaUb%2B4hIKdH4xVi5RAY%3D";
+          // iniciarMarcadorVTC( vtc4IconUrl, vtc4Title, vtc4ApiUrl );
 
 
-          const vtc6IconUrl = "./assets/vtc_Qubo.svg";
-          const vtc6Title = "VTC 6";
-          const vtc6ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%206.geojson?sp=r&st=2024-04-01T16:39:00Z&se=2090-01-01T01:39:00Z&sv=2022-11-02&sr=b&sig=eaPCFUz7tvckkG2ioIi1KPD4UhXsmwE53kYi4pOCAf4%3D";
-          iniciarMarcadorVTC( vtc6IconUrl, vtc6Title, vtc6ApiUrl );
+          // const vtc5IconUrl = "./assets/vtc_Qubo.svg";
+          // const vtc5Title = "VTC 5";
+          // const vtc5ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%205.geojson?sp=r&st=2024-04-01T16:38:08Z&se=2090-01-01T01:38:08Z&sv=2022-11-02&sr=b&sig=x8pfs1PLuDZjgtINnVOqbTO9vzRE33EHxD67%2BYbSNkg%3D";
+          // iniciarMarcadorVTC( vtc5IconUrl, vtc5Title, vtc5ApiUrl );
 
 
-          const vtc7IconUrl = "./assets/vtc_Qubo.svg";
-          const vtc7Title = "VTC 7";
-          const vtc7ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%207.geojson?sp=r&st=2024-04-01T16:40:45Z&se=2090-01-01T01:40:45Z&sv=2022-11-02&sr=b&sig=E75BsxaSAzX7Qht92U5zjNiSLEogxSqwMFDTXl07ErU%3D";
-          iniciarMarcadorVTC( vtc7IconUrl, vtc7Title, vtc7ApiUrl );
+          // const vtc6IconUrl = "./assets/vtc_Qubo.svg";
+          // const vtc6Title = "VTC 6";
+          // const vtc6ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%206.geojson?sp=r&st=2024-04-01T16:39:00Z&se=2090-01-01T01:39:00Z&sv=2022-11-02&sr=b&sig=eaPCFUz7tvckkG2ioIi1KPD4UhXsmwE53kYi4pOCAf4%3D";
+          // iniciarMarcadorVTC( vtc6IconUrl, vtc6Title, vtc6ApiUrl );
+
+
+          // const vtc7IconUrl = "./assets/vtc_Qubo.svg";
+          // const vtc7Title = "VTC 7";
+          // const vtc7ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%207.geojson?sp=r&st=2024-04-01T16:40:45Z&se=2090-01-01T01:40:45Z&sv=2022-11-02&sr=b&sig=E75BsxaSAzX7Qht92U5zjNiSLEogxSqwMFDTXl07ErU%3D";
+          // iniciarMarcadorVTC( vtc7IconUrl, vtc7Title, vtc7ApiUrl );
+
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC MockApi 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%201.geojson?sp=r&st=2024-04-01T16:22:01Z&se=2090-01-01T01:22:01Z&sv=2022-11-02&sr=b&sig=8i9smCqqzKHcPPwhxMn%2FpLB0xts8%2B1qJi6yBASFzwlY%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC MockApi 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%202.geojson?sp=r&st=2024-04-01T16:34:25Z&se=2090-01-01T01:34:25Z&sv=2022-11-02&sr=b&sig=5u9j0ygTWCeU6SCuyHRvbBCcH8bE2%2ByrTTCoPPCgBQ8%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%203.geojson?sp=r&st=2024-04-01T16:36:07Z&se=2090-01-01T01:36:07Z&sv=2022-11-02&sr=b&sig=eN6tTU8vWB%2F%2BC7E2DqfiG87cqwGXPLgBJ5zWg9X6plE%3D' );
+
+
+          // VTCs con el nuevo formato
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 11', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_11.json?sp=r&st=2024-05-05T13:12:33Z&se=2090-01-01T22:12:33Z&sv=2022-11-02&sr=b&sig=w%2FYVsXhiwaQtg1Be9yZ%2F3HVrXcywSst4NcuM6c6P9Fc%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 12', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_12.json?sp=r&st=2024-05-05T13:13:14Z&se=2090-01-01T22:13:14Z&sv=2022-11-02&sr=b&sig=GKR2K8XPg5CLgJbNFp3fXrK1myqdALzu1%2FoONe4LUbc%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 13', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_13.json?sp=r&st=2024-05-05T13:13:31Z&se=2090-01-01T22:13:31Z&sv=2022-11-02&sr=b&sig=VSkwowOd6%2Fi5SDoVYrATfMIHHRAf1Yvi6iqgg12zhM8%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 14', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_14.json?sp=r&st=2024-05-05T13:13:46Z&se=2090-01-01T22:13:46Z&sv=2022-11-02&sr=b&sig=4X4SajK%2FiUDLr7OzIWxL9VJ%2FaqE57N0riS9E9trD%2FMs%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 15', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_15.json?sp=r&st=2024-05-05T13:14:01Z&se=2090-01-01T22:14:01Z&sv=2022-11-02&sr=b&sig=8EOBHT419vcluh%2BYj8OhlpzR%2BrSeF5mKlHuzXowwC8U%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 16', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_16.json?sp=r&st=2024-05-05T13:14:17Z&se=2090-01-01T22:14:17Z&sv=2022-11-02&sr=b&sig=RZWTLUfgUFcONifaFNpVgk4yFcRtj0semoCEvWhiiNE%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 17', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_17.json?sp=r&st=2024-05-05T13:14:34Z&se=2090-01-01T22:14:34Z&sv=2022-11-02&sr=b&sig=0OGg5qCHOQ7wpJnr%2FLKDWr9MpFlnSjV%2Fq1ynPwwIyNs%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 18', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_18.json?sp=r&st=2024-05-05T13:14:48Z&se=2090-01-01T22:14:48Z&sv=2022-11-02&sr=b&sig=d4aNlpmXBYYjM5SjXzcxq5eqHoMv5KwPUlbavKp8NQs%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 19', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_19.json?sp=r&st=2024-05-05T13:15:04Z&se=2090-01-01T22:15:04Z&sv=2022-11-02&sr=b&sig=%2FelIJMkM9c%2F5hxEUePDvF2xnB%2B%2B6TTOPnPjFv1XreiY%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 20', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_20.json?sp=r&st=2024-05-05T13:15:19Z&se=2090-01-01T22:15:19Z&sv=2022-11-02&sr=b&sig=MoU91DtxmF%2FZsRILq5XQ43FlGB%2FJRpQshsTz7%2FbWhdg%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 21', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_21.json?sp=r&st=2024-05-05T13:15:35Z&se=2090-01-01T22:15:35Z&sv=2022-11-02&sr=b&sig=2gNq4Kr812ev1xFnYTckHVcn%2BUroyrmBItyoKz9h6MQ%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 22', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_22.json?sp=r&st=2024-05-05T13:15:54Z&se=2090-01-01T22:15:54Z&sv=2022-11-02&sr=b&sig=mW62af88nIVk%2FpSy3xdMwOpr4copLXBM%2FZCo4S3ezrU%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 23', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_23.json?sp=r&st=2024-05-05T13:16:09Z&se=2090-01-01T22:16:09Z&sv=2022-11-02&sr=b&sig=qAz4epH5kHVGKa6vBuOyuqdq6DfN7lcBaB5ZaViikPc%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 24', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_24.json?sp=r&st=2024-05-05T13:16:26Z&se=2090-01-01T22:16:26Z&sv=2022-11-02&sr=b&sig=uW5xgdEaGnYywvIUSkMWw0WycSMOqQjNU%2FCR%2FyQ2fOk%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 25', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_25.json?sp=r&st=2024-05-05T13:16:43Z&se=2090-01-01T22:16:43Z&sv=2022-11-02&sr=b&sig=%2F6eFUu5FvaCNsWDDxZbDPyijoNfG6Urr8s4BK5HXC7E%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 26', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_26.json?sp=r&st=2024-05-05T13:16:57Z&se=2090-01-01T22:16:57Z&sv=2022-11-02&sr=b&sig=IHhxq1zeMRyGhAeZwQOhItLHh0I%2FqJCqSzpCSHGI0sw%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 27', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_27.json?sp=r&st=2024-05-05T13:17:12Z&se=2090-01-01T22:17:12Z&sv=2022-11-02&sr=b&sig=nt24LXOsDSgmy7z098Ob2M6jVJjBgTtROundB6xx6HA%3D' );
+          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 28', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_28.json?sp=r&st=2024-05-05T13:17:28Z&se=2090-01-01T22:17:28Z&sv=2022-11-02&sr=b&sig=bzFt3CAgETIuFjvHUwVAYhN9Krw4eAvwGkHWlWzvWCU%3D' );
      } );
 
 
@@ -4253,6 +4619,7 @@ function initMap() {
           iniciarMarcadorPolicia( 9, './assets/digitalTwinPolice.svg', 'Vehículo Policía Municipal 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%208.json?sp=r&st=2024-04-13T11:58:27Z&se=2090-01-01T20:58:27Z&sv=2022-11-02&sr=b&sig=wl0B5fWxbJLJJejTWsNXXivpjecPXAzJw%2BhvnOjIFDk%3D' );
           iniciarMarcadorPolicia( 10, './assets/digitalTwinPolice.svg', 'Vehículo Policía Municipal 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%209.json?sp=r&st=2024-04-13T12:02:51Z&se=2090-01-01T21:02:51Z&sv=2022-11-02&sr=b&sig=CiaYAd3FyHedPAx9WB3C6f8beIllF%2FJNSpbFeQetKXw%3D' );
           iniciarMarcadorPolicia( 11, './assets/digitalTwinPolice.svg', 'Vehículo Policía Municipal 9', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%2010.json?sp=r&st=2024-04-13T12:03:55Z&se=2090-01-01T21:03:55Z&sv=2022-11-02&sr=b&sig=Ycfix07DscFJARyiPtY0NJCTzVFSe3TZXwjWpV7fh5g%3D' );
+
      } );
 
 
@@ -4689,7 +5056,7 @@ function initMap() {
      //******************** TEST */
      // Variables para controlar el estado del viaje
      // let barcoFinalizado = false;
-     // let camiónIniciado = false;
+     // let camionIniciado = false;
 
      // let kmzLayerTrayectoShips = null;
      // let kmzLayerTrayectoTrucks = null;
@@ -4837,9 +5204,9 @@ function initMap() {
 
      // // Función para mover el camión después de que el barco haya terminado
      // function iniciarMovimientoCamion() {
-     //     if (barcoFinalizado && !camiónIniciado) {
+     //     if (barcoFinalizado && !camionIniciado) {
      //         // Marcar que el camión ha iniciado su movimiento
-     //         camiónIniciado = true;
+     //         camionIniciado = true;
 
      //         // Iniciar la capa KMZ del camión y el movimiento del camión
      //         toggleKMZLayerTrayectoTrucks();
@@ -4857,7 +5224,7 @@ function initMap() {
      //? ESTE ESTÁ MUY BIEN, VOLVER A ESTE SI ES NECESARIO
 
      // let barcoFinalizado = false;
-     // let camiónIniciado = false;
+     // let camionIniciado = false;
 
      // let kmzLayerTrayectoShips = null;
      // let kmzLayerTrayectoTrucks = null;
@@ -5092,8 +5459,8 @@ function initMap() {
 
      // // Función para mover el camión después de que el barco haya terminado
      // function iniciarMovimientoCamion() {
-     //     if (barcoFinalizado && !camiónIniciado) {
-     //         camiónIniciado = true;
+     //     if (barcoFinalizado && !camionIniciado) {
+     //         camionIniciado = true;
 
      //         toggleKMZLayerTrayectoTrucks();
      //         iniciarTruckEnMapa(1, './assets/truckQubo.svg', 'Logistics Truck 01', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/camion_fiware_mod1.json?sp=r&st=2024-08-20T10:31:15Z&se=2090-01-01T19:31:15Z&sv=2022-11-02&sr=b&sig=9a7e8ZgHM5m9C1ZiYuxyjPDUMorfdmRJm31WCR4NzHk%3D');
@@ -5111,7 +5478,7 @@ function initMap() {
      //! MEJOR
 
      // let barcoFinalizado = false;
-     // let camiónIniciado = false;
+     // let camionIniciado = false;
 
      // let kmzLayerTrayectoShips = null;
      // let kmzLayerTrayectoTrucks = null;
@@ -5275,7 +5642,7 @@ function initMap() {
      //         clearInterval(marcadoresTrucks[truckId].intervaloId);
      //         marcadoresTrucks[truckId].marker.setMap(null);
      //         delete marcadoresTrucks[truckId]; // Eliminar el marcador del objeto
-     //         camiónIniciado = false;
+     //         camionIniciado = false;
      //         return; // Salir de la función
      //     }
 
@@ -5347,8 +5714,8 @@ function initMap() {
 
      // // Función para mover el camión después de que el barco haya terminado
      // function iniciarMovimientoCamion() {
-     //     if (barcoFinalizado && !camiónIniciado) {
-     //         camiónIniciado = true;
+     //     if (barcoFinalizado && !camionIniciado) {
+     //         camionIniciado = true;
 
      //         // Marcar el botón de trucks como activo
      //         const eventTrucks = document.getElementById("trucks-sub-nav-item");
@@ -5370,20 +5737,438 @@ function initMap() {
      // // Evento para manejar el movimiento del camión
      // const eventTrucks = document.getElementById("trucks-sub-nav-item");
      // eventTrucks.addEventListener("click", function () {
-     //     if (camiónIniciado) {
+     //     if (camionIniciado) {
      //         toggleKMZLayerTrayectoTrucks();
      //         iniciarTruckEnMapa(1, './assets/truckQubo.svg', 'Logistics Truck 01', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/camion_fiware_mod1.json?sp=r&st=2024-08-20T10:31:15Z&se=2090-01-01T19:31:15Z&sv=2022-11-02&sr=b&sig=9a7e8ZgHM5m9C1ZiYuxyjPDUMorfdmRJm31WCR4NzHk%3D');
      //     }
      // });
 
+     //? VOLVER AQUÍ SI ES NECESARIO //?
+
+     // let barcoFinalizado = false;
+     // let camionIniciado = false;
+
+     // let kmzLayerTrayectoShips = null;
+     // let kmzLayerTrayectoTrucks = null;
+
+     // const marcadoresShips = {};
+     // const marcadoresTrucks = {};
+
+     // // Función para alternar la visibilidad de la capa KMZ para los Ships
+     // function toggleKMZLayerTrayectoShips() {
+     //      if ( kmzLayerTrayectoShips ) {
+     //           kmzLayerTrayectoShips.setMap( kmzLayerTrayectoShips.getMap() ? null : map );
+     //      } else {
+     //           kmzLayerTrayectoShips = new google.maps.KmlLayer( {
+     //                url: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/modified_tang_ale_minimal_change.kmz?sp=r&st=2024-08-25T11:06:21Z&se=2090-01-01T20:06:21Z&sv=2022-11-02&sr=b&sig=ee8VNVuRSEOfVPuzSCiLcOZGS8tPCQaTkjhlbW6Hs2w%3D",
+     //                map: map
+     //           } );
+     //           google.maps.event.addListener( kmzLayerTrayectoShips, 'status_changed', function () {
+     //                console.log( "KMZ Layer status:", kmzLayerTrayectoShips.getStatus() );
+     //           } );
+     //      }
+     // }
+
+     // // Función para alternar la visibilidad de la capa KMZ para los Trucks
+     // function toggleKMZLayerTrayectoTrucks() {
+     //      if ( kmzLayerTrayectoTrucks ) {
+     //           kmzLayerTrayectoTrucks.setMap( kmzLayerTrayectoTrucks.getMap() ? null : map );
+     //      } else {
+     //           kmzLayerTrayectoTrucks = new google.maps.KmlLayer( {
+     //                url: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/recorrido_camion.kmz?sp=r&st=2024-08-20T10:36:43Z&se=2090-01-01T19:36:43Z&sv=2022-11-02&sr=b&sig=17%2B4tRK6JTzNxSO7BSurPvjvAVJALezGO3X3CqtUzA0%3D",
+     //                map: map
+     //           } );
+     //           google.maps.event.addListener( kmzLayerTrayectoTrucks, 'status_changed', function () {
+     //                console.log( "KMZ Layer status:", kmzLayerTrayectoTrucks.getStatus() );
+     //           } );
+     //      }
+     // }
+
+     // // Función para mover el marcador del barco (Ship)
+     // function iniciarMovimientoMarcadorShip( marker, coordinates, interval, updateInfoBox ) {
+     //      let index = 0;
+     //      const totalCoords = coordinates.length;
+
+     //      const intervalId = setInterval( () => {
+     //           marker.setPosition( new google.maps.LatLng( coordinates[ index ].lat, coordinates[ index ].lng ) );
+     //           if ( updateInfoBox ) {
+     //                updateInfoBox( index ); // Actualiza el infobox con los datos de la coordenada actual
+     //           }
+
+     //           index++;
+
+     //           if ( index >= totalCoords ) {
+     //                clearInterval( intervalId ); // Detener el movimiento al final de las coordenadas
+     //                barcoFinalizado = true; // Indicar que el barco ha completado su viaje
+     //                iniciarMovimientoCamion(); // Iniciar el movimiento del camión
+     //           }
+     //      }, interval );
+
+     //      return intervalId;
+     // }
+
+     // // Función para iniciar el movimiento del barco
+     // function iniciarShipsEnMapa( shipsId, iconUrl, title, apiUrl ) {
+     //      if ( marcadoresShips[ shipsId ] ) {
+     //           clearInterval( marcadoresShips[ shipsId ].intervaloId );
+     //           marcadoresShips[ shipsId ].marker.setMap( null );
+     //           delete marcadoresShips[ shipsId ]; // Eliminar el marcador del objeto
+     //           return; // Salir de la función
+     //      }
+
+     //      const shipsMarker = new google.maps.Marker( {
+     //           map: map,
+     //           title: title,
+     //           icon: iconUrl,
+     //      } );
+
+     //      function obtenerYmoverShips() {
+     //           fetch( apiUrl )
+     //                .then( response => response.json() )
+     //                .then( data => {
+     //                     if ( data.location.coordinates && Array.isArray( data.location.coordinates ) ) {
+     //                          const coordenadas = data.location.coordinates.map( coord => ( {
+     //                               lat: parseFloat( coord.lat ),
+     //                               lng: parseFloat( coord.lng )
+     //                          } ) );
+
+     //                          function actualizarInfoBox( index ) {
+     //                               const coord = data.location.coordinates[ index ];
+     //                               const infoBox = document.querySelector( ".info-box-ships" );
+     //                               if ( infoBox ) {
+     //                                    infoBox.innerHTML = `
+     //                                    <div class='nameContainer'><strong>Ship Information</strong><strong>${ data.type }</strong></div>
+
+     //                                    <img src="${ data.ImagenURL }" alt="Imagen del Ship"/>
+     //                                    <div><strong>Name: </strong> ${ data.name }</div>
+     //                                    <div><strong>Model: </strong>${ data.model }</div>
+     //                                    <div><strong>Manufacturer: </strong> ${ data.manufacturer }</div>
+     //                                    <div><strong>Owner: </strong>${ data.owner.name } (${ data.owner.contact })</div>
+     //                                    <div><strong>Speed: </strong>${ coord.speed } knots</div>
+     //                                    <div><strong>Fuel Consumption: </strong>${ coord.fuelConsumption } L/100km</div>
+     //                                    <div><strong>Cumm. CO2 Emissions: </strong>${ coord.CummCO2emissions } kg</div>
+     //                                    <div><strong>Destination:</strong> ${ data.destination }</div>
+     //                                    <div><strong>Heading:</strong> ${ data.heading }</div>
+     //                                    <div><strong>Environmental Data:</strong></div>
+     //    <div><strong>Water Temperature: </strong>${ data.environmentalData.waterTemperature } °C</div>
+     //    <div><strong>Air Temperature:</strong> ${ data.environmentalData.airTemperature } °C</div>
+     //    <div><strong>Wind Speed: </strong>${ data.environmentalData.windSpeed } Km/h</div>
+     //    <div><strong>Wind Direction: </strong>${ data.environmentalData.windDirection }</div>
+     //    <div><strong>Current Direction: </strong>${ data.environmentalData.currentDirection }</div>
+     //    <div><strong>Current Speed: </strong>${ data.environmentalData.currentSpeed } knots</div>
+     //    <div><strong>Wave Height: </strong>${ data.environmentalData.waveHeight } m</div>
+
+     //    <div><strong>Engine Data:</strong></div>
+     //    <div><strong>Engine Status: </strong>${ data.engine.engineStatus }</div>
+     //    <div><strong>Engine Temperature: </strong>${ data.engine.engineTemperature } °C</div>
+     //    <div><strong>Fuel Level: </strong>${ data.engine.fuelLevel } %</div>
+     //    <div><strong>Fuel Consumption: </strong>${ data.engine.fuelConsumption } L/h</div>
+
+     //    <div><strong>Safety Information:</strong></div>
+     //    <div><strong>Life Jackets Available: </strong>${ data.safety.lifeJacketsAvailable }</div>
+     //    <div><strong>Fire Extinguishers Available: </strong>${ data.safety.fireExtinguishersAvailable }</div>
+     //    <div><strong>Emergency Contact: </strong>${ data.safety.emergencyContact }</div>
+     //    <div><strong>Distress Signal: </strong>${ data.safety.distressSignal }</div>
+
+     //    <div><strong>Operational Data:</strong></div>
+     //    <div><strong>Cargo Weight: </strong>${ data.operationalData.cargoWeight } kg</div>
+     //    <div><strong>Passenger Count: </strong>${ data.operationalData.passengerCount }</div>
+     //    <div><strong>Maintenance Status: </strong>${ data.operationalData.maintenanceStatus }</div>
+     //    <div><strong>Battery Level: </strong>${ data.operationalData.batteryLevel } %</div>
+
+     //    <div><strong>Communication:</strong></div>
+     //    <div><strong>Communication System Status: </strong>${ data.communication.communicationSystemStatus }</div>
+     //    <div><strong>Internet Connectivity: </strong>${ data.communication.internetConnectivity }</div>
+
+     //    <div><strong>Navigation:</strong></div>
+     //    <div><strong>Planned Route: </strong>${ data.navigation.plannedRoute }</div>
+     //    <div><strong>Waypoints:</strong></div>
+     //    ${ data.navigation.waypoints.map( waypoint => `
+     //        <div>Latitude: ${ waypoint.latitude }, Longitude: ${ waypoint.longitude }</div>
+     //    `).join( '' ) }
+     //    <div><strong>Estimated Arrival Time: </strong>${ data.navigation.estimatedArrivalTime }</div>
+     //                                    <button id="cerrar-info-box-ships"><img src="./assets/botonCerrar.svg" alt="Cerrar"></button>
+     //                               `;
+     //                                    document.getElementById( "cerrar-info-box-ships" ).addEventListener( "click", function () {
+     //                                         infoBox.style.display = "none";
+     //                                    } );
+     //                               } else {
+     //                                    console.error( 'No se encontró el elemento ".info-box-ships" en el DOM' );
+     //                               }
+     //                          }
+
+     //                          const intervaloId = iniciarMovimientoMarcadorShip( shipsMarker, coordenadas, 500, actualizarInfoBox );
+     //                          marcadoresShips[ shipsId ] = {
+     //                               marker: shipsMarker,
+     //                               intervaloId: intervaloId,
+     //                               datosShips: data
+     //                          };
+
+     //                          shipsMarker.addListener( "click", function () {
+     //                               const infoBox = document.querySelector( ".info-box-ships" );
+     //                               if ( infoBox ) {
+     //                                    infoBox.style.display = "flex";
+     //                                    actualizarInfoBox( 0 );
+     //                               }
+     //                          } );
+     //                     } else {
+     //                          console.error( 'Los datos del barco no tienen el formato esperado:', data );
+     //                     }
+     //                } )
+     //                .catch( error => console.error( 'Error al obtener coordenadas del barco:', error ) );
+     //      }
+
+     //      obtenerYmoverShips();
+     // }
+
+     // // Función para mover el marcador del camión (Truck)
+     // function iniciarMovimientoMarcadorTruck( marker, coordinates, interval, updateInfoBox ) {
+     //      let index = 0;
+     //      const totalCoords = coordinates.length;
+
+     //      const intervalId = setInterval( () => {
+     //           marker.setPosition( new google.maps.LatLng( coordinates[ index ].lat, coordinates[ index ].lng ) );
+     //           if ( updateInfoBox ) {
+     //                updateInfoBox( index ); // Actualiza el infobox con los datos de la coordenada actual
+     //           }
+
+     //           index++;
+
+     //           if ( index >= totalCoords ) {
+     //                clearInterval( intervalId ); // Detener el movimiento al final de las coordenadas
+     //           }
+     //      }, interval );
+
+     //      return intervalId;
+     // }
+
+     // // Función para iniciar y mover el camión en el mapa
+     // function iniciarTruckEnMapa( truckId, iconUrl, title, apiUrl ) {
+     //      const imgTruck = document.querySelector( "#trucks-sub-nav-item a img" );
+
+     //      if ( marcadoresTrucks[ truckId ] ) {
+     //           clearInterval( marcadoresTrucks[ truckId ].intervaloId );
+     //           marcadoresTrucks[ truckId ].marker.setMap( null );
+     //           delete marcadoresTrucks[ truckId ]; // Eliminar el marcador del objeto
+     //           camionIniciado = false;
+
+     //           // Quitar la clase que indica que el botón está activo
+     //           imgTruck.classList.remove( "activo" );
+     //           return; // Salir de la función
+     //      }
+
+     //      const truckMarker = new google.maps.Marker( {
+     //           map: map,
+     //           title: title,
+     //           icon: iconUrl,
+     //      } );
+
+     //      function obtenerYmoverTruck() {
+     //           fetch( apiUrl )
+     //                .then( response => response.json() )
+     //                .then( data => {
+     //                     if ( data.location.coordinates && Array.isArray( data.location.coordinates ) ) {
+     //                          const coordenadas = data.location.coordinates.map( coord => ( {
+     //                               lat: parseFloat( coord.lat ),
+     //                               lng: parseFloat( coord.lng )
+     //                          } ) );
+
+     //                          function actualizarInfoBox( index ) {
+     //                               const coord = data.location.coordinates[ index ];
+     //                               const infoBox = document.querySelector( ".info-box-trucks" );
+     //                               if ( infoBox ) {
+     //                                    infoBox.innerHTML = `
+     //                            <div><strong>Truck Information</strong></div>
+     //                            <img src="${ data.imagenURL }" alt="Imagen del Truck"/>
+     //                            <div>Name: ${ data.name }</div>
+     //                            <div>Model: ${ data.model }</div>
+     //                            <div>Manufacturer: ${ data.manufacturer }</div>
+     //                            <div>Owner: ${ data.owner.name } (${ data.owner.contact })</div>
+     //                            <div>Speed: ${ coord.speed } km/h</div>
+     //                            <div>Fuel Consumption: ${ coord.fuelConsumption } L/100km</div>
+     //                            <div>Cumm. CO2 Emissions: ${ coord.CummCO2emissions } kg</div>
+     //                            <div><strong>Destination:</strong> ${ data.destination }</div>
+     //                            <div><strong>Heading:</strong> ${ data.heading }</div>
+     //                            <button id="cerrar-info-box-trucks"><img src="./assets/botonCerrar.svg" alt="Cerrar"></button>
+     //                        `;
+     //                                    document.getElementById( "cerrar-info-box-trucks" ).addEventListener( "click", function () {
+     //                                         infoBox.style.display = "none";
+     //                                    } );
+     //                               } else {
+     //                                    console.error( 'No se encontró el elemento ".info-box-trucks" en el DOM' );
+     //                               }
+     //                          }
+
+     //                          const intervaloId = iniciarMovimientoMarcadorTruck( truckMarker, coordenadas, 500, actualizarInfoBox );
+     //                          marcadoresTrucks[ truckId ] = {
+     //                               marker: truckMarker,
+     //                               intervaloId: intervaloId,
+     //                               datosTruck: data
+     //                          };
+
+     //                          truckMarker.addListener( "click", function () {
+     //                               const infoBox = document.querySelector( ".info-box-trucks" );
+     //                               if ( infoBox ) {
+     //                                    infoBox.style.display = "flex";
+     //                                    actualizarInfoBox( 0 );
+     //                               }
+     //                          } );
+
+     //                          // Agregar la clase que indica que el botón está activo
+     //                          imgTruck.classList.add( "activo" );
+     //                     } else {
+     //                          console.error( 'Los datos del camión no tienen el formato esperado:', data );
+     //                     }
+     //                } )
+     //                .catch( error => console.error( 'Error al obtener coordenadas del camión:', error ) );
+     //      }
+
+     //      obtenerYmoverTruck();
+     // }
+
+     // // Función para mover el camión después de que el barco haya terminado
+     // function iniciarMovimientoCamion() {
+     //      if ( barcoFinalizado && !camionIniciado ) {
+     //           camionIniciado = true;
+
+     //           // Marcar el botón de trucks como activo
+     //           const imgTruck = document.querySelector( "#trucks-sub-nav-item a img" );
+     //           imgTruck.classList.add( "activo" );
+
+     //           // Llamar a la capa KMZ del camión y comenzar el movimiento
+     //           toggleKMZLayerTrayectoTrucks();
+     //           iniciarTruckEnMapa( 1, './assets/truckQubo.svg', 'Logistics Truck 01', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/camion_fiware_mod1.json?sp=r&st=2024-08-20T10:31:15Z&se=2090-01-01T19:31:15Z&sv=2022-11-02&sr=b&sig=9a7e8ZgHM5m9C1ZiYuxyjPDUMorfdmRJm31WCR4NzHk%3D' );
+     //      }
+     // }
+
+     // // Evento para iniciar el movimiento del barco
+     // const eventShips = document.getElementById( "ships-sub-nav-item" );
+     // eventShips.addEventListener( "click", function () {
+     //      toggleKMZLayerTrayectoShips();
+     //      iniciarShipsEnMapa( 1, './assets/shipsQubo.svg', 'Logistics Ship', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/ship.json?sp=r&st=2024-07-26T17:13:49Z&se=2090-01-01T02:13:49Z&sv=2022-11-02&sr=b&sig=B3GhjJFd%2FjJeGN46olFo9NWlu3Lu6le9eAycQhPO1s8%3D' );
+     // } );
+
+     // // Evento para manejar el movimiento del camión
+     // const eventTrucks = document.getElementById( "trucks-sub-nav-item" );
+     // eventTrucks.addEventListener( "click", function () {
+     //      const img = eventTrucks.querySelector( "a img" );
+
+     //      if ( camionIniciado ) {
+     //           if ( img.classList.contains( "activo" ) ) {
+     //                // Si ya está activo, desactivar y quitar el marcador
+     //                toggleKMZLayerTrayectoTrucks();
+     //                iniciarTruckEnMapa( 1, './assets/truckQubo.svg', 'Logistics Truck 01', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/camion_fiware_mod1.json?sp=r&st=2024-08-20T10:31:15Z&se=2090-01-01T19:31:15Z&sv=2022-11-02&sr=b&sig=9a7e8ZgHM5m9C1ZiYuxyjPDUMorfdmRJm31WCR4NzHk%3D' );
+     //           }
+     //      }
+     // } );
+
+
+     //???????????????????????????????????????????????????????????????????????????????
+     //! Función para marcador TRACKING
+
+
+     // let infoBoxPositionOffset = 0; // Controla la posición del siguiente info-box
+
+     // // Función para ajustar la posición de los info-boxes dinámicamente
+     // function ajustarPosicionInfoBox( infoBox ) {
+     //      infoBox.style.top = `${ infoBoxPositionOffset }px`; // Desplazamiento vertical
+     //      infoBox.style.left = `${ infoBoxPositionOffset }px`; // Desplazamiento horizontal
+     //      infoBoxPositionOffset += 30; // Incrementa el offset para el próximo info-box
+     // }
+     // const marcadoresTracking = {};
+
+     // function iniciarTrackingEnMapa( trackingId, iconUrl, title, apiUrl ) {
+     //      if ( marcadoresTracking[ trackingId ] ) {
+     //           clearInterval( marcadoresTracking[ trackingId ].intervaloId );
+     //           marcadoresTracking[ trackingId ].marker.setMap( null );
+     //           delete marcadoresTracking[ trackingId ];
+     //           return;
+     //      }
+
+     //      const trackingMarker = new google.maps.Marker( {
+     //           map: map,
+     //           title: title,
+     //           icon: iconUrl,
+     //      } );
+
+     //      function obtenerYmoverTracking() {
+     //           fetch( apiUrl )
+     //                .then( response => response.json() )
+     //                .then( data => {
+     //                     if ( data.currentLocation.coordinates && Array.isArray( data.currentLocation.coordinates ) ) {
+     //                          const coordenadas = data.currentLocation.coordinates.map( coord => ( {
+     //                               lat: parseFloat( coord.lat ),
+     //                               lng: parseFloat( coord.lng )
+     //                          } ) );
+
+     //                          function actualizarInfoBox( index ) {
+     //                               const coord = data.currentLocation.coordinates[ index ];
+     //                               const infoBox = document.querySelector( ".info-box-tracking" );
+     //                               infoBox.innerHTML = `
+     //                               <div><strong>Tracking Package</strong></div>
+     //                         <img src='./assets/staticTracking.png' alt="Imagen del Tracking"/>
+     //                        <div>Tracking Number: ${ data.trackingNumber }</div>
+     //                        <div>Description: ${ data.description }</div>
+     //                        <div>Dimensions: ${ data.dimensions.length } x ${ data.dimensions.width } x ${ data.dimensions.height } ${ data.dimensions.unit }</div>
+     //                        <div>Weight: ${ data.weight } kg</div>
+     //                        <div>Shipping Status: ${ data.shippingStatus }</div>
+     //                        <div><strong>Origin:</strong> ${ data.origin.name }, ${ data.origin.address.addressLocality }, ${ data.origin.address.addressRegion }, ${ data.origin.address.addressCountry }</div>
+     //                        <div><strong>Destination:</strong> ${ data.destination.name }, ${ data.destination.address.addressLocality }, ${ data.destination.address.addressRegion }, ${ data.destination.address.addressCountry }</div>
+     //                        <div><strong>Sender:</strong> ${ data.sender.name } (${ data.sender.contact }), ${ data.sender.address.addressLocality }, ${ data.sender.address.addressRegion }, ${ data.sender.address.addressCountry }</div>
+     //                        <div><strong>Recipient:</strong> ${ data.recipient.name } (${ data.recipient.contact }), ${ data.recipient.address.addressLocality }, ${ data.recipient.address.addressRegion }, ${ data.recipient.address.addressCountry }</div>
+     //                        <div><strong>Courier Company:</strong> ${ data.courier.courierCompany } (${ data.courier.courierContact })</div>
+     //                        <div><strong>Special Handling Instructions:</strong> ${ data.handlingRequirements.specialHandlingInstructions }</div>
+     //                        <div><strong>Estimated Delivery:</strong> ${ new Date( data.estimatedDeliveryDate ).toLocaleString() }</div>
+     //                        <div><strong>Shipped Date:</strong> ${ new Date( data.shippedDate ).toLocaleString() }</div>
+     //                        <div>Speed: ${ coord.speed } km/h</div>
+     //                        <div>Fuel Consumption: ${ coord.fuelConsumption } L/100km</div>
+     //                        <div>Cumm. CO2 Emissions: ${ coord.CummCO2emissions } kg</div>
+     //                        <button id="cerrar-info-box-tracking">
+     //                            <img src="./assets/botonCerrar.svg" alt="Cerrar">
+     //                        </button>
+     //                    `;
+     //                               document.getElementById( "cerrar-info-box-tracking" ).addEventListener( "click", function () {
+     //                                    infoBox.style.display = "none";
+     //                               } );
+     //                          }
+
+     //                          const intervaloId = iniciarMovimientoMarcador( trackingMarker, coordenadas, 500, actualizarInfoBox );
+     //                          marcadoresTracking[ trackingId ] = {
+     //                               marker: trackingMarker,
+     //                               intervaloId: intervaloId,
+     //                               datosTracking: data
+     //                          };
+
+     //                          trackingMarker.addListener( "click", function () {
+     //                               const infoBox = document.querySelector( ".info-box-tracking" );
+     //                               infoBox.style.display = "flex";
+     //                               ajustarPosicionInfoBox( infoBox );
+     //                               actualizarInfoBox( 0 ); // Muestra los datos de la primera coordenada al hacer clic
+     //                          } );
+     //                     } else {
+     //                          console.error( 'Los datos del tracking no tienen el formato esperado:', data );
+     //                     }
+     //                } )
+     //                .catch( error => console.error( 'Error al obtener coordenadas del tracking:', error ) );
+     //      }
+
+     //      obtenerYmoverTracking();
+     // }
+     // const eventTracking = document.getElementById( "tracking-sub-nav-item" );
+     // eventTracking.addEventListener( "click", function () {
+     //      iniciarTrackingEnMapa( 1, './assets/tracking_Qubo_Small.svg', 'Tracking Package', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Tracking/paquete_fiware_mod1.json?sp=r&st=2024-08-20T10:34:28Z&se=2090-01-01T19:34:28Z&sv=2022-11-02&sr=b&sig=nGoZVlF9Rs8qA87k7J5PK3Mf%2B6Kc16hsJflCyFMdRWg%3D' );
+     // } );
+     //* ESTE VA BIEN, DEJAR SI EL OTRO NO VA *//
+     // Variables globales para el estado del barco y el camión
      let barcoFinalizado = false;
-     let camiónIniciado = false;
+     let camionIniciado = false;
 
      let kmzLayerTrayectoShips = null;
      let kmzLayerTrayectoTrucks = null;
 
      const marcadoresShips = {};
      const marcadoresTrucks = {};
+     const marcadoresTracking = {};
 
      // Función para alternar la visibilidad de la capa KMZ para los Ships
      function toggleKMZLayerTrayectoShips() {
@@ -5468,58 +6253,20 @@ function initMap() {
                                    const infoBox = document.querySelector( ".info-box-ships" );
                                    if ( infoBox ) {
                                         infoBox.innerHTML = `
-                                        <div class='nameContainer'><strong>Ship Information</strong><strong>${ data.type }</strong></div>
-
-                                        <img src="${ data.ImagenURL }" alt="Imagen del Ship"/>
-                                        <div><strong>Name: </strong> ${ data.name }</div>
-                                        <div><strong>Model: </strong>${ data.model }</div>
-                                        <div><strong>Manufacturer: </strong> ${ data.manufacturer }</div>
-                                        <div><strong>Owner: </strong>${ data.owner.name } (${ data.owner.contact })</div>
-                                        <div><strong>Speed: </strong>${ coord.speed } knots</div>
-                                        <div><strong>Fuel Consumption: </strong>${ coord.fuelConsumption } L/100km</div>
-                                        <div><strong>Cumm. CO2 Emissions: </strong>${ coord.CummCO2emissions } kg</div>
-                                        <div><strong>Destination:</strong> ${ data.destination }</div>
-                                        <div><strong>Heading:</strong> ${ data.heading }</div>
-                                        <div><strong>Environmental Data:</strong></div>
-        <div><strong>Water Temperature: </strong>${ data.environmentalData.waterTemperature } °C</div>
-        <div><strong>Air Temperature:</strong> ${ data.environmentalData.airTemperature } °C</div>
-        <div><strong>Wind Speed: </strong>${ data.environmentalData.windSpeed } Km/h</div>
-        <div><strong>Wind Direction: </strong>${ data.environmentalData.windDirection }</div>
-        <div><strong>Current Direction: </strong>${ data.environmentalData.currentDirection }</div>
-        <div><strong>Current Speed: </strong>${ data.environmentalData.currentSpeed } knots</div>
-        <div><strong>Wave Height: </strong>${ data.environmentalData.waveHeight } m</div>
-
-        <div><strong>Engine Data:</strong></div>
-        <div><strong>Engine Status: </strong>${ data.engine.engineStatus }</div>
-        <div><strong>Engine Temperature: </strong>${ data.engine.engineTemperature } °C</div>
-        <div><strong>Fuel Level: </strong>${ data.engine.fuelLevel } %</div>
-        <div><strong>Fuel Consumption: </strong>${ data.engine.fuelConsumption } L/h</div>
-
-        <div><strong>Safety Information:</strong></div>
-        <div><strong>Life Jackets Available: </strong>${ data.safety.lifeJacketsAvailable }</div>
-        <div><strong>Fire Extinguishers Available: </strong>${ data.safety.fireExtinguishersAvailable }</div>
-        <div><strong>Emergency Contact: </strong>${ data.safety.emergencyContact }</div>
-        <div><strong>Distress Signal: </strong>${ data.safety.distressSignal }</div>
-
-        <div><strong>Operational Data:</strong></div>
-        <div><strong>Cargo Weight: </strong>${ data.operationalData.cargoWeight } kg</div>
-        <div><strong>Passenger Count: </strong>${ data.operationalData.passengerCount }</div>
-        <div><strong>Maintenance Status: </strong>${ data.operationalData.maintenanceStatus }</div>
-        <div><strong>Battery Level: </strong>${ data.operationalData.batteryLevel } %</div>
-
-        <div><strong>Communication:</strong></div>
-        <div><strong>Communication System Status: </strong>${ data.communication.communicationSystemStatus }</div>
-        <div><strong>Internet Connectivity: </strong>${ data.communication.internetConnectivity }</div>
-
-        <div><strong>Navigation:</strong></div>
-        <div><strong>Planned Route: </strong>${ data.navigation.plannedRoute }</div>
-        <div><strong>Waypoints:</strong></div>
-        ${ data.navigation.waypoints.map( waypoint => `
-            <div>Latitude: ${ waypoint.latitude }, Longitude: ${ waypoint.longitude }</div>
-        `).join( '' ) }
-        <div><strong>Estimated Arrival Time: </strong>${ data.navigation.estimatedArrivalTime }</div>
-                                        <button id="cerrar-info-box-ships"><img src="./assets/botonCerrar.svg" alt="Cerrar"></button>
-                                   `;
+                                <div><strong>Ship Information</strong></div>
+                                <img src="${ data.ImagenURL }" alt="Imagen del Ship"/>
+                                <div>Tipo: ${ data.type }</div>
+                                <div>Name: ${ data.name }</div>
+                                <div>Model: ${ data.model }</div>
+                                <div>Manufacturer: ${ data.manufacturer }</div>
+                                <div>Owner: ${ data.owner.name } (${ data.owner.contact })</div>
+                                <div>Speed: ${ coord.speed } knots</div>
+                                <div>Fuel Consumption: ${ coord.fuelConsumption } L/100km</div>
+                                <div>Cumm. CO2 Emissions: ${ coord.CummCO2emissions } kg</div>
+                                <div><strong>Destination:</strong> ${ data.destination }</div>
+                                <div><strong>Heading:</strong> ${ data.heading }</div>
+                                <button id="cerrar-info-box-ships"><img src="./assets/botonCerrar.svg" alt="Cerrar"></button>
+                            `;
                                         document.getElementById( "cerrar-info-box-ships" ).addEventListener( "click", function () {
                                              infoBox.style.display = "none";
                                         } );
@@ -5581,7 +6328,7 @@ function initMap() {
                clearInterval( marcadoresTrucks[ truckId ].intervaloId );
                marcadoresTrucks[ truckId ].marker.setMap( null );
                delete marcadoresTrucks[ truckId ]; // Eliminar el marcador del objeto
-               camiónIniciado = false;
+               camionIniciado = false;
 
                // Quitar la clase que indica que el botón está activo
                imgTruck.classList.remove( "activo" );
@@ -5659,8 +6406,8 @@ function initMap() {
 
      // Función para mover el camión después de que el barco haya terminado
      function iniciarMovimientoCamion() {
-          if ( barcoFinalizado && !camiónIniciado ) {
-               camiónIniciado = true;
+          if ( barcoFinalizado && !camionIniciado ) {
+               camionIniciado = true;
 
                // Marcar el botón de trucks como activo
                const imgTruck = document.querySelector( "#trucks-sub-nav-item a img" );
@@ -5670,6 +6417,13 @@ function initMap() {
                toggleKMZLayerTrayectoTrucks();
                iniciarTruckEnMapa( 1, './assets/truckQubo.svg', 'Logistics Truck 01', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/camion_fiware_mod1.json?sp=r&st=2024-08-20T10:31:15Z&se=2090-01-01T19:31:15Z&sv=2022-11-02&sr=b&sig=9a7e8ZgHM5m9C1ZiYuxyjPDUMorfdmRJm31WCR4NzHk%3D' );
           }
+     }
+
+     // Función para iniciar el movimiento del paquete (Tracking) junto con el barco y el camión
+     function iniciarTrackingConBarcoYCamion( trackingId, iconUrl, title, apiUrl ) {
+          iniciarTrackingEnMapa( trackingId, iconUrl, title, apiUrl );
+          toggleKMZLayerTrayectoShips();
+          iniciarShipsEnMapa( 1, './assets/shipsQubo.svg', 'Logistics Ship', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/ship.json?sp=r&st=2024-07-26T17:13:49Z&se=2090-01-01T02:13:49Z&sv=2022-11-02&sr=b&sig=B3GhjJFd%2FjJeGN46olFo9NWlu3Lu6le9eAycQhPO1s8%3D' );
      }
 
      // Evento para iniciar el movimiento del barco
@@ -5684,32 +6438,44 @@ function initMap() {
      eventTrucks.addEventListener( "click", function () {
           const img = eventTrucks.querySelector( "a img" );
 
-          if ( camiónIniciado ) {
+          if ( camionIniciado ) {
                if ( img.classList.contains( "activo" ) ) {
                     // Si ya está activo, desactivar y quitar el marcador
                     toggleKMZLayerTrayectoTrucks();
                     iniciarTruckEnMapa( 1, './assets/truckQubo.svg', 'Logistics Truck 01', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/camion_fiware_mod1.json?sp=r&st=2024-08-20T10:31:15Z&se=2090-01-01T19:31:15Z&sv=2022-11-02&sr=b&sig=9a7e8ZgHM5m9C1ZiYuxyjPDUMorfdmRJm31WCR4NzHk%3D' );
+                    img.classList.remove( "activo" );
                }
           }
      } );
 
+     // Evento para iniciar el movimiento del paquete (Tracking)
+     const eventTracking = document.getElementById( "tracking-sub-nav-item" );
+     eventTracking.addEventListener( "click", function () {
+          iniciarTrackingConBarcoYCamion( 1, './assets/tracking_Qubo_Small.svg', 'Tracking Package', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Tracking/paquete_fiware_mod1.json?sp=r&st=2024-08-20T10:34:28Z&se=2090-01-01T19:34:28Z&sv=2022-11-02&sr=b&sig=nGoZVlF9Rs8qA87k7J5PK3Mf%2B6Kc16hsJflCyFMdRWg%3D' );
+     } );
 
-     //???????????????????????????????????????????????????????????????????????????????
-     //! Función para marcador TRACKING
+     // Función para mover el marcador del paquete (Tracking)
+     function iniciarMovimientoMarcador( marker, coordinates, interval, updateInfoBox ) {
+          let index = 0;
+          const totalCoords = coordinates.length;
 
+          const intervalId = setInterval( () => {
+               marker.setPosition( new google.maps.LatLng( coordinates[ index ].lat, coordinates[ index ].lng ) );
+               if ( updateInfoBox ) {
+                    updateInfoBox( index ); // Actualiza el infobox con los datos de la coordenada actual
+               }
 
-     //************************************************* */
+               index++;
 
-     let infoBoxPositionOffset = 0; // Controla la posición del siguiente info-box
+               if ( index >= totalCoords ) {
+                    clearInterval( intervalId ); // Detener el movimiento al final de las coordenadas
+               }
+          }, interval );
 
-     // Función para ajustar la posición de los info-boxes dinámicamente
-     function ajustarPosicionInfoBox( infoBox ) {
-          infoBox.style.top = `${ infoBoxPositionOffset }px`; // Desplazamiento vertical
-          infoBox.style.left = `${ infoBoxPositionOffset }px`; // Desplazamiento horizontal
-          infoBoxPositionOffset += 30; // Incrementa el offset para el próximo info-box
+          return intervalId;
      }
-     const marcadoresTracking = {};
 
+     // Función para iniciar y mover el paquete (Tracking) en el mapa
      function iniciarTrackingEnMapa( trackingId, iconUrl, title, apiUrl ) {
           if ( marcadoresTracking[ trackingId ] ) {
                clearInterval( marcadoresTracking[ trackingId ].intervaloId );
@@ -5738,8 +6504,8 @@ function initMap() {
                                    const coord = data.currentLocation.coordinates[ index ];
                                    const infoBox = document.querySelector( ".info-box-tracking" );
                                    infoBox.innerHTML = `
-                                   <div><strong>Tracking Package</strong></div>
-                             <img src='./assets/staticTracking.png' alt="Imagen del Tracking"/>
+                            <div><strong>Tracking Package</strong></div>
+                            <img src='./assets/staticTracking.png' alt="Imagen del Tracking"/>
                             <div>Tracking Number: ${ data.trackingNumber }</div>
                             <div>Description: ${ data.description }</div>
                             <div>Dimensions: ${ data.dimensions.length } x ${ data.dimensions.width } x ${ data.dimensions.height } ${ data.dimensions.unit }</div>
@@ -5775,7 +6541,6 @@ function initMap() {
                               trackingMarker.addListener( "click", function () {
                                    const infoBox = document.querySelector( ".info-box-tracking" );
                                    infoBox.style.display = "flex";
-                                   ajustarPosicionInfoBox( infoBox );
                                    actualizarInfoBox( 0 ); // Muestra los datos de la primera coordenada al hacer clic
                               } );
                          } else {
@@ -5787,10 +6552,241 @@ function initMap() {
 
           obtenerYmoverTracking();
      }
-     const eventTracking = document.getElementById( "tracking-sub-nav-item" );
-     eventTracking.addEventListener( "click", function () {
-          iniciarTrackingEnMapa( 1, './assets/tracking_Qubo_Small.svg', 'Tracking Package', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Tracking/paquete_fiware_mod1.json?sp=r&st=2024-08-20T10:34:28Z&se=2090-01-01T19:34:28Z&sv=2022-11-02&sr=b&sig=nGoZVlF9Rs8qA87k7J5PK3Mf%2B6Kc16hsJflCyFMdRWg%3D' );
+
+     //! Función para PACK LOCATION
+
+
+
+
+
+
+
+     // Función para mover el marcador del paquete (Store Package)
+     // function iniciarMovimientoMarcadorStore(marker, coordinates, interval, updateInfoBox) {
+     //      let index = 0;
+     //      const totalCoords = coordinates.length;
+
+     //      const intervalId = setInterval(() => {
+     //          marker.setPosition(new google.maps.LatLng(coordinates[index].lat, coordinates[index].lng));
+     //          if (updateInfoBox) {
+     //              updateInfoBox(index); // Actualiza el infobox con los datos de la coordenada actual
+     //          }
+
+     //          index++;
+
+     //          if (index >= totalCoords) {
+     //              clearInterval(intervalId); // Detener el movimiento al final de las coordenadas
+     //          }
+     //      }, interval);
+
+     //      return intervalId;
+     //  }
+
+     //  // Función para iniciar y mover el paquete de la tienda en el mapa
+     //  function iniciarPackEnMapa(packId, iconUrl, title, apiUrl) {
+     //      const imgPack = document.querySelector("#pack-location-sub-nav-item a img");
+
+     //      if (marcadoresTracking[packId]) {
+     //          clearInterval(marcadoresTracking[packId].intervaloId);
+     //          marcadoresTracking[packId].marker.setMap(null);
+     //          delete marcadoresTracking[packId]; // Eliminar el marcador del objeto
+     //          imgPack.classList.remove("activo");
+     //          return; // Salir de la función
+     //      }
+
+     //      const packMarker = new google.maps.Marker({
+     //          map: map,
+     //          title: title,
+     //          icon: iconUrl,
+     //      });
+
+     //      function obtenerYmoverPack() {
+     //          fetch(apiUrl)
+     //              .then(response => response.json())
+     //              .then(data => {
+     //                  if (data.currentLocation.coordinates && Array.isArray(data.currentLocation.coordinates)) {
+     //                      const coordenadas = data.currentLocation.coordinates.map(coord => ({
+     //                          lat: parseFloat(coord.lat),
+     //                          lng: parseFloat(coord.lng)
+     //                      }));
+
+     //                      function actualizarInfoBox(index) {
+     //                          const coord = data.currentLocation.coordinates[index];
+     //                          const infoBox = document.querySelector(".info-box-pack-location");
+     //                          infoBox.innerHTML = `
+     //                              <div><strong>Store Package Information</strong></div>
+     //                              <img src="${data.ImagenURL}" alt="Imagen del Paquete"/>
+     //                              <div>Package ID: ${data.packageID}</div>
+     //                              <div>Type: ${data.type}</div>
+     //                              <div>Description: ${data.description}</div>
+     //                              <div>Dimensions: ${data.dimensions.length} x ${data.dimensions.width} x ${data.dimensions.height} ${data.dimensions.unit}</div>
+     //                              <div>Weight: ${data.weight} kg</div>
+     //                              <div>Shipping Status: ${data.shippingStatus}</div>
+     //                              <div><strong>Origin:</strong> ${data.origin.name}, ${data.origin.address.addressLocality}, ${data.origin.address.addressRegion}, ${data.origin.address.addressCountry}</div>
+     //                              <div><strong>Destination:</strong> ${data.destination.name}, ${data.destination.address.addressLocality}, ${data.destination.address.addressRegion}, ${data.destination.address.addressCountry}</div>
+     //                              <div><strong>Speed:</strong> ${coord.speed} km/h</div>
+     //                              <div><strong>Fuel Consumption:</strong> ${coord.fuelConsumption} L/100km</div>
+     //                              <div><strong>Cumm. CO2 Emissions:</strong> ${coord.CummCO2emissions} kg</div>
+     //                              <button id="cerrar-info-box-store"><img src="./assets/botonCerrar.svg" alt="Cerrar"></button>
+     //                          `;
+     //                          document.getElementById("cerrar-info-box-store").addEventListener("click", function () {
+     //                              infoBox.style.display = "none";
+     //                          });
+     //                      }
+
+     //                      const intervaloId = iniciarMovimientoMarcadorStore(packMarker, coordenadas, 500, actualizarInfoBox);
+     //                      marcadoresTracking[packId] = {
+     //                          marker: packMarker,
+     //                          intervaloId: intervaloId,
+     //                          datosPack: data
+     //                      };
+
+     //                      packMarker.addListener("click", function () {
+     //                          const infoBox = document.querySelector(".info-box-pack-location");
+     //                          infoBox.style.display = "flex";
+     //                          actualizarInfoBox(0);
+     //                      });
+
+     //                      imgPack.classList.add("activo");
+     //                  } else {
+     //                      console.error('Los datos del paquete no tienen el formato esperado:', data);
+     //                  }
+     //              })
+     //              .catch(error => console.error('Error al obtener coordenadas del paquete:', error));
+     //      }
+
+     //      obtenerYmoverPack();
+     //  }
+
+     //  // Evento para manejar el movimiento del paquete desde la tienda
+     //  const eventPackLocation = document.getElementById("pack-location-sub-nav-item");
+     //  eventPackLocation.addEventListener("click", function () {
+     //      iniciarPackEnMapa(1, './assets/pack-locationQubo.svg', 'Store Package', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Pack%20Location/packageStore.json?sp=r&st=2024-09-01T19:08:47Z&se=2090-01-01T04:08:47Z&sv=2022-11-02&sr=b&sig=9gUjW5ZcrGqIksuu2GydvxAwAns8WODUkvlHZCTXoDU%3D');
+     //  });
+
+     // Variables globales para los marcadores de los paquetes
+     const marcadoresPacks = {};
+
+     // Función para mover el marcador del paquete (Store Package)
+     function iniciarPackEnMapa( packId, iconUrl, title, apiUrl ) {
+          // Verificar si el marcador ya existe
+          if ( marcadoresPacks[ packId ] ) {
+               // Si el marcador ya existe, detener el movimiento y eliminar el marcador
+               clearInterval( marcadoresPacks[ packId ].intervaloId );
+               marcadoresPacks[ packId ].marker.setMap( null );
+               delete marcadoresPacks[ packId ]; // Eliminar el marcador del objeto
+               return; // Salir de la función
+          }
+
+          // Crear el marcador para el paquete
+          const packMarker = new google.maps.Marker( {
+               map: map,
+               title: title,
+               icon: iconUrl,
+          } );
+
+          // Función para obtener las coordenadas del paquete de la API y mover el marcador
+          function obtenerYmoverPack() {
+               fetch( apiUrl )
+                    .then( response => {
+                         if ( !response.ok ) {
+                              throw new Error( `HTTP error! Status: ${ response.status }` );
+                         }
+                         return response.json();
+                    } )
+                    .then( data => {
+                         // Asegurarse de que los datos están en el formato esperado
+                         if ( data.currentLocation && Array.isArray( data.currentLocation.coordinates ) ) {
+                              const coordenadas = data.currentLocation.coordinates;
+
+                              // Mover el marcador del paquete con las coordenadas obtenidas
+                              const intervaloId = iniciarMovimientoMarcadorStore( packMarker, coordenadas, 2000, actualizarDatosDinamicos );
+                              marcadoresPacks[ packId ] = {
+                                   marker: packMarker,
+                                   intervaloId: intervaloId,
+                                   datosPack: data // Almacenar los datos del paquete aquí
+                              };
+
+                              // Inicializar el InfoBox al hacer clic en el marcador
+                              packMarker.addListener( "click", function () {
+                                   const infoBox = document.querySelector( ".info-box-pack-location" );
+                                   infoBox.style.display = "flex";
+                                   actualizarInfoBoxInicial(); // Muestra la información inicial al hacer clic
+                                   actualizarDatosDinamicos( 0 ); // Muestra los datos dinámicos iniciales
+                              } );
+
+                              // Función para actualizar el contenido estático del InfoBox
+                              function actualizarInfoBoxInicial() {
+                                   const infoBox = document.querySelector( ".info-box-pack-location" );
+                                   infoBox.innerHTML = `
+                             <div><strong>Store Package Information</strong></div>
+                             <img src="${ marcadoresPacks[ packId ].datosPack.ImagenURL }" alt="Imagen del Paquete"/>
+                             <div>Package ID: ${ marcadoresPacks[ packId ].datosPack.packageID }</div>
+                             <div>Type: ${ marcadoresPacks[ packId ].datosPack.type }</div>
+                             <div>Description: ${ marcadoresPacks[ packId ].datosPack.description }</div>
+                             <div>Dimensions: ${ marcadoresPacks[ packId ].datosPack.dimensions.length } x ${ marcadoresPacks[ packId ].datosPack.dimensions.width } x ${ marcadoresPacks[ packId ].datosPack.dimensions.height } ${ marcadoresPacks[ packId ].datosPack.dimensions.unit }</div>
+                             <div>Weight: ${ marcadoresPacks[ packId ].datosPack.weight } kg</div>
+                             <div>Shipping Status: ${ marcadoresPacks[ packId ].datosPack.shippingStatus }</div>
+                             <div><strong>Origin:</strong> ${ marcadoresPacks[ packId ].datosPack.origin.name }, ${ marcadoresPacks[ packId ].datosPack.origin.address.addressLocality }, ${ marcadoresPacks[ packId ].datosPack.origin.address.addressRegion }, ${ marcadoresPacks[ packId ].datosPack.origin.address.addressCountry }</div>
+                             <div><strong>Destination:</strong> ${ marcadoresPacks[ packId ].datosPack.destination.name }, ${ marcadoresPacks[ packId ].datosPack.destination.address.addressLocality }, ${ marcadoresPacks[ packId ].datosPack.destination.address.addressRegion }, ${ marcadoresPacks[ packId ].datosPack.destination.address.addressCountry }</div>
+                             <div><strong>Speed:</strong> <span id="speedValue"></span> km/h</div>
+                             <div><strong>Fuel Consumption:</strong> <span id="fuelValue"></span> L/100km</div>
+                             <div><strong>Cumm. CO2 Emissions:</strong> <span id="co2Value"></span> kg</div>
+                             <button id="cerrar-info-box-store"><img src="./assets/botonCerrar.svg" alt="Cerrar"></button>
+                         `;
+                                   document.getElementById( "cerrar-info-box-store" ).addEventListener( "click", function () {
+                                        infoBox.style.display = "none";
+                                   } );
+                              }
+
+                              // Función para actualizar solo los datos dinámicos
+                              function actualizarDatosDinamicos( index ) {
+                                   const coord = coordenadas[ index ];
+                                   document.getElementById( "speedValue" ).textContent = coord.speed;
+                                   document.getElementById( "fuelValue" ).textContent = coord.fuelConsumption;
+                                   document.getElementById( "co2Value" ).textContent = coord.CummCO2emissions;
+                              }
+                         } else {
+                              console.error( 'Los datos del paquete no tienen el formato esperado:', data );
+                         }
+                    } )
+                    .catch( error => console.error( 'Error al obtener coordenadas del paquete:', error ) );
+          }
+
+          // Iniciar el proceso de mover el paquete
+          obtenerYmoverPack();
+     }
+
+     // Evento para manejar el movimiento del paquete desde la tienda
+     const eventPackLocation = document.getElementById( "pack-location-sub-nav-item" );
+     eventPackLocation.addEventListener( "click", function () {
+          iniciarPackEnMapa( 1, './assets/pack-locationQubo.svg', 'Store Package', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Pack%20Location/packLocation.json?sp=r&st=2024-09-01T19:27:05Z&se=2090-09-02T03:27:05Z&sv=2022-11-02&sr=b&sig=pbpMlfNpXqkt%2Ff3%2BLzHXr%2B6ckIktYRKcGVN2nsSSIMg%3D' );
      } );
+
+     // Función para iniciar el movimiento del marcador del paquete de la tienda
+     function iniciarMovimientoMarcadorStore( marker, coordinates, interval, updateInfoBox ) {
+          let index = 0;
+          const totalCoords = coordinates.length;
+
+          const intervalId = setInterval( () => {
+               marker.setPosition( new google.maps.LatLng( coordinates[ index ].lat, coordinates[ index ].lng ) );
+               if ( updateInfoBox ) {
+                    updateInfoBox( index ); // Actualiza solo los datos dinámicos del infobox
+               }
+
+               index++;
+
+               if ( index >= totalCoords ) {
+                    clearInterval( intervalId ); // Detener el movimiento al final de las coordenadas
+               }
+          }, interval );
+
+          return intervalId;
+     }
+
+
+
+     //* FINAL MOVIDA SHIPS; TRUCKS; TRACKING //
 
      //? Qubo en movimiento random
      // let index = 0
@@ -6911,7 +7907,7 @@ function parseFiwareData( item ) {
           hospital: "Hospital",
           parking: "Parking",
           police_station: 'Police Station',
-          
+
           // Puedes agregar más mapeos aquí si es necesario
      };
 
@@ -7053,7 +8049,7 @@ function cargarMarcadoresPolice() {
                               } );
                          } );
 
-                         markersPolice.push( marker ); 
+                         markersPolice.push( marker );
                     }
                } );
           } )

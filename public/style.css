@@ -358,7 +358,7 @@ span:hover {
      letter-spacing: -0.225px;
 }
 
-#cerrar-info-box, #cerrar-info-box-tracking, #cerrar-info-box-ships, #cerrar-info-box-trucks {
+#cerrar-info-box, #cerrar-info-box-tracking, #cerrar-info-box-ships, #cerrar-info-box-trucks, #cerrar-info-box-store {
      cursor: pointer;
      background: transparent;
      border: none;
