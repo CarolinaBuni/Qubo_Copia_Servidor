@@ -1,897 +1,915 @@
 <!DOCTYPE html>
 <html>
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>QUBO CITY</title>
+      <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+      <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=&v=weekly&libraries=places&callback=initMap" defer></script> -->
+      <script
+         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=places&v=weekly$"
+         defer
+      ></script>
+      <script src="https://cdn.rawgit.com/geocodezip/geoxml3/master/polys/geoxml3.js"></script>
 
-<head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>QUBO CITY</title>
-     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-     <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=&v=weekly&libraries=places&callback=initMap" defer></script> -->
-     <script
-     
-          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=places&v=weekly$"
-          defer></script>
-     <script src="https://cdn.rawgit.com/geocodezip/geoxml3/master/polys/geoxml3.js"></script>
+      <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=&v=weekly" defer></script> -->
 
+      <link rel="stylesheet" href="./style.css" />
+      <link rel="shortcut icon" href="./assets/icon-logo.svg" type="image/x-icon" />
+   </head>
 
+   <body>
+      <!-- Toggle para habilitar/deshabilitar barrios -->
+      <nav class="topBottoms">
+         <ul class="configContainer">
+            <li id="dashboard-button">
+               <div class="img-container">
+                  <img src="./assets/dashboard 1.svg" alt="button-dashboard" />
+               </div>
+               <div class="button-title-container">
+                  <p>Dashboard</p>
+               </div>
+            </li>
+            <li id="button3d">
+               <div class="img-container">
+                  <img src="./assets/button3dMap.svg" alt="button-3dmap" />
+               </div>
+               <div class="button-title-container">
+                  <p>3D Map</p>
+               </div>
+            </li>
 
-     <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=&v=weekly" defer></script> -->
+            <li id="button2d">
+               <div class="img-container">
+                  <img src="./assets/button2dMap.svg" alt="button-2dmap" />
+               </div>
+               <div class="button-title-container">
+                  <p>2D Map</p>
+               </div>
+            </li>
 
-     <link rel="stylesheet" href="./style.css" />
-     <link rel="shortcut icon" href="./assets/icon-logo.svg" type="image/x-icon" />
+            <li id="cameras-button">
+               <div class="img-container">
+                  <img src="./assets/buttonCameras.svg" alt="button-cameras" />
+               </div>
+               <div class="button-title-container">
+                  <p>Cameras</p>
+               </div>
+            </li>
 
-</head>
+            <li id="toggleBarrios">
+               <div class="img-container">
+                  <img id="toggleButton" src="./assets/butonNeighborhoods.svg" alt="button-neighborhoods" />
+               </div>
+               <div class="button-title-container">
+                  <p>Neighborhoods</p>
+               </div>
+            </li>
+            <li id="locate-button">
+               <div class="img-container">
+                  <img src="./assets/buttonLocateMe.svg" alt="button-locate-me" />
+               </div>
+               <div class="button-title-container">
+                  <p>Locate Me</p>
+               </div>
+            </li>
 
-<body>
-
-     <!-- Toggle para habilitar/deshabilitar barrios -->
-     <nav class="topBottoms">
-          <ul class="configContainer">
-               <li id="dashboard-button">
-                    <div class="img-container">
-                         <img src="./assets/dashboard 1.svg" alt="button-dashboard">
-                    </div>
-                    <div class="button-title-container">
-                         <p>Dashboard</p>
-                    </div>
-               </li>
-               <li id="button3d">
-                    <div class="img-container">
-                         <img src="./assets/button3dMap.svg" alt="button-3dmap">
-                    </div>
-                    <div class="button-title-container">
-                         <p>3D Map</p>
-                    </div>
-               </li>
-
-               <li id="button2d">
-                    <div class="img-container">
-                         <img src="./assets/button2dMap.svg" alt="button-2dmap">
-                    </div>
-                    <div class="button-title-container">
-                         <p>2D Map</p>
-                    </div>
-                    
-               </li>
-
-               <li id="cameras-button">
-                    <div class="img-container">
-                         <img src="./assets/buttonCameras.svg" alt="button-cameras">
-                    </div>
-                    <div class="button-title-container">
-                         <p>Cameras</p>
-                    </div>
-                    
-               </li>
-
-               <li id="toggleBarrios">
-                    <div class="img-container">
-                         <img id="toggleButton" src="./assets/butonNeighborhoods.svg" alt="button-neighborhoods">
-                    </div>
-                    <div class="button-title-container">
-                         <p>Neighborhoods</p>
-                    </div>
-                    
-               </li>
-               <li id="locate-button">
-                    <div class="img-container">
-                         <img src="./assets/buttonLocateMe.svg" alt="button-locate-me">
-                    </div>
-                    <div class="button-title-container">
-                         <p>Locate Me</p>
-                    </div>
-               </li>
-
-               <li id="addQubo">
-                    <div class="img-container">
-                         <img src="./assets/addQubo.svg" alt="button-add-qubo">
-                    </div>
-                    <div class="button-title-container">
-                         <p>Add your Qubo</p>
-                    </div>
-               </li>
-               <li id="search-direction-button">
-                    <div class="img-container">
-                         <img class="search" src="./assets/buttonSearchDirection.svg" alt="button-search-direction">
-                    </div>
-                    <div class="button-title-container">
-                         <p>Search direction</p>
-                    </div>
-               </li>
-          </ul>
-          <div id="input-container">
-               <input id="pac-input" class="controls" type="text" placeholder="Search places" />
-               <img class="search-icon" src="./assets/searchIcon.svg" alt="">
-          </div>
-          <button id="minimize-topBottoms" class="minimize-button">
-               <img src="./assets/minimize.svg" alt="Minimizeicon">
-          </button>
-     </nav>
+            <li id="addQubo">
+               <div class="img-container">
+                  <img src="./assets/addQubo.svg" alt="button-add-qubo" />
+               </div>
+               <div class="button-title-container">
+                  <p>Add your Qubo</p>
+               </div>
+            </li>
+            <li id="search-direction-button">
+               <div class="img-container">
+                  <img class="search" src="./assets/buttonSearchDirection.svg" alt="button-search-direction" />
+               </div>
+               <div class="button-title-container">
+                  <p>Search direction</p>
+               </div>
+            </li>
+         </ul>
+         <div id="input-container">
+            <input id="pac-input" class="controls" type="text" placeholder="Search places" />
+            <img class="search-icon" src="./assets/searchIcon.svg" alt="" />
+         </div>
+         <button id="minimize-topBottoms" class="minimize-button">
+            <img src="./assets/minimize.svg" alt="Minimizeicon" />
+         </button>
+      </nav>
       <!-- Botón "Option" que aparece al minimizar -->
-      <nav id="option-button" class="topBottoms" style="display: none;">
-          <ul class="configContainer">
-              <li id="option-item">
-                  <div class="img-container">
-                      <img src="./assets/buttonOption.svg" alt="Option icon">
-                  </div>
-                  <div class="button-title-container">
-                      <p>Option</p>
-                  </div>
-              </li>
-          </ul>
+      <nav id="option-button" class="topBottoms" style="display: none">
+         <ul class="configContainer">
+            <li id="option-item">
+               <div class="img-container">
+                  <img src="./assets/buttonOption.svg" alt="Option icon" />
+               </div>
+               <div class="button-title-container">
+                  <p>Options</p>
+               </div>
+            </li>
+         </ul>
       </nav>
 
-     <div class="form-container hidden" data-target="form">
-          <div class="drag-handle">Arrastra aquí para mover</div>
-          <form id="categoryForm" action="/api/v1/qubo" method="post" enctype="multipart/form-data">
-               <img class="cerrar" id="cerrar-form" data-target="form" src="./assets/botonCerrar.svg" alt="">
+      <div class="form-container hidden" data-target="form">
+         <div class="drag-handle">Arrastra aquí para mover</div>
+         <form id="categoryForm" action="/api/v1/qubo" method="post" enctype="multipart/form-data">
+            <img class="cerrar" id="cerrar-form" data-target="form" src="./assets/botonCerrar.svg" alt="" />
 
-               <div class="form-group">
-                    <input type="text" id="title" name="title" placeholder="Title...">
+            <div class="form-group">
+               <input type="text" id="title" name="title" placeholder="Title..." />
+            </div>
+
+            <div class="form-group">
+               <select id="category" name="category" required>
+                  <option value="">Select Category</option>
+                  <option value="Buildings">Buildings</option>
+                  <option value="Mobility">Mobility</option>
+                  <option value="Health">Health</option>
+                  <option value="Security">Security</option>
+                  <option value="Infraestructure">Infraestructure</option>
+                  <option value="Logistics">Logistics</option>
+                  <option value="Environment & Sustainability">Environment <br />& Sustainability</option>
+                  <option value="Entertainment & Sports">Entertainment <br />& Sports</option>
+                  <option value="Services">Services</option>
+                  <option value="Incidences">Incidences</option>
+                  <!-- Añade más categorías aquí -->
+               </select>
+            </div>
+
+            <div class="form-group">
+               <select id="subcategory" name="subcategory" required>
+                  <option value="">Select Subcategory</option>
+                  <!-- Las subcategorías serán añadidas por JavaScript -->
+               </select>
+            </div>
+
+            <!-- Media Upload -->
+            <div class="form-group">
+               <label for="media" class="upload-label">
+                  Upload Media
+                  <input type="file" id="media" name="img" class="upload-input" />
+               </label>
+            </div>
+
+            <!-- Añadir enlace -->
+            <div class="form-group">
+               <input type="url" id="link" name="link" placeholder="Add Link" />
+            </div>
+
+            <!-- Fecha/Hora de inicio -->
+            <div class="form-group">
+               <input
+                  type="datetime-local"
+                  id="startDateTime"
+                  name="startDateTime"
+                  class="date-input"
+                  placeholder="Start Date/Time"
+               />
+            </div>
+
+            <!-- Fecha/Hora de finalización -->
+            <div class="form-group">
+               <input
+                  type="datetime-local"
+                  id="endDateTime"
+                  name="endDateTime"
+                  class="date-input"
+                  placeholder="Finish Date/Time"
+               />
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-group">
+               <textarea id="description" name="description" rows="4" placeholder="Description..."></textarea>
+            </div>
+
+            <!-- Opción de anonimato -->
+            <div class="form-group anonymous-checkbox">
+               <div class="anonymous">
+                  <input type="checkbox" id="anonymous" name="anonymous" />
+                  <label for="anonymous">Anonymous</label>
                </div>
+               <button type="submit" class="submit-button">Add Your Qubo</button>
+            </div>
+            <input type="hidden" id="clickedLat" name="latitude" />
+            <input type="hidden" id="clickedLng" name="longitude" />
 
-               <div class="form-group">
-                    <select id="category" name="category" required>
-                         <option value="">Select Category</option>
-                         <option value="Buildings">Buildings</option>
-                         <option value="Mobility">Mobility</option>
-                         <option value="Health">Health</option>
-                         <option value="Security">Security</option>
-                         <option value="Infraestructure">Infraestructure</option>
-                         <option value="Logistics">Logistics</option>
-                         <option value="Environment & Sustainability">Environment <br />& Sustainability</option>
-                         <option value="Entertainment & Sports">Entertainment <br />& Sports</option>
-                         <option value="Services">Services</option>
-                         <option value="Incidences">Incidences</option>
-                         <!-- Añade más categorías aquí -->
-                    </select>
-               </div>
+            <!-- Botón de envío -->
+            <div class="form-group"></div>
+         </form>
+      </div>
+      <div id="messageBox">Haz clic en el mapa para seleccionar la ubicación del Qubo.</div>
 
-               <div class="form-group">
-                    <select id="subcategory" name="subcategory" required>
-                         <option value="">Select Subcategory</option>
-                         <!-- Las subcategorías serán añadidas por JavaScript -->
-                    </select>
-               </div>
+      <!-- <div class="info-box"></div> -->
+      <div class="info-box"></div>
+      <div class="info-box-ships info-box"></div>
+      <div class="info-box-trucks info-box"></div>
+      <div class="info-box-tracking info-box"></div>
+      <div class="info-box-pack-location info-box"></div>
 
-               <!-- Media Upload -->
-               <div class="form-group">
-                    <label for="media" class="upload-label">
-                         Upload Media
-                         <input type="file" id="media" name="img" class="upload-input">
-                    </label>
-               </div>
-
-
-               <!-- Añadir enlace -->
-               <div class="form-group">
-                    <input type="url" id="link" name="link" placeholder="Add Link">
-               </div>
-
-               <!-- Fecha/Hora de inicio -->
-               <div class="form-group">
-                    <input type="datetime-local" id="startDateTime" name="startDateTime" class="date-input"
-                         placeholder="Start Date/Time">
-               </div>
-
-               <!-- Fecha/Hora de finalización -->
-               <div class="form-group">
-                    <input type="datetime-local" id="endDateTime" name="endDateTime" class="date-input"
-                         placeholder="Finish Date/Time">
-               </div>
-
-
-               <!-- Descripción -->
-               <div class="form-group">
-                    <textarea id="description" name="description" rows="4" placeholder="Description..."></textarea>
-               </div>
-
-               <!-- Opción de anonimato -->
-               <div class="form-group anonymous-checkbox">
-                    <div class="anonymous">
-                         <input type="checkbox" id="anonymous" name="anonymous">
-                         <label for="anonymous">Anonymous</label>
-                    </div>
-                    <button type="submit" class="submit-button">Add Your Qubo</button>
-
-               </div>
-               <input type="hidden" id="clickedLat" name="latitude">
-               <input type="hidden" id="clickedLng" name="longitude">
-
-               <!-- Botón de envío -->
-               <div class="form-group">
-               </div>
-          </form>
-     </div>
-     <div style="height: 450px" id="messageBox">
-          Haz clic en el mapa para seleccionar la ubicación del Qubo.
-     </div>
-
-     <!-- <div class="info-box"></div> -->
-     <div class="info-box"></div>
-     <div class="info-box-ships info-box"></div>
-     <div class="info-box-trucks info-box"></div>
-     <div class="info-box-tracking info-box"></div>
-     <div class="info-box-pack-location info-box"></div>
-
-     <div class="nav-container">
-          <nav class="nav-bar barra" id="nav-bar">
-               <ul>
-                    <!-- Botón principal: Buildings -->
-                    <li id="buildings-nav-item" class="nav-item" data-target="barra-buildings">
-                         <a href="#">
-                              <img class="bar-buttons" src="./assets/prague--dancing-house--02 1.svg" alt="" />
-                              <span><br />Buildings</span>
-                         </a>
-                    </li>
-                    <!-- Botón principal: Mobility -->
-                    <li id="mobility-nav-item" class="nav-item" data-target="barra-mobility">
-                         <a href="#">
-                              <img class="bar-buttons" src="./assets/automobile 2.svg" alt="" />
-                              <span><br />Mobility</span>
-                         </a>
-                    </li>
-                    <!-- Botón principal: Health -->
-                    <li id="health-nav-item" class="nav-item" data-target="barra-health">
-                         <a href="#">
-                              <img class="bar-buttons" src="./assets/care 2.svg" alt="" />
-                              <span><br />Health</span>
-                         </a>
-                    </li>
-                    <!-- Botón principal: Security -->
-                    <li id="security-nav-item" class="nav-item" data-target="barra-security">
-                         <a href="#">
-                              <img class="bar-buttons" src="./assets/secure--data 1.svg" alt="" />
-                              <span><br />Security</span>
-                         </a>
-                    </li>
-                    <!-- Botón principal: Infraestructure -->
-                    <li id="infraestructure-nav-item" class="nav-item" data-target="barra-infraestructure">
-                         <a href="#">
-                              <img class="bar-buttons" src="./assets/infrastructure.svg" alt="" />
-                              <span><br />Infraestructure</span>
-                         </a>
-                    </li>
-                    <!-- Botón principal: Logistics -->
-                    <li id="logistics-nav-item" class="nav-item" data-target="barra-logistics">
-                         <a href="#">
-                              <img class="bar-buttons" src="./assets/moving-dolly 1.svg" alt="" />
-                              <span><br />Logistics</span>
-                         </a>
-                    </li>
-                    <!-- Botón principal: Environment & Sustainability -->
-                    <li id="environment-nav-item" class="nav-item" data-target="barra-environment">
-                         <a href="#">
-                              <img class="bar-buttons" src="./assets/sustainability 2.svg" alt="" />
-                              <span><br />Environment &<br />Sustainability</span>
-                         </a>
-                    </li>
-                    <!-- Botón principal: Entertainment & Sports -->
-                    <li id="entertainment-nav-item" class="nav-item" data-target="barra-entertainment">
-                         <a href="#">
-                              <img class="bar-buttons" src="./assets/tennis 2.svg" alt="" />
-                              <span><br />Entertainment<br />& Sports</span>
-                         </a>
-                    </li>
-                    <!-- Botón principal: Services -->
-                    <li id="services-nav-item" class="nav-item" data-target="barra-services">
-                         <a href="#">
-                              <img class="bar-buttons" src="./assets/justice 1.svg" alt="" />
-                              <span><br />Services</span>
-                         </a>
-                    </li>
-                    <!-- Botón principal: Incidences -->
-                    <li id="alerts-nav-item" class="nav-item" data-target="barra-alerts">
-                         <a href="#">
-                              <img id="alerts" class="bar-buttons" src="./assets/Icon_alert 1.svg" alt="" />
-                              <span><br />Incidences</span>
-                         </a>
-                    </li>
-               </ul>
-          </nav>
-     </div>
-     <!-- Barra secundaria para Buildings -->
-     <div id="barra-buildings" class="segunda-barra" style="display: none;" data-target="content-buildings">
-          <ul>
-               <li class="boton" id="newBuildings-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/madrid--skyscrapers_1_.svg" alt="">
-                         <span><br>New Buildings</span>
-                    </a>
+      <div class="nav-container">
+         <nav class="nav-bar barra" id="nav-bar">
+            <ul>
+               <li id="buildings-nav-item" class="nav-item" data-target="barra-buildings">
+                  <a href="#">
+                     <img class="bar-buttons" src="./assets/prague--dancing-house--02 1.svg" alt="" />
+                     <span><br />Buildings</span>
+                  </a>
                </li>
-               <li class="boton" id="houses-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/home--front 1.svg" alt="">
-                         <span><br>Houses</span>
-                    </a>
+
+               <li id="mobility-nav-item" class="nav-item" data-target="barra-mobility">
+                  <a href="#">
+                     <img class="bar-buttons" src="./assets/automobile 2.svg" alt="" />
+                     <span><br />Mobility</span>
+                  </a>
                </li>
-               <li id="offices-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/office 1.svg" alt="">
-                         <span><br>Offices</span>
-                    </a>
+
+               <li id="health-nav-item" class="nav-item" data-target="barra-health">
+                  <a href="#">
+                     <img class="bar-buttons" src="./assets/care 2.svg" alt="" />
+                     <span><br />Health</span>
+                  </a>
                </li>
-               <li id="commercialOrIndustrial-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/commercialIcon.svg" alt="">
-                         <span><br>Commercial or<br>industrial</span>
-                    </a>
+
+               <li id="security-nav-item" class="nav-item" data-target="barra-security">
+                  <a href="#">
+                     <img class="bar-buttons" src="./assets/secure--data 1.svg" alt="" />
+                     <span><br />Security</span>
+                  </a>
                </li>
-               <li id="garages-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/garageIcon.svg" alt="">
-                         <span><br>Garages</span>
-                    </a>
+
+               <li id="infraestructure-nav-item" class="nav-item" data-target="barra-infraestructure">
+                  <a href="#">
+                     <img class="bar-buttons" src="./assets/infrastructure.svg" alt="" />
+                     <span><br />Infraestructure</span>
+                  </a>
                </li>
-               <li id="parcels-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/parcelsIcon.svg" alt="">
-                         <span><br>Parcels</span>
-                    </a>
+
+               <li id="logistics-nav-item" class="nav-item" data-target="barra-logistics">
+                  <a href="#">
+                     <img class="bar-buttons" src="./assets/moving-dolly 1.svg" alt="" />
+                     <span><br />Logistics</span>
+                  </a>
                </li>
-               <li id="otherBuilding-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/otherBuildings.svg" alt="">
-                         <span><br>Other<br>Buildings</span>
-                    </a>
+
+               <li id="environment-nav-item" class="nav-item" data-target="barra-environment">
+                  <a href="#">
+                     <img class="bar-buttons" src="./assets/sustainability 2.svg" alt="" />
+                     <span><br />Environment &<br />Sustainability</span>
+                  </a>
                </li>
-               <li id="iconic-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconicIcon.svg" alt="">
-                         <span><br>Iconic</span>
-                    </a>
+
+               <li id="entertainment-nav-item" class="nav-item" data-target="barra-entertainment">
+                  <a href="#">
+                     <img class="bar-buttons" src="./assets/tennis 2.svg" alt="" />
+                     <span><br />Entertainment<br />& Sports</span>
+                  </a>
                </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/underConstructionIcon.svg" alt="">
-                         <span><br>Under<br>Construction</span>
-                    </a>
+
+               <li id="services-nav-item" class="nav-item" data-target="barra-services">
+                  <a href="#">
+                     <img class="bar-buttons" src="./assets/justice 1.svg" alt="" />
+                     <span><br />Services</span>
+                  </a>
                </li>
-               <img class="cerrar" id="cerrar-sub-nav-bar" data-target="barra-buildings" src="./assets/minimize 3.svg"
-                    alt="">
-          </ul>
-          <!-- <button id="cerrar-sub-nav-bar" class="cerrar">
+
+               <li id="alerts-nav-item" class="nav-item" data-target="barra-alerts">
+                  <a href="#">
+                     <img id="alerts" class="bar-buttons" src="./assets/Icon_alert 1.svg" alt="" />
+                     <span><br />Incidences</span>
+                  </a>
+               </li>
+               <button class="minimize-button" id="minimize-nav-bar">
+                  <img src="./assets/minimize.svg" id="maximize-nav-bar" alt="Minimizeicon" />
+               </button>
+            </ul>
+         </nav>
+         <div class="minimizeButtonNavBar" style="display: none">
+            <img src="./assets/buttonOption.svg" alt="Option icon" />
+         </div>
+      </div>
+      <!-- Barra secundaria para Buildings -->
+      <div id="barra-buildings" class="segunda-barra" style="display: none" data-target="content-buildings">
+         <ul>
+            <li class="boton" id="newBuildings-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/madrid--skyscrapers_1_.svg" alt="" />
+                  <span><br />New Buildings</span>
+               </a>
+            </li>
+            <li class="boton" id="houses-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/home--front 1.svg" alt="" />
+                  <span><br />Houses</span>
+               </a>
+            </li>
+            <li id="offices-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/office 1.svg" alt="" />
+                  <span><br />Offices</span>
+               </a>
+            </li>
+            <li id="commercialOrIndustrial-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/commercialIcon.svg" alt="" />
+                  <span><br />Commercial or<br />industrial</span>
+               </a>
+            </li>
+            <li id="garages-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/garageIcon.svg" alt="" />
+                  <span><br />Garages</span>
+               </a>
+            </li>
+            <li id="parcels-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/parcelsIcon.svg" alt="" />
+                  <span><br />Parcels</span>
+               </a>
+            </li>
+            <li id="otherBuilding-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/otherBuildings.svg" alt="" />
+                  <span><br />Other<br />Buildings</span>
+               </a>
+            </li>
+            <li id="iconic-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconicIcon.svg" alt="" />
+                  <span><br />Iconic</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/underConstructionIcon.svg" alt="" />
+                  <span><br />Under<br />Construction</span>
+               </a>
+            </li>
+            <img
+               class="cerrar"
+               id="cerrar-sub-nav-bar"
+               data-target="barra-buildings"
+               src="./assets/minimize 3.svg"
+               alt=""
+            />
+         </ul>
+
+         <!-- <button id="cerrar-sub-nav-bar" class="cerrar">
           </button> -->
-     </div>
-     <!-- Barra secundaria para Mobility -->
-     <div id="barra-mobility" class="segunda-barra " style="display: none;" data-target="content-mobility">
-          <ul>
-               <li id="taxi-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconTaxi.svg" alt="Icon Taxi">
-                         <span><br>Taxi</span>
-                    </a>
-               </li>
-               <li id="vtc-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconVTC.svg" alt="Icon VTC">
-                         <span><br>VTC</span>
-                    </a>
-               </li>
-               <li id="traffic-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconCarTraffic.svg" alt="Icon for car traffic">
-                         <span><br>Car Traffic</span>
-                    </a>
-               </li>
-               <li id="parking-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconParking.svg" alt="Icon Parking">
-                         <span><br>Parking</span>
-                    </a>
-               </li>
-               <li id="eCar-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconeE-carStations.svg"
-                              alt="Icon E-Car Stations">
-                         <span><br>E-Car<br>Stations</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconCarSharing.svg" alt="Icon Car Sharing">
-                         <span><br>Car<br>Sharing</span>
-                    </a>
-               </li>
-               <li id="moto-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconMotoSharing.svg" alt="Icon Moto Sharing">
-                         <span><br>Moto<br>Sharing</span>
-                    </a>
-               </li>
-               <li id="bici-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconBicycleSharing.svg"
-                              alt="Icon Bicycle Sharing">
-                         <span><br>Bicycle<br>Sharing</span>
-                    </a>
-               </li>
-               <li id="scooter-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconScooterSharing.svg"
-                              alt="Icon Scooter Sharing">
-                         <span><br>Scooter<br>Sharing</span>
-                    </a>
-               </li>
-               <li id="bus-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconBus.svg" alt="Icon Bus">
-                         <span><br>Bus</span>
-                    </a>
-               </li>
-               <li id="metro-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconMetro.svg" alt="Icon Metro">
-                         <span><br>Metro</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconTrams.svg" alt="Icon Trams">
-                         <span><br>Trams</span>
-                    </a>
-               </li>
-               <li id="trains-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconTrains.svg" alt="Icon Trains">
-                         <span><br>Trains</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconAirplain.svg" alt="Icon Airplane">
-                         <span><br>Airplane</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconHelicopter.svg" alt="Icon Helicopter">
-                         <span><br>Helicopter</span>
-                    </a>
-               </li>
-               <li id="boats-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconBoats.svg" alt="Icon Boats">
-                         <span><br>Boats</span>
-                    </a>
-               </li>
-               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-mobility" alt="">
-          </ul>
-          <!-- <button id="cerrar-sub-nav-bar-mobility" class="cerrar">
+      </div>
+      <!-- Barra secundaria para Mobility -->
+      <div id="barra-mobility" class="segunda-barra" style="display: none" data-target="content-mobility">
+         <ul>
+            <li id="taxi-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconTaxi.svg" alt="Icon Taxi" />
+                  <span><br />Taxi</span>
+               </a>
+            </li>
+            <li id="vtc-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconVTC.svg" alt="Icon VTC" />
+                  <span><br />VTC</span>
+               </a>
+            </li>
+            <li id="traffic-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconCarTraffic.svg" alt="Icon for car traffic" />
+                  <span><br />Car Traffic</span>
+               </a>
+            </li>
+            <li id="parking-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconParking.svg" alt="Icon Parking" />
+                  <span><br />Parking</span>
+               </a>
+            </li>
+            <li id="eCar-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconeE-carStations.svg" alt="Icon E-Car Stations" />
+                  <span><br />E-Car<br />Stations</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconCarSharing.svg" alt="Icon Car Sharing" />
+                  <span><br />Car<br />Sharing</span>
+               </a>
+            </li>
+            <li id="moto-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconMotoSharing.svg" alt="Icon Moto Sharing" />
+                  <span><br />Moto<br />Sharing</span>
+               </a>
+            </li>
+            <li id="bici-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconBicycleSharing.svg" alt="Icon Bicycle Sharing" />
+                  <span><br />Bicycle<br />Sharing</span>
+               </a>
+            </li>
+            <li id="scooter-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconScooterSharing.svg" alt="Icon Scooter Sharing" />
+                  <span><br />Scooter<br />Sharing</span>
+               </a>
+            </li>
+            <li id="bus-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconBus.svg" alt="Icon Bus" />
+                  <span><br />Bus</span>
+               </a>
+            </li>
+            <li id="metro-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconMetro.svg" alt="Icon Metro" />
+                  <span><br />Metro</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconTrams.svg" alt="Icon Trams" />
+                  <span><br />Trams</span>
+               </a>
+            </li>
+            <li id="trains-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconTrains.svg" alt="Icon Trains" />
+                  <span><br />Trains</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconAirplain.svg" alt="Icon Airplane" />
+                  <span><br />Airplane</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconHelicopter.svg" alt="Icon Helicopter" />
+                  <span><br />Helicopter</span>
+               </a>
+            </li>
+            <li id="boats-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconBoats.svg" alt="Icon Boats" />
+                  <span><br />Boats</span>
+               </a>
+            </li>
+            <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-mobility" alt="" />
+         </ul>
+         <!-- <button id="cerrar-sub-nav-bar-mobility" class="cerrar">
           </button> -->
-     </div>
-     <!-- Barra secundaria para Health -->
-     <div id="barra-health" class="segunda-barra" style="display: none;">
-          <ul>
-               <li id="hospital-clinics-nav-item" class="nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconHospitalAndClinics.svg"
-                              alt="Icon Hospitals & Clinics">
-                         <span><br />Hospitals <br />& Clinics</span>
-                    </a>
-               </li>
-               <li id="deathcare-nav-item" class="nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconDeathcare.svg" alt="Icon Deathcare">
-                         <span><br>Deathcare</span>
-                    </a>
-               </li>
-               <li id="optics-dentists-nav-item" class="nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconOpticsDentists.svg"
-                              alt="Icon Optics, Dentists, etc">
-                         <span><br>Optics, Dentists,<br /> etc</span>
-                    </a>
-               </li>
-               <li id="virus-hazard-nav-item" class="nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconVirusHazard.svg" alt="Icon Virus Hazard">
-                         <span><br>Virus Hazard</span>
-                    </a>
-               </li>
-               <li id="pharmacy-nav-item" class="nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/pills.svg" alt="Icon Pharmacy">
-                         <span><br>Pharmacy</span>
-                    </a>
-               </li>
-               <li id="ambulances-nav-item" class="nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/ambulance.svg" alt="Icon Ambulance">
-                         <span><br>Ambulances</span>
-                    </a>
-               </li>
-               <img class="cerrar" data-target="barra-health" src="./assets/minimize 3.svg" alt="">
-          </ul>
-          <!-- <button id="cerrar-sub-nav-bar-health" class="cerrar">
+      </div>
+      <!-- Barra secundaria para Health -->
+      <div id="barra-health" class="segunda-barra" style="display: none">
+         <ul>
+            <li id="hospital-clinics-nav-item" class="nav-item">
+               <a href="#">
+                  <img
+                     class="bar-buttons subLevel"
+                     src="./assets/iconHospitalAndClinics.svg"
+                     alt="Icon Hospitals & Clinics"
+                  />
+                  <span><br />Hospitals <br />& Clinics</span>
+               </a>
+            </li>
+            <li id="deathcare-nav-item" class="nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconDeathcare.svg" alt="Icon Deathcare" />
+                  <span><br />Deathcare</span>
+               </a>
+            </li>
+            <li id="optics-dentists-nav-item" class="nav-item">
+               <a href="#">
+                  <img
+                     class="bar-buttons subLevel"
+                     src="./assets/iconOpticsDentists.svg"
+                     alt="Icon Optics, Dentists, etc"
+                  />
+                  <span
+                     ><br />Optics, Dentists,<br />
+                     etc</span
+                  >
+               </a>
+            </li>
+            <li id="virus-hazard-nav-item" class="nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconVirusHazard.svg" alt="Icon Virus Hazard" />
+                  <span><br />Virus Hazard</span>
+               </a>
+            </li>
+            <li id="pharmacy-nav-item" class="nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/pills.svg" alt="Icon Pharmacy" />
+                  <span><br />Pharmacy</span>
+               </a>
+            </li>
+            <li id="ambulances-nav-item" class="nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/ambulance.svg" alt="Icon Ambulance" />
+                  <span><br />Ambulances</span>
+               </a>
+            </li>
+            <img class="cerrar" data-target="barra-health" src="./assets/minimize 3.svg" alt="" />
+         </ul>
+         <!-- <button id="cerrar-sub-nav-bar-health" class="cerrar">
           </button> -->
-     </div>
-     <!-- Barra secundaria para Security -->
-     <div id="barra-security" class="segunda-barra" style="display: none;">
-          <ul>
-               <li id="police-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconPolice.svg" alt="Icon Police">
-                         <span><br>Police</span>
-                    </a>
-               </li>
-               <li id="fire-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconFire.svg" alt="Icon Fire">
-                         <span><br>Fire</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconMilitary.svg" alt="Icon Military">
-                         <span><br>Military</span>
-
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconCibersecurity.svg"
-                              alt="Icon Cybersecurity">
-                         <span><br>Cybersecurity</span>
-                    </a>
-               </li>
-               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-security" alt="">
-          </ul>
-          <!-- <button id="cerrar-sub-nav-bar-security" class="cerrar">
+      </div>
+      <!-- Barra secundaria para Security -->
+      <div id="barra-security" class="segunda-barra" style="display: none">
+         <ul>
+            <li id="police-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconPolice.svg" alt="Icon Police" />
+                  <span><br />Police</span>
+               </a>
+            </li>
+            <li id="fire-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconFire.svg" alt="Icon Fire" />
+                  <span><br />Fire</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconMilitary.svg" alt="Icon Military" />
+                  <span><br />Military</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconCibersecurity.svg" alt="Icon Cybersecurity" />
+                  <span><br />Cybersecurity</span>
+               </a>
+            </li>
+            <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-security" alt="" />
+         </ul>
+         <!-- <button id="cerrar-sub-nav-bar-security" class="cerrar">
           </button> -->
-     </div>
-     <!-- Barra secundaria para Infrastructure -->
-     <div id="barra-infraestructure" class="segunda-barra" style="display: none;">
-          <ul>
-               <li id="waste-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconWaste.svg" alt="Icon Waste">
-                         <span><br>Waste</span>
-                    </a>
-               </li>
-               <li id="water-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconWater.svg" alt="Icon Water">
-                         <span><br>Water</span>
-                    </a>
-               </li>
-               <li id="electricity-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconElectricity.svg" alt="Icon Electricity">
-                         <span><br>Electricity</span>
-                    </a>
-               </li>
-               <li id="sewage-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconRecycling.svg" alt="Icon Sewage">
-                         <span><br>Sewage</span>
-                    </a>
-               </li>
-               <li id="internet-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconInternet.svg" alt="Icon Internet">
-                         <span><br>Internet</span>
-                    </a>
-               </li>
-               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-infraestructure" alt="">
-          </ul>
-          <!-- <button id="cerrar-sub-nav-bar-infraestructure" class="cerrar">
+      </div>
+      <!-- Barra secundaria para Infrastructure -->
+      <div id="barra-infraestructure" class="segunda-barra" style="display: none">
+         <ul>
+            <li id="waste-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconWaste.svg" alt="Icon Waste" />
+                  <span><br />Waste</span>
+               </a>
+            </li>
+            <li id="water-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconWater.svg" alt="Icon Water" />
+                  <span><br />Water</span>
+               </a>
+            </li>
+            <li id="electricity-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconElectricity.svg" alt="Icon Electricity" />
+                  <span><br />Electricity</span>
+               </a>
+            </li>
+            <li id="sewage-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconRecycling.svg" alt="Icon Sewage" />
+                  <span><br />Sewage</span>
+               </a>
+            </li>
+            <li id="internet-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconInternet.svg" alt="Icon Internet" />
+                  <span><br />Internet</span>
+               </a>
+            </li>
+            <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-infraestructure" alt="" />
+         </ul>
+         <!-- <button id="cerrar-sub-nav-bar-infraestructure" class="cerrar">
           </button> -->
-     </div>
-     <!-- Barra secundaria para Logistics -->
-     <div id="barra-logistics" class="segunda-barra" style="display: none;">
-          <ul>
-               <li id="pick-upPoints-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconPickUpPoints.svg"
-                              alt="Icon Pick-up Points">
-                         <span><br>Pick-up Points</span>
-                    </a>
-               </li>
-               <li id="pack-location-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconPackLocation.svg" alt="Icon Pack Location">
-                         <span><br>Pack Location</span>
-                    </a>
-               </li>
-               <li id="tracking-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconTracking.svg" alt="Icon Tracking">
-                         <span><br>Tracking</span>
-                    </a>
-               </li>
-               <li id="ports-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconPorts.svg" alt="Icon Ports">
-                         <span><br>Ports</span>
-                    </a>
-               </li>
-               <li id="ships-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconShips.svg" alt="Icon Ships">
-                         <span><br>Ships</span>
-                    </a>
-               </li>
-               <li id="trucks-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconTrucks.svg" alt="Icon Trucks">
-                         <span><br>Trucks</span>
-                    </a>
-               </li>
-               <li id="stores-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconStores.svg" alt="Icon Stores">
-                         <span><br>Stores</span>
-                    </a>
-               </li>
-               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-logistics" alt="">
-          </ul>
-          <!-- <button id="cerrar-sub-nav-bar-logistics" class="cerrar">
+      </div>
+      <!-- Barra secundaria para Logistics -->
+      <div id="barra-logistics" class="segunda-barra" style="display: none">
+         <ul>
+            <li id="pick-upPoints-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconPickUpPoints.svg" alt="Icon Pick-up Points" />
+                  <span><br />Pick-up Points</span>
+               </a>
+            </li>
+            <li id="pack-location-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconPackLocation.svg" alt="Icon Pack Location" />
+                  <span><br />Pack Location</span>
+               </a>
+            </li>
+            <li id="tracking-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconTracking.svg" alt="Icon Tracking" />
+                  <span><br />Tracking</span>
+               </a>
+            </li>
+            <li id="ports-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconPorts.svg" alt="Icon Ports" />
+                  <span><br />Ports</span>
+               </a>
+            </li>
+            <li id="ships-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconShips.svg" alt="Icon Ships" />
+                  <span><br />Ships</span>
+               </a>
+            </li>
+            <li id="trucks-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconTrucks.svg" alt="Icon Trucks" />
+                  <span><br />Trucks</span>
+               </a>
+            </li>
+            <li id="stores-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconStores.svg" alt="Icon Stores" />
+                  <span><br />Stores</span>
+               </a>
+            </li>
+            <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-logistics" alt="" />
+         </ul>
+         <!-- <button id="cerrar-sub-nav-bar-logistics" class="cerrar">
           </button> -->
-     </div>
-     <!-- Barra secundaria para Environment & Sustainability -->
-     <div id="barra-environment" class="segunda-barra" style="display: none;">
-          <ul>
-               <li id="parksGardens-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconParksAndGardens.svg" alt="Parks & Gardens">
-                         <span><br>Parks <br />& Gardens</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconFountains.svg" alt="Icon Fountains">
-                         <span><br>Fountains</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconPedestrianZones.svg"
-                              alt="Icon Pedestrian Zones">
-                         <span><br>Pedestrian <br>Zones</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconZoosAndAquariums.svg"
-                              alt="Icon Zoos & Aquariums">
-                         <span><br>Zoos<br>& Aquariums</span>
-                    </a>
-               </li>
-               <li id="wildLife-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconWildLife.svg" alt="Icon Wild Life">
-                         <span><br>Wild Life</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconLakesAndRivers.svg"
-                              alt="Icon Lakes & Rivers">
-                         <span><br>Lakes<br>& Rivers</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconBeaches.svg" alt="Icon Beaches">
-                         <span><br>Beaches</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconProtectedZones.svg"
-                              alt="Icon Protected Zones">
-                         <span><br>Protected<br>Zones</span>
-                    </a>
-               </li>
-               <li id="environment-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconEnvironment.svg" alt="Icon Environment">
-                         <span><br>Environment</span>
-                    </a>
-               </li>
-               <li id="recycling-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconRecycling.svg" alt="Icon Recycling">
-                         <span><br>Recycling</span>
-                    </a>
-               </li>
-               <li id="streetlights-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconStreetLights.svg" alt="Icon Streetlights">
-                         <span><br>Streetlights</span>
-                    </a>
-               </li>
-               <li id="energyAndEfficiency-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconEnergy.svg" alt="Icon Energy efficiency">
-                         <span><br>Energy<br>efficiency</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconWaterUsage.svg" alt="Icon Water usage">
-                         <span><br>Water usage</span>
-                    </a>
-               </li>
-               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-environment" alt="">
-          </ul>
+      </div>
+      <!-- Barra secundaria para Environment & Sustainability -->
+      <div id="barra-environment" class="segunda-barra" style="display: none">
+         <ul>
+            <li id="parksGardens-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconParksAndGardens.svg" alt="Parks & Gardens" />
+                  <span><br />Parks <br />& Gardens</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconFountains.svg" alt="Icon Fountains" />
+                  <span><br />Fountains</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img
+                     class="bar-buttons subLevel"
+                     src="./assets/iconPedestrianZones.svg"
+                     alt="Icon Pedestrian Zones"
+                  />
+                  <span><br />Pedestrian <br />Zones</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img
+                     class="bar-buttons subLevel"
+                     src="./assets/iconZoosAndAquariums.svg"
+                     alt="Icon Zoos & Aquariums"
+                  />
+                  <span><br />Zoos<br />& Aquariums</span>
+               </a>
+            </li>
+            <li id="wildLife-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconWildLife.svg" alt="Icon Wild Life" />
+                  <span><br />Wild Life</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconLakesAndRivers.svg" alt="Icon Lakes & Rivers" />
+                  <span><br />Lakes<br />& Rivers</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconBeaches.svg" alt="Icon Beaches" />
+                  <span><br />Beaches</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconProtectedZones.svg" alt="Icon Protected Zones" />
+                  <span><br />Protected<br />Zones</span>
+               </a>
+            </li>
+            <li id="environment-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconEnvironment.svg" alt="Icon Environment" />
+                  <span><br />Environment</span>
+               </a>
+            </li>
+            <li id="recycling-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconRecycling.svg" alt="Icon Recycling" />
+                  <span><br />Recycling</span>
+               </a>
+            </li>
+            <li id="streetlights-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconStreetLights.svg" alt="Icon Streetlights" />
+                  <span><br />Streetlights</span>
+               </a>
+            </li>
+            <li id="energyAndEfficiency-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconEnergy.svg" alt="Icon Energy efficiency" />
+                  <span><br />Energy<br />efficiency</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconWaterUsage.svg" alt="Icon Water usage" />
+                  <span><br />Water usage</span>
+               </a>
+            </li>
+            <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-environment" alt="" />
+         </ul>
+      </div>
+      <!-- Barra secundaria para Entertainment & Sports -->
+      <div id="barra-entertainment" class="segunda-barra" style="display: none">
+         <ul>
+            <li id="eventsConcerts-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconEventsAndConcerts.svg" alt="Events & Concerts" />
+                  <span><br />Events <br />& Concerts</span>
+               </a>
+            </li>
+            <li id="theatres-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconTheatres.svg" alt="Icon Theatres" />
+                  <span><br />Theatres</span>
+               </a>
+            </li>
+            <li id="cinemas-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconCinemas.svg" alt="Icon Cinemas" />
+                  <span><br />Cinemas</span>
+               </a>
+            </li>
+            <li id="stadiums-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconStadiums.svg" alt="Icon Stadiums" />
+                  <span><br />Stadiums</span>
+               </a>
+            </li>
+            <li>
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconThemeParks.svg" alt="Icon Theme Parks" />
+                  <span><br />Theme Parks</span>
+               </a>
+            </li>
+            <li id="landmarks-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconLandmarks.svg" alt="Icon Landmarks" />
+                  <span><br />Landmarks</span>
+               </a>
+            </li>
+            <li id="clubsAndNightlife-sub-nav-item">
+               <a href="#">
+                  <img
+                     class="bar-buttons subLevel"
+                     src="./assets/iconClubsAndNighlife.svg"
+                     alt="Icon Clubs & Nightlife"
+                  />
+                  <span><br />Clubs <br />& Nightlife</span>
+               </a>
+            </li>
+            <li id="hotelsAndApartments-sub-nav-item">
+               <a href="#">
+                  <img
+                     class="bar-buttons subLevel"
+                     src="./assets/iconHotelsAndApartments.svg"
+                     alt="Icon Hotels & Apartments"
+                  />
+                  <span><br />Hotels <br />& Apartments</span>
+               </a>
+            </li>
+            <li id="sportsFacilities-sub-nav-item">
+               <a href="#">
+                  <img
+                     class="bar-buttons subLevel"
+                     src="./assets/iconSportsFacilities.svg"
+                     alt="Icon Sports Facilities"
+                  />
+                  <span><br />Sports<br />Facilities</span>
+               </a>
+            </li>
+            <li id="museums-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconMuseums.svg" alt="Icon Museums" />
+                  <span><br />Museums</span>
+               </a>
+            </li>
+            <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-entertainment" alt="" />
+         </ul>
+      </div>
+      <!-- Barra secundaria para Services -->
+      <div id="barra-services" class="segunda-barra" style="display: none">
+         <ul>
+            <li id="socialServices-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconSocialServices.svg" alt="Social Services" />
+                  <span><br />Social<br />Services</span>
+               </a>
+            </li>
+            <li id="administration-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconAdministration.svg" alt="Icon Administration" />
+                  <span><br />Administration</span>
+               </a>
+            </li>
+            <li id="education-sub-nav-item">
+               <a href="#">
+                  <img class="bar-buttons subLevel" src="./assets/iconEducation.svg" alt="Icon Education" />
+                  <span><br />Education</span>
+               </a>
+            </li>
+            <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-services" alt="" />
+         </ul>
+      </div>
+      <!-- Barra secundaria para Incidences -->
+      <div id="barra-alerts" class="segunda-barra" style="display: none">
+         <ul>
+            <li id="alerts-buildings-nav-item" class="nav-item" data-target="barra-buildings">
+               <a href="#">
+                  <img class="bar-buttons" src="./assets/prague--dancing-house--02 1.svg" alt="" />
+                  <span><br />Buildings</span>
+               </a>
+            </li>
+            <!-- Botón principal: Mobility -->
+            <li id="alerts-mobility-nav-item" class="nav-item" data-target="barra-mobility">
+               <a href="#">
+                  <img class="bar-buttons" src="./assets/automobile 2.svg" alt="" />
+                  <span><br />Mobility</span>
+               </a>
+            </li>
+            <!-- Botón principal: Health -->
+            <li id="alerts-health-nav-item" class="nav-item" data-target="barra-health">
+               <a href="#">
+                  <img class="bar-buttons" src="./assets/care 2.svg" alt="" />
+                  <span><br />Health</span>
+               </a>
+            </li>
+            <!-- Botón principal: Security -->
+            <li id="alerts-security-nav-item" class="nav-item" data-target="barra-security">
+               <a href="#">
+                  <img class="bar-buttons" src="./assets/secure--data 1.svg" alt="" />
+                  <span><br />Security</span>
+               </a>
+            </li>
+            <!-- Botón principal: Infraestructure -->
+            <li id="alerts-infraestructure-nav-item" class="nav-item" data-target="barra-infraestructure">
+               <a href="#">
+                  <img class="bar-buttons" src="./assets/infrastructure.svg" alt="" />
+                  <span><br />Infraestructure</span>
+               </a>
+            </li>
+            <!-- Botón principal: Logistics -->
+            <li id="alerts-logistics-nav-item" class="nav-item" data-target="barra-logistics">
+               <a href="#">
+                  <img class="bar-buttons" src="./assets/moving-dolly 1.svg" alt="" />
+                  <span><br />Logistics</span>
+               </a>
+            </li>
+            <!-- Botón principal: Environment & Sustainability -->
+            <li id="alerts-environment-nav-item" class="nav-item" data-target="barra-environment">
+               <a href="#">
+                  <img class="bar-buttons" src="./assets/sustainability 2.svg" alt="" />
+                  <span><br />Environment &<br />Sustainability</span>
+               </a>
+            </li>
+            <!-- Botón principal: Entertainment & Sports -->
+            <li id="alerts-entertainment-nav-item" class="nav-item" data-target="barra-entertainment">
+               <a href="#">
+                  <img class="bar-buttons" src="./assets/tennis 2.svg" alt="" />
+                  <span><br />Entertainment<br />& Sports</span>
+               </a>
+            </li>
+            <!-- Botón principal: Services -->
+            <li id="alerts-services-nav-item" class="nav-item" data-target="barra-services">
+               <a href="#">
+                  <img class="bar-buttons" src="./assets/justice 1.svg" alt="" />
+                  <span><br />Services</span>
+               </a>
+            </li>
+            <!-- Botón principal: Incidences -->
+            <li id="alerts-incidences-nav-item" class="nav-item" data-target="barra-alerts">
+               <a href="#">
+                  <img id="alerts-incidences" class="bar-buttons" src="./assets/Icon_alert 1.svg" alt="" />
+                  <span><br />Incidences</span>
+               </a>
+            </li>
+            <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-alerts" alt="" />
+         </ul>
+      </div>
 
-     </div>
-     <!-- Barra secundaria para Entertainment & Sports -->
-     <div id="barra-entertainment" class="segunda-barra" style="display: none;">
-          <ul>
-               <li id="eventsConcerts-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconEventsAndConcerts.svg"
-                              alt="Events & Concerts">
-                         <span><br>Events <br>& Concerts</span>
-                    </a>
-               </li>
-               <li id="theatres-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconTheatres.svg" alt="Icon Theatres">
-                         <span><br>Theatres</span>
-                    </a>
-               </li>
-               <li id="cinemas-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconCinemas.svg" alt="Icon Cinemas">
-                         <span><br>Cinemas</span>
-                    </a>
-               </li>
-               <li id="stadiums-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconStadiums.svg" alt="Icon Stadiums">
-                         <span><br>Stadiums</span>
-                    </a>
-               </li>
-               <li>
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconThemeParks.svg" alt="Icon Theme Parks">
-                         <span><br>Theme Parks</span>
-                    </a>
-               </li>
-               <li id="landmarks-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconLandmarks.svg" alt="Icon Landmarks">
-                         <span><br>Landmarks</span>
-                    </a>
-               </li>
-               <li id="clubsAndNightlife-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconClubsAndNighlife.svg"
-                              alt="Icon Clubs & Nightlife">
-                         <span><br>Clubs <br>& Nightlife</span>
-                    </a>
-               </li>
-               <li id="hotelsAndApartments-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconHotelsAndApartments.svg"
-                              alt="Icon Hotels & Apartments">
-                         <span><br>Hotels <br>& Apartments</span>
-                    </a>
-               </li>
-               <li id="sportsFacilities-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconSportsFacilities.svg"
-                              alt="Icon Sports Facilities">
-                         <span><br>Sports<br>Facilities</span>
-                    </a>
-               </li>
-               <li id="museums-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconMuseums.svg" alt="Icon Museums">
-                         <span><br>Museums</span>
-                    </a>
-               </li>
-               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-entertainment" alt="">
-          </ul>
-     </div>
-     <!-- Barra secundaria para Services -->
-     <div id="barra-services" class="segunda-barra" style="display: none;">
-          <ul>
-               <li id="socialServices-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconSocialServices.svg" alt="Social Services">
-                         <span><br>Social<br>Services</span>
-                    </a>
-               </li>
-               <li id="administration-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconAdministration.svg"
-                              alt="Icon Administration">
-                         <span><br>Administration</span>
-                    </a>
-               </li>
-               <li id="education-sub-nav-item">
-                    <a href="#">
-                         <img class="bar-buttons subLevel" src="./assets/iconEducation.svg" alt="Icon Education">
-                         <span><br>Education</span>
-                    </a>
-               </li>
-               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-services" alt="">
-          </ul>
-     </div>
-     <!-- Barra secundaria para Incidences -->
-     <div id="barra-alerts" class="segunda-barra" style="display: none;">
-          <ul>
-               <li id="alerts-buildings-nav-item" class="nav-item" data-target="barra-buildings">
-                    <a href="#">
-                         <img class="bar-buttons" src="./assets/prague--dancing-house--02 1.svg" alt="" />
-                         <span><br />Buildings</span>
-                    </a>
-               </li>
-               <!-- Botón principal: Mobility -->
-               <li id="alerts-mobility-nav-item" class="nav-item" data-target="barra-mobility">
-                    <a href="#">
-                         <img class="bar-buttons" src="./assets/automobile 2.svg" alt="" />
-                         <span><br />Mobility</span>
-                    </a>
-               </li>
-               <!-- Botón principal: Health -->
-               <li id="alerts-health-nav-item" class="nav-item" data-target="barra-health">
-                    <a href="#">
-                         <img class="bar-buttons" src="./assets/care 2.svg" alt="" />
-                         <span><br />Health</span>
-                    </a>
-               </li>
-               <!-- Botón principal: Security -->
-               <li id="alerts-security-nav-item" class="nav-item" data-target="barra-security">
-                    <a href="#">
-                         <img class="bar-buttons" src="./assets/secure--data 1.svg" alt="" />
-                         <span><br />Security</span>
-                    </a>
-               </li>
-               <!-- Botón principal: Infraestructure -->
-               <li id="alerts-infraestructure-nav-item" class="nav-item" data-target="barra-infraestructure">
-                    <a href="#">
-                         <img class="bar-buttons" src="./assets/infrastructure.svg" alt="" />
-                         <span><br />Infraestructure</span>
-                    </a>
-               </li>
-               <!-- Botón principal: Logistics -->
-               <li id="alerts-logistics-nav-item" class="nav-item" data-target="barra-logistics">
-                    <a href="#">
-                         <img class="bar-buttons" src="./assets/moving-dolly 1.svg" alt="" />
-                         <span><br />Logistics</span>
-                    </a>
-               </li>
-               <!-- Botón principal: Environment & Sustainability -->
-               <li id="alerts-environment-nav-item" class="nav-item" data-target="barra-environment">
-                    <a href="#">
-                         <img class="bar-buttons" src="./assets/sustainability 2.svg" alt="" />
-                         <span><br />Environment &<br />Sustainability</span>
-                    </a>
-               </li>
-               <!-- Botón principal: Entertainment & Sports -->
-               <li id="alerts-entertainment-nav-item" class="nav-item" data-target="barra-entertainment">
-                    <a href="#">
-                         <img class="bar-buttons" src="./assets/tennis 2.svg" alt="" />
-                         <span><br />Entertainment<br />& Sports</span>
-                    </a>
-               </li>
-               <!-- Botón principal: Services -->
-               <li id="alerts-services-nav-item" class="nav-item" data-target="barra-services">
-                    <a href="#">
-                         <img class="bar-buttons" src="./assets/justice 1.svg" alt="" />
-                         <span><br />Services</span>
-                    </a>
-               </li>
-               <!-- Botón principal: Incidences -->
-               <li id="alerts-incidences-nav-item" class="nav-item" data-target="barra-alerts">
-                    <a href="#">
-                         <img id="alerts-incidences" class="bar-buttons" src="./assets/Icon_alert 1.svg" alt="" />
-                         <span><br />Incidences</span>
-                    </a>
-               </li>
-               <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-alerts" alt="">
-          </ul>
-     </div>
-
-
-     <div id="gmp-map"></div>
-     <script src="./app.js"></script>
-</body>
-
+      <div id="gmp-map"></div>
+      <script src="./app.js"></script>
+   </body>
 </html>

@@ -2066,6 +2066,7 @@ const cargarCapaKmlResiduosPeligrosos = () => {
 
      const botonRecycling = document.getElementById( 'recycling-sub-nav-item' );
      let recyclingVisible = false;
+     let intervaloBasuraMarker;
 
      botonRecycling.addEventListener( 'click', () => {
           // Alternar la visibilidad de la capa KML de Recycling
@@ -2079,13 +2080,13 @@ const cargarCapaKmlResiduosPeligrosos = () => {
           }
 
           // Alternar la visibilidad de los puntos fijos de reciclaje
-          toggleMarkers( markersWasteFixedPoints, recyclingVisible );
+          toggleMarcadores( markersWasteFixedPoints, recyclingVisible );
           // Alternar la visibilidad de los puntos móviles de reciclaje
-          toggleMarkers( markersWasteMobilePoints, recyclingVisible );
+          toggleMarcadores( markersWasteMobilePoints, recyclingVisible );
           // Alternar la visibilidad de los puntos de reciclaje de ropa
-          toggleMarkers( markersClothesRecycling, recyclingVisible );
+          toggleMarcadores( markersClothesRecycling, recyclingVisible );
           // Alternar la visibilidad de los contenedores de reciclaje
-          toggleMarkers( markersRecyclingContainers, recyclingVisible );
+          toggleMarcadores( markersRecyclingContainers, recyclingVisible );
 
           recyclingVisible = !recyclingVisible; // Cambia la bandera de visibilidad
 
@@ -2102,6 +2103,8 @@ const cargarCapaKmlResiduosPeligrosos = () => {
           //  if (markersRecyclingContainers.length === 0 && recyclingVisible) {
           //      cargarMarcadoresRecyclingContainers();
           //  }
+
+          
 
           // Alternar la visibilidad del camión de basura
           if ( basuraMarker ) {
@@ -9288,6 +9291,28 @@ document.addEventListener( 'DOMContentLoaded', function () {
      const optionButton = document.getElementById( 'option-button' );
      const optionItem = document.getElementById( 'option-item' );
 
+     const navBar = document.getElementById('nav-bar');
+     const minimizeNavBarButton = document.getElementById('minimize-nav-bar');
+     const maximizeNavBarButton = document.querySelector('.minimizeButtonNavBar img'); // Asegúrate de que el selector apunte al botón dentro del div
+     const minimizeButtonNavBar = document.querySelector('.minimizeButtonNavBar');
+     const mediaQuery = window.matchMedia('(max-width: 430px)');
+
+     // Evento de minimización de la nav-bar
+    minimizeNavBarButton.addEventListener('click', () => {
+     if (mediaQuery.matches) { // Solo se aplica si la pantalla es menor a 360px
+         navBar.style.display = 'none'; // Oculta la nav-bar
+         minimizeButtonNavBar.style.display = 'flex'; // Muestra el botón para maximizar
+     }
+ });
+
+ // Evento de maximización de la nav-bar
+ maximizeNavBarButton.addEventListener('click', () => {
+     if (mediaQuery.matches) { // Solo se aplica si la pantalla es menor a 360px
+         navBar.style.display = 'flex'; // Muestra la nav-bar
+         minimizeButtonNavBar.style.display = 'none'; // Oculta el botón de opción
+     }
+ });
+
      minimizeButton.addEventListener( 'click', () => {
           topBottoms.style.display = 'none';
           optionButton.style.display = 'flex';
@@ -9298,6 +9323,9 @@ document.addEventListener( 'DOMContentLoaded', function () {
           optionButton.style.display = 'none';
      } );
 } );
+
+
+// Swipper
 
 
 

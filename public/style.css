@@ -1,3 +1,6 @@
+/* Fuente Roboto*/
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 /* Always set the map height explicitly to define the size of the div
  * element that contains the map. */
 #gmp-map {
@@ -5,9 +8,6 @@
      position: relative;
 }
 
-/* Fuente Roboto*/
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
 /* Optional: Makes the sample page fill the window. */
 html,
@@ -94,7 +94,7 @@ svg {
      /* Asegúrate de agregar esta clase al contenedor de tu nav-bar si no lo has hecho */
      display: flex;
      justify-content: center;
-     position: fixed;
+     position: absolute;
      width: 100%;
      bottom: 0;
      z-index: 1;
@@ -103,7 +103,7 @@ svg {
 
 .nav-bar {
      /* width: 100%; */
-     position: fixed;
+     position: absolute;
      z-index: 1;
      bottom: 0%;
      display: flex;
@@ -308,27 +308,30 @@ span:hover {
      border-radius: 10px;
      margin: 10px 0;
      border: 1px solid #333;
-     position: relative; /* Añadir position relative para usar positioning en el texto */
- }
- 
- .parking-bar {
+     position: relative;
+     /* Añadir position relative para usar positioning en el texto */
+}
+
+.parking-bar {
      height: 100%;
-     background-color: var(--color-verde-qubo); 
+     background-color: var(--color-verde-qubo);
      border-radius: 10px;
      position: relative;
- }
- 
- .parking-bar-text {
+}
+
+.parking-bar-text {
      position: absolute;
      top: 50%;
      left: 50%;
-     transform: translate(-50%, -50%); /* Centra el texto dentro del contenedor */
+     transform: translate(-50%, -50%);
+     /* Centra el texto dentro del contenedor */
      font-weight: bold;
      color: black;
      /* text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);  */
-     white-space: nowrap; /* Evita que el texto se divida en varias líneas */
- }
- 
+     white-space: nowrap;
+     /* Evita que el texto se divida en varias líneas */
+}
+
 
 .incidence {
      width: 100%;
@@ -339,7 +342,7 @@ span:hover {
      flex-direction: row;
      justify-content: space-between;
      padding-top: 3rem;
-     gap: 127px;
+     gap: 44px;
      align-items: center;
 }
 
@@ -358,7 +361,11 @@ span:hover {
      letter-spacing: -0.225px;
 }
 
-#cerrar-info-box, #cerrar-info-box-tracking, #cerrar-info-box-ships, #cerrar-info-box-trucks, #cerrar-info-box-store {
+#cerrar-info-box,
+#cerrar-info-box-tracking,
+#cerrar-info-box-ships,
+#cerrar-info-box-trucks,
+#cerrar-info-box-store {
      cursor: pointer;
      background: transparent;
      border: none;
@@ -483,6 +490,7 @@ body>div.info-box {
 
 .configContainer li {
      justify-content: center;
+     text-align: center;
 }
 
 .button-title-container p {
@@ -596,6 +604,7 @@ body>div.info-box {
      /* Color del texto */
 }
 
+
 /*********************************************************/
 
 .form-container {
@@ -699,7 +708,90 @@ body>div.info-box {
      }
 } */
 
+@media screen and (max-width: 430px) {
+
+     .form-container {
+          width: 100%;
+     }
+
+     .info-box {
+          width: -webkit-fill-available;
+          left: auto;
+     }
+
+     /* Asegura que la topBottoms esté en la parte superior de la pantalla */
+     .topBottoms {
+          position: fixed;
+          top: 0;
+          width: 100%;
+          z-index: 10;
+          /* Asegura que esté encima de otros elementos */
+          display: flex;
+          justify-content: space-around;
+          padding: 10px 0;
+     }
+
+     .nav-bar a,
+     .nav-bar a:focus,
+     .nav-bar button:focus {
+          outline: none;
+     }
+
+
+     .nav-container {
+          position: fixed;
+          /* Fija la posición de la nav-bar */
+          bottom: 0;
+          width: 100%;
+          z-index: 9;
+          /* Un poco debajo de la topBottoms */
+     }
+
+     .nav-bar {
+          display: flex;
+          justify-content: space-around;
+          padding: 10px 0;
+          background-color: rgba(0, 0, 0, 0.8);
+          z-index: 9;
+          border-radius: 35px;
+     }
+
+     .minimizeButtonNavBar {
+          display: none;
+          /* Oculto por defecto */
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+          padding: 10px 0;
+          background-color: rgba(0, 0, 0, 0.8);
+          position: fixed;
+          bottom: 0;
+          z-index: 11;
+     }
+
+     .minimize-button {
+          display: block;
+     }
+
+     /* Ajusta la posición de los elementos para asegurarse de que ambos sean visibles */
+     .nav-bar>ul {
+          padding: 10px;
+          border-radius: 35px;
+          flex-wrap: wrap;
+          justify-content: center;
+          background-color: unset;
+     }
+}
+
+
 @media screen and (max-width: 376px) {
+
+
+
+
+     .nameContainer {
+          gap: 49px;
+     }
 
 
      #nav-bar>ul {
@@ -809,9 +901,9 @@ strong {
 }
 
 
- 
- 
- 
+
+
+
 
 @media screen and (max-width: 674px) {
      .topBottoms>.configContainer {
@@ -834,14 +926,10 @@ strong {
      }
 
      .nav-bar>ul {
-          gap: 11px;
-          padding: 15px 23px;
+          padding: inherit;
+          gap: 0px;
      }
 
-     .nav-bar>ul li {
-          width: auto;
-          height: auto;
-     }
 
      .minimize-button {
           display: block;
@@ -849,22 +937,27 @@ strong {
      }
 
      .minimize-button>img {
-          width: 25px;
+          width: 15px;
+     }
+
+     .img-container {
+          width: 48.52px;
+          height: 46px;
      }
 
 
-
      #option-button .img-container img {
-          width: 60px;
-          height: 60px;
+          width: 25px;
+          height: 25px;
           border-radius: 100%;
-          padding: 12px;
+          /* padding: 12px; */
           /* background-color: white; */
      }
 
      .segunda-barra>ul {
           justify-content: center;
           gap: 0;
+          padding: inherit;
      }
 
 }
@@ -872,6 +965,8 @@ strong {
 @media screen and (max-width: 430px) {
      .topBottoms>.configContainer {
           justify-content: center;
+          padding: 0px 10px;
+          gap: 23px;
      }
 
      .topBottoms>ul li {
@@ -884,13 +979,14 @@ strong {
      }
 
      .minimize-button {
-          bottom: 10px;
-          top: auto;
+          /* bottom: 10px; */
+          top: 0;
+          right: 0;
      }
 
      .bar-buttons {
-          width: 60px;
-          height: 60px;
+          width: 50px;
+          height: 50px;
      }
 
      .segunda-barra {
@@ -904,3 +1000,5 @@ strong {
           padding: 0;
      }
 }
+
+
