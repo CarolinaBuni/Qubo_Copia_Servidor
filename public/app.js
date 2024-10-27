@@ -1301,84 +1301,84 @@ function initMap() {
 
      function toggleKmlLayerBici() {
           // Manejar la capa KML de los carriles de bicicleta
-          if (!kmlLayerCarrilesBici) {
-              kmlLayerCarrilesBici = new google.maps.KmlLayer({
-                  url: carrilesBiciKmzUrl,
-                  map: map,
-                  preserveViewport: true
-              });
-              console.log("Capa de carriles bici cargada.");
+          if ( !kmlLayerCarrilesBici ) {
+               kmlLayerCarrilesBici = new google.maps.KmlLayer( {
+                    url: carrilesBiciKmzUrl,
+                    map: map,
+                    preserveViewport: true
+               } );
+               console.log( "Capa de carriles bici cargada." );
           } else {
-              kmlLayerCarrilesBici.setMap(kmlLayerCarrilesBici.getMap() ? null : map);
-              console.log("Capa de carriles bici alternada.");
+               kmlLayerCarrilesBici.setMap( kmlLayerCarrilesBici.getMap() ? null : map );
+               console.log( "Capa de carriles bici alternada." );
           }
-      
+
           // Manejar la capa KML de las bases de BiciMad
-          if (!kmlLayerBasesBiciMad) {
-              kmlLayerBasesBiciMad = new google.maps.KmlLayer({
-                  url: basesBiciMadKmzUrl,
-                  map: map,
-                  preserveViewport: true
-              });
-              console.log("Capa de bases BiciMad cargada.");
+          if ( !kmlLayerBasesBiciMad ) {
+               kmlLayerBasesBiciMad = new google.maps.KmlLayer( {
+                    url: basesBiciMadKmzUrl,
+                    map: map,
+                    preserveViewport: true
+               } );
+               console.log( "Capa de bases BiciMad cargada." );
           } else {
-              kmlLayerBasesBiciMad.setMap(kmlLayerBasesBiciMad.getMap() ? null : map);
-              console.log("Capa de bases BiciMad alternada.");
+               kmlLayerBasesBiciMad.setMap( kmlLayerBasesBiciMad.getMap() ? null : map );
+               console.log( "Capa de bases BiciMad alternada." );
           }
-      
+
           // Manejar la capa KML de Bicipark
-          if (!kmlLayerBicipark) {
-              kmlLayerBicipark = new google.maps.KmlLayer({
-                  url: biciparkKmzUrl,
-                  map: map,
-                  preserveViewport: true
-              });
-              console.log("Capa de Bicipark cargada.");
+          if ( !kmlLayerBicipark ) {
+               kmlLayerBicipark = new google.maps.KmlLayer( {
+                    url: biciparkKmzUrl,
+                    map: map,
+                    preserveViewport: true
+               } );
+               console.log( "Capa de Bicipark cargada." );
           } else {
-              kmlLayerBicipark.setMap(kmlLayerBicipark.getMap() ? null : map);
-              console.log("Capa de Bicipark alternada.");
+               kmlLayerBicipark.setMap( kmlLayerBicipark.getMap() ? null : map );
+               console.log( "Capa de Bicipark alternada." );
           }
-      
+
           // Manejar la capa KML de AparcaBicis
-          if (!kmlLayerAparcaBicis) {
-              kmlLayerAparcaBicis = new google.maps.KmlLayer({
-                  url: aparcaBicisUrl,
-                  map: map,
-                  preserveViewport: true
-              });
-              console.log("Capa de AparcaBicis cargada.");
+          if ( !kmlLayerAparcaBicis ) {
+               kmlLayerAparcaBicis = new google.maps.KmlLayer( {
+                    url: aparcaBicisUrl,
+                    map: map,
+                    preserveViewport: true
+               } );
+               console.log( "Capa de AparcaBicis cargada." );
           } else {
-              kmlLayerAparcaBicis.setMap(kmlLayerAparcaBicis.getMap() ? null : map);
-              console.log("Capa de AparcaBicis alternada.");
+               kmlLayerAparcaBicis.setMap( kmlLayerAparcaBicis.getMap() ? null : map );
+               console.log( "Capa de AparcaBicis alternada." );
           }
-      
+
           // Manejar la capa KML de Calles Tranquilas
-          if (!kmlLayerCallesTranquilas) {
-              kmlLayerCallesTranquilas = new google.maps.KmlLayer({
-                  url: callesTranquilasUrl,
-                  map: map,
-                  preserveViewport: true
-              });
-              console.log("Capa de Calles Tranquilas cargada.");
+          if ( !kmlLayerCallesTranquilas ) {
+               kmlLayerCallesTranquilas = new google.maps.KmlLayer( {
+                    url: callesTranquilasUrl,
+                    map: map,
+                    preserveViewport: true
+               } );
+               console.log( "Capa de Calles Tranquilas cargada." );
           } else {
-              kmlLayerCallesTranquilas.setMap(kmlLayerCallesTranquilas.getMap() ? null : map);
-              console.log("Capa de Calles Tranquilas alternada.");
+               kmlLayerCallesTranquilas.setMap( kmlLayerCallesTranquilas.getMap() ? null : map );
+               console.log( "Capa de Calles Tranquilas alternada." );
           }
-      
+
           // Alternar la visibilidad de los marcadores de Biciparks
-          toggleMarcadores(markersBiciparks, biciparksVisible);
+          toggleMarcadores( markersBiciparks, biciparksVisible );
           biciparksVisible = !biciparksVisible; // Cambia la bandera de visibilidad
-      
+
           // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
-          if (markersBiciparks.length === 0 && biciparksVisible) {
-              cargarMarcadoresBiciparks();
-              console.log("Marcadores de Biciparks cargados.");
+          if ( markersBiciparks.length === 0 && biciparksVisible ) {
+               cargarMarcadoresBiciparks();
+               console.log( "Marcadores de Biciparks cargados." );
           }
-      
+
           // Llamar a la función para inicializar las bicicletas en el mapa
           iniciarBicicletasEnMapa();
-      }
-      
+     }
+
      // Función para Marcadores de BICICLETAS
      const marcadoresBicicletas = {};
 
@@ -1470,7 +1470,7 @@ function initMap() {
      let markersBiciparks = []; // Array para almacenar los marcadores de Biciparks
      let biciparksVisible = false; // Bandera para el estado de visibilidad
      botonBicycle.addEventListener( 'click', toggleKmlLayerBici );
- 
+
 
 
      //* ---------------------------------------------------------------------------------
@@ -1479,7 +1479,7 @@ function initMap() {
      // // URL de la capa KML
      // const kmlAlertsMobilityUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Operacion_asfalto_2021_kml.kmz?sp=r&st=2024-03-19T21:27:54Z&se=2090-01-01T05:27:54Z&sv=2022-11-02&sr=b&sig=%2FN8Ez5X9F5hzPDYb2P7iZJX%2FiSXkynMgdm8LitO4qgg%3D";
 
-     
+
 
      // // URL de la API de alertas de movilidad
      // const urlAlertsMobility = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Fiware_Incidences_Mobility?sp=r&st=2024-07-26T13:05:48Z&se=2090-01-01T22:05:48Z&sv=2022-11-02&sr=b&sig=1XeWef46jcbbCgOKIPGENLNDuTAOqDjfq%2Fr3p59BT5A%3D";
@@ -1579,113 +1579,113 @@ function initMap() {
      // } );
 
      // URL de la capa KML de Operación Asfalto
-const kmlAlertsMobilityUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Operacion_asfalto_2021_kml.kmz?sp=r&st=2024-03-19T21:27:54Z&se=2090-01-01T05:27:54Z&sv=2022-11-02&sr=b&sig=%2FN8Ez5X9F5hzPDYb2P7iZJX%2FiSXkynMgdm8LitO4qgg%3D";
+     const kmlAlertsMobilityUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Operacion_asfalto_2021_kml.kmz?sp=r&st=2024-03-19T21:27:54Z&se=2090-01-01T05:27:54Z&sv=2022-11-02&sr=b&sig=%2FN8Ez5X9F5hzPDYb2P7iZJX%2FiSXkynMgdm8LitO4qgg%3D";
 
-// URL de la nueva capa KML de Incidencias Vía Pública
-const kmlIncidenciasViaPublicaUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Incidencias%20Via%20Publica.kml?sp=r&st=2024-03-19T21:30:08Z&se=2090-01-01T05:30:08Z&sv=2022-11-02&sr=b&sig=KpdNugI91fHozgP79RHLCDrrygV5Ge22KOgoGSD79Cg%3D";
+     // URL de la nueva capa KML de Incidencias Vía Pública
+     const kmlIncidenciasViaPublicaUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Incidencias%20Via%20Publica.kml?sp=r&st=2024-03-19T21:30:08Z&se=2090-01-01T05:30:08Z&sv=2022-11-02&sr=b&sig=KpdNugI91fHozgP79RHLCDrrygV5Ge22KOgoGSD79Cg%3D";
 
-// URL de la API de alertas de movilidad
-const urlAlertsMobility = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Fiware_Incidences_Mobility?sp=r&st=2024-07-26T13:05:48Z&se=2090-01-01T22:05:48Z&sv=2022-11-02&sr=b&sig=1XeWef46jcbbCgOKIPGENLNDuTAOqDjfq%2Fr3p59BT5A%3D";
+     // URL de la API de alertas de movilidad
+     const urlAlertsMobility = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Fiware_Incidences_Mobility?sp=r&st=2024-07-26T13:05:48Z&se=2090-01-01T22:05:48Z&sv=2022-11-02&sr=b&sig=1XeWef46jcbbCgOKIPGENLNDuTAOqDjfq%2Fr3p59BT5A%3D";
 
-// Botón de alertas de movilidad
-const botonAlertsMobility = document.getElementById('alerts-mobility-nav-item');
+     // Botón de alertas de movilidad
+     const botonAlertsMobility = document.getElementById( 'alerts-mobility-nav-item' );
 
-let kmlLayerAlertsMobility = null; // Variable para la capa KML de Operación Asfalto
-let kmlLayerIncidenciasViaPublica = null; // Variable para la nueva capa KML de Incidencias Vía Pública
-let markersAlertsMobility = []; // Array para almacenar los marcadores de alertas
-let alertsMobilityVisible = false; // Bandera para el estado de visibilidad
+     let kmlLayerAlertsMobility = null; // Variable para la capa KML de Operación Asfalto
+     let kmlLayerIncidenciasViaPublica = null; // Variable para la nueva capa KML de Incidencias Vía Pública
+     let markersAlertsMobility = []; // Array para almacenar los marcadores de alertas
+     let alertsMobilityVisible = false; // Bandera para el estado de visibilidad
 
-// Función para cargar la capa KML
-function cargarCapaKML(url, kmlLayer) {
-    if (kmlLayer) {
-        kmlLayer.setMap(kmlLayer.getMap() ? null : map);
-    } else {
-        kmlLayer = new google.maps.KmlLayer({
-            url: url,
-            map: map,
-            preserveViewport: true
-        });
-    }
-    return kmlLayer; // Devolver la capa para que se asigne a la variable adecuada
-}
+     // Función para cargar la capa KML
+     function cargarCapaKML( url, kmlLayer ) {
+          if ( kmlLayer ) {
+               kmlLayer.setMap( kmlLayer.getMap() ? null : map );
+          } else {
+               kmlLayer = new google.maps.KmlLayer( {
+                    url: url,
+                    map: map,
+                    preserveViewport: true
+               } );
+          }
+          return kmlLayer; // Devolver la capa para que se asigne a la variable adecuada
+     }
 
-// Función para cargar y mostrar marcadores de alertas de movilidad
-function cargarMarcadoresAlertsMobility() {
-    fetch(urlAlertsMobility)
-        .then(response => response.json())
-        .then(data => {
-            data.alerts0002.forEach(item => {
-                const {
-                    id,
-                    ubicacion,
-                    name,
-                    category,
-                    description,
-                    streetAddress,
-                    postalCode,
-                    addressLocality,
-                    addressRegion,
-                    addressCountry,
-                    neighborhood,
-                    district,
-                    source,
-                    owner
-                } = parseFiwareData(item);
+     // Función para cargar y mostrar marcadores de alertas de movilidad
+     function cargarMarcadoresAlertsMobility() {
+          fetch( urlAlertsMobility )
+               .then( response => response.json() )
+               .then( data => {
+                    data.alerts0002.forEach( item => {
+                         const {
+                              id,
+                              ubicacion,
+                              name,
+                              category,
+                              description,
+                              streetAddress,
+                              postalCode,
+                              addressLocality,
+                              addressRegion,
+                              addressCountry,
+                              neighborhood,
+                              district,
+                              source,
+                              owner
+                         } = parseFiwareData( item );
 
-                if (ubicacion && name) {
-                    const marker = new google.maps.Marker({
-                        position: { lat: ubicacion[1], lng: ubicacion[0] },
-                        map: map,
-                        title: name,
-                        icon: "./assets/incidencesMobilityQubo.svg"
-                    });
+                         if ( ubicacion && name ) {
+                              const marker = new google.maps.Marker( {
+                                   position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+                                   map: map,
+                                   title: name,
+                                   icon: "./assets/incidencesMobilityQubo.svg"
+                              } );
 
-                    marker.addListener("click", () => {
-                        const infoBox = document.querySelector(".info-box");
-                        infoBox.style.display = "flex";
-                        infoBox.innerHTML = `
+                              marker.addListener( "click", () => {
+                                   const infoBox = document.querySelector( ".info-box" );
+                                   infoBox.style.display = "flex";
+                                   infoBox.innerHTML = `
                             <div class='nameContainer'>
-                                <p>${category}</p>
-                                <p>${name}</p>
+                                <p>${ category }</p>
+                                <p>${ name }</p>
                             </div>
-                            <p>Address: ${streetAddress}</p>
-                            <p>Localización: ${addressLocality}, ${addressRegion}</p>
-                            <p>${addressCountry}</p>
-                            <p>${description}</p>
-                            <p>ID: ${id}</p>
-                            <p>Source: <a href="${source}" target="_blank">${source}</a></p>
+                            <p>Address: ${ streetAddress }</p>
+                            <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
+                            <p>${ addressCountry }</p>
+                            <p>${ description }</p>
+                            <p>ID: ${ id }</p>
+                            <p>Source: <a href="${ source }" target="_blank">${ source }</a></p>
                             <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                             <button class='share'><img src='./assets/shareIcon.svg'></button>
                         `;
-                        document.getElementById("cerrar-info-box").addEventListener("click", () => {
-                            infoBox.style.display = "none";
-                        });
-                    });
+                                   document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
+                                        infoBox.style.display = "none";
+                                   } );
+                              } );
 
-                    markersAlertsMobility.push(marker); // Añade el marcador al array de alertas
-                }
-            });
-        })
-        .catch(error => console.error("Error al cargar los marcadores de alertas de movilidad:", error));
-}
+                              markersAlertsMobility.push( marker ); // Añade el marcador al array de alertas
+                         }
+                    } );
+               } )
+               .catch( error => console.error( "Error al cargar los marcadores de alertas de movilidad:", error ) );
+     }
 
-// Evento para el botón de alertas de movilidad
-botonAlertsMobility.addEventListener("click", () => {
-    // Alternar la visibilidad de la capa KML de Operación Asfalto
-    kmlLayerAlertsMobility = cargarCapaKML(kmlAlertsMobilityUrl, kmlLayerAlertsMobility);
+     // Evento para el botón de alertas de movilidad
+     botonAlertsMobility.addEventListener( "click", () => {
+          // Alternar la visibilidad de la capa KML de Operación Asfalto
+          kmlLayerAlertsMobility = cargarCapaKML( kmlAlertsMobilityUrl, kmlLayerAlertsMobility );
 
-    // Alternar la visibilidad de la nueva capa KML de Incidencias Vía Pública
-    kmlLayerIncidenciasViaPublica = cargarCapaKML(kmlIncidenciasViaPublicaUrl, kmlLayerIncidenciasViaPublica);
+          // Alternar la visibilidad de la nueva capa KML de Incidencias Vía Pública
+          kmlLayerIncidenciasViaPublica = cargarCapaKML( kmlIncidenciasViaPublicaUrl, kmlLayerIncidenciasViaPublica );
 
-    // Alternar la visibilidad de los marcadores de alertas de movilidad
-    toggleMarcadores(markersAlertsMobility, alertsMobilityVisible);
-    alertsMobilityVisible = !alertsMobilityVisible; // Cambia la bandera de visibilidad
+          // Alternar la visibilidad de los marcadores de alertas de movilidad
+          toggleMarcadores( markersAlertsMobility, alertsMobilityVisible );
+          alertsMobilityVisible = !alertsMobilityVisible; // Cambia la bandera de visibilidad
 
-    // Si los marcadores aún no se han cargado, cargarlos
-    if (markersAlertsMobility.length === 0 && alertsMobilityVisible) {
-        cargarMarcadoresAlertsMobility(); // Llama a la función para cargar los marcadores de alertas de movilidad
-    }
-});
+          // Si los marcadores aún no se han cargado, cargarlos
+          if ( markersAlertsMobility.length === 0 && alertsMobilityVisible ) {
+               cargarMarcadoresAlertsMobility(); // Llama a la función para cargar los marcadores de alertas de movilidad
+          }
+     } );
 
 
 
@@ -1952,10 +1952,10 @@ botonAlertsMobility.addEventListener("click", () => {
      const urlMarkerAirQuality = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Environment/Fiware_EnvAndSust_AirQualityStations-00001?sp=r&st=2024-04-01T12:52:31Z&se=2090-01-01T21:52:31Z&sv=2022-11-02&sr=b&sig=nykV2ypz1eiG3UtGZqKX%2B4M9aFzAayeAmI6Id42pg4w%3D";
 
      // URL de la capa KML de residuos peligrosos
-const urlKmlResiduosPeligrosos = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Environment/Residuos_Peligrosos._Comunidad_de_Madrid..kml?sp=r&st=2024-03-19T21:58:39Z&se=2090-01-01T05:58:39Z&sv=2022-11-02&sr=b&sig=YholeRFpXhE%2B1Iwe3I0rILPDtAG0WD6qI2OUbZ6RokU%3D";
+     const urlKmlResiduosPeligrosos = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Environment/Residuos_Peligrosos._Comunidad_de_Madrid..kml?sp=r&st=2024-03-19T21:58:39Z&se=2090-01-01T05:58:39Z&sv=2022-11-02&sr=b&sig=YholeRFpXhE%2B1Iwe3I0rILPDtAG0WD6qI2OUbZ6RokU%3D";
 
-// Variable para mantener la capa KML de residuos peligrosos
-let kmlLayerResiduosPeligrosos = null;
+     // Variable para mantener la capa KML de residuos peligrosos
+     let kmlLayerResiduosPeligrosos = null;
      const cargarYMostrarMarcadoresAirQuality = async ( url ) => {
           try {
                const response = await fetch( url );
@@ -2019,19 +2019,19 @@ let kmlLayerResiduosPeligrosos = null;
      let residuosPeligrososLayerVisible = false;
 
      // Función para cargar la capa KML de residuos peligrosos
-const cargarCapaKmlResiduosPeligrosos = () => {
-     if (!kmlLayerResiduosPeligrosos) {
-         kmlLayerResiduosPeligrosos = new google.maps.KmlLayer({
-             url: urlKmlResiduosPeligrosos,
-             map: map,
-             preserveViewport: true
-         });
-         console.log("Capa KML de residuos peligrosos cargada.");
-     } else {
-         kmlLayerResiduosPeligrosos.setMap(kmlLayerResiduosPeligrosos.getMap() ? null : map);
-         console.log("Capa KML de residuos peligrosos alternada.");
-     }
- };
+     const cargarCapaKmlResiduosPeligrosos = () => {
+          if ( !kmlLayerResiduosPeligrosos ) {
+               kmlLayerResiduosPeligrosos = new google.maps.KmlLayer( {
+                    url: urlKmlResiduosPeligrosos,
+                    map: map,
+                    preserveViewport: true
+               } );
+               console.log( "Capa KML de residuos peligrosos cargada." );
+          } else {
+               kmlLayerResiduosPeligrosos.setMap( kmlLayerResiduosPeligrosos.getMap() ? null : map );
+               console.log( "Capa KML de residuos peligrosos alternada." );
+          }
+     };
 
      botonEnvironment.addEventListener( 'click', async () => {
           // Alternar la visibilidad de los marcadores de Air Quality Stations
@@ -2043,7 +2043,7 @@ const cargarCapaKmlResiduosPeligrosos = () => {
                await cargarYMostrarMarcadoresAirQuality( urlMarkerAirQuality );
           }
 
-          cargarCapaKmlResiduosPeligrosos()
+          cargarCapaKmlResiduosPeligrosos();
      } );
 
 
@@ -2104,7 +2104,7 @@ const cargarCapaKmlResiduosPeligrosos = () => {
           //      cargarMarcadoresRecyclingContainers();
           //  }
 
-          
+
 
           // Alternar la visibilidad del camión de basura
           if ( basuraMarker ) {
@@ -4485,6 +4485,348 @@ const cargarCapaKmlResiduosPeligrosos = () => {
      } );
 
 
+     //! Función para Marcadores AIRPLANE
+
+     // const marcadoresAviones = {};
+
+     // function iniciarAvionEnMapa( avionId, iconUrl, title, apiUrl ) {
+     //      const defaultImageUrl = './assets/defaultAirplaneImage.png'; // Imagen predeterminada
+
+     //      // Verificar si el marcador ya existe
+     //      if ( marcadoresAviones[ avionId ] ) {
+     //           clearInterval( marcadoresAviones[ avionId ].intervaloId );
+     //           marcadoresAviones[ avionId ].marker.setMap( null );
+     //           delete marcadoresAviones[ avionId ];
+     //           return;
+     //      }
+
+     //      // Crear el marcador para el avión
+     //      const avionMarker = new google.maps.Marker( {
+     //           map: map,
+     //           title: title,
+     //           icon: iconUrl,
+     //      } );
+
+     //      function obtenerYmoverAvion() {
+     //           fetch( apiUrl )
+     //                .then( response => response.json() )
+     //                .then( data => {
+     //                     if ( data.locationUpdates && Array.isArray( data.locationUpdates ) ) {
+     //                          const coordenadas = data.locationUpdates.map( coord => ( {
+     //                               lat: coord.location.value.lat,
+     //                               lng: coord.location.value.lng,
+     //                               speed: coord.speed.value,
+     //                               status: coord.status.value
+     //                          } ) );
+
+     //                          const intervaloId = iniciarMovimientoMarcadorConVelocidadYEstado( avionMarker, coordenadas, 2000, avionId );
+     //                          marcadoresAviones[ avionId ] = {
+     //                               marker: avionMarker,
+     //                               intervaloId: intervaloId,
+     //                               datosAvion: data,
+     //                          };
+
+     //                          const imagenUrl = data[ "Imagen URL" ] || defaultImageUrl;
+
+     //                          avionMarker.addListener( "click", function () {
+     //                               const infoBox = document.querySelector( ".info-box" );
+     //                               infoBox.style.display = "flex";
+     //                               infoBox.innerHTML = `
+     //                               <img src="${ imagenUrl }" alt="Avión" onerror="this.src='${ defaultImageUrl }'"/>
+     //                               <div>Modelo: ${ data.model.value }</div>
+     //                               <div>Matrícula: ${ data.registrationNumber.value }</div>
+     //                               <div>ID Aerolínea: ${ data.airline.object }</div>
+     //                               <div>Capacidad: ${ data.capacity.value }</div>
+     //                               <div id="velocidad-info">Velocidad: ${ coordenadas[ 0 ].speed } KNT</div>
+     //                               <div id="status-info">Estado: ${ coordenadas[ 0 ].status }</div>
+     //                               <button id="cerrar-info-box">
+     //                                    <img src="./assets/botonCerrar.svg" alt="Cerrar">
+     //                               </button>
+     //                          `;
+     //                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
+     //                                    infoBox.style.display = "none";
+     //                               } );
+     //                          } );
+     //                     } else {
+     //                          console.error( 'Los datos del avión no tienen el formato esperado:', data );
+     //                     }
+     //                } )
+     //                .catch( error => console.error( 'Error al obtener coordenadas del avión:', error ) );
+     //      }
+
+     //      obtenerYmoverAvion();
+     // }
+
+     // function iniciarMovimientoMarcadorConVelocidadYEstado( marker, coordenadas, delay, avionId ) {
+     //      let index = 0;
+
+     //      return setInterval( () => {
+     //           if ( index >= coordenadas.length ) {
+     //                clearInterval( marcadoresAviones[ avionId ].intervaloId );
+     //                return;
+     //           }
+
+     //           const nextPosition = new google.maps.LatLng( coordenadas[ index ].lat, coordenadas[ index ].lng );
+     //           marker.setPosition( nextPosition );
+
+     //           // Actualizar la información en el infobox si está abierto
+     //           const infoBox = document.querySelector( ".info-box" );
+     //           if ( infoBox.style.display === "flex" ) {
+     //                document.getElementById( "velocidad-info" ).textContent = `Velocidad: ${ coordenadas[ index ].speed } KNT`;
+     //                document.getElementById( "status-info" ).textContent = `Estado: ${ coordenadas[ index ].status }`;
+     //           }
+
+     //           index++;
+     //      }, delay );
+     // }
+
+     // // Añadir el evento para el botón del avión
+     // const eventAirplane = document.querySelector( ".airplane-sub-nav-item" );
+     // eventAirplane.addEventListener( 'click', function () {
+     //      iniciarAvionEnMapa(
+     //           'ryanair001', // ID del avión
+     //           './assets/airplaneQubo.svg', // Icono del avión
+     //           'Ryanair Boeing 737', // Título
+     //           'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Airplanes/fiware_ryanair_boeing_737_corrected.json?sp=r&st=2024-10-23T18:12:42Z&se=2099-10-24T02:12:42Z&sv=2022-11-02&sr=b&sig=yVq5tGcz0c8YXoFu%2FvwtFHtgL%2FFBUt2t%2B6Jt6yUm0kw%3D' // URL de la API
+     //      );
+     // } );
+
+
+     const marcadoresAviones = {};
+
+function iniciarAvionEnMapa(avionId, iconUrl, title, apiUrl) {
+    const defaultImageUrl = './assets/defaultAirplaneImage.png';
+
+    // Verificar si el marcador ya existe
+    if (marcadoresAviones[avionId]) {
+        clearInterval(marcadoresAviones[avionId].intervaloId);
+        marcadoresAviones[avionId].marker.setMap(null);
+        delete marcadoresAviones[avionId];
+        return;
+    }
+
+    // Crear el marcador para el avión
+    const avionMarker = new google.maps.Marker({
+        map: map,
+        title: title,
+        icon: iconUrl,
+    });
+
+    function obtenerYmoverAvion() {
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.locationUpdates && Array.isArray(data.locationUpdates)) {
+                    const coordenadas = data.locationUpdates.map(coord => ({
+                        lat: coord.location.value.lat,
+                        lng: coord.location.value.lng,
+                        speed: coord.speed.value,
+                        status: coord.status.value
+                    }));
+
+                    const intervaloId = iniciarMovimientoMarcadorConVelocidadYEstado(avionMarker, coordenadas, 2000, avionId);
+                    marcadoresAviones[avionId] = {
+                        marker: avionMarker,
+                        intervaloId: intervaloId,
+                        datosAvion: data,
+                    };
+
+                    const imagenUrl = data["Imagen URL"] || defaultImageUrl;
+
+                    // Listener para abrir el infobox
+                    avionMarker.addListener("click", function () {
+                        const infoBox = document.querySelector(".info-box");
+                        infoBox.style.display = "flex";
+                        infoBox.innerHTML = `
+                            <img src="${imagenUrl}" alt="Avión" onerror="this.src='${defaultImageUrl}'"/>
+                            <div>Modelo: ${data.model.value}</div>
+                            <div>Matrícula: ${data.registrationNumber.value}</div>
+                            <div>ID Aerolínea: ${data.airline.object}</div>
+                            <div>Capacidad: ${data.capacity.value}</div>
+                            <div id="velocidad-info-${avionId}">Velocidad: ${coordenadas[0].speed} KNT</div>
+                            <div id="status-info-${avionId}">Estado: ${coordenadas[0].status}</div>
+                            <button id="cerrar-info-box">
+                                <img src="./assets/botonCerrar.svg" alt="Cerrar">
+                            </button>
+                        `;
+                        document.getElementById("cerrar-info-box").addEventListener("click", function () {
+                            infoBox.style.display = "none";
+                        });
+                    });
+                } else {
+                    console.error('Los datos del avión no tienen el formato esperado:', data);
+                }
+            })
+            .catch(error => console.error('Error al obtener coordenadas del avión:', error));
+    }
+
+    obtenerYmoverAvion();
+}
+
+function iniciarMovimientoMarcadorConVelocidadYEstado(marker, coordenadas, delay, avionId) {
+    let index = 0;
+
+    // Iniciar intervalo de movimiento
+    const intervaloId = setInterval(() => {
+        if (index >= coordenadas.length) {
+            clearInterval(intervaloId);
+            marcadoresAviones[avionId].intervaloId = null;
+            return;
+        }
+
+        const nextPosition = new google.maps.LatLng(coordenadas[index].lat, coordenadas[index].lng);
+        marker.setPosition(nextPosition);
+
+        // Actualizar la información en el infobox si está abierto
+        const infoBox = document.querySelector(".info-box");
+        if (infoBox.style.display === "flex") {
+            document.getElementById(`velocidad-info-${avionId}`).textContent = `Velocidad: ${coordenadas[index].speed} KNT`;
+            document.getElementById(`status-info-${avionId}`).textContent = `Estado: ${coordenadas[index].status}`;
+        }
+
+        index++;
+    }, delay);
+
+    // Guardar el ID de intervalo en el objeto de marcadores
+    if (!marcadoresAviones[avionId]) {
+        marcadoresAviones[avionId] = {};
+    }
+    marcadoresAviones[avionId].intervaloId = intervaloId;
+}
+
+// Añadir el evento para el botón del avión
+const eventAirplane = document.querySelector(".airplane-sub-nav-item");
+eventAirplane.addEventListener('click', function () {
+    iniciarAvionEnMapa(
+        'ryanair001',
+        './assets/airplaneQubo.svg',
+        'Ryanair Boeing 737',
+        'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Airplanes/fiware_ryanair_boeing_737_corrected.json?sp=r&st=2024-10-23T18:12:42Z&se=2099-10-24T02:12:42Z&sv=2022-11-02&sr=b&sig=yVq5tGcz0c8YXoFu%2FvwtFHtgL%2FFBUt2t%2B6Jt6yUm0kw%3D'
+    );
+});
+
+
+     //! Función para Marcadores de HELICOPTER
+     const marcadoresHelicopteros = {};
+
+     function iniciarHelicopteroEnMapa( helicopteroId, iconUrl, title, apiUrl ) {
+          const defaultImageUrl = './assets/defaultHelicopterImage.png';
+
+          // Verificar si el marcador ya existe
+          if ( marcadoresHelicopteros[ helicopteroId ] ) {
+               clearInterval( marcadoresHelicopteros[ helicopteroId ].intervaloId );
+               marcadoresHelicopteros[ helicopteroId ].marker.setMap( null );
+               delete marcadoresHelicopteros[ helicopteroId ];
+               return;
+          }
+
+          // Crear el marcador para el helicóptero
+          const helicopteroMarker = new google.maps.Marker( {
+               map: map,
+               title: title,
+               icon: iconUrl,
+          } );
+
+          function obtenerYmoverHelicoptero() {
+               fetch( apiUrl )
+                    .then( response => response.json() )
+                    .then( data => {
+                         if ( data.locationUpdates && Array.isArray( data.locationUpdates ) ) {
+                              const coordenadas = data.locationUpdates.map( coord => ( {
+                                   lat: coord.location.value.lat,
+                                   lng: coord.location.value.lng,
+                                   speed: coord.speed.value,
+                                   status: data.status.value // Estado actual del helicóptero
+                              } ) );
+
+                              const intervaloId = iniciarMovimientoMarcadorConVelocidadYEstado( helicopteroMarker, coordenadas, 2000, helicopteroId );
+                              marcadoresHelicopteros[ helicopteroId ] = {
+                                   marker: helicopteroMarker,
+                                   intervaloId: intervaloId,
+                                   datosHelicoptero: data,
+                              };
+
+                              const imagenUrl = data[ "Imagen URL" ] || defaultImageUrl;
+
+                              helicopteroMarker.addListener( "click", function () {
+                                   const infoBox = document.querySelector( ".info-box" );
+                                   infoBox.style.display = "flex";
+                                   infoBox.innerHTML = `
+                                   <img src="${ imagenUrl }" alt="Helicóptero" onerror="this.src='${ defaultImageUrl }'"/>
+                                   <div>Modelo: ${ data.model.value }</div>
+                                   <div>Matrícula: ${ data.registrationNumber.value }</div>
+                                   <div>Propietario: ${ data.owner.object }</div>
+                                   <div>Capacidad: ${ data.capacity.value }</div>
+                                   <div id="velocidad-info-${ helicopteroId }">Velocidad: ${ coordenadas[ 0 ].speed } KNT</div>
+                                   <div id="status-info-${ helicopteroId }">Estado: ${ coordenadas[ 0 ].status }</div>
+                                   <button id="cerrar-info-box">
+                                        <img src="./assets/botonCerrar.svg" alt="Cerrar">
+                                   </button>
+                              `;
+                                   document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
+                                        infoBox.style.display = "none";
+                                   } );
+                              } );
+                         } else {
+                              console.error( 'Los datos del helicóptero no tienen el formato esperado:', data );
+                         }
+                    } )
+                    .catch( error => console.error( 'Error al obtener coordenadas del helicóptero:', error ) );
+          }
+
+          obtenerYmoverHelicoptero();
+     }
+
+     function iniciarMovimientoMarcadorConVelocidadYEstado( marker, coordenadas, delay, helicopteroId ) {
+          let index = 0;
+
+          return setInterval( () => {
+               if ( index >= coordenadas.length ) {
+                    clearInterval( marcadoresHelicopteros[ helicopteroId ].intervaloId );
+                    return;
+               }
+
+               const nextPosition = new google.maps.LatLng( coordenadas[ index ].lat, coordenadas[ index ].lng );
+               marker.setPosition( nextPosition );
+
+               // Actualizar la información en el infobox si está abierto
+               const infoBox = document.querySelector( ".info-box" );
+               if ( infoBox.style.display === "flex" ) {
+                    document.getElementById( `velocidad-info-${ helicopteroId }` ).textContent = `Velocidad: ${ coordenadas[ index ].speed } KNT`;
+                    document.getElementById( `status-info-${ helicopteroId }` ).textContent = `Estado: ${ coordenadas[ index ].status }`;
+               }
+
+               index++;
+          }, delay );
+     }
+
+     // Añadir el evento para el botón del helicóptero
+     const eventHelicopter = document.querySelector( ".helicopter-sub-nav-item" );
+     eventHelicopter.addEventListener( 'click', function () {
+          iniciarHelicopteroEnMapa(
+               'samur001',
+               './assets/helicopterQubo.svg',
+               'Helicóptero SAMUR',
+               'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Helicopters/fiware_helicopter_samur.json?sp=r&st=2024-10-27T11:24:57Z&se=2099-10-27T19:24:57Z&sv=2022-11-02&sr=b&sig=8lA%2FgwiHeqDNh8ICAeaaWyokcuwxAp2GmWzXeBNmr%2F0%3D'
+          );
+
+          iniciarHelicopteroEnMapa(
+               'dgt001',
+               './assets/helicopterQubo.svg',
+               'Helicóptero DGT Pegasus',
+               'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Helicopters/fiware_helicopter_dgt_pegasus.json?sp=r&st=2024-10-27T11:46:04Z&se=2099-10-27T19:46:04Z&sv=2022-11-02&sr=b&sig=gUeO0XYrB4Mz%2F4CDzEzKQJwtQkMpg%2FtNp0Dxbq%2B4vk4%3D'
+          );
+     } );
+
+
+
+
+
+
+
+
+
+
      //! Función para Marcadores de POLICE
      const marcadoresPolicia = {};
      let policeDirectMarker = null; // Marcador directo de policía
@@ -6791,65 +7133,65 @@ const cargarCapaKmlResiduosPeligrosos = () => {
 
      //* FINAL MOVIDA SHIPS; TRUCKS; TRACKING //
 
-     //? Qubo en movimiento random
-     // let index = 0
-     const cooordinatesRandom = [
-          { lat: 40.057743150675655, lng: 0.08461168439483087 },
-          { lat: 40.05773088281283, lng: 0.08463818335558371 },
-          { lat: 40.05770548350885, lng: 0.0843856124131972 },
-          { lat: 40.057654684873256, lng: 0.08382700658233491 },
-          { lat: 40.05761658587114, lng: 0.08345460271107888 },
-          { lat: 40.05756155394159, lng: 0.08296605307799547 },
-          { lat: 40.057502288733325, lng: 0.08239085499267684 },
-          { lat: 40.05746721408694, lng: 0.08177415130282108 },
-          { lat: 40.05739727270181, lng: 0.08055325680538275 },
-          { lat: 40.057151427699836, lng: 0.07760178681562814 },
-          { lat: 40.05710232479058, lng: 0.07598513124450577 },
-          { lat: 40.056326494128484, lng: 0.07454810407017477 },
-          { lat: 40.0551480002201, lng: 0.07277748124363577 },
-          { lat: 40.05425429546055, lng: 0.07121214807159665 },
-          { lat: 40.053468611266275, lng: 0.07045514268511872 },
-          { lat: 40.05155346809624, lng: 0.0677735473330189 },
-          { lat: 40.050934717964836, lng: 0.06678559106642465 },
-          { lat: 40.04984452561149, lng: 0.06520742726613299 },
-          { lat: 40.04790963672899, lng: 0.06270546022176907 },
-          { lat: 40.046063092628216, lng: 0.06010084846829413 },
-          { lat: 40.04518891332257, lng: 0.058894772013217925 },
-          { lat: 40.04425578818245, lng: 0.05758605073189468 },
-          { lat: 40.04363697186854, lng: 0.056598094521862694 },
-          { lat: 40.04136793063235, lng: 0.05314666308844138 },
-          { lat: 40.040434753220985, lng: 0.050606204248375405 },
-          { lat: 40.04014006297391, lng: 0.049579756266710406 },
-          { lat: 40.03960961731964, lng: 0.04970806226441853 },
-          { lat: 40.03923633827447, lng: 0.04993901306029315 },
-          { lat: 40.03811648887824, lng: 0.05038808405227158 },
-          { lat: 40.03726185455594, lng: 0.05082432439754454 },
-     ];
-     //? Marcador de ubicacion RANDOM en movimientos cada 2 segundos
-     const nuevoMarkerLatLng = { lat: 40.05773088281283, lng: 0.08463818335558371 };
-     const nuevoMarkerIconUrl = "./assets/cuboMovimiento.svg";
+     //      //? Qubo en movimiento random
+     //      // let index = 0
+     //      const cooordinatesRandom = [
+     //           { lat: 40.057743150675655, lng: 0.08461168439483087 },
+     //           { lat: 40.05773088281283, lng: 0.08463818335558371 },
+     //           { lat: 40.05770548350885, lng: 0.0843856124131972 },
+     //           { lat: 40.057654684873256, lng: 0.08382700658233491 },
+     //           { lat: 40.05761658587114, lng: 0.08345460271107888 },
+     //           { lat: 40.05756155394159, lng: 0.08296605307799547 },
+     //           { lat: 40.057502288733325, lng: 0.08239085499267684 },
+     //           { lat: 40.05746721408694, lng: 0.08177415130282108 },
+     //           { lat: 40.05739727270181, lng: 0.08055325680538275 },
+     //           { lat: 40.057151427699836, lng: 0.07760178681562814 },
+     //           { lat: 40.05710232479058, lng: 0.07598513124450577 },
+     //           { lat: 40.056326494128484, lng: 0.07454810407017477 },
+     //           { lat: 40.0551480002201, lng: 0.07277748124363577 },
+     //           { lat: 40.05425429546055, lng: 0.07121214807159665 },
+     //           { lat: 40.053468611266275, lng: 0.07045514268511872 },
+     //           { lat: 40.05155346809624, lng: 0.0677735473330189 },
+     //           { lat: 40.050934717964836, lng: 0.06678559106642465 },
+     //           { lat: 40.04984452561149, lng: 0.06520742726613299 },
+     //           { lat: 40.04790963672899, lng: 0.06270546022176907 },
+     //           { lat: 40.046063092628216, lng: 0.06010084846829413 },
+     //           { lat: 40.04518891332257, lng: 0.058894772013217925 },
+     //           { lat: 40.04425578818245, lng: 0.05758605073189468 },
+     //           { lat: 40.04363697186854, lng: 0.056598094521862694 },
+     //           { lat: 40.04136793063235, lng: 0.05314666308844138 },
+     //           { lat: 40.040434753220985, lng: 0.050606204248375405 },
+     //           { lat: 40.04014006297391, lng: 0.049579756266710406 },
+     //           { lat: 40.03960961731964, lng: 0.04970806226441853 },
+     //           { lat: 40.03923633827447, lng: 0.04993901306029315 },
+     //           { lat: 40.03811648887824, lng: 0.05038808405227158 },
+     //           { lat: 40.03726185455594, lng: 0.05082432439754454 },
+     //      ];
+     //      //? Marcador de ubicacion RANDOM en movimientos cada 2 segundos
+     //      const nuevoMarkerLatLng = { lat: 40.05773088281283, lng: 0.08463818335558371 };
+     //      const nuevoMarkerIconUrl = "./assets/cuboMovimiento.svg";
 
-     const nuevoMarker = new google.maps.Marker( {
-          position: nuevoMarkerLatLng,
-          map: map,
-          title: "Ubicación Random",
-          icon: nuevoMarkerIconUrl,
-     } );
-     iniciarMovimientoMarcador( nuevoMarker, cooordinatesRandom, 2000 );
+     //      const nuevoMarker = new google.maps.Marker( {
+     //           position: nuevoMarkerLatLng,
+     //           map: map,
+     //           title: "Ubicación Random",
+     //           icon: nuevoMarkerIconUrl,
+     //      } );
+     //      iniciarMovimientoMarcador( nuevoMarker, cooordinatesRandom, 2000 );
 
-     nuevoMarker.addListener( "click", function () {
-          const infoBox = document.querySelector( ".info-box" );
-          infoBox.style.display = "flex";
-          infoBox.innerHTML = `
-    <div>Información Autobús Benicasim</div>
-    <button id="cerrar-info-box">
-      <img src="./assets/botonCerrar.svg" alt="">
-    </button>
-  `;
-          document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-               infoBox.style.display = "none";
-          } );
-     } );
+     //      nuevoMarker.addListener( "click", function () {
+     //           const infoBox = document.querySelector( ".info-box" );
+     //           infoBox.style.display = "flex";
+     //           infoBox.innerHTML = `
+     //     <div>Información Autobús Benicasim</div>
+     //     <button id="cerrar-info-box">
+     //       <img src="./assets/botonCerrar.svg" alt="">
+     //     </button>
+     //   `;
+     //           document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
+     //                infoBox.style.display = "none";
+     //           } );
+     //      } );
 
      // ----------------------------------------------------- //
 
@@ -6857,7 +7199,7 @@ const cargarCapaKmlResiduosPeligrosos = () => {
 
 
 
-     // -------------------------------------------- //
+     //* Oficina Qubo Factory
 
      // Define las coordenadas de la ubicación personalizada y la URL de su icono personalizado
      const customLocationLatLng = { lat: 40.06054023234016, lng: 0.1031147223559949 };
@@ -9246,44 +9588,80 @@ document.addEventListener( "DOMContentLoaded", function () {
 } );
 
 //! Función barra pantallas móviles
+// document.addEventListener( 'DOMContentLoaded', function () {
+//      const navBar = document.getElementById( 'nav-bar' );
+//      const secondBars = document.querySelectorAll( '.segunda-barra' );
+//      const navItems = navBar.querySelectorAll( 'ul > li' );
+//      const mediaQuery = window.matchMedia( '(max-width: 1000px)' );
+
+//      navItems.forEach( item => {
+//           item.addEventListener( 'click', () => {
+//                if ( mediaQuery.matches ) {  // Solo aplicar en pantallas menores a 390px
+//                     navBar.style.display = 'none';
+//                }
+
+//                // Mostrar la segunda barra correspondiente
+//                const target = item.getAttribute( 'data-target' );
+//                const secondBar = document.getElementById( target );
+//                if ( secondBar ) {
+//                     secondBars.forEach( bar => {
+//                          bar.style.bottom = '';
+//                     } );
+//                     secondBar.style.bottom = '0px';
+//                     secondBar.style.display = 'flex';
+//                }
+//           } );
+//      } );
+
+//      // Añadir evento para los botones de cerrar en las segundas barras
+//      secondBars.forEach( bar => {
+//           const closeButton = bar.querySelector( '.cerrar' );
+//           if ( closeButton ) {
+//                closeButton.addEventListener( 'click', () => {
+//                     bar.style.display = 'none';
+//                     if ( mediaQuery.matches ) {  // Solo aplicar en pantallas menores a 390px
+//                          navBar.style.display = 'flex'; // Mostrar la barra de navegación principal
+//                     }
+//                } );
+//           }
+//      } );
+// } );
+
 document.addEventListener( 'DOMContentLoaded', function () {
      const navBar = document.getElementById( 'nav-bar' );
      const secondBars = document.querySelectorAll( '.segunda-barra' );
      const navItems = navBar.querySelectorAll( 'ul > li' );
-     const mediaQuery = window.matchMedia( '(max-width: 430px)' );
+     const mediaQuery = window.matchMedia( '(max-width: 1000px)' ); // Ajuste para que sea menor de 1000px
 
      navItems.forEach( item => {
           item.addEventListener( 'click', () => {
-               if ( mediaQuery.matches ) {  // Solo aplicar en pantallas menores a 390px
-                    navBar.style.display = 'none';
-               }
-
-               // Mostrar la segunda barra correspondiente
                const target = item.getAttribute( 'data-target' );
                const secondBar = document.getElementById( target );
-               if ( secondBar ) {
-                    secondBars.forEach( bar => {
-                         bar.style.bottom = '';
-                    } );
-                    secondBar.style.bottom = 'revert-layer';
-                    secondBar.style.display = 'flex';
+
+               if ( mediaQuery.matches ) {  // Aplicar solo si la pantalla es menor de 1000px
+                    navBar.style.display = 'none';
+                    if ( secondBar ) {
+                         secondBars.forEach( bar => {
+                              bar.style.bottom = '';
+                         } );
+                         secondBar.style.bottom = '0px';
+                         secondBar.style.display = 'flex';
+                    }
                }
           } );
      } );
 
-     // Añadir evento para los botones de cerrar en las segundas barras
      secondBars.forEach( bar => {
           const closeButton = bar.querySelector( '.cerrar' );
-          if ( closeButton ) {
-               closeButton.addEventListener( 'click', () => {
-                    bar.style.display = 'none';
-                    if ( mediaQuery.matches ) {  // Solo aplicar en pantallas menores a 390px
-                         navBar.style.display = 'flex'; // Mostrar la barra de navegación principal
-                    }
-               } );
-          }
+          closeButton.addEventListener( 'click', () => {
+               bar.style.display = 'none';
+               if ( mediaQuery.matches ) {
+                    navBar.style.display = 'flex'; // Restaurar la barra de navegación principal
+               }
+          } );
      } );
 } );
+
 
 document.addEventListener( 'DOMContentLoaded', function () {
      const topBottoms = document.querySelector( '.topBottoms' );
@@ -9291,27 +9669,27 @@ document.addEventListener( 'DOMContentLoaded', function () {
      const optionButton = document.getElementById( 'option-button' );
      const optionItem = document.getElementById( 'option-item' );
 
-     const navBar = document.getElementById('nav-bar');
-     const minimizeNavBarButton = document.getElementById('minimize-nav-bar');
-     const maximizeNavBarButton = document.querySelector('.minimizeButtonNavBar img'); // Asegúrate de que el selector apunte al botón dentro del div
-     const minimizeButtonNavBar = document.querySelector('.minimizeButtonNavBar');
-     const mediaQuery = window.matchMedia('(max-width: 430px)');
+     const navBar = document.getElementById( 'nav-bar' );
+     const minimizeNavBarButton = document.getElementById( 'minimize-nav-bar' );
+     const maximizeNavBarButton = document.querySelector( '.minimizeButtonNavBar img' ); // Asegúrate de que el selector apunte al botón dentro del div
+     const minimizeButtonNavBar = document.querySelector( '.minimizeButtonNavBar' );
+     const mediaQuery = window.matchMedia( '(max-width: 430px)' );
 
      // Evento de minimización de la nav-bar
-    minimizeNavBarButton.addEventListener('click', () => {
-     if (mediaQuery.matches) { // Solo se aplica si la pantalla es menor a 360px
-         navBar.style.display = 'none'; // Oculta la nav-bar
-         minimizeButtonNavBar.style.display = 'flex'; // Muestra el botón para maximizar
-     }
- });
+     minimizeNavBarButton.addEventListener( 'click', () => {
+          if ( mediaQuery.matches ) { // Solo se aplica si la pantalla es menor a 360px
+               navBar.style.display = 'none'; // Oculta la nav-bar
+               minimizeButtonNavBar.style.display = 'flex'; // Muestra el botón para maximizar
+          }
+     } );
 
- // Evento de maximización de la nav-bar
- maximizeNavBarButton.addEventListener('click', () => {
-     if (mediaQuery.matches) { // Solo se aplica si la pantalla es menor a 360px
-         navBar.style.display = 'flex'; // Muestra la nav-bar
-         minimizeButtonNavBar.style.display = 'none'; // Oculta el botón de opción
-     }
- });
+     // Evento de maximización de la nav-bar
+     maximizeNavBarButton.addEventListener( 'click', () => {
+          if ( mediaQuery.matches ) { // Solo se aplica si la pantalla es menor a 360px
+               navBar.style.display = 'flex'; // Muestra la nav-bar
+               minimizeButtonNavBar.style.display = 'none'; // Oculta el botón de opción
+          }
+     } );
 
      minimizeButton.addEventListener( 'click', () => {
           topBottoms.style.display = 'none';
