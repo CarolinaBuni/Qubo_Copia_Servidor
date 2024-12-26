@@ -29,7 +29,7 @@ const postQubo = async ( req, res, next ) => {
                title: req.body.title,
                category: req.body.category,
                subcategory: req.body.subcategory,
-               img: `/uploads/${req.file.filename}`,
+               img: req.file.path,
                latitude: parseFloat(req.body.latitude), // Asegúrate de parsear la latitud
                longitude: parseFloat(req.body.longitude),
                startDate, // Usando las fechas convertidas
