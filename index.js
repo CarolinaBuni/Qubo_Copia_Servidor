@@ -37,7 +37,7 @@ app.get('/api/icons', (req, res) => {
 
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
+// app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
 
 app.use("/api/v1/", router);
 
