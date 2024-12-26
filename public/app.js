@@ -4594,116 +4594,116 @@ function initMap() {
 
      const marcadoresAviones = {};
 
-function iniciarAvionEnMapa(avionId, iconUrl, title, apiUrl) {
-    const defaultImageUrl = './assets/defaultAirplaneImage.png';
+     function iniciarAvionEnMapa( avionId, iconUrl, title, apiUrl ) {
+          const defaultImageUrl = './assets/defaultAirplaneImage.png';
 
-    // Verificar si el marcador ya existe
-    if (marcadoresAviones[avionId]) {
-        clearInterval(marcadoresAviones[avionId].intervaloId);
-        marcadoresAviones[avionId].marker.setMap(null);
-        delete marcadoresAviones[avionId];
-        return;
-    }
+          // Verificar si el marcador ya existe
+          if ( marcadoresAviones[ avionId ] ) {
+               clearInterval( marcadoresAviones[ avionId ].intervaloId );
+               marcadoresAviones[ avionId ].marker.setMap( null );
+               delete marcadoresAviones[ avionId ];
+               return;
+          }
 
-    // Crear el marcador para el avión
-    const avionMarker = new google.maps.Marker({
-        map: map,
-        title: title,
-        icon: iconUrl,
-    });
+          // Crear el marcador para el avión
+          const avionMarker = new google.maps.Marker( {
+               map: map,
+               title: title,
+               icon: iconUrl,
+          } );
 
-    function obtenerYmoverAvion() {
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                if (data.locationUpdates && Array.isArray(data.locationUpdates)) {
-                    const coordenadas = data.locationUpdates.map(coord => ({
-                        lat: coord.location.value.lat,
-                        lng: coord.location.value.lng,
-                        speed: coord.speed.value,
-                        status: coord.status.value
-                    }));
+          function obtenerYmoverAvion() {
+               fetch( apiUrl )
+                    .then( response => response.json() )
+                    .then( data => {
+                         if ( data.locationUpdates && Array.isArray( data.locationUpdates ) ) {
+                              const coordenadas = data.locationUpdates.map( coord => ( {
+                                   lat: coord.location.value.lat,
+                                   lng: coord.location.value.lng,
+                                   speed: coord.speed.value,
+                                   status: coord.status.value
+                              } ) );
 
-                    const intervaloId = iniciarMovimientoMarcadorConVelocidadYEstado(avionMarker, coordenadas, 2000, avionId);
-                    marcadoresAviones[avionId] = {
-                        marker: avionMarker,
-                        intervaloId: intervaloId,
-                        datosAvion: data,
-                    };
+                              const intervaloId = iniciarMovimientoMarcadorConVelocidadYEstado( avionMarker, coordenadas, 2000, avionId );
+                              marcadoresAviones[ avionId ] = {
+                                   marker: avionMarker,
+                                   intervaloId: intervaloId,
+                                   datosAvion: data,
+                              };
 
-                    const imagenUrl = data["Imagen URL"] || defaultImageUrl;
+                              const imagenUrl = data[ "Imagen URL" ] || defaultImageUrl;
 
-                    // Listener para abrir el infobox
-                    avionMarker.addListener("click", function () {
-                        const infoBox = document.querySelector(".info-box");
-                        infoBox.style.display = "flex";
-                        infoBox.innerHTML = `
-                            <img src="${imagenUrl}" alt="Avión" onerror="this.src='${defaultImageUrl}'"/>
-                            <div>Modelo: ${data.model.value}</div>
-                            <div>Matrícula: ${data.registrationNumber.value}</div>
-                            <div>ID Aerolínea: ${data.airline.object}</div>
-                            <div>Capacidad: ${data.capacity.value}</div>
-                            <div id="velocidad-info-${avionId}">Velocidad: ${coordenadas[0].speed} KNT</div>
-                            <div id="status-info-${avionId}">Estado: ${coordenadas[0].status}</div>
+                              // Listener para abrir el infobox
+                              avionMarker.addListener( "click", function () {
+                                   const infoBox = document.querySelector( ".info-box" );
+                                   infoBox.style.display = "flex";
+                                   infoBox.innerHTML = `
+                            <img src="${ imagenUrl }" alt="Avión" onerror="this.src='${ defaultImageUrl }'"/>
+                            <div>Modelo: ${ data.model.value }</div>
+                            <div>Matrícula: ${ data.registrationNumber.value }</div>
+                            <div>ID Aerolínea: ${ data.airline.object }</div>
+                            <div>Capacidad: ${ data.capacity.value }</div>
+                            <div id="velocidad-info-${ avionId }">Velocidad: ${ coordenadas[ 0 ].speed } KNT</div>
+                            <div id="status-info-${ avionId }">Estado: ${ coordenadas[ 0 ].status }</div>
                             <button id="cerrar-info-box">
                                 <img src="./assets/botonCerrar.svg" alt="Cerrar">
                             </button>
                         `;
-                        document.getElementById("cerrar-info-box").addEventListener("click", function () {
-                            infoBox.style.display = "none";
-                        });
-                    });
-                } else {
-                    console.error('Los datos del avión no tienen el formato esperado:', data);
-                }
-            })
-            .catch(error => console.error('Error al obtener coordenadas del avión:', error));
-    }
+                                   document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
+                                        infoBox.style.display = "none";
+                                   } );
+                              } );
+                         } else {
+                              console.error( 'Los datos del avión no tienen el formato esperado:', data );
+                         }
+                    } )
+                    .catch( error => console.error( 'Error al obtener coordenadas del avión:', error ) );
+          }
 
-    obtenerYmoverAvion();
-}
+          obtenerYmoverAvion();
+     }
 
-function iniciarMovimientoMarcadorConVelocidadYEstado(marker, coordenadas, delay, avionId) {
-    let index = 0;
+     function iniciarMovimientoMarcadorConVelocidadYEstado( marker, coordenadas, delay, avionId ) {
+          let index = 0;
 
-    // Iniciar intervalo de movimiento
-    const intervaloId = setInterval(() => {
-        if (index >= coordenadas.length) {
-            clearInterval(intervaloId);
-            marcadoresAviones[avionId].intervaloId = null;
-            return;
-        }
+          // Iniciar intervalo de movimiento
+          const intervaloId = setInterval( () => {
+               if ( index >= coordenadas.length ) {
+                    clearInterval( intervaloId );
+                    marcadoresAviones[ avionId ].intervaloId = null;
+                    return;
+               }
 
-        const nextPosition = new google.maps.LatLng(coordenadas[index].lat, coordenadas[index].lng);
-        marker.setPosition(nextPosition);
+               const nextPosition = new google.maps.LatLng( coordenadas[ index ].lat, coordenadas[ index ].lng );
+               marker.setPosition( nextPosition );
 
-        // Actualizar la información en el infobox si está abierto
-        const infoBox = document.querySelector(".info-box");
-        if (infoBox.style.display === "flex") {
-            document.getElementById(`velocidad-info-${avionId}`).textContent = `Velocidad: ${coordenadas[index].speed} KNT`;
-            document.getElementById(`status-info-${avionId}`).textContent = `Estado: ${coordenadas[index].status}`;
-        }
+               // Actualizar la información en el infobox si está abierto
+               const infoBox = document.querySelector( ".info-box" );
+               if ( infoBox.style.display === "flex" ) {
+                    document.getElementById( `velocidad-info-${ avionId }` ).textContent = `Velocidad: ${ coordenadas[ index ].speed } KNT`;
+                    document.getElementById( `status-info-${ avionId }` ).textContent = `Estado: ${ coordenadas[ index ].status }`;
+               }
 
-        index++;
-    }, delay);
+               index++;
+          }, delay );
 
-    // Guardar el ID de intervalo en el objeto de marcadores
-    if (!marcadoresAviones[avionId]) {
-        marcadoresAviones[avionId] = {};
-    }
-    marcadoresAviones[avionId].intervaloId = intervaloId;
-}
+          // Guardar el ID de intervalo en el objeto de marcadores
+          if ( !marcadoresAviones[ avionId ] ) {
+               marcadoresAviones[ avionId ] = {};
+          }
+          marcadoresAviones[ avionId ].intervaloId = intervaloId;
+     }
 
-// Añadir el evento para el botón del avión
-const eventAirplane = document.querySelector(".airplane-sub-nav-item");
-eventAirplane.addEventListener('click', function () {
-    iniciarAvionEnMapa(
-        'ryanair001',
-        './assets/airplaneQubo.svg',
-        'Ryanair Boeing 737',
-        'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Airplanes/fiware_ryanair_boeing_737_corrected.json?sp=r&st=2024-10-23T18:12:42Z&se=2099-10-24T02:12:42Z&sv=2022-11-02&sr=b&sig=yVq5tGcz0c8YXoFu%2FvwtFHtgL%2FFBUt2t%2B6Jt6yUm0kw%3D'
-    );
-});
+     // Añadir el evento para el botón del avión
+     const eventAirplane = document.querySelector( ".airplane-sub-nav-item" );
+     eventAirplane.addEventListener( 'click', function () {
+          iniciarAvionEnMapa(
+               'ryanair001',
+               './assets/airplaneQubo.svg',
+               'Ryanair Boeing 737',
+               'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Airplanes/fiware_ryanair_boeing_737_corrected.json?sp=r&st=2024-10-23T18:12:42Z&se=2099-10-24T02:12:42Z&sv=2022-11-02&sr=b&sig=yVq5tGcz0c8YXoFu%2FvwtFHtgL%2FFBUt2t%2B6Jt6yUm0kw%3D'
+          );
+     } );
 
 
      //! Función para Marcadores de HELICOPTER
@@ -9119,6 +9119,100 @@ eventClubsAndNightlife.addEventListener( 'click', async () => {
 
 //! Función para mostrar SPORTS FACILITIES
 
+// function cargarMarcadoresSportsFacilities() {
+//      fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/Fiware_Entertainment_SportFacilities-00001?sp=r&st=2024-06-16T17:37:10Z&se=2090-01-01T02:37:10Z&sv=2022-11-02&sr=b&sig=CqfiHAHx2l9YohnmzltaYcL1sdgpQXrUwYlGRs58C2E%3D' )
+//           .then( response => response.json() )
+//           .then( data => {
+//                data.buildings0013.forEach( item => {
+//                     const {
+//                          ubicacion,
+//                          name,
+//                          category,
+//                          description,
+//                          streetAddress,
+//                          postalCode,
+//                          addressLocality,
+//                          addressRegion,
+//                          addressCountry,
+//                          neighborhood,
+//                          district,
+//                          source
+//                     } = parseFiwareData( item );
+
+//                     if ( ubicacion && name ) {
+//                          const marker = new google.maps.Marker( {
+//                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+//                               map: map,
+//                               title: name,
+//                               icon: "./assets/SportsFacilitiesQubo.svg"
+//                          } );
+
+//                          // Agrega un evento click a cada marcador para mostrar el infoBox
+//                          marker.addListener( "click", () => {
+//                               const infoBox = document.querySelector( ".info-box" );
+//                               infoBox.style.display = "flex";
+//                               infoBox.innerHTML = `
+//                               <div class='nameContainer'>
+//                                    <p>${ category }</p>
+//                                    <p>${ name }</p>
+//                               </div>
+//                               <img src='./assets/staticSportsFacilities.jpg'>
+//                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
+//                               <p>Address: ${ streetAddress }</p>
+//                               <p>C.P: ${ postalCode }</p>
+//                               <p>Neighborhood: ${ neighborhood }</p>
+//                               <p>District: ${ district }</p>
+//                               <p>Country: ${ addressCountry }</p>
+//                               <p>${ description }</p>
+//                               <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
+//                               <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+//                               <button class='share'><img src='./assets/shareIcon.svg'></button>
+//                          `;
+//                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
+//                                    infoBox.style.display = "none";
+//                               } );
+//                          } );
+
+//                          markersSportsFacilities.push( marker ); // Añade el marcador al array de parcelas
+//                     }
+//                } );
+//           } )
+//           .catch( error => console.error( "Error al cargar los marcadores de Sports Facilities:", error ) );
+// };
+// const eventSportsFacilities = document.getElementById( "sportsFacilities-sub-nav-item" );
+// let markersSportsFacilities = []; // Array para almacenar los marcadores de parcelas
+// let sportsFacilitiesVisible = false; // Bandera para el estado de visibilidad
+
+// eventSportsFacilities.addEventListener( "click", () => {
+//      // Alternar la visibilidad de los marcadores de parcelas
+//      toggleMarcadores( markersSportsFacilities, sportsFacilitiesVisible );
+//      sportsFacilitiesVisible = !sportsFacilitiesVisible; // Cambia la bandera de visibilidad
+
+//      // Si los marcadores aún no se han cargado, cargarlos
+//      if ( markersSportsFacilities.length === 0 && sportsFacilitiesVisible ) {
+//           cargarMarcadoresSportsFacilities(); // Llama a la función para cargar los marcadores de parcelas
+//      }
+// } );
+
+//! Función para cargar y mostrar el KML Layer en el mapa
+let kmlLayer;
+
+function cargarKMLLayer() {
+     const kmlUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/San%20Silvestre.kmz?sp=r&st=2024-12-08T12:36:53Z&se=2099-12-08T20:36:53Z&sv=2022-11-02&sr=b&sig=%2BrJwjOuvNGBjztJ%2BiHEy5ujNKFThqwG0UnCVVwZFwGY%3D';
+
+     if ( !kmlLayer ) {
+          kmlLayer = new google.maps.KmlLayer( {
+               url: kmlUrl,
+               map: map,
+               preserveViewport: false,
+               suppressInfoWindows: true,
+          } );
+     } else {
+          kmlLayer.setMap( kmlLayer.getMap() ? null : map );
+     }
+}
+
+//! Función para cargar marcadores de Sports Facilities
 function cargarMarcadoresSportsFacilities() {
      fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/Fiware_Entertainment_SportFacilities-00001?sp=r&st=2024-06-16T17:37:10Z&se=2090-01-01T02:37:10Z&sv=2022-11-02&sr=b&sig=CqfiHAHx2l9YohnmzltaYcL1sdgpQXrUwYlGRs58C2E%3D' )
           .then( response => response.json() )
@@ -9147,52 +9241,147 @@ function cargarMarcadoresSportsFacilities() {
                               icon: "./assets/SportsFacilitiesQubo.svg"
                          } );
 
-                         // Agrega un evento click a cada marcador para mostrar el infoBox
                          marker.addListener( "click", () => {
                               const infoBox = document.querySelector( ".info-box" );
                               infoBox.style.display = "flex";
                               infoBox.innerHTML = `
-                              <div class='nameContainer'>
-                                   <p>${ category }</p>
-                                   <p>${ name }</p>
-                              </div>
-                              <img src='./assets/staticSportsFacilities.jpg'>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                              <p>Address: ${ streetAddress }</p>
-                              <p>C.P: ${ postalCode }</p>
-                              <p>Neighborhood: ${ neighborhood }</p>
-                              <p>District: ${ district }</p>
-                              <p>Country: ${ addressCountry }</p>
-                              <p>${ description }</p>
-                              <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
-                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                              <button class='share'><img src='./assets/shareIcon.svg'></button>
+                             <div class='nameContainer'>
+                                 <p>${ category }</p>
+                                 <p>${ name }</p>
+                             </div>
+                             <img src='./assets/staticSportsFacilities.jpg'>
+                             <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
+                             <p>Address: ${ streetAddress }</p>
+                             <p>C.P: ${ postalCode }</p>
+                             <p>Neighborhood: ${ neighborhood }</p>
+                             <p>District: ${ district }</p>
+                             <p>Country: ${ addressCountry }</p>
+                             <p>${ description }</p>
+                             <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
+                             <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+                             <button class='share'><img src='./assets/shareIcon.svg'></button>
                          `;
                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
                                    infoBox.style.display = "none";
                               } );
                          } );
 
-                         markersSportsFacilities.push( marker ); // Añade el marcador al array de parcelas
+                         markersSportsFacilities.push( marker );
                     }
                } );
           } )
           .catch( error => console.error( "Error al cargar los marcadores de Sports Facilities:", error ) );
-};
+}
+
+//! Función para cargar y mover el marcador dinámico del corredor
+let corredorMarker;
+let corredorInterval;
+
+function cargarCorredorDinamico() {
+     const corredorApiUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/san_silvestre_data.json?sp=r&st=2024-12-08T12:46:21Z&se=2099-12-08T20:46:21Z&sv=2022-11-02&sr=b&sig=lkvYTHmF7BXGl9H97bx%2Fk6j2ynipkAP3LrHbVJXzQiE%3D';
+
+     fetch( corredorApiUrl )
+          .then( response => response.json() )
+          .then( data => {
+               const { Coordenadas, Dorsal, Categoria, ImagenURL } = data;
+
+               if ( !corredorMarker ) {
+                    corredorMarker = new google.maps.Marker( {
+                         map: map,
+                         position: { lat: Coordenadas[ 0 ].lat, lng: Coordenadas[ 0 ].lng },
+                         title: `Corredor ${ Dorsal }`,
+                         icon: './assets/runnerIcon.svg',
+                    } );
+
+                    corredorMarker.addListener( "click", () => {
+                         const infoBox = document.querySelector( ".info-box" );
+                         infoBox.style.display = "flex";
+                         infoBox.innerHTML = `
+                              <div class='nameContainer'>
+                              <p>Dorsal: ${ Dorsal }</p>
+                              <p>Categoría: ${ Categoria }</p>
+                              </div>
+                              <img src='${ ImagenURL }' alt='Corredor' onerror="this.src='./assets/runnerDefault.jpg'">
+                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+                         `;
+                         document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
+                              infoBox.style.display = "none";
+                         } );
+                    } );
+               }
+
+               // Mover marcador dinámico
+               let index = 0;
+               corredorInterval = setInterval( () => {
+                    if ( index < Coordenadas.length ) {
+                         corredorMarker.setPosition( new google.maps.LatLng( Coordenadas[ index ].lat, Coordenadas[ index ].lng ) );
+                         index++;
+                    } else {
+                         clearInterval( corredorInterval );
+                    }
+               }, 1000 ); // Cambiar posición cada 1 segundo
+          } )
+          .catch( error => console.error( "Error al cargar los datos del corredor:", error ) );
+}
+
+//! Función para cargar el marcador estático del evento
+function cargarMarcadorEvento() {
+     const eventoApiUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/san_silvestre_event.json?sp=r&st=2024-12-08T13:04:51Z&se=2099-12-08T21:04:51Z&sv=2022-11-02&sr=b&sig=zs40%2Faq4HfQ92HaJnsUIX%2F1TpLIz4MyFN3rRee2FAjw%3D';
+
+     fetch( eventoApiUrl )
+          .then( response => response.json() )
+          .then( data => {
+               const { Nombre, Fecha, Participantes, Distancia, Record, Recordman, ImagenURL } = data;
+
+               const marker = new google.maps.Marker( {
+                    map: map,
+                    position: { lat: 40.45178, lng: -3.68445 }, // Cambiar por la primera coordenada del KML si es diferente
+                    title: Nombre,
+                    icon: './assets/SportsFacilitiesQubo.svg',
+               } );
+
+               marker.addListener( "click", () => {
+                    const infoBox = document.querySelector( ".info-box" );
+                    infoBox.style.display = "flex";
+                    infoBox.innerHTML = `
+                         <div class='nameContainer'>
+                              <p>${ Nombre }</p>
+                              <p>${ Fecha }</p>
+                         </div>
+                         <img src='${ ImagenURL }' alt='Evento' onerror="this.src='./assets/eventDefault.jpg'">
+                         <p>Participantes: ${ Participantes }</p>
+                         <p>Distancia: ${ Distancia }</p>
+                         <p>Récord: ${ Record } (${ Recordman })</p>
+                         <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+                    `;
+                    document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
+                         infoBox.style.display = "none";
+                    } );
+               } );
+          } )
+          .catch( error => console.error( "Error al cargar los datos del evento:", error ) );
+}
+
+//! Lógica para gestionar la visibilidad
 const eventSportsFacilities = document.getElementById( "sportsFacilities-sub-nav-item" );
-let markersSportsFacilities = []; // Array para almacenar los marcadores de parcelas
-let sportsFacilitiesVisible = false; // Bandera para el estado de visibilidad
+let markersSportsFacilities = [];
+let sportsFacilitiesVisible = false;
 
 eventSportsFacilities.addEventListener( "click", () => {
-     // Alternar la visibilidad de los marcadores de parcelas
      toggleMarcadores( markersSportsFacilities, sportsFacilitiesVisible );
-     sportsFacilitiesVisible = !sportsFacilitiesVisible; // Cambia la bandera de visibilidad
+     sportsFacilitiesVisible = !sportsFacilitiesVisible;
 
-     // Si los marcadores aún no se han cargado, cargarlos
      if ( markersSportsFacilities.length === 0 && sportsFacilitiesVisible ) {
-          cargarMarcadoresSportsFacilities(); // Llama a la función para cargar los marcadores de parcelas
+          cargarMarcadoresSportsFacilities();
      }
+
+     cargarKMLLayer();
+     cargarCorredorDinamico();
+     cargarMarcadorEvento();
 } );
+
+
+
 
 
 //! Función para mostrar MUSEUMS

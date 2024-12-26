@@ -6,8 +6,12 @@
       <title>QUBO CITY</title>
       <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
       <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=&v=weekly&libraries=places&callback=initMap" defer></script> -->
-      <script
+      <!-- <script
          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=places&v=weekly$"
+         defer
+      ></script> -->
+      <script
+         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCB-JwjJiauGErvF0S2_2ada4uVkShE7hE&callback=initMap&libraries=places&v=weekly"
          defer
       ></script>
       <!-- Script para ChatGPT -->
@@ -16,44 +20,16 @@
          window.__ow.organizationId = "312e0c2a-62a4-47a3-8814-73bb9ad55dec";
          window.__ow.integration_name = "manual_settings";
          window.__ow.product_name = "openwidget";
-         (function (n, t, c) {
-            function i(n) {
-               return e._h ? e._h.apply(null, n) : e._q.push(n);
-            }
-            var e = {
-               _q: [],
-               _h: null,
-               _v: "2.0",
-               on: function () {
-                  i(["on", c.call(arguments)]);
-               },
-               once: function () {
-                  i(["once", c.call(arguments)]);
-               },
-               off: function () {
-                  i(["off", c.call(arguments)]);
-               },
-               get: function () {
-                  if (!e._h) throw new Error("[OpenWidget] You can't use getters before load.");
-                  return i(["get", c.call(arguments)]);
-               },
-               call: function () {
-                  i(["call", c.call(arguments)]);
-               },
-               init: function () {
-                  var n = t.createElement("script");
-                  (n.async = !0),
-                     (n.type = "text/javascript"),
-                     (n.src = "https://cdn.openwidget.com/openwidget.js"),
-                     t.head.appendChild(n);
-               },
-            };
-            !n.__ow.asyncInit && e.init(), (n.OpenWidget = n.OpenWidget || e);
-         })(window, document, [].slice);
-      </script>
+         ;(function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n)}var e={_q:[],_h:null,_v:"2.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[OpenWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.openwidget.com/openwidget.js",t.head.appendChild(n)}};!n.__ow.asyncInit&&e.init(),n.OpenWidget=n.OpenWidget||e}(window,document,[].slice))
+       </script>
       <script src="https://cdn.rawgit.com/geocodezip/geoxml3/master/polys/geoxml3.js"></script>
 
       <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=&v=weekly" defer></script> -->
+
+
+      <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9GPOoKpMcA4u-8uq0SgE8IIBH5C7XuGE-g&callback=initMap&libraries=&v=weekly" defer></script> -->
+
+     
 
       <link rel="stylesheet" href="./style.css" />
       <link rel="shortcut icon" href="./assets/icon-logo.svg" type="image/x-icon" />
@@ -224,7 +200,7 @@
 
             <!-- Descripción -->
             <div class="form-group">
-               <textarea id="description" name="description" rows="4" placeholder="Description..."></textarea>
+               <textarea id="description" name="description" rows="4" placeholder="Description..." required></textarea>
             </div>
 
             <!-- Opción de anonimato -->

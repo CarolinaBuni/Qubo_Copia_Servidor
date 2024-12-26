@@ -1033,6 +1033,11 @@ strong {
      .segunda-barra>ul {
           padding: 0;
      }
+
+     #chat-widget-container {
+          left: -9px;
+          bottom: 8px !important;
+     }
 }
 
 
