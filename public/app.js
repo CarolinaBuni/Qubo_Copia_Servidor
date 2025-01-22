@@ -4,6 +4,9 @@ let map;
 let myLocationMarker;
 let autocomplete;
 
+
+
+
 function initMap() {
 
      // Crear un objeto de opciones del mapa
