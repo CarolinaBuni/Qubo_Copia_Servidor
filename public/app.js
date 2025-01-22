@@ -10226,6 +10226,8 @@ document.addEventListener( 'DOMContentLoaded', function () {
      } );
 } );
 
+
+
 //! Funcionalidad botones 3D, detalles y 2D
 
 document.addEventListener( "DOMContentLoaded", () => {
