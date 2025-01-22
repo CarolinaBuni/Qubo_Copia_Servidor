@@ -10234,6 +10234,11 @@ document.addEventListener( "DOMContentLoaded", () => {
      const button3d = document.getElementById( "button3d" );
      const buttonSatelliteDetails = document.getElementById( "buttonSatelliteDetails" );
 
+     // Selecciona los textos de todos los botones en `topButtons`
+    const topButtonsText = document.querySelectorAll(
+     ".topBottoms .button-title-container p"
+ );
+
      // Estado para controlar visibilidad de etiquetas
      let labelsVisible = false;
 
@@ -10254,13 +10259,23 @@ document.addEventListener( "DOMContentLoaded", () => {
                const initialType = map.getMapTypeId();
                if ( initialType === "satellite" || initialType === "hybrid" ) {
                     toggleDetailsButton( true ); // Habilitar "Detalles" si está en modo satélite
+                    changeButtonTextColor("white")
                } else {
                     toggleDetailsButton( false ); // Deshabilitar "Detalles" si está en otro modo
+                    changeButtonTextColor("black");
                }
           } else {
                console.error( "El mapa no está inicializado correctamente." );
           }
      }
+
+     // Función para cambiar el color del texto de los botones
+    function changeButtonTextColor(color) {
+     topButtonsText.forEach((textElement) => {
+         textElement.style.color = color;
+     });
+ }
+     
 
      // Evento para cambiar a "Mapa" (2D)
      button2d.addEventListener( "click", () => {
@@ -10270,6 +10285,7 @@ document.addEventListener( "DOMContentLoaded", () => {
                map.setOptions( { styles: null } ); // Restablece estilos si hay alguno aplicado
                labelsVisible = false; // Restablece etiquetas invisibles en satélite
                toggleDetailsButton( false ); // Deshabilita el botón de detalles
+               changeButtonTextColor("black");
           } else {
                console.error( "El mapa no está inicializado correctamente." );
           }
@@ -10282,6 +10298,7 @@ document.addEventListener( "DOMContentLoaded", () => {
                map.setMapTypeId( "satellite" ); // Cambia al modo satélite
                labelsVisible = false; // Etiquetas inicialmente ocultas
                toggleDetailsButton( true ); // Habilita el botón de detalles
+               changeButtonTextColor("white"); // Cambia texto a blanco
           } else {
                console.error( "El mapa no está inicializado correctamente." );
           }
