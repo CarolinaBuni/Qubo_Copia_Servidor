@@ -35,7 +35,7 @@ body {
 }
 
 #pac-input {
-     /* position: absolute; */
+
      z-index: 2;
      top: 12px;
      right: 20px;
@@ -59,26 +59,28 @@ body {
      opacity: 0;
 }
 
+
+
 .search-icon {
      position: absolute;
      margin-left: 5px;
      left: 5px;
-     /* Ajusta la posición izquierda de la lupa */
+    
      top: 50%;
-     /* Centra la lupa verticalmente */
+     
      transform: translateY(-50%);
      cursor: pointer;
 }
 
-/* .pac-container {
-   background-color: rgba(0, 0, 0, 0.8);
-   font-family: 'Roboto', sans-serif;
- } */
+/* Control Stret View*/
+#gmp-map > div > div:nth-child(4) > div:nth-child(4) {
+     position: absolute;
+     top: 114px;
+}
 
-/* .pac-container:hover {
-   background-color: rgba(0, 0, 0, 0.8);
- 
- } */
+
+
+
 
 #test-video {
      color: #08ecc4;
@@ -464,6 +466,13 @@ body>div.info-box {
      transition: all 0.5s ease-in-out;
      
 }
+
+.disabled {
+     opacity: 0.5;
+     pointer-events: none;
+     cursor: not-allowed;
+ }
+ 
 
 /* #addQubo:hover,
 #locate-button:hover,

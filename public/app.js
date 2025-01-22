@@ -9,6 +9,7 @@ function initMap() {
      // Crear un objeto de opciones del mapa
      const mapOptions = {
           zoom: 10,
+          minZoom: 3,
           fullscreenControl: false,
           mapTypeControl: false,
           zoomControl: true,
@@ -141,27 +142,50 @@ function initMap() {
      //   });
 
      //!----------------------------------------------------------
-     document.addEventListener( 'DOMContentLoaded', () => {
-          const inputContainer = document.getElementById( 'input-container' );
-          const searchDirectionButton = document.getElementById( 'search-direction-button' );
+     // document.addEventListener( 'DOMContentLoaded', () => {
+     //      const inputContainer = document.getElementById( 'input-container' );
+     //      const searchDirectionButton = document.getElementById( 'search-direction-button' );
 
+     //      // Función para mostrar y ocultar el inputContainer
+     //      const toggleInputContainer = () => {
+     //           if ( inputContainer.style.display === 'none' || inputContainer.style.display === '' ) {
+     //                inputContainer.style.display = 'block';
+     //                inputContainer.style.opacity = '1';
+     //                searchDirectionButton.classList.add( 'active' );
+
+     //           } else {
+     //                inputContainer.style.display = 'none';
+     //                inputContainer.style.opacity = '0';
+     //                searchDirectionButton.classList.remove( 'active' );
+     //           }
+     //      };
+
+     //      // Evento para mostrar y ocultar el inputContainer al hacer clic en el botón
+     //      searchDirectionButton.addEventListener( 'click', toggleInputContainer );
+     // } );
+     document.addEventListener('DOMContentLoaded', () => {
+          const inputContainer = document.getElementById('input-container');
+          const searchDirectionButton = document.getElementById('search-direction-button');
+      
           // Función para mostrar y ocultar el inputContainer
           const toggleInputContainer = () => {
-               if ( inputContainer.style.display === 'none' || inputContainer.style.display === '' ) {
-                    inputContainer.style.display = 'block';
-                    inputContainer.style.opacity = '1';
-                    searchDirectionButton.classList.add( 'active' );
-
-               } else {
-                    inputContainer.style.display = 'none';
-                    inputContainer.style.opacity = '0';
-                    searchDirectionButton.classList.remove( 'active' );
-               }
+              if (inputContainer.style.display === 'none' || inputContainer.style.display === '') {
+                  inputContainer.style.display = 'block';
+                  inputContainer.style.opacity = '1';
+                  inputContainer.style.zIndex = '1000'; // Asegura que esté encima
+                  searchDirectionButton.classList.add('active');
+              } else {
+                  inputContainer.style.display = 'none';
+                  inputContainer.style.opacity = '0';
+                  inputContainer.style.zIndex = '-1'; // Oculta debajo
+                  searchDirectionButton.classList.remove('active');
+              }
           };
-
+      
           // Evento para mostrar y ocultar el inputContainer al hacer clic en el botón
-          searchDirectionButton.addEventListener( 'click', toggleInputContainer );
-     } );
+          searchDirectionButton.addEventListener('click', toggleInputContainer);
+      });
+      
 
 
 
@@ -10199,26 +10223,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
      } );
 } );
 
-// // Funcionalidad botones 3D y 2D
-// document.addEventListener("DOMContentLoaded", () => {
-//      // Referencias a los botones
-//      const button2d = document.getElementById("button2d");
-//      const button3d = document.getElementById("button3d");
-
-//      // Evento para cambiar a "Mapa" (2D)
-//      button2d.addEventListener("click", () => {
-//          if (map) {
-//              map.setMapTypeId("roadmap"); // Cambia a vista de mapa 2D
-//          }
-//      });
-
-//      // Evento para cambiar a "Satélite" (3D)
-//      button3d.addEventListener("click", () => {
-//          if (map) {
-//              map.setMapTypeId("satellite"); // Cambia a vista de satélite
-//          }
-//      });
-//  });
+//! Funcionalidad botones 3D, detalles y 2D
 
 document.addEventListener( "DOMContentLoaded", () => {
      // Referencias a los botones
@@ -10226,52 +10231,84 @@ document.addEventListener( "DOMContentLoaded", () => {
      const button3d = document.getElementById( "button3d" );
      const buttonSatelliteDetails = document.getElementById( "buttonSatelliteDetails" );
 
-     // Estilo para ocultar etiquetas en modo satélite
-     const satelliteNoLabelsStyle = [
-          {
-               featureType: "all",
-               elementType: "labels",
-               stylers: [ { visibility: "off" } ],
-          },
-     ];
+     // Estado para controlar visibilidad de etiquetas
+     let labelsVisible = false;
 
-     // Modo por defecto (etiquetas visibles)
-     let labelsVisible = true;
-
-     // Cambiar a modo satélite (3D)
-     button3d.addEventListener( "click", () => {
-          if ( map ) {
-               map.setMapTypeId( "satellite" );
-               map.setOptions( { styles: null } ); // Mostrar etiquetas al activar satélite
-               labelsVisible = true; // Por defecto, etiquetas visibles
+     // Función para habilitar/deshabilitar el botón "Detalles"
+     function toggleDetailsButton( enable ) {
+          if ( enable ) {
+               buttonSatelliteDetails.disabled = false;
+               buttonSatelliteDetails.classList.remove( "disabled" );
+          } else {
+               buttonSatelliteDetails.disabled = true;
+               buttonSatelliteDetails.classList.add( "disabled" );
           }
-     } );
+     }
 
-     // Activar/desactivar detalles en el modo satélite
-     buttonSatelliteDetails.addEventListener( "click", () => {
-          if ( map && map.getMapTypeId() === "satellite" ) {
-               if ( labelsVisible ) {
-                    map.setOptions( { styles: satelliteNoLabelsStyle } ); // Ocultar etiquetas
-                    labelsVisible = false;
+     // Comprobar tipo de mapa al cargar la página
+     function checkInitialMapType() {
+          if ( map ) {
+               const initialType = map.getMapTypeId();
+               if ( initialType === "satellite" || initialType === "hybrid" ) {
+                    toggleDetailsButton( true ); // Habilitar "Detalles" si está en modo satélite
                } else {
-                    map.setOptions( { styles: null } ); // Mostrar etiquetas
-                    labelsVisible = true;
+                    toggleDetailsButton( false ); // Deshabilitar "Detalles" si está en otro modo
                }
           } else {
-               alert( "Cambia al modo satélite primero para alternar detalles." );
+               console.error( "El mapa no está inicializado correctamente." );
           }
-     } );
+     }
 
-     // Cambiar a modo 2D (Mapa)
+     // Evento para cambiar a "Mapa" (2D)
      button2d.addEventListener( "click", () => {
           if ( map ) {
-               map.setMapTypeId( "roadmap" );
-               map.setOptions( { styles: null } ); // Restablecer estilos
+               console.log( "Cambiando a vista 2D (roadmap)" );
+               map.setMapTypeId( "roadmap" ); // Cambia al modo mapa (2D)
+               map.setOptions( { styles: null } ); // Restablece estilos si hay alguno aplicado
+               labelsVisible = false; // Restablece etiquetas invisibles en satélite
+               toggleDetailsButton( false ); // Deshabilita el botón de detalles
+          } else {
+               console.error( "El mapa no está inicializado correctamente." );
           }
      } );
+
+     // Evento para cambiar a "Satélite" (3D)
+     button3d.addEventListener( "click", () => {
+          if ( map ) {
+               console.log( "Cambiando a vista 3D (satellite)" );
+               map.setMapTypeId( "satellite" ); // Cambia al modo satélite
+               labelsVisible = false; // Etiquetas inicialmente ocultas
+               toggleDetailsButton( true ); // Habilita el botón de detalles
+          } else {
+               console.error( "El mapa no está inicializado correctamente." );
+          }
+     } );
+
+     // Evento para alternar "Detalles" (etiquetas)
+     buttonSatelliteDetails.addEventListener( "click", () => {
+          console.log( "Botón Detalles clicado" );
+          if ( map ) {
+               if ( map.getMapTypeId() === "satellite" || map.getMapTypeId() === "hybrid" ) {
+                    if ( !labelsVisible ) {
+                         console.log( "Mostrando etiquetas (cambiando a hybrid)" );
+                         map.setMapTypeId( "hybrid" ); // Cambia a satélite con etiquetas visibles (nombres de calles, negocios, etc.)
+                         labelsVisible = true;
+                    } else {
+                         console.log( "Ocultando etiquetas (cambiando a satellite)" );
+                         map.setMapTypeId( "satellite" ); // Cambia a satélite sin etiquetas
+                         labelsVisible = false;
+                    }
+               } else {
+                    alert( "Cambia al modo satélite primero para usar este botón." );
+               }
+          } else {
+               console.error( "El mapa no está inicializado correctamente." );
+          }
+     } );
+
+     // Verificar tipo de mapa inicial al cargar la página
+     checkInitialMapType();
 } );
-
-
 
 
 document.addEventListener( 'DOMContentLoaded', function () {
