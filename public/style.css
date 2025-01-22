@@ -543,14 +543,14 @@ body>div.info-box {
 }
 
 
+
+
+/* Cambiar color de texto e imagen al hacer hover */
+.configContainer li:hover .button-title-container p,
 .configContainer li:hover .img-container img {
-     filter: brightness(0) saturate(100%) invert(75%) sepia(76%) saturate(2096%) hue-rotate(114deg) brightness(100%) contrast(94%);
+    color: #08ecc4; 
+    filter: brightness(0) saturate(100%) invert(66%) sepia(24%) saturate(2932%) hue-rotate(113deg) brightness(98%) contrast(86%);
 
-
-}
-
-.configContainer li:hover .button-title-container p {
-     color: #08ecc4;
 }
 
 
