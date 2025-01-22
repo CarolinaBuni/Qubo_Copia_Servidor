@@ -10,6 +10,7 @@ function initMap() {
      const mapOptions = {
           zoom: 10,
           fullscreenControl: false,
+          mapTypeControl: false,
           zoomControl: true,
           streetViewControl: true,
           mapTypeId: "satellite",
@@ -4849,7 +4850,8 @@ function initMap() {
 
           // Función para obtener las coordenadas de la policía de la API y mover el marcador
           function obtenerYmoverPolicia() {
-               fetch( apiUrl )
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
+               fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
                          if ( data && Array.isArray( data.Coordenadas ) ) {
@@ -7351,10 +7353,95 @@ function toggleMarcadores( marcadores, visible ) {
 //           .catch( error => console.error( "Error al cargar los marcadores de Other Buildings:", error ) );
 // };
 
+
+//*********************************************************** */ */
+//! Función para mostrar NEW BUILDINGS
+// function cargarMarcadoresNewBuildings() {
+//      fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/New%20Buildings/Fiware_Buildings_NewBuildings-00001?sp=r&st=2024-06-01T10:24:46Z&se=2090-01-01T19:24:46Z&sv=2022-11-02&sr=b&sig=ZPMSJa5sRrTyLWd0t%2FgExVaS9hXxVIQdQchzXN4zAJY%3D' )
+//           .then( response => response.json() )
+//           .then( data => {
+//                data.buildings0008.forEach( item => {
+//                     const {
+//                          ubicacion,
+//                          name,
+//                          category,
+//                          description,
+//                          streetAddress,
+//                          postalCode,
+//                          addressLocality,
+//                          addressRegion,
+//                          addressCountry,
+//                          neighborhood,
+//                          district,
+//                          source
+//                     } = parseFiwareData( item );
+
+//                     if ( ubicacion && name ) {
+//                          const marker = new google.maps.Marker( {
+//                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+//                               map: map,
+//                               title: name,
+//                               icon: "./assets/newBuildingsQubo.svg"
+//                          } );
+
+//                          // Agrega un evento click a cada marcador para mostrar el infoBox
+//                          marker.addListener( "click", () => {
+//                               const infoBox = document.querySelector( ".info-box" );
+//                               infoBox.style.display = "flex";
+//                               infoBox.innerHTML = `
+//                               <div class='nameContainer'>
+//                                    <p>${ category }</p>
+//                                    <p>${ name }</p>
+//                               </div>
+//                               <img src='./assets/staticOtherBuildings.jpg'>
+//                               <p>Address: ${ streetAddress }, ${ postalCode }</p>
+//                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
+//                               <p>District: ${ district }</p>
+//                               <p>Neighborhood: ${ neighborhood }</p>
+//                               <p>Country: ${ addressCountry }</p>
+//                               <p>${ description }</p>
+//                               <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+//                               <button class='share'><img src='./assets/shareIcon.svg'></button>
+//                          `;
+//                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
+//                                    infoBox.style.display = "none";
+//                               } );
+//                          } );
+
+//                          markersNewBuildings.push( marker ); // Añade el marcador al array de parcelas
+//                     }
+//                } );
+//           } )
+//           .catch( error => console.error( "Error al cargar los marcadores de Other Buildings:", error ) );
+// };
+
+// const eventNewBuildings = document.getElementById( "newBuildings-sub-nav-item" );
+// let markersNewBuildings = []; // Array para almacenar los marcadores de parcelas
+// let newBuildingsVisible = false; // Bandera para el estado de visibilidad
+
+// eventNewBuildings.addEventListener( "click", () => {
+//      // Alternar la visibilidad de los marcadores de parcelas
+//      toggleMarcadores( markersNewBuildings, newBuildingsVisible );
+//      newBuildingsVisible = !newBuildingsVisible; // Cambia la bandera de visibilidad
+
+//      // Si los marcadores aún no se han cargado, cargarlos
+//      if ( markersNewBuildings.length === 0 && newBuildingsVisible ) {
+//           cargarMarcadoresNewBuildings(); // Llama a la función para cargar los marcadores de parcelas
+//      }
+// } );
+//******************************************************************** */
 //! Función para mostrar NEW BUILDINGS
 function cargarMarcadoresNewBuildings() {
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/New%20Buildings/Fiware_Buildings_NewBuildings-00001?sp=r&st=2024-06-01T10:24:46Z&se=2090-01-01T19:24:46Z&sv=2022-11-02&sr=b&sig=ZPMSJa5sRrTyLWd0t%2FgExVaS9hXxVIQdQchzXN4zAJY%3D' )
-          .then( response => response.json() )
+     const endpoint = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/New%20Buildings/Fiware_Buildings_NewBuildings-00001?sp=r&st=2024-06-01T10:24:46Z&se=2090-01-01T19:24:46Z&sv=2022-11-02&sr=b&sig=ZPMSJa5sRrTyLWd0t%2FgExVaS9hXxVIQdQchzXN4zAJY%3D';
+     const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
+
+     fetch( proxyUrl )
+          .then( response => {
+               if ( !response.ok ) {
+                    throw new Error( `Error al obtener datos del proxy: ${ response.statusText }` );
+               }
+               return response.json();
+          } )
           .then( data => {
                data.buildings0008.forEach( item => {
                     const {
@@ -7408,8 +7495,8 @@ function cargarMarcadoresNewBuildings() {
                     }
                } );
           } )
-          .catch( error => console.error( "Error al cargar los marcadores de Other Buildings:", error ) );
-};
+          .catch( error => console.error( "Error al cargar los marcadores de New Buildings:", error ) );
+}
 
 const eventNewBuildings = document.getElementById( "newBuildings-sub-nav-item" );
 let markersNewBuildings = []; // Array para almacenar los marcadores de parcelas
@@ -7488,9 +7575,88 @@ eventNewBuildings.addEventListener( "click", () => {
 // };
 
 //! Función para mostrar HOUSES
+// const cargarYMostrarMarcadoresCasas = async () => {
+//      try {
+//           const response = await fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Houses/Fiware_Buildings_Houses-00001?sp=r&st=2024-03-31T08:25:20Z&se=2090-01-01T17:25:20Z&sv=2022-11-02&sr=b&sig=gYyNiUSwKU5upO86hX1DgDGRmoosucVSPcYZ%2BxGSnHY%3D" );
+//           const data = await response.json();
+
+//           data.buildings0007.forEach( item => {
+//                const parsedData = parseFiwareData( item );
+//                if ( parsedData.ubicacion ) {
+//                     const houseMarker = new google.maps.Marker( {
+//                          position: { lat: parsedData.ubicacion[ 1 ], lng: parsedData.ubicacion[ 0 ] },
+//                          map: map,
+//                          title: parsedData.name,
+//                          icon: "./assets/housesQubo.svg"
+//                     } );
+
+//                     houseMarker.addListener( 'click', () => {
+//                          const infoBox = document.querySelector( ".info-box" );
+//                          infoBox.style.display = "flex";
+//                          const idWithoutPrefix = item.id.replace( /^building_ide_/, '' );
+//                          const capitalizedCategory = parsedData.category;
+//                          const parkingInfo = item.annexIdealista.value.parkingSpace.hasParkingSpace ? "Sí" : "No";
+//                          const parkingIncluded = item.annexIdealista.value.parkingSpace.isParkingSpaceIncludedInPrice ? "Sí" : "No";
+
+//                          infoBox.innerHTML = `
+//                          <div class='nameContainer'>
+//                              <p>${ capitalizedCategory }</p>
+//                              <p>${ parsedData.name }</p>
+//                          </div>
+//                          <img src='${ item.thumbnail.value }'>
+//                          <p>Código identificador: ${ idWithoutPrefix }</p>
+//                          <p>Localización: ${ parsedData.addressLocality }, ${ parsedData.addressRegion }</p>
+//                          <p>Tipo de operación: ${ item.annexIdealista.value.operation.charAt( 0 ).toUpperCase() + item.annexIdealista.value.operation.slice( 1 ) }</p>
+//                          <p>District: ${ parsedData.district }</p>
+//                          <p>Precio total: ${ ( item.annexIdealista.value.price ).toLocaleString( 'es-ES' ) } €</p>
+//                          <p>Size: ${ item.annexIdealista.value.size } m²</p>
+//                          <p>Rooms: ${ item.annexIdealista.value.rooms }</p>
+//                          <p>Bathrooms: ${ item.annexIdealista.value.bathrooms }</p>
+//                          <p>Parking: ${ parkingInfo }</p>
+//                          ${ parkingInfo === "Sí" ? `<p>Parking incluido en el precio: ${ parkingIncluded }</p>` : '' }
+//                          <p>Source: <a class="links-propiedades" href="${ parsedData.source }" target="_blank">${ parsedData.source }</a></p>
+//                          <p>${ parsedData.description }</p>
+//                          <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+//                          <button class='share'><img src='./assets/shareIcon.svg'></button>
+//                      `;
+//                          document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
+//                               infoBox.style.display = "none";
+//                          } );
+//                     } );
+
+//                     markersHouses.push( houseMarker ); // Añade el marcador al array de casas
+//                }
+//           } );
+//      } catch ( error ) {
+//           console.error( "Error fetching houses:", error );
+//      }
+// };
+
+// // Evento botón HOUSES
+// const eventHouses = document.getElementById( "houses-sub-nav-item" );
+// let markersHouses = []; // Array para almacenar los marcadores de casas
+// let housesVisible = false; // Bandera para el estado de visibilidad
+
+// eventHouses.addEventListener( 'click', async () => {
+//      // Alternar la visibilidad de los marcadores de casas
+//      toggleMarcadores( markersHouses, housesVisible );
+//      housesVisible = !housesVisible; // Cambia la bandera de visibilidad
+
+//      // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
+//      if ( markersHouses.length === 0 && housesVisible ) {
+//           await cargarYMostrarMarcadoresCasas();
+//      }
+// } );
+
+
+//***************** */
+//! Función para mostrar HOUSES
 const cargarYMostrarMarcadoresCasas = async () => {
      try {
-          const response = await fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Houses/Fiware_Buildings_Houses-00001?sp=r&st=2024-03-31T08:25:20Z&se=2090-01-01T17:25:20Z&sv=2022-11-02&sr=b&sig=gYyNiUSwKU5upO86hX1DgDGRmoosucVSPcYZ%2BxGSnHY%3D" );
+          const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Houses/Fiware_Buildings_Houses-00001?sp=r&st=2024-03-31T08:25:20Z&se=2090-01-01T17:25:20Z&sv=2022-11-02&sr=b&sig=gYyNiUSwKU5upO86hX1DgDGRmoosucVSPcYZ%2BxGSnHY%3D";
+          const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`; // Construye la URL del proxy
+
+          const response = await fetch( proxyUrl ); // Llama al proxy en lugar de directamente al endpoint
           const data = await response.json();
 
           data.buildings0007.forEach( item => {
@@ -7562,10 +7728,81 @@ eventHouses.addEventListener( 'click', async () => {
 } );
 
 
+
+//! Función para mostrar OFFICES
+// const cargarYMostrarMarcadoresOficinas = async () => {
+//      try {
+//           const response = await fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Offices/Fiware_Buildings_Offices-00001?sp=r&st=2024-03-09T08:46:32Z&se=2090-01-01T16:46:32Z&sv=2022-11-02&sr=b&sig=U9Oi9KQFp%2FdQZqhjzQFSgm8JgtfOldIQvCUHdTYv4nY%3D" );
+//           const data = await response.json();
+
+//           data.buildings0009.forEach( item => {
+//                const ubicacion = item.location.value.coordinates;
+
+//                const officeMarker = new google.maps.Marker( {
+//                     position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+//                     map: map,
+//                     title: item.name.value,
+//                     icon: "./assets/officesQubo.svg"
+//                } );
+
+//                officeMarker.addListener( 'click', () => {
+//                     const infoBox = document.querySelector( ".info-box" );
+//                     infoBox.style.display = "flex";
+//                     const idWithoutPrefix = item.id.replace( /^property_/, '' );
+//                     const capitalizedCategory = item.category.value[ 0 ].charAt( 0 ).toUpperCase() + item.category.value[ 0 ].slice( 1 );
+//                     infoBox.innerHTML = `
+//                          <div class='nameContainer'>
+//                               <p>${ capitalizedCategory }</p>
+//                               <p>${ item.name.value }</p>
+//                          </div>
+//                          <img src='./assets/staticOffices.jpg'>
+//                          <p>Código identificador: ${ idWithoutPrefix }</p>
+//                          <p>Address: ${ item.address.value.streetAddress }</p>
+//                          <p>District: ${ item.address.value.district }</p>
+//                          <p>Localización: ${ item.address.value.addressLocality }, ${ item.address.value.addressRegion }</p>
+//                          <p>${ item.description.value }</p>
+//                          <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+//                          <button class='share'><img src='./assets/shareIcon.svg'></button>
+//                     `;
+//                     document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
+//                          infoBox.style.display = "none";
+//                     } );
+//                } );
+
+//                markersOffices.push( officeMarker ); // Añade el marcador al array de oficinas
+//           } );
+//      } catch ( error ) {
+//           console.error( "Error fetching offices:", error );
+//      }
+// };
+
+// // Evento botón OFFICES
+// const eventOffices = document.getElementById( "offices-sub-nav-item" );
+// let markersOffices = []; // Array para almacenar los marcadores de oficinas
+// let officesVisible = false; // Bandera para el estado de visibilidad
+
+// eventOffices.addEventListener( 'click', async () => {
+//      // Alternar la visibilidad de los marcadores de oficinas
+//      toggleMarcadores( markersOffices, officesVisible );
+//      officesVisible = !officesVisible; // Cambia la bandera de visibilidad
+
+//      // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
+//      if ( markersOffices.length === 0 && officesVisible ) {
+//           await cargarYMostrarMarcadoresOficinas();
+//      }
+// } );
+
 //! Función para mostrar OFFICES
 const cargarYMostrarMarcadoresOficinas = async () => {
      try {
-          const response = await fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Offices/Fiware_Buildings_Offices-00001?sp=r&st=2024-03-09T08:46:32Z&se=2090-01-01T16:46:32Z&sv=2022-11-02&sr=b&sig=U9Oi9KQFp%2FdQZqhjzQFSgm8JgtfOldIQvCUHdTYv4nY%3D" );
+          const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Offices/Fiware_Buildings_Offices-00001?sp=r&st=2024-03-09T08:46:32Z&se=2090-01-01T16:46:32Z&sv=2022-11-02&sr=b&sig=U9Oi9KQFp%2FdQZqhjzQFSgm8JgtfOldIQvCUHdTYv4nY%3D";
+          const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
+
+          const response = await fetch( proxyUrl );
+          if ( !response.ok ) {
+               throw new Error( `Error al obtener datos del proxy: ${ response.statusText }` );
+          }
+
           const data = await response.json();
 
           data.buildings0009.forEach( item => {
@@ -7626,9 +7863,12 @@ eventOffices.addEventListener( 'click', async () => {
 } );
 
 
+
 //! Función para mostrar COMMERCIAL OR INDUSTRIAL
 function cargarMarcadoresCommercialOrIndustrial() {
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Commercial%20%26%20Industrial/Fiware_Buildings_CommercialAndIndustrial_-00001?sp=r&st=2024-06-01T11:03:07Z&se=2090-01-01T20:03:07Z&sv=2022-11-02&sr=b&sig=lTkeDvm2Nc8gekaWO296rAkmdyZIIblaZxw%2BeyA16kg%3D' )
+     const endpoint = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Commercial%20%26%20Industrial/Fiware_Buildings_CommercialAndIndustrial_-00001?sp=r&st=2024-06-01T11:03:07Z&se=2090-01-01T20:03:07Z&sv=2022-11-02&sr=b&sig=lTkeDvm2Nc8gekaWO296rAkmdyZIIblaZxw%2BeyA16kg%3D';
+     const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
+     fetch( proxyUrl )
           .then( response => response.json() )
           .then( data => {
                data.buildings0005.forEach( item => {
@@ -7702,7 +7942,10 @@ eventCommercialOrIndustrial.addEventListener( "click", () => {
 //! Función para mostrar GARAGES
 const cargarYMostrarMarcadoresGarages = async () => {
      try {
-          const response = await fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Garages/Fiware_Buildings_Garages-00001?sp=r&st=2024-03-09T08:44:49Z&se=2090-01-01T16:44:49Z&sv=2022-11-02&sr=b&sig=gRC1J4u547MhsC44oA5TO1h4N9%2F0kpozqY89RRzazfA%3D" );
+          const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Garages/Fiware_Buildings_Garages-00001?sp=r&st=2024-03-09T08:44:49Z&se=2090-01-01T16:44:49Z&sv=2022-11-02&sr=b&sig=gRC1J4u547MhsC44oA5TO1h4N9%2F0kpozqY89RRzazfA%3D";
+          const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
+
+          const response = await fetch( proxyUrl );
           const data = await response.json();
 
           data.buildings0006.forEach( item => {
@@ -7775,7 +8018,10 @@ function safeAccess( obj, ...keys ) {
 
 //! Funcion para mostrar PARCELS
 function cargarMarcadoresParcels() {
-     fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Parcels/Fiware_Buildings_Parcels-00001?sp=r&st=2024-02-16T19:50:11Z&se=2090-01-01T03:50:11Z&sv=2022-11-02&sr=b&sig=sMy7J4ZHbofqEvbKuA8BnrHesnkwEHmbSYVxYnlFgTk%3D" )
+     const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Parcels/Fiware_Buildings_Parcels-00001?sp=r&st=2024-02-16T19:50:11Z&se=2090-01-01T03:50:11Z&sv=2022-11-02&sr=b&sig=sMy7J4ZHbofqEvbKuA8BnrHesnkwEHmbSYVxYnlFgTk%3D";
+     const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
+
+     fetch( proxyUrl )
           .then( response => response.json() )
           .then( data => {
                data.buildings0003.forEach( item => {
@@ -7912,7 +8158,10 @@ eventparcels.addEventListener( "click", () => {
 
 //! Función para mostrar ICONIC
 function cargarMarcadoresIconic() {
-     fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Iconic/Fiware_Buildings_Iconic-00001?sp=r&st=2024-02-16T19:44:04Z&se=2090-01-01T07:45:04Z&sv=2022-11-02&sr=b&sig=mvEnx2llvD30oO%2BZlFqgitpIav91hgqovdRH7jB4IOs%3D" )
+     const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Iconic/Fiware_Buildings_Iconic-00001?sp=r&st=2024-02-16T19:44:04Z&se=2090-01-01T07:45:04Z&sv=2022-11-02&sr=b&sig=mvEnx2llvD30oO%2BZlFqgitpIav91hgqovdRH7jB4IOs%3D";
+     const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
+
+     fetch( proxyUrl )
           .then( response => response.json() )
           .then( data => {
                data.buildings0004.forEach( item => {
@@ -8003,8 +8252,10 @@ eventHospitals.addEventListener( "click", () => {
           if ( markersHospital.length > 0 ) {
                markersHospital.forEach( marker => marker.setMap( map ) ); // Muestra cada marcador
           } else {
+               const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Hospitals%20%26%20Clinics/Fiware_Health_HospitalsAndClinics-00001?sp=r&st=2023-12-30T10:17:13Z&se=2090-01-01T18:17:13Z&sv=2022-11-02&sr=b&sig=9W9CmvHNvBDU7GhdmzMbkM5AP193N%2FFBRT1b5w4KFJ0%3D";
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
                // Si es la primera vez, crea los marcadores
-               fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Hospitals%20%26%20Clinics/Fiware_Health_HospitalsAndClinics-00001?sp=r&st=2023-12-30T10:17:13Z&se=2090-01-01T18:17:13Z&sv=2022-11-02&sr=b&sig=9W9CmvHNvBDU7GhdmzMbkM5AP193N%2FFBRT1b5w4KFJ0%3D" )
+               fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
                          data.buildings0002.forEach( item => {
@@ -8135,9 +8386,9 @@ eventHospitals.addEventListener( "click", () => {
 
 //! Función para mostrar PHARMACY
 const cargarMarcadoresFarmacias = () => {
-     fetch(
-          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Pharmacy/Fiware_Health_Pharmacy-00001?sp=r&st=2024-01-03T13:10:58Z&se=2090-03-01T21:10:58Z&sv=2022-11-02&sr=b&sig=%2BWst1weUxMGfSdDVWZ25AmykNzJkguql09VWbkpaGOQ%3D"
-     )
+     const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Pharmacy/Fiware_Health_Pharmacy-00001?sp=r&st=2024-01-03T13:10:58Z&se=2090-03-01T21:10:58Z&sv=2022-11-02&sr=b&sig=%2BWst1weUxMGfSdDVWZ25AmykNzJkguql09VWbkpaGOQ%3D";
+     const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
+     fetch( proxyUrl )
           .then( ( response ) => {
                if ( response.ok ) {
                     return response.json();
@@ -8313,7 +8564,9 @@ function convertToTitleCase( str ) {
 
 
 function cargarMarcadoresPolice() {
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Fiware_Security_Police-00001?sp=r&st=2024-06-02T10:30:17Z&se=2090-01-01T19:30:17Z&sv=2022-11-02&sr=b&sig=t5a17aCew3nA5twJGHg5K4fiMXBI%2BphX9N%2F3bjpbDRg%3D' )
+     const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Fiware_Security_Police-00001?sp=r&st=2024-06-02T10:30:17Z&se=2090-01-01T19:30:17Z&sv=2022-11-02&sr=b&sig=t5a17aCew3nA5twJGHg5K4fiMXBI%2BphX9N%2F3bjpbDRg%3D";
+     const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
+     fetch( proxyUrl )
           .then( response => response.json() )
           .then( data => {
                data.buildings0018.forEach( item => {
@@ -8417,9 +8670,104 @@ eventPolice.addEventListener( "click", () => {
 
 //! Función para mostrar FIRE
 
+// function cargarMarcadoresFire() {
+//      // Cargar datos JSON a través del proxy
+//     const proxyUrl = `/api/proxy?url=${encodeURIComponent('https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Fire/Fiware_Security_Fire-00001?sp=r&st=2024-06-02T10:34:51Z&se=2090-01-01T19:34:51Z&sv=2022-11-02&sr=b&sig=kIIhP5A5%2BADgQbK1rf45qF7zibOYT%2F6QU0kLSGPKihU%3D')}`;
+//      fetch( proxyUrl )
+//           .then( response => response.json() )
+//           .then( data => {
+//                data.buildings0017.forEach( item => {
+//                     const {
+//                          ubicacion,
+//                          name,
+//                          category,
+//                          description,
+//                          streetAddress,
+//                          postalCode,
+//                          addressLocality,
+//                          addressRegion,
+//                          addressCountry,
+//                          neighborhood,
+//                          district,
+//                          source
+//                     } = parseFiwareData( item );
+
+
+//                     if ( ubicacion && name ) {
+//                          const marker = new google.maps.Marker( {
+//                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+//                               map: map,
+//                               title: name,
+//                               icon: "./assets/fireStationQubo.svg"
+//                          } );
+
+//                          // Agrega un evento click a cada marcador para mostrar el infoBox
+//                          marker.addListener( "click", () => {
+//                               const infoBox = document.querySelector( ".info-box" );
+//                               infoBox.style.display = "flex";
+//                               infoBox.innerHTML = `
+//                          <div class='nameContainer'>
+//                              <p>${ category }</p>
+//                              <p>${ name }</p>
+//                          </div>
+//                          <img src='./assets/staticFireStation.jpeg'/>
+//                          <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
+//                          <p>Address: ${ streetAddress }</p>
+//                          <p>C.P: ${ postalCode }</p>
+//                          <p>Neighborhood: ${ neighborhood }</p>
+//                          <p>District: ${ district }</p>
+//                          <p>Country: ${ addressCountry }</p>
+//                          <p>${ description }</p>
+//                          <p>Link: <a href="${ source }" target="_blank">Click Here</a></p>
+//                          <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+//                          <button class='share'><img src='./assets/shareIcon.svg'></button>
+//                      `;
+//                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
+//                                    infoBox.style.display = "none";
+//                               } );
+//                          } );
+
+//                          markersFire.push( marker ); // Añade el marcador al array de marcadores de bomberos
+//                     }
+//                } );
+//           } )
+//           .catch( error => console.error( "Error al cargar los marcadores de bomberos:", error ) );
+
+//      // Cargar capa KML
+//      const kmlProxyUrl = `/api/proxy?url=${encodeURIComponent('https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Fire/Actuaciones%20Bomberos%20Final.kml?sp=r&st=2024-06-02T11:37:02Z&se=2090-01-01T20:37:02Z&sv=2022-11-02&sr=b&sig=TiiAzwAOI0rdct%2BYF%2F%2BJe3GFq%2FhTHx7rN7dsxnLfkzo%3D')}`;
+//      const kmlLayer = new google.maps.KmlLayer( {
+//           url: kmlProxyUrl,
+//           map: map,
+//           preserveViewport: true
+//      } );
+//      kmlLayersFire.push( kmlLayer );
+// }
+
+// const eventFire = document.getElementById( "fire-sub-nav-item" );
+// let markersFire = []; // Array para almacenar los marcadores de bomberos
+// let kmlLayersFire = []; // Array para almacenar las capas KML de bomberos
+// let fireVisible = false; // Bandera para el estado de visibilidad
+
+// eventFire.addEventListener( "click", () => {
+//      // Alternar la visibilidad de los marcadores de bomberos
+//      if ( !fireVisible ) {
+//           cargarMarcadoresFire();
+//           fireVisible = true;
+//      } else {
+//           markersFire.forEach( marker => marker.setMap( null ) );
+//           markersFire = [];
+//           kmlLayersFire.forEach( layer => layer.setMap( null ) );
+//           kmlLayersFire = [];
+//           fireVisible = false;
+//      }
+// } );
+
 function cargarMarcadoresFire() {
+     // URL del proxy para JSON
+     const jsonProxyUrl = `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Fire/Fiware_Security_Fire-00001?sp=r&st=2024-06-02T10:34:51Z&se=2090-01-01T19:34:51Z&sv=2022-11-02&sr=b&sig=kIIhP5A5%2BADgQbK1rf45qF7zibOYT%2F6QU0kLSGPKihU%3D' ) }`;
+
      // Cargar datos JSON
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Fire/Fiware_Security_Fire-00001?sp=r&st=2024-06-02T10:34:51Z&se=2090-01-01T19:34:51Z&sv=2022-11-02&sr=b&sig=kIIhP5A5%2BADgQbK1rf45qF7zibOYT%2F6QU0kLSGPKihU%3D' )
+     fetch( jsonProxyUrl )
           .then( response => response.json() )
           .then( data => {
                data.buildings0017.forEach( item => {
@@ -8438,7 +8786,6 @@ function cargarMarcadoresFire() {
                          source
                     } = parseFiwareData( item );
 
-
                     if ( ubicacion && name ) {
                          const marker = new google.maps.Marker( {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
@@ -8447,55 +8794,57 @@ function cargarMarcadoresFire() {
                               icon: "./assets/fireStationQubo.svg"
                          } );
 
-                         // Agrega un evento click a cada marcador para mostrar el infoBox
+                         // Evento de click para mostrar información
                          marker.addListener( "click", () => {
                               const infoBox = document.querySelector( ".info-box" );
                               infoBox.style.display = "flex";
                               infoBox.innerHTML = `
-                         <div class='nameContainer'>
-                             <p>${ category }</p>
-                             <p>${ name }</p>
-                         </div>
-                         <img src='./assets/staticFireStation.jpeg'/>
-                         <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                         <p>Address: ${ streetAddress }</p>
-                         <p>C.P: ${ postalCode }</p>
-                         <p>Neighborhood: ${ neighborhood }</p>
-                         <p>District: ${ district }</p>
-                         <p>Country: ${ addressCountry }</p>
-                         <p>${ description }</p>
-                         <p>Link: <a href="${ source }" target="_blank">Click Here</a></p>
-                         <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                         <button class='share'><img src='./assets/shareIcon.svg'></button>
-                     `;
+                             <div class='nameContainer'>
+                                 <p>${ category }</p>
+                                 <p>${ name }</p>
+                             </div>
+                             <img src='./assets/staticFireStation.jpeg'/>
+                             <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
+                             <p>Address: ${ streetAddress }</p>
+                             <p>C.P: ${ postalCode }</p>
+                             <p>Neighborhood: ${ neighborhood }</p>
+                             <p>District: ${ district }</p>
+                             <p>Country: ${ addressCountry }</p>
+                             <p>${ description }</p>
+                             <p>Link: <a href="${ source }" target="_blank">Click Here</a></p>
+                             <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+                             <button class='share'><img src='./assets/shareIcon.svg'></button>
+                         `;
                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
                                    infoBox.style.display = "none";
                               } );
                          } );
 
-                         markersFire.push( marker ); // Añade el marcador al array de marcadores de bomberos
+                         markersFire.push( marker );
                     }
                } );
           } )
           .catch( error => console.error( "Error al cargar los marcadores de bomberos:", error ) );
 
+     // URL del proxy para KML
+     const kmlProxyUrl = `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Fire/Actuaciones%20Bomberos%20Final.kml?sp=r&st=2024-06-02T11:37:02Z&se=2090-01-01T20:37:02Z&sv=2022-11-02&sr=b&sig=TiiAzwAOI0rdct%2BYF%2F%2BJe3GFq%2FhTHx7rN7dsxnLfkzo%3D' ) }`;
+
      // Cargar capa KML
-     const kmlUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Fire/Actuaciones%20Bomberos%20Final.kml?sp=r&st=2024-06-02T11:37:02Z&se=2090-01-01T20:37:02Z&sv=2022-11-02&sr=b&sig=TiiAzwAOI0rdct%2BYF%2F%2BJe3GFq%2FhTHx7rN7dsxnLfkzo%3D';
      const kmlLayer = new google.maps.KmlLayer( {
-          url: kmlUrl,
+          url: kmlProxyUrl,
           map: map,
           preserveViewport: true
      } );
+
      kmlLayersFire.push( kmlLayer );
 }
 
 const eventFire = document.getElementById( "fire-sub-nav-item" );
-let markersFire = []; // Array para almacenar los marcadores de bomberos
-let kmlLayersFire = []; // Array para almacenar las capas KML de bomberos
-let fireVisible = false; // Bandera para el estado de visibilidad
+let markersFire = [];
+let kmlLayersFire = [];
+let fireVisible = false;
 
 eventFire.addEventListener( "click", () => {
-     // Alternar la visibilidad de los marcadores de bomberos
      if ( !fireVisible ) {
           cargarMarcadoresFire();
           fireVisible = true;
@@ -8507,7 +8856,6 @@ eventFire.addEventListener( "click", () => {
           fireVisible = false;
      }
 } );
-
 
 
 //* BOTÓN LOGISTICS ****************
@@ -8541,8 +8889,8 @@ eventFire.addEventListener( "click", () => {
 //! Función para mostrar PUERTOS
 const cargarMarcadoresPuertos = async () => {
      const urls = [
-          'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ports/port_tanger.json?sp=r&st=2024-07-21T10:38:19Z&se=2090-01-01T19:38:19Z&sv=2022-11-02&sr=b&sig=N8hFoDEtRa6gepxt%2BlIh8ZPSBOVORUp5kTmbKgng9Do%3D',
-          'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ports/port_algeciras.json?sp=r&st=2024-07-21T10:39:18Z&se=2090-01-01T19:39:18Z&sv=2022-11-02&sr=b&sig=0Oq3z6vuqvbRDOAUuxX%2FYl4OwHAbCN4xZMuE7q2hlMg%3D'
+          '/api/proxy?url=' + encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ports/port_tanger.json?sp=r&st=2024-07-21T10:38:19Z&se=2090-01-01T19:38:19Z&sv=2022-11-02&sr=b&sig=N8hFoDEtRa6gepxt%2BlIh8ZPSBOVORUp5kTmbKgng9Do%3D' ),
+          '/api/proxy?url=' + encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ports/port_algeciras.json?sp=r&st=2024-07-21T10:39:18Z&se=2090-01-01T19:39:18Z&sv=2022-11-02&sr=b&sig=0Oq3z6vuqvbRDOAUuxX%2FYl4OwHAbCN4xZMuE7q2hlMg%3D' )
      ];
 
      const requests = urls.map( url => fetch( url ).then( response => response.json() ) );
@@ -9850,6 +10198,80 @@ document.addEventListener( 'DOMContentLoaded', function () {
           } );
      } );
 } );
+
+// // Funcionalidad botones 3D y 2D
+// document.addEventListener("DOMContentLoaded", () => {
+//      // Referencias a los botones
+//      const button2d = document.getElementById("button2d");
+//      const button3d = document.getElementById("button3d");
+
+//      // Evento para cambiar a "Mapa" (2D)
+//      button2d.addEventListener("click", () => {
+//          if (map) {
+//              map.setMapTypeId("roadmap"); // Cambia a vista de mapa 2D
+//          }
+//      });
+
+//      // Evento para cambiar a "Satélite" (3D)
+//      button3d.addEventListener("click", () => {
+//          if (map) {
+//              map.setMapTypeId("satellite"); // Cambia a vista de satélite
+//          }
+//      });
+//  });
+
+document.addEventListener( "DOMContentLoaded", () => {
+     // Referencias a los botones
+     const button2d = document.getElementById( "button2d" );
+     const button3d = document.getElementById( "button3d" );
+     const buttonSatelliteDetails = document.getElementById( "buttonSatelliteDetails" );
+
+     // Estilo para ocultar etiquetas en modo satélite
+     const satelliteNoLabelsStyle = [
+          {
+               featureType: "all",
+               elementType: "labels",
+               stylers: [ { visibility: "off" } ],
+          },
+     ];
+
+     // Modo por defecto (etiquetas visibles)
+     let labelsVisible = true;
+
+     // Cambiar a modo satélite (3D)
+     button3d.addEventListener( "click", () => {
+          if ( map ) {
+               map.setMapTypeId( "satellite" );
+               map.setOptions( { styles: null } ); // Mostrar etiquetas al activar satélite
+               labelsVisible = true; // Por defecto, etiquetas visibles
+          }
+     } );
+
+     // Activar/desactivar detalles en el modo satélite
+     buttonSatelliteDetails.addEventListener( "click", () => {
+          if ( map && map.getMapTypeId() === "satellite" ) {
+               if ( labelsVisible ) {
+                    map.setOptions( { styles: satelliteNoLabelsStyle } ); // Ocultar etiquetas
+                    labelsVisible = false;
+               } else {
+                    map.setOptions( { styles: null } ); // Mostrar etiquetas
+                    labelsVisible = true;
+               }
+          } else {
+               alert( "Cambia al modo satélite primero para alternar detalles." );
+          }
+     } );
+
+     // Cambiar a modo 2D (Mapa)
+     button2d.addEventListener( "click", () => {
+          if ( map ) {
+               map.setMapTypeId( "roadmap" );
+               map.setOptions( { styles: null } ); // Restablecer estilos
+          }
+     } );
+} );
+
+
 
 
 document.addEventListener( 'DOMContentLoaded', function () {

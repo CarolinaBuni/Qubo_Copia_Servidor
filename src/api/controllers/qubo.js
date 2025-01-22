@@ -1,4 +1,6 @@
 const Qubo = require( "../models/qubo" );
+const cloudinary = require('cloudinary').v2;
+
 
 
 
@@ -47,5 +49,63 @@ const postQubo = async ( req, res, next ) => {
      }
 };
 
+const deleteQubo = async (req, res, next) => {
+     try {
+         const quboId = req.params.id;
+ 
+         console.log("Intentando eliminar Qubo con ID:", quboId);
+ 
+         // Busca el Qubo en la base de datos
+         const qubo = await Qubo.findById(quboId);
+         if (!qubo) {
+             console.log("Qubo no encontrado");
+             return res.status(404).json({ message: "Qubo no encontrado" });
+         }
+ 
+         console.log("Qubo encontrado:", qubo);
+ 
+         // Verifica si la imagen pertenece a Cloudinary
+         if (qubo.img.startsWith("https://res.cloudinary.com")) {
+             // Extrae el `publicId` desde la URL de la imagen
+             const publicId = qubo.img
+                 .split('/')
+                 .slice(-2)
+                 .join('/')
+                 .split('.')[0]; // Elimina la extensión del archivo
+ 
+             console.log("Public ID generado:", publicId);
+ 
+             // Intenta eliminar la imagen de Cloudinary
+             try {
+                 const result = await cloudinary.uploader.destroy(publicId);
+                 console.log("Resultado de eliminación en Cloudinary:", result);
+ 
+                 if (result.result !== "ok" && result.result !== "not found") {
+                     console.error("Error inesperado al eliminar imagen de Cloudinary:", result);
+                     throw new Error("Error inesperado en Cloudinary");
+                 }
+             } catch (cloudinaryError) {
+                 console.error("Detalles del error de Cloudinary:", cloudinaryError.message);
+                 throw new Error(`Error en Cloudinary: ${cloudinaryError.message}`);
+             }
+         } else {
+             console.log("La imagen no pertenece a Cloudinary, no se elimina.");
+         }
+ 
+         // Elimina el Qubo de la base de datos
+         const deletedQubo = await Qubo.findByIdAndDelete(quboId);
+         console.log("Qubo eliminado de la base de datos:", deletedQubo);
+ 
+         if (!deletedQubo) {
+             throw new Error("No se pudo eliminar el Qubo de la base de datos");
+         }
+ 
+         res.status(200).json({ message: "Qubo eliminado correctamente" });
+     } catch (error) {
+         console.error("Error al eliminar el Qubo:", error.message, error.stack);
+         res.status(500).json({ message: "Error al eliminar el Qubo", error: error.message });
+     }
+ };
+ 
 
-module.exports = { postQubo, getQubo };
+module.exports = { postQubo, getQubo, deleteQubo };
