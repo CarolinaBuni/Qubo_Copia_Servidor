@@ -45,24 +45,7 @@ app.get('/api/qubo-icons', (req, res) => {
 });
 
 //************************************* */
-// app.get('/api/proxy', async (req, res) => {
-//     const targetUrl = req.query.url;
-//     try {
-//         const response = await fetch(targetUrl);
-//         const contentType = response.headers.get('content-type');
 
-//         if (contentType.includes('application/vnd.google-earth.kml+xml') || contentType.includes('application/xml')) {
-//             res.setHeader('Content-Type', contentType);
-//         } else {
-//             res.setHeader('Content-Type', 'application/vnd.google-earth.kml+xml');
-//         }
-
-//         const data = await response.text(); // Para KML, usamos `text()` en lugar de `json()`.
-//         res.send(data);
-//     } catch (error) {
-//         res.status(500).send({ error: 'Error al cargar el recurso' });
-//     }
-// });
 
 app.get('/api/proxy', async (req, res) => {
     const targetUrl = req.query.url;
