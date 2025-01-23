@@ -166,29 +166,29 @@ function initMap() {
      //      // Evento para mostrar y ocultar el inputContainer al hacer clic en el botón
      //      searchDirectionButton.addEventListener( 'click', toggleInputContainer );
      // } );
-     document.addEventListener('DOMContentLoaded', () => {
-          const inputContainer = document.getElementById('input-container');
-          const searchDirectionButton = document.getElementById('search-direction-button');
-      
+     document.addEventListener( 'DOMContentLoaded', () => {
+          const inputContainer = document.getElementById( 'input-container' );
+          const searchDirectionButton = document.getElementById( 'search-direction-button' );
+
           // Función para mostrar y ocultar el inputContainer
           const toggleInputContainer = () => {
-              if (inputContainer.style.display === 'none' || inputContainer.style.display === '') {
-                  inputContainer.style.display = 'block';
-                  inputContainer.style.opacity = '1';
-                  inputContainer.style.zIndex = '1000'; // Asegura que esté encima
-                  searchDirectionButton.classList.add('active');
-              } else {
-                  inputContainer.style.display = 'none';
-                  inputContainer.style.opacity = '0';
-                  inputContainer.style.zIndex = '-1'; // Oculta debajo
-                  searchDirectionButton.classList.remove('active');
-              }
+               if ( inputContainer.style.display === 'none' || inputContainer.style.display === '' ) {
+                    inputContainer.style.display = 'block';
+                    inputContainer.style.opacity = '1';
+                    inputContainer.style.zIndex = '1000'; // Asegura que esté encima
+                    searchDirectionButton.classList.add( 'active' );
+               } else {
+                    inputContainer.style.display = 'none';
+                    inputContainer.style.opacity = '0';
+                    inputContainer.style.zIndex = '-1'; // Oculta debajo
+                    searchDirectionButton.classList.remove( 'active' );
+               }
           };
-      
+
           // Evento para mostrar y ocultar el inputContainer al hacer clic en el botón
-          searchDirectionButton.addEventListener('click', toggleInputContainer);
-      });
-      
+          searchDirectionButton.addEventListener( 'click', toggleInputContainer );
+     } );
+
 
 
 
@@ -295,7 +295,7 @@ function initMap() {
 
      document.addEventListener( 'DOMContentLoaded', function () {
           // Cargar los iconos de las subcategorías desde el servidor
-          fetch( '/api/icons' )
+          fetch( '/api/qubo-icons' )
                .then( response => response.json() )
                .then( data => {
                     subcategoryIcons = data;
@@ -505,7 +505,8 @@ function initMap() {
           if ( selectedCategory && categoryMappings[ selectedCategory ] ) {
                categoryMappings[ selectedCategory ].forEach( ( subcategory ) => {
                     const option = document.createElement( "option" );
-                    option.value = subcategory;
+                    // option.value = subcategory;
+                    option.value = subcategory.toLowerCase().replace( /\s+/g, "" );
                     option.textContent = subcategory;
                     subcategorySelect.appendChild( option );
                } );
@@ -1246,7 +1247,15 @@ function initMap() {
      const carrilesBiciKmzUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/140627_ciclocarriles.kml?sp=r&st=2024-03-19T15:28:39Z&se=2089-12-31T23:28:39Z&sv=2022-11-02&sr=b&sig=5pmqVU2ihGiBmoOpp4flwQ9uYn6wx9ktnGWQICSQFmo%3D";
      const basesBiciMadKmzUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bases_de_BiciMad.kmz?sp=r&st=2024-03-19T20:24:26Z&se=2090-01-01T04:24:26Z&sv=2022-11-02&sr=b&sig=xI3PqT5cwc75iysCXnjus42YQTZMMokLtZgTLWEEOmE%3D";
      const biciparkKmzUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicipark.kmz?sp=r&st=2024-04-06T21:26:44Z&se=2090-01-01T06:26:44Z&sv=2022-11-02&sr=b&sig=edWyV5%2FwJnAqWLtWlPSZXqXVgNX5CQtyqFGMQESy0qk%3D";
-     const biciparkApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Fiware_Mobility_Biciparks-00001?sp=r&st=2024-07-26T14:43:20Z&se=2089-12-31T23:43:20Z&sv=2022-11-02&sr=b&sig=jppSvtms%2BZDJyZ3MRW3zXoaNCMm4TtMUZK3HtdTeOTc%3D";
+
+
+
+     const biciparkApiUrl = `/api/proxy?url=${ encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Fiware_Mobility_Biciparks-00001?sp=r&st=2024-07-26T14:43:20Z&se=2089-12-31T23:43:20Z&sv=2022-11-02&sr=b&sig=jppSvtms%2BZDJyZ3MRW3zXoaNCMm4TtMUZK3HtdTeOTc%3D"
+     ) }`;
+
+
+
      const aparcaBicisUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/APARCABICIS_2022.kml?sp=r&st=2024-03-19T20:51:56Z&se=2090-01-01T04:51:56Z&sv=2022-11-02&sr=b&sig=IUIlZ4eNBPH2cwjICkfnd1zL5yVH%2BSLiRtw%2FfEsl62E%3D";
      const callesTranquilasUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bici%20Calles%20Tranquilas.kml?sp=r&st=2024-03-19T21:21:47Z&se=2090-01-01T05:21:47Z&sv=2022-11-02&sr=b&sig=cLIk%2F4tbVhdZ1Cz%2FMl4ekhBGZxo4UFRgRVnyZ%2FeOuDE%3D";
 
@@ -3095,15 +3104,84 @@ function initMap() {
 
 
 
-     //!Función para Marcadores TAXIS
+     // //!Función para Marcadores TAXIS
+     // const marcadoresTaxis = {};
+     // function iniciarTaxiEnMapa( taxiId, iconUrl, title, apiUrl ) {
+     //      // Verificar si el marcador ya existe
+     //      if ( marcadoresTaxis[ taxiId ] ) {
+     //           // Si el marcador ya existe, detener el movimiento y eliminar el marcador
+     //           clearInterval( marcadoresTaxis[ taxiId ].intervaloId );
+     //           marcadoresTaxis[ taxiId ].marker.setMap( null );
+     //           delete marcadoresTaxis[ taxiId ]; // Eliminar el marcador del objeto
+     //           return; // Salir de la función
+     //      }
+
+     //      // Crear el marcador para el taxi
+     //      const taxiMarker = new google.maps.Marker( {
+     //           map: map,
+     //           title: title,
+     //           icon: iconUrl,
+     //      } );
+
+     //      // Función para obtener las coordenadas del taxi de la API y mover el marcador
+     //      function obtenerYmoverTaxi() {
+     //           fetch( apiUrl )
+     //                .then( response => response.json() )
+     //                .then( data => {
+     //                     // Asegurarse de que los datos están en el formato esperado
+     //                     if ( data.Coordenadas && Array.isArray( data.Coordenadas ) ) {
+     //                          const coordenadas = data.Coordenadas.map( coord => ( {
+     //                               lat: parseFloat( coord.lat ),
+     //                               lng: parseFloat( coord.lng )
+     //                          } ) );
+
+     //                          // Mover el marcador del taxi con las coordenadas obtenidas
+     //                          const intervaloId = iniciarMovimientoMarcador( taxiMarker, coordenadas, 2000 );
+     //                          marcadoresTaxis[ taxiId ] = {
+     //                               marker: taxiMarker,
+     //                               intervaloId: intervaloId,
+     //                               datosTaxi: data // Almacenar los datos del taxi aquí
+     //                          };
+     //                     } else {
+     //                          console.error( 'Los datos del taxi no tienen el formato esperado:', data );
+     //                     }
+     //                } )
+     //                .catch( error => console.error( 'Error al obtener coordenadas del taxi:', error ) );
+     //      }
+
+     //      // Iniciar el proceso de mover el taxi
+     //      obtenerYmoverTaxi();
+
+     //      // Añadir un evento click al marcador del taxi para mostrar información
+     //      taxiMarker.addListener( "click", function () {
+     //           const infoBox = document.querySelector( ".info-box" );
+     //           infoBox.style.display = "flex";
+     //           const datosTaxi = marcadoresTaxis[ taxiId ].datosTaxi;
+     //           infoBox.innerHTML = `
+     //                <img src="${ datosTaxi.ImagenURL }"/>
+     //                <div>Matrícula: ${ datosTaxi.Matricula }</div>
+     //                <div>Licencia: ${ datosTaxi.Licencia }</div>
+     //                <div>Estado: ${ datosTaxi.Estado }</div>
+     //                <div>Número máximo de ocupantes: ${ datosTaxi[ "Numero max de ocupantes" ] }</div>
+     //                <button id="cerrar-info-box">
+     //                     <img src="./assets/botonCerrar.svg" alt="Cerrar">
+     //                </button>
+     //           `;
+     //           document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
+     //                infoBox.style.display = "none";
+     //           } );
+     //      } );
+     // }
+     //! Función para Marcadores de TAXIS
      const marcadoresTaxis = {};
+
      function iniciarTaxiEnMapa( taxiId, iconUrl, title, apiUrl ) {
           // Verificar si el marcador ya existe
           if ( marcadoresTaxis[ taxiId ] ) {
                // Si el marcador ya existe, detener el movimiento y eliminar el marcador
                clearInterval( marcadoresTaxis[ taxiId ].intervaloId );
                marcadoresTaxis[ taxiId ].marker.setMap( null );
-               delete marcadoresTaxis[ taxiId ]; // Eliminar el marcador del objeto
+               delete marcadoresTaxis[ taxiId ];
                return; // Salir de la función
           }
 
@@ -3115,52 +3193,62 @@ function initMap() {
           } );
 
           // Función para obtener las coordenadas del taxi de la API y mover el marcador
-          function obtenerYmoverTaxi() {
-               fetch( apiUrl )
-                    .then( response => response.json() )
-                    .then( data => {
-                         // Asegurarse de que los datos están en el formato esperado
-                         if ( data.Coordenadas && Array.isArray( data.Coordenadas ) ) {
-                              const coordenadas = data.Coordenadas.map( coord => ( {
-                                   lat: parseFloat( coord.lat ),
-                                   lng: parseFloat( coord.lng )
-                              } ) );
+          const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
+          fetch( proxyUrl )
+               .then( ( response ) => response.json() )
+               .then( ( data ) => {
+                    // Asegurarse de que los datos están en el formato esperado
+                    if ( data.Coordenadas && Array.isArray( data.Coordenadas ) ) {
+                         const coordenadas = data.Coordenadas.map( ( coord ) => ( {
+                              lat: parseFloat( coord.lat ),
+                              lng: parseFloat( coord.lng ),
+                         } ) );
 
-                              // Mover el marcador del taxi con las coordenadas obtenidas
-                              const intervaloId = iniciarMovimientoMarcador( taxiMarker, coordenadas, 2000 );
-                              marcadoresTaxis[ taxiId ] = {
-                                   marker: taxiMarker,
-                                   intervaloId: intervaloId,
-                                   datosTaxi: data // Almacenar los datos del taxi aquí
-                              };
-                         } else {
-                              console.error( 'Los datos del taxi no tienen el formato esperado:', data );
-                         }
-                    } )
-                    .catch( error => console.error( 'Error al obtener coordenadas del taxi:', error ) );
-          }
-
-          // Iniciar el proceso de mover el taxi
-          obtenerYmoverTaxi();
+                         // Mover el marcador del taxi con las coordenadas obtenidas
+                         const intervaloId = iniciarMovimientoMarcador(
+                              taxiMarker,
+                              coordenadas,
+                              2000
+                         );
+                         marcadoresTaxis[ taxiId ] = {
+                              marker: taxiMarker,
+                              intervaloId: intervaloId,
+                              datosTaxi: data, // Almacenar los datos del taxi aquí
+                         };
+                    } else {
+                         console.error(
+                              "Los datos del taxi no tienen el formato esperado:",
+                              data
+                         );
+                    }
+               } )
+               .catch( ( error ) =>
+                    console.error( "Error al obtener coordenadas del taxi:", error )
+               );
 
           // Añadir un evento click al marcador del taxi para mostrar información
           taxiMarker.addListener( "click", function () {
+               if ( !marcadoresTaxis[ taxiId ] || !marcadoresTaxis[ taxiId ].datosTaxi )
+                    return;
+
+               const datosTaxi = marcadoresTaxis[ taxiId ].datosTaxi;
                const infoBox = document.querySelector( ".info-box" );
                infoBox.style.display = "flex";
-               const datosTaxi = marcadoresTaxis[ taxiId ].datosTaxi;
                infoBox.innerHTML = `
-                    <img src="${ datosTaxi.ImagenURL }"/>
-                    <div>Matrícula: ${ datosTaxi.Matricula }</div>
-                    <div>Licencia: ${ datosTaxi.Licencia }</div>
-                    <div>Estado: ${ datosTaxi.Estado }</div>
-                    <div>Número máximo de ocupantes: ${ datosTaxi[ "Numero max de ocupantes" ] }</div>
-                    <button id="cerrar-info-box">
-                         <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                    </button>
-               `;
-               document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                    infoBox.style.display = "none";
-               } );
+            <img src="${ datosTaxi.ImagenURL }" alt="Taxi Image" />
+            <div>Matrícula: ${ datosTaxi.Matricula }</div>
+            <div>Licencia: ${ datosTaxi.Licencia }</div>
+            <div>Estado: ${ datosTaxi.Estado }</div>
+            <div>Número máximo de ocupantes: ${ datosTaxi[ "Numero max de ocupantes" ] }</div>
+            <button id="cerrar-info-box">
+                <img src="./assets/botonCerrar.svg" alt="Cerrar" />
+            </button>
+        `;
+               document
+                    .getElementById( "cerrar-info-box" )
+                    .addEventListener( "click", function () {
+                         infoBox.style.display = "none";
+                    } );
           } );
      }
      const eventTaxis = document.getElementById( "taxi-sub-nav-item" );
@@ -3297,7 +3385,8 @@ function initMap() {
           } );
 
           function obtenerYmoverVTC() {
-               fetch( apiUrl )
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
+               fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
                          let coordenadas;
@@ -3530,12 +3619,21 @@ function initMap() {
      //      }
      //  });
 
+
      //! Función para Marcadores PARKING
+     const parkingApiUrl = `/api/proxy?url=${ encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Parking/Fiware_Mobility_Parkings-00001?sp=r&st=2024-07-26T15:09:58Z&se=2090-01-01T00:09:58Z&sv=2022-11-02&sr=b&sig=KyN8JVjYWfrIjTQfkBuV%2BRy5%2Fb%2FAiBkHagJP8BPPAEg%3D"
+     ) }`;
 
      function cargarMarcadoresParkings() {
-          fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Parking/Fiware_Mobility_Parkings-00001?sp=r&st=2024-07-26T15:09:58Z&se=2090-01-01T00:09:58Z&sv=2022-11-02&sr=b&sig=KyN8JVjYWfrIjTQfkBuV%2BRy5%2Fb%2FAiBkHagJP8BPPAEg%3D' )
+          fetch( parkingApiUrl )
                .then( response => response.json() )
                .then( data => {
+                    if ( !data || !Array.isArray( data.offstreetparking0002 ) ) {
+                         console.error( "Los datos de los parkings no tienen el formato esperado:", data );
+                         return;
+                    }
+
                     data.offstreetparking0002.forEach( item => {
                          const {
                               ubicacion,
@@ -3545,205 +3643,191 @@ function initMap() {
                               streetAddress,
                               addressRegion,
                               addressCountry,
-                              allowedVehicleType // Aquí se incluye el tipo de vehículo permitido
+                              allowedVehicleType
                          } = parseFiwareData( item );
 
-                         if ( ubicacion && name ) {
-                              const marker = new google.maps.Marker( {
-                                   position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
-                                   map: map,
-                                   title: name,
-                                   icon: "./assets/parkingsQubo.svg"
-                              } );
-
-                              // Agrega un evento click a cada marcador para mostrar el infoBox
-                              marker.addListener( "click", () => {
-                                   const infoBox = document.querySelector( ".info-box" );
-                                   infoBox.style.display = "flex";
-
-                                   // Generar aleatoriamente las plazas totales y las plazas disponibles
-                                   const totalPlazas = Math.floor( Math.random() * ( 200 - 50 + 1 ) ) + 50; // Entre 50 y 200 plazas totales
-                                   const plazasDisponibles = Math.floor( Math.random() * totalPlazas ); // Aleatorio entre 0 y totalPlazas
-                                   const plazasOcupadas = totalPlazas - plazasDisponibles;
-
-                                   // Calcular porcentaje de ocupación
-                                   const ocupacionPorcentaje = Math.round( ( plazasOcupadas / totalPlazas ) * 100 );
-
-                                   const allowedVehicles = allowedVehicleType
-                                        ? allowedVehicleType.map( vehicle => vehicle.charAt( 0 ).toUpperCase() + vehicle.slice( 1 ) ).join( ", " )
-                                        : 'No disponible';
-
-                                   // Reiniciar el contenido del infobox
-                                   infoBox.innerHTML = `
-                             <div class='nameContainer'>
-                                 <p>${ category }</p>
-                                 <p>${ name }</p>
-                             </div>
-                             <img src='./assets/staticParkings.jpg'>
-                             
-                             <div class="parking-info">
-                                 <div class="parking-bar-container">
-                                   <div class="parking-bar" style="width: ${ ocupacionPorcentaje }%;">
-                                   </div>
-                                   <div class="parking-bar-text">${ ocupacionPorcentaje }% Occupied</div>
-                                   </div>
-
-                                 <p>Total Parking Spots: ${ totalPlazas }</p>
-                                 <p>Available Parking Spots: ${ plazasDisponibles }</p>
-                             </div>
- 
-                             <p>Address: ${ streetAddress }</p>
-                             <p>Localización: ${ addressRegion }</p>
-                             <p>Country: ${ addressCountry }</p>
-                             <p>${ description }</p>
-                             <p>Allowed Vehicles: ${ allowedVehicles }</p>
-                             
-                             <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                             <button class='share'><img src='./assets/shareIcon.svg'></button>
-                         `;
-
-                                   document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                                        infoBox.style.display = "none";
-                                   } );
-                              } );
-
-                              markersParkings.push( marker ); // Añade el marcador al array de parkings
+                         if ( !ubicacion || ubicacion.length !== 2 || !name ) {
+                              console.error( "Datos de ubicación o nombre no válidos:", item );
+                              return;
                          }
+
+                         const marker = new google.maps.Marker( {
+                              position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+                              map: map,
+                              title: name,
+                              icon: "./assets/parkingsQubo.svg"
+                         } );
+
+                         marker.addListener( "click", () => {
+                              const infoBox = document.querySelector( ".info-box" );
+                              infoBox.style.display = "flex";
+
+                              const totalPlazas = Math.floor( Math.random() * ( 200 - 50 + 1 ) ) + 50;
+                              const plazasDisponibles = Math.floor( Math.random() * totalPlazas );
+                              const ocupacionPorcentaje = Math.round( ( totalPlazas - plazasDisponibles ) / totalPlazas * 100 );
+
+                              const allowedVehicles = allowedVehicleType
+                                   ? allowedVehicleType.map( vehicle => vehicle.charAt( 0 ).toUpperCase() + vehicle.slice( 1 ) ).join( ", " )
+                                   : "No disponible";
+
+                              infoBox.innerHTML = `
+                         <div class='nameContainer'>
+                             <p>${ category }</p>
+                             <p>${ name }</p>
+                         </div>
+                         <img src='./assets/staticParkings.jpg'>
+                         <div class="parking-info">
+                             <div class="parking-bar-container">
+                                 <div class="parking-bar" style="width: ${ ocupacionPorcentaje }%;"></div>
+                                 <div class="parking-bar-text">${ ocupacionPorcentaje }% Occupied</div>
+                             </div>
+                             <p>Total Parking Spots: ${ totalPlazas }</p>
+                             <p>Available Parking Spots: ${ plazasDisponibles }</p>
+                         </div>
+                         <p>Address: ${ streetAddress }</p>
+                         <p>Localización: ${ addressRegion }</p>
+                         <p>Country: ${ addressCountry }</p>
+                         <p>${ description }</p>
+                         <p>Allowed Vehicles: ${ allowedVehicles }</p>
+                         <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+                         <button class='share'><img src='./assets/shareIcon.svg'></button>
+                     `;
+
+                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
+                                   infoBox.style.display = "none";
+                              }, { once: true } );
+                         } );
+
+                         markersParkings.push( marker );
                     } );
                } )
                .catch( error => console.error( "Error al cargar los marcadores de Parkings:", error ) );
-     };
+     }
 
      const eventParkings = document.getElementById( "parking-sub-nav-item" );
-     let markersParkings = []; // Array para almacenar los marcadores de parkings
-     let parkingsVisible = false; // Bandera para el estado de visibilidad
+     let markersParkings = [];
+     let parkingsVisible = false;
 
      eventParkings.addEventListener( "click", () => {
-          // Alternar la visibilidad de los marcadores de parkings
           toggleMarcadores( markersParkings, parkingsVisible );
-          parkingsVisible = !parkingsVisible; // Cambia la bandera de visibilidad
+          parkingsVisible = !parkingsVisible;
 
-          // Si los marcadores aún no se han cargado, cargarlos
           if ( markersParkings.length === 0 && parkingsVisible ) {
-               cargarMarcadoresParkings(); // Llama a la función para cargar los marcadores de parkings
+               cargarMarcadoresParkings();
           }
      } );
 
 
 
-
-
-
-
-
-     //! Función para Marcadores E-CAR STATIONS
-
-
-
-
      //! Función para Marcadores de MOTO SHARING
-     // Declarar el objeto marcadoresMoto en el ámbito global
      const marcadoresMoto = {};
+
      function iniciarMarcadorMoto( iconUrl, title, apiUrl ) {
           // Verificar si el marcador ya existe
           if ( marcadoresMoto[ title ] ) {
-               // Si el marcador ya existe, detener el movimiento y eliminar el marcador
                clearInterval( marcadoresMoto[ title ].intervaloId );
                marcadoresMoto[ title ].marker.setMap( null );
-               delete marcadoresMoto[ title ]; // Eliminar el marcador del objeto
-               return; // Salir de la función
+               delete marcadoresMoto[ title ];
+               return;
           }
 
-          // Crear el marcador para el moto-sharing
           const motoMarker = new google.maps.Marker( {
                map: map,
                title: title,
                icon: iconUrl,
           } );
 
-          // Función para obtener las coordenadas del moto-sharing de la API y mover el marcador
           function obtenerYmoverMoto() {
-               fetch( apiUrl )
-                    .then( response => response.json() )
-                    .then( data => {
-                         // Asegurarse de que los datos están en el formato esperado
-                         if ( data && Array.isArray( data.Coordenadas ) ) {
-                              const coordenadas = data.Coordenadas;
-
-                              // Mover el marcador del moto-sharing con las coordenadas obtenidas
-                              marcadoresMoto[ title ].intervaloId = iniciarMovimientoMarcador( motoMarker, coordenadas, 2000 );
-
-                              // Almacenar los datos de la moto en el objeto marcadoresMoto
-                              marcadoresMoto[ title ].datosMoto = data;
-                         } else {
-                              console.error( 'Los datos de la moto no tienen el formato esperado:', data );
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
+               fetch( proxyUrl )
+                    .then( ( response ) => response.json() )
+                    .then( ( data ) => {
+                         if ( !data || !Array.isArray( data.Coordenadas ) ) {
+                              console.error( "Los datos de la moto no tienen el formato esperado:", data );
+                              return;
                          }
+
+                         const coordenadas = data.Coordenadas.map( ( coord ) => ( {
+                              lat: parseFloat( coord.lat ),
+                              lng: parseFloat( coord.lng ),
+                         } ) );
+
+                         const intervaloId = iniciarMovimientoMarcador( motoMarker, coordenadas, 2000 );
+
+                         marcadoresMoto[ title ] = {
+                              marker: motoMarker,
+                              intervaloId: intervaloId,
+                              datosMoto: data,
+                         };
                     } )
-                    .catch( error => console.error( 'Error al obtener coordenadas del moto-sharing:', error ) );
+                    .catch( ( error ) => console.error( "Error al obtener coordenadas del moto-sharing:", error ) );
           }
 
-          // Iniciar el proceso de mover el moto-sharing
           obtenerYmoverMoto();
 
-          // Almacenar el marcador y su intervalo en el objeto marcadoresMoto
-          marcadoresMoto[ title ] = {
-               marker: motoMarker,
-               intervaloId: null, // Aquí deberías almacenar el ID del intervalo si estás usando setInterval para mover el marcador
-               datosMoto: null // Almacenar los datos de la moto aquí
-          };
-
-          // Añadir un evento click al marcador del moto-sharing para mostrar información
           motoMarker.addListener( "click", function () {
                const infoBox = document.querySelector( ".info-box" );
                infoBox.style.display = "flex";
-               const datosMoto = marcadoresMoto[ title ].datosMoto;
+               const datosMoto = marcadoresMoto[ title ]?.datosMoto;
+
+               if ( !datosMoto ) {
+                    infoBox.innerHTML = `<p>Error: No se encontraron datos para esta moto.</p>`;
+                    return;
+               }
 
                infoBox.innerHTML = `
-                    <div>${ title }</div>
-                    <img src="${ datosMoto.ImagenURL }" at="moto-image">
-                    <p>Estado: ${ datosMoto.Estado }</p>
-                    <p>Matricula: ${ datosMoto.Matricula }</p>
-                    <p>Batería: ${ datosMoto.Bateria }</p>
-                    <button id="cerrar-info-box">
-                         <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                    </button>
-               `;
+            <div>${ title }</div>
+            <img src="${ datosMoto.ImagenURL || "./assets/defaultMotoImage.svg" }" alt="Moto Image">
+            <p>Estado: ${ datosMoto.Estado || "No disponible" }</p>
+            <p>Matrícula: ${ datosMoto.Matricula || "No disponible" }</p>
+            <p>Batería: ${ datosMoto.Bateria || "No disponible" }</p>
+            <button id="cerrar-info-box">
+                <img src="./assets/botonCerrar.svg" alt="Cerrar">
+            </button>
+        `;
+
                document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
                     infoBox.style.display = "none";
                } );
           } );
      }
-     // Modificar el evento del botón para manejar todos los marcadores de moto-sharing
+
      const eventMoto = document.getElementById( "moto-sub-nav-item" );
-     eventMoto.addEventListener( 'click', function () {
-          // Ejemplo de cómo llamar a la función genérica para cada moto-sharing
-          const moto1IconUrl = "./assets/moto_Qubo.svg";
-          const moto1Title = "Moto 1";
-          const moto1ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_1.json?sp=r&st=2024-04-12T10:12:42Z&se=2090-01-01T19:12:42Z&sv=2022-11-02&sr=b&sig=DLKdONio%2FiFtsOuh%2FNbNzmfj0CV8y8fiGTAJTIXrOAo%3D";
-          iniciarMarcadorMoto( moto1IconUrl, moto1Title, moto1ApiUrl );
 
-          const moto2IconUrl = "./assets/moto_Qubo.svg";
-          const moto2Title = "Moto 2";
-          const moto2ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_2.json?sp=r&st=2024-04-12T10:13:00Z&se=2090-01-01T19:13:00Z&sv=2022-11-02&sr=b&sig=nPwp4TFqZQHiC%2BSUC%2BoKZvlAsQoWzUKWLP8dfRfWPXA%3D";
-          iniciarMarcadorMoto( moto2IconUrl, moto2Title, moto2ApiUrl );
+     eventMoto.addEventListener( "click", function () {
+          const motos = [
+               {
+                    iconUrl: "./assets/moto_Qubo.svg",
+                    title: "Moto 1",
+                    apiUrl: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_1.json?sp=r&st=2024-04-12T10:12:42Z&se=2090-01-01T19:12:42Z&sv=2022-11-02&sr=b&sig=DLKdONio%2FiFtsOuh%2FNbNzmfj0CV8y8fiGTAJTIXrOAo%3D",
+               },
+               {
+                    iconUrl: "./assets/moto_Qubo.svg",
+                    title: "Moto 2",
+                    apiUrl: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_2.json?sp=r&st=2024-04-12T10:13:00Z&se=2090-01-01T19:13:00Z&sv=2022-11-02&sr=b&sig=nPwp4TFqZQHiC%2BSUC%2BoKZvlAsQoWzUKWLP8dfRfWPXA%3D",
+               },
+               {
+                    iconUrl: "./assets/moto_Qubo.svg",
+                    title: "Moto 3",
+                    apiUrl: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_3.json?sp=r&st=2024-04-12T10:13:18Z&se=2090-01-01T19:13:18Z&sv=2022-11-02&sr=b&sig=5fcKh4PGkoHUk2RtokH1%2F%2B4Vu1OZ5%2Bp8z2NKoteltp8%3D",
+               },
+               {
+                    iconUrl: "./assets/moto_Qubo.svg",
+                    title: "Moto 4",
+                    apiUrl: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_4.json?sp=r&st=2024-04-12T10:13:35Z&se=2090-01-01T19:13:35Z&sv=2022-11-02&sr=b&sig=9d4Eui4QaFMOAOiUYCILkxcBscJJezgzLbPvGw5TWbo%3D",
+               },
+               {
+                    iconUrl: "./assets/moto_Qubo.svg",
+                    title: "Moto 5",
+                    apiUrl: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_5.json?sp=r&st=2024-04-12T10:13:58Z&se=2090-01-01T19:13:58Z&sv=2022-11-02&sr=b&sig=0cu4ny5jnAbgK5LzSiRam7fDVx%2F797qf%2FCGlNQlDK54%3D",
+               },
+          ];
 
-          const moto3IconUrl = "./assets/moto_Qubo.svg";
-          const moto3Title = "Moto 3";
-          const moto3ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_3.json?sp=r&st=2024-04-12T10:13:18Z&se=2090-01-01T19:13:18Z&sv=2022-11-02&sr=b&sig=5fcKh4PGkoHUk2RtokH1%2F%2B4Vu1OZ5%2Bp8z2NKoteltp8%3D";
-          iniciarMarcadorMoto( moto3IconUrl, moto3Title, moto3ApiUrl );
-
-          const moto4IconUrl = "./assets/moto_Qubo.svg";
-          const moto4Title = "Moto 4";
-          const moto4ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_4.json?sp=r&st=2024-04-12T10:13:35Z&se=2090-01-01T19:13:35Z&sv=2022-11-02&sr=b&sig=9d4Eui4QaFMOAOiUYCILkxcBscJJezgzLbPvGw5TWbo%3D";
-
-          iniciarMarcadorMoto( moto4IconUrl, moto4Title, moto4ApiUrl );
-          const moto5IconUrl = "./assets/moto_Qubo.svg";
-          const moto5Title = "Moto 5";
-          const moto5ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_5.json?sp=r&st=2024-04-12T10:13:58Z&se=2090-01-01T19:13:58Z&sv=2022-11-02&sr=b&sig=0cu4ny5jnAbgK5LzSiRam7fDVx%2F797qf%2FCGlNQlDK54%3D";
-          iniciarMarcadorMoto( moto5IconUrl, moto5Title, moto5ApiUrl );
-
-          // Repite el proceso para los demás motos...
+          motos.forEach( ( { iconUrl, title, apiUrl } ) => {
+               iniciarMarcadorMoto( iconUrl, title, apiUrl );
+          } );
      } );
+
 
 
      //!Función para Marcadores de SCOOTER SHARING
@@ -10237,9 +10321,9 @@ document.addEventListener( "DOMContentLoaded", () => {
      const buttonSatelliteDetails = document.getElementById( "buttonSatelliteDetails" );
 
      // Selecciona los textos de todos los botones en `topButtons`
-    const topButtonsText = document.querySelectorAll(
-     ".topBottoms .button-title-container p"
- );
+     const topButtonsText = document.querySelectorAll(
+          ".topBottoms .button-title-container p"
+     );
 
      // Estado para controlar visibilidad de etiquetas
      let labelsVisible = false;
@@ -10261,10 +10345,10 @@ document.addEventListener( "DOMContentLoaded", () => {
                const initialType = map.getMapTypeId();
                if ( initialType === "satellite" || initialType === "hybrid" ) {
                     toggleDetailsButton( true ); // Habilitar "Detalles" si está en modo satélite
-                    changeButtonTextColor("white")
+                    changeButtonTextColor( "white" );
                } else {
                     toggleDetailsButton( false ); // Deshabilitar "Detalles" si está en otro modo
-                    changeButtonTextColor("black");
+                    changeButtonTextColor( "black" );
                }
           } else {
                console.error( "El mapa no está inicializado correctamente." );
@@ -10272,12 +10356,12 @@ document.addEventListener( "DOMContentLoaded", () => {
      }
 
      // Función para cambiar el color del texto de los botones
-    function changeButtonTextColor(color) {
-     topButtonsText.forEach((textElement) => {
-         textElement.style.color = color;
-     });
- }
-     
+     function changeButtonTextColor( color ) {
+          topButtonsText.forEach( ( textElement ) => {
+               textElement.style.color = color;
+          } );
+     }
+
 
      // Evento para cambiar a "Mapa" (2D)
      button2d.addEventListener( "click", () => {
@@ -10287,7 +10371,7 @@ document.addEventListener( "DOMContentLoaded", () => {
                map.setOptions( { styles: null } ); // Restablece estilos si hay alguno aplicado
                labelsVisible = false; // Restablece etiquetas invisibles en satélite
                toggleDetailsButton( false ); // Deshabilita el botón de detalles
-               changeButtonTextColor("black");
+               changeButtonTextColor( "black" );
           } else {
                console.error( "El mapa no está inicializado correctamente." );
           }
@@ -10300,7 +10384,7 @@ document.addEventListener( "DOMContentLoaded", () => {
                map.setMapTypeId( "satellite" ); // Cambia al modo satélite
                labelsVisible = false; // Etiquetas inicialmente ocultas
                toggleDetailsButton( true ); // Habilita el botón de detalles
-               changeButtonTextColor("white"); // Cambia texto a blanco
+               changeButtonTextColor( "white" ); // Cambia texto a blanco
           } else {
                console.error( "El mapa no está inicializado correctamente." );
           }
