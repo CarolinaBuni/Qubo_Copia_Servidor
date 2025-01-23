@@ -49,45 +49,137 @@ const getQubo = async ( req, res, next ) => {
 //     }
 // };
 
+// const postQubo = async (req, res, next) => {
+//     try {
+//         const startDate = new Date(req.body.startDateTime);
+//         const finishDate = new Date(req.body.endDateTime);
+
+//         if (isNaN(startDate.valueOf()) || isNaN(finishDate.valueOf())) {
+//             return res.status(400).json({ message: "Invalid date provided" });
+//         }
+
+//         // URL de imagen por defecto
+//         const icons = {
+//             iconic: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186037/Qubos_Qubo_City/quboIconic_osq4i3.svg",
+//             // Añade más subcategorías aquí
+//         };
+
+//         const subcategory = req.body.subcategory.toLowerCase(); // Convertir subcategoría a minúsculas
+//         const imgUrl = req.file?.path || icons[subcategory] || './assets/quboNeutro.png';
+
+//         const qubo = new Qubo({
+//             title: req.body.title,
+//             category: req.body.category,
+//             subcategory: req.body.subcategory,
+//             img: imgUrl,
+//             latitude: parseFloat(req.body.latitude),
+//             longitude: parseFloat(req.body.longitude),
+//             startDate,
+//             finishDate,
+//             description: req.body.description,
+//             link: req.body.link,
+//             anonymous: req.body.anonymous === 'on',
+//         });
+
+//         const quboSaved = await qubo.save();
+//         res.status(200).json(quboSaved);
+//     } catch (error) {
+//         console.error('Error saving the Qubo:', error);
+//         res.status(400).json({ message: "Error creating Qubo", error });
+//     }
+// };
+
 const postQubo = async (req, res, next) => {
     try {
-        const startDate = new Date(req.body.startDateTime);
-        const finishDate = new Date(req.body.endDateTime);
+        const { 
+            title, 
+            category, 
+            subcategory, 
+            latitude, 
+            longitude, 
+            startDateTime, 
+            endDateTime, 
+            description, 
+            link, 
+            anonymous 
+        } = req.body;
+
+        // Validación de campos obligatorios
+        if (!title || typeof title !== 'string') {
+            return res.status(400).json({ message: "Invalid or missing 'title'" });
+        }
+
+        if (!category || typeof category !== 'string') {
+            return res.status(400).json({ message: "Invalid or missing 'category'" });
+        }
+
+        if (!subcategory || typeof subcategory !== 'string') {
+            return res.status(400).json({ message: "Invalid or missing 'subcategory'" });
+        }
+
+        if (!latitude || isNaN(parseFloat(latitude))) {
+            return res.status(400).json({ message: "Invalid or missing 'latitude'" });
+        }
+
+        if (!longitude || isNaN(parseFloat(longitude))) {
+            return res.status(400).json({ message: "Invalid or missing 'longitude'" });
+        }
+
+        // Validación de fechas
+        const startDate = new Date(startDateTime);
+        const finishDate = new Date(endDateTime);
 
         if (isNaN(startDate.valueOf()) || isNaN(finishDate.valueOf())) {
             return res.status(400).json({ message: "Invalid date provided" });
         }
 
-        // URL de imagen por defecto
+        if (finishDate <= startDate) {
+            return res.status(400).json({ message: "'endDateTime' must be after 'startDateTime'" });
+        }
+
+        // Validación de descripción opcional
+        if (description && typeof description !== 'string') {
+            return res.status(400).json({ message: "Invalid 'description'" });
+        }
+
+        // Validación del link opcional
+        const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
+        if (link && !urlRegex.test(link)) {
+            return res.status(400).json({ message: "Invalid 'link'" });
+        }
+
+        // Asignación de URL de imagen
         const icons = {
             iconic: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186037/Qubos_Qubo_City/quboIconic_osq4i3.svg",
             // Añade más subcategorías aquí
         };
 
-        const subcategory = req.body.subcategory.toLowerCase(); // Convertir subcategoría a minúsculas
-        const imgUrl = req.file?.path || icons[subcategory] || './assets/quboNeutro.png';
+        const imgUrl = req.file?.path || icons[subcategory.toLowerCase()] || './assets/quboNeutro.png';
 
+        // Creación del objeto Qubo
         const qubo = new Qubo({
-            title: req.body.title,
-            category: req.body.category,
-            subcategory: req.body.subcategory,
+            title,
+            category,
+            subcategory,
             img: imgUrl,
-            latitude: parseFloat(req.body.latitude),
-            longitude: parseFloat(req.body.longitude),
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude),
             startDate,
             finishDate,
-            description: req.body.description,
-            link: req.body.link,
-            anonymous: req.body.anonymous === 'on',
+            description,
+            link,
+            anonymous: anonymous === 'on',
         });
 
+        // Guardado en la base de datos
         const quboSaved = await qubo.save();
         res.status(200).json(quboSaved);
     } catch (error) {
         console.error('Error saving the Qubo:', error);
-        res.status(400).json({ message: "Error creating Qubo", error });
+        res.status(500).json({ message: "Error creating Qubo", error: error.message });
     }
 };
+
 
 
 const deleteQubo = async ( req, res, next ) => {
