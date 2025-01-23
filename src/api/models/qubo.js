@@ -22,10 +22,10 @@ const quboSchema = new Schema(
      img: { type: String, required: true},
      latitude: { type: Number, required: true }, // Añade esto
      longitude: { type: Number, required: true }, // Añade esto
-     startDate: { type: Date},
-     finishDate: { type: Date },
+     startDate: { type: Date, required: false },
+     finishDate: { type: Date, required: false },
      description: { type: String, required: true },
-     link: { type: String, required: true },
+     link: { type: String, required: false },
      anonymous: { type: Boolean, required: true },
      },
      {

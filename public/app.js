@@ -9,6 +9,8 @@ let autocomplete;
 
 function initMap() {
 
+     
+
      // Crear un objeto de opciones del mapa
      const mapOptions = {
           zoom: 10,
@@ -66,6 +68,7 @@ function initMap() {
 
      // Crear el mapa y establecerlo en el div con el id "gmp-map"
      map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
+     
 
      // Define la URL de la imagen del icono personalizado
      const customIconUrl = "./assets/qubonegro.svg"; // Reemplaza con la URL de tu imagen
@@ -1249,8 +1252,8 @@ function initMap() {
      const biciparkKmzUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicipark.kmz?sp=r&st=2024-04-06T21:26:44Z&se=2090-01-01T06:26:44Z&sv=2022-11-02&sr=b&sig=edWyV5%2FwJnAqWLtWlPSZXqXVgNX5CQtyqFGMQESy0qk%3D";
 
 
-
-     const biciparkApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     const proxyUrl = '/api/proxy?url=';
+     const biciparkApiUrl = `${ proxyUrl }${ encodeURIComponent(
           "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Fiware_Mobility_Biciparks-00001?sp=r&st=2024-07-26T14:43:20Z&se=2089-12-31T23:43:20Z&sv=2022-11-02&sr=b&sig=jppSvtms%2BZDJyZ3MRW3zXoaNCMm4TtMUZK3HtdTeOTc%3D"
      ) }`;
 
@@ -1487,19 +1490,19 @@ function initMap() {
 
      // Función para inicializar todas las bicicletas en el mapa
      function iniciarBicicletasEnMapa() {
-          iniciarBicicletaEnMapa( 1, './assets/quboBicycle.svg', 'Bicicleta 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_1.json?sp=r&st=2024-05-15T13:43:41Z&se=2090-01-01T22:43:41Z&sv=2022-11-02&sr=b&sig=uCYJlfIenWkJoed2ZAlLka35WfKvGIHAzGuNzpD5ewU%3D' );
-          iniciarBicicletaEnMapa( 2, './assets/quboBicycle.svg', 'Bicicleta 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_2.json?sp=r&st=2024-05-15T13:44:04Z&se=2090-01-01T22:44:04Z&sv=2022-11-02&sr=b&sig=Cnl0VUf2BcrnJeNfs2NZln3QEP5yF0GAoyCJB1ebYvg%3D' );
-          iniciarBicicletaEnMapa( 3, './assets/quboBicycle.svg', 'Bicicleta 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_3.json?sp=r&st=2024-05-15T13:44:21Z&se=2090-01-01T22:44:21Z&sv=2022-11-02&sr=b&sig=XjkEhV2m%2FKXLYQvLXAWqgTThHSnGBsbDyA2ZL1nRxPY%3D' );
-          iniciarBicicletaEnMapa( 4, './assets/quboBicycle.svg', 'Bicicleta 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_4.json?sp=r&st=2024-05-15T13:44:38Z&se=2090-01-01T22:44:38Z&sv=2022-11-02&sr=b&sig=I7LlqWTVnSWymaWfM0q8B1J0%2FyJIOlmCIebeUTV3Qn8%3D' );
-          iniciarBicicletaEnMapa( 5, './assets/quboBicycle.svg', 'Bicicleta 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_5.json?sp=r&st=2024-05-15T13:44:57Z&se=2090-01-01T22:44:57Z&sv=2022-11-02&sr=b&sig=z6BCIN7VRcaT42aoREQ5DEglxEJwXLRbdWVsgk%2BhD1k%3D' );
-          iniciarBicicletaEnMapa( 6, './assets/quboBicycle.svg', 'Bicicleta 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_6.json?sp=r&st=2024-05-15T13:45:18Z&se=2090-01-01T22:45:18Z&sv=2022-11-02&sr=b&sig=zipqET%2Fe1OkscoVr%2F3O%2F8CoCLTY1OYWn1zt8H8CtSSM%3D' );
-          iniciarBicicletaEnMapa( 7, './assets/quboBicycle.svg', 'Bicicleta 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_7.json?sp=r&st=2024-05-15T13:45:35Z&se=2090-01-01T22:45:35Z&sv=2022-11-02&sr=b&sig=PkRdidbJ1Lg2PTrdh4r%2Fy5gZxzfwfwybT06zpMNrbAw%3D' );
-          iniciarBicicletaEnMapa( 8, './assets/quboBicycle.svg', 'Bicicleta 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_8.json?sp=r&st=2024-05-15T13:45:52Z&se=2090-01-01T22:45:52Z&sv=2022-11-02&sr=b&sig=v922HIbEQmeDtXFJDLH3%2BzE7obxQA%2FVzAT%2Bx435P7Bw%3D' );
-          iniciarBicicletaEnMapa( 9, './assets/quboBicycle.svg', 'Bicicleta 9', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_9.json?sp=r&st=2024-05-15T13:46:10Z&se=2090-01-01T22:46:10Z&sv=2022-11-02&sr=b&sig=gNvOkIpgmsRMzNr3%2BqM6v4OsUK0ZQLHBhX6RtdLDkgM%3D' );
-          iniciarBicicletaEnMapa( 10, './assets/quboBicycle.svg', 'Bicicleta 10', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_10.json?sp=r&st=2024-05-15T13:46:25Z&se=2090-01-01T22:46:25Z&sv=2022-11-02&sr=b&sig=G2amlyAxBPM6qWof6vw1hgvq0otGVKMYuHgQL4Bxtz8%3D' );
-          iniciarBicicletaEnMapa( 11, './assets/quboBicycle.svg', 'Bicicleta 11', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_11.json?sp=r&st=2024-05-15T13:46:42Z&se=2090-01-01T22:46:42Z&sv=2022-11-02&sr=b&sig=%2B1EX%2FDEOJ31SGOjyZR0fwVL9bKaIRkeT5VF%2FXomiHYY%3D' );
-          iniciarBicicletaEnMapa( 12, './assets/quboBicycle.svg', 'Bicicleta 12', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_12.json?sp=r&st=2024-05-15T13:46:59Z&se=2090-01-01T22:46:59Z&sv=2022-11-02&sr=b&sig=6%2FcBBrzh%2BxoQG4TROXcGKIn1VOTOOp2rler4TsKH3lY%3D' );
-          iniciarBicicletaEnMapa( 13, './assets/quboBicycle.svg', 'Bicicleta 13', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_13.json?sp=r&st=2024-05-15T13:47:16Z&se=2090-01-01T22:47:16Z&sv=2022-11-02&sr=b&sig=0%2FG2NN1L9r2SRpurvC8SZ3OTNXbj78xjmKyYGn5Q7mA%3D' );
+          iniciarBicicletaEnMapa( 1, './assets/quboBicycle.svg', 'Bicicleta 1', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_1.json?sp=r&st=2024-05-15T13:43:41Z&se=2090-01-01T22:43:41Z&sv=2022-11-02&sr=b&sig=uCYJlfIenWkJoed2ZAlLka35WfKvGIHAzGuNzpD5ewU%3D' ) }` );
+          iniciarBicicletaEnMapa( 2, './assets/quboBicycle.svg', 'Bicicleta 2', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_2.json?sp=r&st=2024-05-15T13:44:04Z&se=2090-01-01T22:44:04Z&sv=2022-11-02&sr=b&sig=Cnl0VUf2BcrnJeNfs2NZln3QEP5yF0GAoyCJB1ebYvg%3D' ) }` );
+          iniciarBicicletaEnMapa( 3, './assets/quboBicycle.svg', 'Bicicleta 3', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_3.json?sp=r&st=2024-05-15T13:44:21Z&se=2090-01-01T22:44:21Z&sv=2022-11-02&sr=b&sig=XjkEhV2m%2FKXLYQvLXAWqgTThHSnGBsbDyA2ZL1nRxPY%3D' ) }` );
+          iniciarBicicletaEnMapa( 4, './assets/quboBicycle.svg', 'Bicicleta 4', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_4.json?sp=r&st=2024-05-15T13:44:38Z&se=2090-01-01T22:44:38Z&sv=2022-11-02&sr=b&sig=I7LlqWTVnSWymaWfM0q8B1J0%2FyJIOlmCIebeUTV3Qn8%3D' ) }` );
+          iniciarBicicletaEnMapa( 5, './assets/quboBicycle.svg', 'Bicicleta 5', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_5.json?sp=r&st=2024-05-15T13:44:57Z&se=2090-01-01T22:44:57Z&sv=2022-11-02&sr=b&sig=z6BCIN7VRcaT42aoREQ5DEglxEJwXLRbdWVsgk%2BhD1k%3D' ) }` );
+          iniciarBicicletaEnMapa( 6, './assets/quboBicycle.svg', 'Bicicleta 6', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_6.json?sp=r&st=2024-05-15T13:45:18Z&se=2090-01-01T22:45:18Z&sv=2022-11-02&sr=b&sig=zipqET%2Fe1OkscoVr%2F3O%2F8CoCLTY1OYWn1zt8H8CtSSM%3D' ) }` );
+          iniciarBicicletaEnMapa( 7, './assets/quboBicycle.svg', 'Bicicleta 7', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_7.json?sp=r&st=2024-05-15T13:45:35Z&se=2090-01-01T22:45:35Z&sv=2022-11-02&sr=b&sig=PkRdidbJ1Lg2PTrdh4r%2Fy5gZxzfwfwybT06zpMNrbAw%3D' ) }` );
+          iniciarBicicletaEnMapa( 8, './assets/quboBicycle.svg', 'Bicicleta 8', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_8.json?sp=r&st=2024-05-15T13:45:52Z&se=2090-01-01T22:45:52Z&sv=2022-11-02&sr=b&sig=v922HIbEQmeDtXFJDLH3%2BzE7obxQA%2FVzAT%2Bx435P7Bw%3D' ) }` );
+          iniciarBicicletaEnMapa( 9, './assets/quboBicycle.svg', 'Bicicleta 9', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_9.json?sp=r&st=2024-05-15T13:46:10Z&se=2090-01-01T22:46:10Z&sv=2022-11-02&sr=b&sig=gNvOkIpgmsRMzNr3%2BqM6v4OsUK0ZQLHBhX6RtdLDkgM%3D' ) }` );
+          iniciarBicicletaEnMapa( 10, './assets/quboBicycle.svg', 'Bicicleta 10', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_10.json?sp=r&st=2024-05-15T13:46:25Z&se=2090-01-01T22:46:25Z&sv=2022-11-02&sr=b&sig=G2amlyAxBPM6qWof6vw1hgvq0otGVKMYuHgQL4Bxtz8%3D' ) }` );
+          iniciarBicicletaEnMapa( 11, './assets/quboBicycle.svg', 'Bicicleta 11', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_11.json?sp=r&st=2024-05-15T13:46:42Z&se=2090-01-01T22:46:42Z&sv=2022-11-02&sr=b&sig=%2B1EX%2FDEOJ31SGOjyZR0fwVL9bKaIRkeT5VF%2FXomiHYY%3D' ) }` );
+          iniciarBicicletaEnMapa( 12, './assets/quboBicycle.svg', 'Bicicleta 12', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_12.json?sp=r&st=2024-05-15T13:46:59Z&se=2090-01-01T22:46:59Z&sv=2022-11-02&sr=b&sig=6%2FcBBrzh%2BxoQG4TROXcGKIn1VOTOOp2rler4TsKH3lY%3D' ) }` );
+          iniciarBicicletaEnMapa( 13, './assets/quboBicycle.svg', 'Bicicleta 13', `${ proxyUrl }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bicycle%20Sharing/Bicimad_13.json?sp=r&st=2024-05-15T13:47:16Z&se=2090-01-01T22:47:16Z&sv=2022-11-02&sr=b&sig=0%2FG2NN1L9r2SRpurvC8SZ3OTNXbj78xjmKyYGn5Q7mA%3D' ) }` );
      }
 
      // Asociar el evento click del botón al manejo del KML de los carriles de bicicleta, las bases de BiciMad y las bicicletas
@@ -3033,70 +3036,51 @@ function initMap() {
           } );
      }
      const eventBoats = document.getElementById( "boats-sub-nav-item" );
+     const proxyUrlBoats = '/api/proxy?url=';
      eventBoats.addEventListener( 'click', function () {
-          iniciarBarcoEnMapa( 1, './assets/boats_Qubo.svg', 'Barco 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Mobility_Boats.json?sp=r&st=2024-04-01T11:12:53Z&se=2090-01-01T20:12:53Z&sv=2022-11-02&sr=b&sig=sfxwYCe7JJ0ZeuDv6bloxXNQdCpVAs28Qw22HdpJGxk%3D' );
+          iniciarBarcoEnMapa( 1, './assets/boats_Qubo.svg', 'Barco 1', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Mobility_Boats.json?sp=r&st=2024-04-01T11:12:53Z&se=2090-01-01T20:12:53Z&sv=2022-11-02&sr=b&sig=sfxwYCe7JJ0ZeuDv6bloxXNQdCpVAs28Qw22HdpJGxk%3D' ) }` );
 
-          iniciarBarcoEnMapa( 2, './assets/boats_Qubo.svg', 'Barco 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_2.json?sp=r&st=2024-04-01T20:16:42Z&se=2090-01-01T05:16:42Z&sv=2022-11-02&sr=b&sig=qcjPW89tElqDN59MnZ1ywua3aopyrBhVHzt7OlTeEbk%3D' );
+          iniciarBarcoEnMapa( 2, './assets/boats_Qubo.svg', 'Barco 2', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_2.json?sp=r&st=2024-04-01T20:16:42Z&se=2090-01-01T05:16:42Z&sv=2022-11-02&sr=b&sig=qcjPW89tElqDN59MnZ1ywua3aopyrBhVHzt7OlTeEbk%3D' ) }` );
 
+          iniciarBarcoEnMapa( 4, './assets/boats_Qubo.svg', 'Barco 4', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_4.json?sp=r&st=2024-04-01T20:17:48Z&se=2090-01-01T05:17:48Z&sv=2022-11-02&sr=b&sig=EcsDdDpqTcPAq32J0VTlr9zGc20NspvzOqh0iBCzdAE%3D' ) }` );
 
-          iniciarBarcoEnMapa( 4, './assets/boats_Qubo.svg', 'Barco 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_4.json?sp=r&st=2024-04-01T20:17:48Z&se=2090-01-01T05:17:48Z&sv=2022-11-02&sr=b&sig=EcsDdDpqTcPAq32J0VTlr9zGc20NspvzOqh0iBCzdAE%3D' );
+          iniciarBarcoEnMapa( 5, './assets/boats_Qubo.svg', 'Barco 5', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_5.json?sp=r&st=2024-04-01T20:18:09Z&se=2090-01-01T05:18:09Z&sv=2022-11-02&sr=b&sig=agT3rXaXP1ZXMO0Sf8OKeuzxTbLx%2FVcrt5fSOvcWMUE%3D' ) }` );
 
+          iniciarBarcoEnMapa( 6, './assets/boats_Qubo.svg', 'Barco 6', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_6.json?sp=r&st=2024-04-01T20:18:35Z&se=2090-01-01T05:18:35Z&sv=2022-11-02&sr=b&sig=bO%2FRFK8iOg0y2lRLe8uBf9ojTTCcODoZ7VSs0RfEHyY%3D' ) }` );
 
-          iniciarBarcoEnMapa( 5, './assets/boats_Qubo.svg', 'Barco 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_5.json?sp=r&st=2024-04-01T20:18:09Z&se=2090-01-01T05:18:09Z&sv=2022-11-02&sr=b&sig=agT3rXaXP1ZXMO0Sf8OKeuzxTbLx%2FVcrt5fSOvcWMUE%3D' );
+          iniciarBarcoEnMapa( 7, './assets/boats_Qubo.svg', 'Barco 7', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_7.json?sp=r&st=2024-04-01T20:18:56Z&se=2090-01-01T05:18:56Z&sv=2022-11-02&sr=b&sig=xR2BcP2a3W8SDjKjn84aOjwWwv4lEyeaLdIotZ4RZig%3D' ) }` );
 
+          iniciarBarcoEnMapa( 8, './assets/boats_Qubo.svg', 'Barco 8', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_8.json?sp=r&st=2024-04-01T20:19:18Z&se=2090-01-01T05:19:18Z&sv=2022-11-02&sr=b&sig=kUij3HyVFdPMeoH5TkNXlQoeqnNVII%2BsUMmJUUtjMkA%3D' ) }` );
 
-          iniciarBarcoEnMapa( 6, './assets/boats_Qubo.svg', 'Barco 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_6.json?sp=r&st=2024-04-01T20:18:35Z&se=2090-01-01T05:18:35Z&sv=2022-11-02&sr=b&sig=bO%2FRFK8iOg0y2lRLe8uBf9ojTTCcODoZ7VSs0RfEHyY%3D' );
+          iniciarBarcoEnMapa( 10, './assets/boats_Qubo.svg', 'Barco 10', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_10.json?sp=r&st=2024-04-01T20:19:55Z&se=2090-01-01T05:19:55Z&sv=2022-11-02&sr=b&sig=QTCF9TFz9LyP574FpI2ZqxtfizuSl%2FixsaEpNcpwbXY%3D' ) }` );
 
+          iniciarBarcoEnMapa( 12, './assets/boats_Qubo.svg', 'Barco 12', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_12.json?sp=r&st=2024-04-01T20:22:27Z&se=2090-01-01T05:22:27Z&sv=2022-11-02&sr=b&sig=bK3BbuLhYxSVKNIjW4GvAP%2BiiWTjNK90%2Blte%2F%2Fa0iyQ%3D' ) }` );
 
-          iniciarBarcoEnMapa( 7, './assets/boats_Qubo.svg', 'Barco 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_7.json?sp=r&st=2024-04-01T20:18:56Z&se=2090-01-01T05:18:56Z&sv=2022-11-02&sr=b&sig=xR2BcP2a3W8SDjKjn84aOjwWwv4lEyeaLdIotZ4RZig%3D' );
+          iniciarBarcoEnMapa( 13, './assets/boats_Qubo.svg', 'Barco 13', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_13.json?sp=r&st=2024-04-01T20:22:50Z&se=2090-01-01T05:22:50Z&sv=2022-11-02&sr=b&sig=gaVzoTsoeHYl9SL1Dzxu1er7zsdabVTUf%2FoP%2B2UvDfE%3D' ) }` );
 
+          iniciarBarcoEnMapa( 14, './assets/boats_Qubo.svg', 'Barco 14', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_14.json?sp=r&st=2024-04-01T20:23:09Z&se=2090-01-01T05:23:09Z&sv=2022-11-02&sr=b&sig=8QD6qBWVvZb1WBvftoVDhFKhUek%2FdU2h1ObYAya8rkw%3D' ) }` );
 
-          iniciarBarcoEnMapa( 8, './assets/boats_Qubo.svg', 'Barco 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_8.json?sp=r&st=2024-04-01T20:19:18Z&se=2090-01-01T05:19:18Z&sv=2022-11-02&sr=b&sig=kUij3HyVFdPMeoH5TkNXlQoeqnNVII%2BsUMmJUUtjMkA%3D' );
+          iniciarBarcoEnMapa( 15, './assets/boats_Qubo.svg', 'Barco 15', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_15.json?sp=r&st=2024-04-01T20:23:28Z&se=2090-01-01T05:23:28Z&sv=2022-11-02&sr=b&sig=E4hgKifHPCKlUxIOQkecZG5Z%2FbQb7rWYoAM6EO0%2F9ZQ%3D' ) }` );
 
+          iniciarBarcoEnMapa( 16, './assets/boats_Qubo.svg', 'Barco 16', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_16.json?sp=r&st=2024-04-01T20:23:45Z&se=2090-01-01T05:23:45Z&sv=2022-11-02&sr=b&sig=XRHHu9bc59wLdLXODmgxYKWHc%2FMHxBNegepX7DQMK5M%3D' ) }` );
 
-          iniciarBarcoEnMapa( 10, './assets/boats_Qubo.svg', 'Barco 10', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_10.json?sp=r&st=2024-04-01T20:19:55Z&se=2090-01-01T05:19:55Z&sv=2022-11-02&sr=b&sig=QTCF9TFz9LyP574FpI2ZqxtfizuSl%2FixsaEpNcpwbXY%3D' );
+          iniciarBarcoEnMapa( 17, './assets/boats_Qubo.svg', 'Barco 17', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_17.json?sp=r&st=2024-04-01T20:24:03Z&se=2024-04-02T04:24:03Z&sv=2022-11-02&sr=b&sig=PXYhpSa%2BmKl6zH4oG7cdu3MmmHO4RQYA54Wy%2F%2F2r%2BJU%3D' ) }` );
 
+          iniciarBarcoEnMapa( 18, './assets/boats_Qubo.svg', 'Barco 18', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_18.json?sp=r&st=2024-04-01T20:24:18Z&se=2090-01-01T05:24:18Z&sv=2022-11-02&sr=b&sig=KcB1r84uAdX9kHjmoR6QcvrzPZGfy9KLcpW20Rcf62I%3D' ) }` );
 
-          iniciarBarcoEnMapa( 12, './assets/boats_Qubo.svg', 'Barco 12', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_12.json?sp=r&st=2024-04-01T20:22:27Z&se=2090-01-01T05:22:27Z&sv=2022-11-02&sr=b&sig=bK3BbuLhYxSVKNIjW4GvAP%2BiiWTjNK90%2Blte%2F%2Fa0iyQ%3D' );
+          iniciarBarcoEnMapa( 19, './assets/boats_Qubo.svg', 'Barco 19', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_19.json?sp=r&st=2024-04-01T20:24:41Z&se=2090-01-01T05:24:41Z&sv=2022-11-02&sr=b&sig=amlh5UkJrvl41biDJveOesGDXNxcr2nFvjtQ3%2BE22Ew%3D' ) }` );
 
+          iniciarBarcoEnMapa( 20, './assets/boats_Qubo.svg', 'Barco 20', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_20.json?sp=r&st=2024-04-01T20:25:06Z&se=2090-01-01T05:25:06Z&sv=2022-11-02&sr=b&sig=KSXgObS5DJuLM0%2Fs9o9VfpU7fMRmlu3pzneg6FsnZ0w%3D' ) }` );
 
-          iniciarBarcoEnMapa( 13, './assets/boats_Qubo.svg', 'Barco 13', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_13.json?sp=r&st=2024-04-01T20:22:50Z&se=2090-01-01T05:22:50Z&sv=2022-11-02&sr=b&sig=gaVzoTsoeHYl9SL1Dzxu1er7zsdabVTUf%2FoP%2B2UvDfE%3D' );
+          iniciarBarcoEnMapa( 21, './assets/boats_Qubo.svg', 'Barco 21', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barcaza_Manzanares.json?sp=r&st=2024-04-01T20:34:02Z&se=2090-01-01T05:34:02Z&sv=2022-11-02&sr=b&sig=mQrWa7j7rsyNISoeMjLQ51ux9DYURP%2BP%2B4GVGMhFYRc%3D' ) }` );
 
+          iniciarBarcoEnMapa( 22, './assets/boats_Qubo.svg', 'Barco 22', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Bote_de_Remos_Manzanares.json?sp=r&st=2024-04-01T20:34:19Z&se=2090-01-01T05:34:19Z&sv=2022-11-02&sr=b&sig=h5zhYZzpd4yyAL%2FlgMxkPW4NPDr7GqAeJGeS%2FCgdUG8%3D' ) }` );
 
-          iniciarBarcoEnMapa( 14, './assets/boats_Qubo.svg', 'Barco 14', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_14.json?sp=r&st=2024-04-01T20:23:09Z&se=2090-01-01T05:23:09Z&sv=2022-11-02&sr=b&sig=8QD6qBWVvZb1WBvftoVDhFKhUek%2FdU2h1ObYAya8rkw%3D' );
+          iniciarBarcoEnMapa( 23, './assets/boats_Qubo.svg', 'Barco 23', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Canoa_Manzanares.json?sp=r&st=2024-04-01T20:34:36Z&se=2090-01-01T05:34:36Z&sv=2022-11-02&sr=b&sig=fV7CQweEt%2FC%2FGXcVqq2daBHe4CEqW3OyNmMxmhYtr5k%3D' ) }` );
 
+          iniciarBarcoEnMapa( 24, './assets/boats_Qubo.svg', 'Barco 24', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Go%CC%81ndola_Manzanares.json?sp=r&st=2024-04-01T20:34:55Z&se=2090-01-01T05:34:55Z&sv=2022-11-02&sr=b&sig=XfRnKoTEnJrhiJ7IytSs5Fd5X%2ByY9T%2B68%2B8%2FD67UAXk%3D' ) }` );
 
-          iniciarBarcoEnMapa( 15, './assets/boats_Qubo.svg', 'Barco 15', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_15.json?sp=r&st=2024-04-01T20:23:28Z&se=2090-01-01T05:23:28Z&sv=2022-11-02&sr=b&sig=E4hgKifHPCKlUxIOQkecZG5Z%2FbQb7rWYoAM6EO0%2F9ZQ%3D' );
-
-
-          iniciarBarcoEnMapa( 16, './assets/boats_Qubo.svg', 'Barco 16', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_16.json?sp=r&st=2024-04-01T20:23:45Z&se=2090-01-01T05:23:45Z&sv=2022-11-02&sr=b&sig=XRHHu9bc59wLdLXODmgxYKWHc%2FMHxBNegepX7DQMK5M%3D' );
-
-
-          iniciarBarcoEnMapa( 17, './assets/boats_Qubo.svg', 'Barco 17', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_17.json?sp=r&st=2024-04-01T20:24:03Z&se=2024-04-02T04:24:03Z&sv=2022-11-02&sr=b&sig=PXYhpSa%2BmKl6zH4oG7cdu3MmmHO4RQYA54Wy%2F%2F2r%2BJU%3D' );
-
-
-          iniciarBarcoEnMapa( 18, './assets/boats_Qubo.svg', 'Barco 18', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_18.json?sp=r&st=2024-04-01T20:24:18Z&se=2090-01-01T05:24:18Z&sv=2022-11-02&sr=b&sig=KcB1r84uAdX9kHjmoR6QcvrzPZGfy9KLcpW20Rcf62I%3D' );
-
-
-          iniciarBarcoEnMapa( 19, './assets/boats_Qubo.svg', 'Barco 19', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_19.json?sp=r&st=2024-04-01T20:24:41Z&se=2090-01-01T05:24:41Z&sv=2022-11-02&sr=b&sig=amlh5UkJrvl41biDJveOesGDXNxcr2nFvjtQ3%2BE22Ew%3D' );
-
-
-          iniciarBarcoEnMapa( 20, './assets/boats_Qubo.svg', 'Barco 20', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_20.json?sp=r&st=2024-04-01T20:25:06Z&se=2090-01-01T05:25:06Z&sv=2022-11-02&sr=b&sig=KSXgObS5DJuLM0%2Fs9o9VfpU7fMRmlu3pzneg6FsnZ0w%3D' );
-
-
-          iniciarBarcoEnMapa( 21, './assets/boats_Qubo.svg', 'Barco 21', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barcaza_Manzanares.json?sp=r&st=2024-04-01T20:34:02Z&se=2090-01-01T05:34:02Z&sv=2022-11-02&sr=b&sig=mQrWa7j7rsyNISoeMjLQ51ux9DYURP%2BP%2B4GVGMhFYRc%3D' );
-
-
-          iniciarBarcoEnMapa( 22, './assets/boats_Qubo.svg', 'Barco 22', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Bote_de_Remos_Manzanares.json?sp=r&st=2024-04-01T20:34:19Z&se=2090-01-01T05:34:19Z&sv=2022-11-02&sr=b&sig=h5zhYZzpd4yyAL%2FlgMxkPW4NPDr7GqAeJGeS%2FCgdUG8%3D' );
-
-
-          iniciarBarcoEnMapa( 23, './assets/boats_Qubo.svg', 'Barco 23', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Canoa_Manzanares.json?sp=r&st=2024-04-01T20:34:36Z&se=2090-01-01T05:34:36Z&sv=2022-11-02&sr=b&sig=fV7CQweEt%2FC%2FGXcVqq2daBHe4CEqW3OyNmMxmhYtr5k%3D' );
-
-
-          iniciarBarcoEnMapa( 24, './assets/boats_Qubo.svg', 'Barco 24', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Go%CC%81ndola_Manzanares.json?sp=r&st=2024-04-01T20:34:55Z&se=2090-01-01T05:34:55Z&sv=2022-11-02&sr=b&sig=XfRnKoTEnJrhiJ7IytSs5Fd5X%2ByY9T%2B68%2B8%2FD67UAXk%3D' );
-
-
-          iniciarBarcoEnMapa( 25, './assets/boats_Qubo.svg', 'Barco 25', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Kayak_Manzanares.json?sp=r&st=2024-04-01T20:35:11Z&se=2090-01-01T05:35:11Z&sv=2022-11-02&sr=b&sig=XiOKYdZXVtxDGp2YR8k00SmcAH29M307J47jRf39uTI%3D' );
+          iniciarBarcoEnMapa( 25, './assets/boats_Qubo.svg', 'Barco 25', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Kayak_Manzanares.json?sp=r&st=2024-04-01T20:35:11Z&se=2090-01-01T05:35:11Z&sv=2022-11-02&sr=b&sig=XiOKYdZXVtxDGp2YR8k00SmcAH29M307J47jRf39uTI%3D' ) }` );
 
 
      } );
@@ -7685,6 +7669,7 @@ eventNewBuildings.addEventListener( "click", () => {
 //      }
 // };
 
+
 //! Función para mostrar HOUSES
 // const cargarYMostrarMarcadoresCasas = async () => {
 //      try {
@@ -8938,7 +8923,7 @@ function cargarMarcadoresFire() {
           .catch( error => console.error( "Error al cargar los marcadores de bomberos:", error ) );
 
      // URL del proxy para KML
-     const kmlProxyUrl = `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Fire/Actuaciones%20Bomberos%20Final.kml?sp=r&st=2024-06-02T11:37:02Z&se=2090-01-01T20:37:02Z&sv=2022-11-02&sr=b&sig=TiiAzwAOI0rdct%2BYF%2F%2BJe3GFq%2FhTHx7rN7dsxnLfkzo%3D' ) }`;
+     const kmlProxyUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Fire/Actuaciones%20Bomberos%20Final.kml?sp=r&st=2024-06-02T11:37:02Z&se=2090-01-01T20:37:02Z&sv=2022-11-02&sr=b&sig=TiiAzwAOI0rdct%2BYF%2F%2BJe3GFq%2FhTHx7rN7dsxnLfkzo%3D';
 
      // Cargar capa KML
      const kmlLayer = new google.maps.KmlLayer( {
