@@ -9,7 +9,7 @@ let autocomplete;
 
 function initMap() {
 
-     
+
 
      // Crear un objeto de opciones del mapa
      const mapOptions = {
@@ -68,7 +68,7 @@ function initMap() {
 
      // Crear el mapa y establecerlo en el div con el id "gmp-map"
      map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
-     
+
 
      // Define la URL de la imagen del icono personalizado
      const customIconUrl = "./assets/qubonegro.svg"; // Reemplaza con la URL de tu imagen
@@ -829,7 +829,10 @@ function initMap() {
      //! Botón INFRAESTRUCTURE ***************
 
      //* WASTE
-     const wasteDataUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Waste/Fiware_Infrastrucutre_Waste-00001?sp=r&st=2024-07-26T13:58:57Z&se=2090-01-01T22:58:57Z&sv=2022-11-02&sr=b&sig=lhKBlzjCSdUGPUoIBK9A5a34BOpHCuSIQxJCqB31z1M%3D";
+
+     const wasteDataUrl = `/api/proxy?url=${ encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Waste/Fiware_Infrastrucutre_Waste-00001?sp=r&st=2024-07-26T13:58:57Z&se=2090-01-01T22:58:57Z&sv=2022-11-02&sr=b&sig=lhKBlzjCSdUGPUoIBK9A5a34BOpHCuSIQxJCqB31z1M%3D"
+     ) }`;
      const botonWaste = document.getElementById( 'waste-sub-nav-item' );
 
      let markersWaste = []; // Array para almacenar los marcadores
@@ -915,7 +918,10 @@ function initMap() {
 
      //* WATER (CANALES Y MARCADORES)
 
-     const waterDataUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Water/Fiware_Infrastrucutre_Water-00001?sp=r&st=2024-07-26T14:09:03Z&se=2089-12-31T23:09:03Z&sv=2022-11-02&sr=b&sig=uKfzeccU6PmxgxnteSboUDZAYsQyA%2FfF9wmlyEU8J0Q%3D";
+     // Define la URL de la API con el proxy
+     const waterDataUrl = `/api/proxy?url=${ encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Water/Fiware_Infrastrucutre_Water-00001?sp=r&st=2024-07-26T14:09:03Z&se=2089-12-31T23:09:03Z&sv=2022-11-02&sr=b&sig=uKfzeccU6PmxgxnteSboUDZAYsQyA%2FfF9wmlyEU8J0Q%3D"
+     ) }`;
 
      const canalMadrid = "https://anpaccountdatalakegen2.blob.core.windows.net/raw/Infrastructure/Water/QUBO%20-%20Water.kml?sp=r&st=2024-03-19T14:19:01Z&se=2090-12-06T22:19:01Z&sv=2022-11-02&sr=b&sig=5mdDfeeQvvQlvGqq4fj71h%2BpZFYh8DryLUkkxjaIZbE%3D";
      const botonWater = document.getElementById( 'water-sub-nav-item' );
@@ -1035,7 +1041,9 @@ function initMap() {
      //* SEWAGE
 
      const sewageLayerUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Sewage/Sewage.kmz?sp=r&st=2024-06-09T18:27:56Z&se=2029-12-30T03:27:56Z&sv=2022-11-02&sr=b&sig=1gOMOStDlrl%2FWnbB1jf%2FOyJEjkGA%2FqJkAE4NCsyiAsc%3D";
-     const sewageDataUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Sewage/Fiware_Infrastrucutre_Sewage-00001?sp=r&st=2024-07-26T13:49:37Z&se=2090-01-01T22:49:37Z&sv=2022-11-02&sr=b&sig=BJE4RDiFv0hsozpEgXkY7%2FQXxtArJcdlmgsCnFN8i%2Fo%3D";
+     const sewageDataUrl = `/api/proxy?url=${encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Sewage/Fiware_Infrastrucutre_Sewage-00001?sp=r&st=2024-07-26T13:49:37Z&se=2090-01-01T22:49:37Z&sv=2022-11-02&sr=b&sig=BJE4RDiFv0hsozpEgXkY7%2FQXxtArJcdlmgsCnFN8i%2Fo%3D"
+     )}`;
      const botonSewage = document.getElementById( 'sewage-sub-nav-item' );
 
      let kmlLayerSewage = null; // Variable para mantener la capa KML
@@ -1133,8 +1141,12 @@ function initMap() {
 
      //* INTERNET
 
+     const internetApiUrl = `/api/proxy?url=${encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Internet/Fiware_Infrastructure_Internet-00001?sp=r&st=2024-07-26T13:38:02Z&se=2090-01-01T22:38:02Z&sv=2022-11-02&sr=b&sig=QEN2zLfP7J7RqY%2BDZlR%2BO5ggA0RVSGBdkGMMl4nOsRM%3D"
+     )}`;
+
      const cargarMarcadoresInternet = () => {
-          fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Internet/Fiware_Infrastructure_Internet-00001?sp=r&st=2024-07-26T13:38:02Z&se=2090-01-01T22:38:02Z&sv=2022-11-02&sr=b&sig=QEN2zLfP7J7RqY%2BDZlR%2BO5ggA0RVSGBdkGMMl4nOsRM%3D" )
+          fetch (internetApiUrl )
                .then( response => {
                     if ( response.ok ) {
                          return response.json();
@@ -1625,7 +1637,9 @@ function initMap() {
      const kmlIncidenciasViaPublicaUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Incidencias%20Via%20Publica.kml?sp=r&st=2024-03-19T21:30:08Z&se=2090-01-01T05:30:08Z&sv=2022-11-02&sr=b&sig=KpdNugI91fHozgP79RHLCDrrygV5Ge22KOgoGSD79Cg%3D";
 
      // URL de la API de alertas de movilidad
-     const urlAlertsMobility = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Fiware_Incidences_Mobility?sp=r&st=2024-07-26T13:05:48Z&se=2090-01-01T22:05:48Z&sv=2022-11-02&sr=b&sig=1XeWef46jcbbCgOKIPGENLNDuTAOqDjfq%2Fr3p59BT5A%3D";
+     const urlAlertsMobility = `/api/proxy?url=${encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Fiware_Incidences_Mobility?sp=r&st=2024-07-26T13:05:48Z&se=2090-01-01T22:05:48Z&sv=2022-11-02&sr=b&sig=1XeWef46jcbbCgOKIPGENLNDuTAOqDjfq%2Fr3p59BT5A%3D"
+     )}`;
 
      // Botón de alertas de movilidad
      const botonAlertsMobility = document.getElementById( 'alerts-mobility-nav-item' );
@@ -1867,8 +1881,12 @@ function initMap() {
 
      //! Función para mostrar PARKS&GARDENS
 
+     const parksGardensApiUrl = `/api/proxy?url=${encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Parks%20%26%20Gardens/Fiware_EnvAndSust_ParksAndGardens-00001?sp=r&st=2024-06-02T17:13:28Z&se=2090-01-01T02:13:28Z&sv=2022-11-02&sr=b&sig=XBdhgow87NphHa30BQWyt%2Bc%2FJsUyjU%2FXEVZuy9L12t8%3D"
+     )}`;
+
      const cargarMarcadoresParksGardens = () => {
-          fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Parks%20%26%20Gardens/Fiware_EnvAndSust_ParksAndGardens-00001?sp=r&st=2024-06-02T17:13:28Z&se=2090-01-01T02:13:28Z&sv=2022-11-02&sr=b&sig=XBdhgow87NphHa30BQWyt%2Bc%2FJsUyjU%2FXEVZuy9L12t8%3D" )
+          fetch( parksGardensApiUrl )
                .then( response => {
                     if ( response.ok ) {
                          return response.json();
@@ -1989,7 +2007,9 @@ function initMap() {
      //! BOTÓN ENVIRONMENT
 
      // URL para el marcador de Air Quality Stations
-     const urlMarkerAirQuality = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Environment/Fiware_EnvAndSust_AirQualityStations-00001?sp=r&st=2024-04-01T12:52:31Z&se=2090-01-01T21:52:31Z&sv=2022-11-02&sr=b&sig=nykV2ypz1eiG3UtGZqKX%2B4M9aFzAayeAmI6Id42pg4w%3D";
+     const urlMarkerAirQuality = `/api/proxy?url=${encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Environment/Fiware_EnvAndSust_AirQualityStations-00001?sp=r&st=2024-04-01T12:52:31Z&se=2090-01-01T21:52:31Z&sv=2022-11-02&sr=b&sig=nykV2ypz1eiG3UtGZqKX%2B4M9aFzAayeAmI6Id42pg4w%3D"
+     )}`;
 
      // URL de la capa KML de residuos peligrosos
      const urlKmlResiduosPeligrosos = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Environment/Residuos_Peligrosos._Comunidad_de_Madrid..kml?sp=r&st=2024-03-19T21:58:39Z&se=2090-01-01T05:58:39Z&sv=2022-11-02&sr=b&sig=YholeRFpXhE%2B1Iwe3I0rILPDtAG0WD6qI2OUbZ6RokU%3D";
@@ -2092,9 +2112,18 @@ function initMap() {
 
      const urlReciclyingKML = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Residuos_Peligrosos._Comunidad_de_Madrid..kmz?sp=r&st=2024-04-01T13:39:06Z&se=2090-01-01T22:39:06Z&sv=2022-11-02&sr=b&sig=nzI8YMrIg%2BgJYXrMibgVTbxyFlkeVMefY55z8yyrAFc%3D";
 
-     const urlWasteFixedPoints = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_WasteFixedPoints-00001?sp=r&st=2024-06-02T18:30:56Z&se=2090-01-01T03:30:56Z&sv=2022-11-02&sr=b&sig=a71C%2Bbr30XCf7IXi2IuKVgW6rIiuY4Yy%2BFpCX5s21XA%3D";
-     const urlWasteMobilePoints = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_WasteCleanMobilePoints-00001?sp=r&st=2024-06-02T18:30:23Z&se=2090-01-01T03:30:23Z&sv=2022-11-02&sr=b&sig=NJdkk6KkezyNPI2YvEhkzciBclrLL%2BTT%2FXfreIWEL10%3D";
-     const urlClothesRecycling = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_ClothesRecycling-00001?sp=r&st=2024-06-02T18:27:06Z&se=2090-01-01T03:27:06Z&sv=2022-11-02&sr=b&sig=7P05HcKHRmT23shU0gVz%2BNcveL8SHWsk%2FZgriUKfe6w%3D";
+     // URLs con proxy para los datos de puntos de reciclaje
+const urlWasteFixedPoints = `/api/proxy?url=${encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_WasteFixedPoints-00001?sp=r&st=2024-06-02T18:30:56Z&se=2090-01-01T03:30:56Z&sv=2022-11-02&sr=b&sig=a71C%2Bbr30XCf7IXi2IuKVgW6rIiuY4Yy%2BFpCX5s21XA%3D"
+)}`;
+
+const urlWasteMobilePoints = `/api/proxy?url=${encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_WasteCleanMobilePoints-00001?sp=r&st=2024-06-02T18:30:23Z&se=2090-01-01T03:30:23Z&sv=2022-11-02&sr=b&sig=NJdkk6KkezyNPI2YvEhkzciBclrLL%2BTT%2FXfreIWEL10%3D"
+)}`;
+
+const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_ClothesRecycling-00001?sp=r&st=2024-06-02T18:27:06Z&se=2090-01-01T03:27:06Z&sv=2022-11-02&sr=b&sig=7P05HcKHRmT23shU0gVz%2BNcveL8SHWsk%2FZgriUKfe6w%3D"
+)}`;
      // const urlRecyclingContainers = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_RecyclingContainers?sp=r&st=2024-06-02T18:29:14Z&se=2090-01-01T03:29:14Z&sv=2022-11-02&sr=b&sig=KHQi1VWqqEM%2Ffo7RoS8Mltd3zvWvhmdpo8xzepYh55M%3D";
 
      let kmlLayerRecycling = null;
@@ -2290,7 +2319,7 @@ function initMap() {
      }
 
      function cargarMarcadoresClothesRecycling() {
-          const urlClothesRecycling = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_ClothesRecycling-00001?sp=r&st=2024-06-02T18:27:06Z&se=2090-01-01T03:27:06Z&sv=2022-11-02&sr=b&sig=7P05HcKHRmT23shU0gVz%2BNcveL8SHWsk%2FZgriUKfe6w%3D";
+          
           fetch( urlClothesRecycling )
                .then( response => response.json() )
                .then( data => {
@@ -2643,7 +2672,9 @@ function initMap() {
 
      // ! Botón para STTREETLIGHTS
      function cargarMarcadoresStreetlights() {
-          const urlStreetlights = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Streetlights/Fiware_EnvAndSust_Streetlights?sp=r&st=2024-06-02T18:39:47Z&se=2090-01-01T03:39:47Z&sv=2022-11-02&sr=b&sig=TfxEOSZ19Sp0%2BQFAg3AmmlIXUmkI1DX3JZfEjGH56gA%3D";
+          const urlStreetlights = `/api/proxy?url=${encodeURIComponent(
+               "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Streetlights/Fiware_EnvAndSust_Streetlights?sp=r&st=2024-06-02T18:39:47Z&se=2090-01-01T03:39:47Z&sv=2022-11-02&sr=b&sig=TfxEOSZ19Sp0%2BQFAg3AmmlIXUmkI1DX3JZfEjGH56gA%3D"
+          )}`;
 
           fetch( urlStreetlights )
                .then( response => response.json() )
@@ -2788,7 +2819,11 @@ function initMap() {
      // Función para cargar y mostrar marcadores de eficiencia energética
      const cargarYMostrarMarcadoresEnergiaEficiencia = async () => {
           try {
-               const response = await fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Energy%20Efficiency/Fiware_EnvAndSust_BuildingsEnergyEfficiency.json?sp=r&st=2024-01-04T16:17:19Z&se=2090-01-01T00:17:19Z&sv=2022-11-02&sr=b&sig=w%2B2x10PtsIkypmzPvwFSe0ZSOmVgBFy%2FsYlbf1ICgV4%3D" );
+
+               const urlEnergyEfficiency = `/api/proxy?url=${encodeURIComponent(
+                    "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Energy%20Efficiency/Fiware_EnvAndSust_BuildingsEnergyEfficiency.json?sp=r&st=2024-01-04T16:17:19Z&se=2090-01-01T00:17:19Z&sv=2022-11-02&sr=b&sig=w%2B2x10PtsIkypmzPvwFSe0ZSOmVgBFy%2FsYlbf1ICgV4%3D"
+               )}`;
+               const response = await fetch( urlEnergyEfficiency );
                const data = await response.json();
 
                data.consumptionobs0001.forEach( item => {
@@ -2857,7 +2892,10 @@ function initMap() {
      let marcadoresCamarasBarcelona = [];
      // Función modificada para crear marcadores de cámaras de Barcelona
      function crearMarcadoresCamarasBarcelona() {
-          return fetch( "https://opendata-ajuntament.barcelona.cat/data/api/action/datastore_search?resource_id=cd1957a6-a06e-4a90-80bb-83e0e4c2d6e9&limit=5" )
+          const urlCamarasBarcelona = `/api/proxy?url=${encodeURIComponent(
+               "https://opendata-ajuntament.barcelona.cat/data/api/action/datastore_search?resource_id=cd1957a6-a06e-4a90-80bb-83e0e4c2d6e9&limit=5"
+          )}`;
+          return fetch( urlCamarasBarcelona )
                .then( response => response.json() )
                .then( data => {
                     const promesasMarcadores = data.result.records.map( camara => {
@@ -2901,7 +2939,10 @@ function initMap() {
      let marcadoresCamarasValencia = [];
      // Paso 2: Función modificada para crear marcadores de cámaras de Valencia
      function crearMarcadoresCamarasValencia() {
-          return fetch( "https://valencia.opendatasoft.com/api/explore/v2.1/catalog/datasets/cameres-trafic-camaras-trafico/records?limit=20" )
+          const urlCamarasValencia = `/api/proxy?url=${encodeURIComponent(
+               "https://valencia.opendatasoft.com/api/explore/v2.1/catalog/datasets/cameres-trafic-camaras-trafico/records?limit=20"
+          )}`;
+          return fetch( urlCamarasValencia )
                .then( response => response.json() )
                .then( data => {
                     const promesasMarcadores = data.results.map( camara => {
@@ -3514,95 +3555,6 @@ function initMap() {
      } );
 
 
-     //! Función para Marcadores PARKING
-
-     // function cargarMarcadoresParkings() {
-     //      fetch('https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Parking/Fiware_Mobility_Parkings-00001?sp=r&st=2024-07-26T15:09:58Z&se=2090-01-01T00:09:58Z&sv=2022-11-02&sr=b&sig=KyN8JVjYWfrIjTQfkBuV%2BRy5%2Fb%2FAiBkHagJP8BPPAEg%3D')
-     //          .then(response => response.json())
-     //          .then(data => {
-     //              data.offstreetparking0002.forEach(item => {
-     //                  const {
-     //                      ubicacion,
-     //                      name,
-     //                      category,
-     //                      description,
-     //                      streetAddress,
-     //                      addressRegion,
-     //                      addressCountry,
-     //                      allowedVehicleType // Aquí se incluye el tipo de vehículo permitido
-     //                  } = parseFiwareData(item);
-
-     //                  if (ubicacion && name) {
-     //                      const marker = new google.maps.Marker({
-     //                          position: { lat: ubicacion[1], lng: ubicacion[0] },
-     //                          map: map,
-     //                          title: name,
-     //                          icon: "./assets/parkingsQubo.svg"
-     //                      });
-
-     //                      // Agrega un evento click a cada marcador para mostrar el infoBox
-     //                      marker.addListener("click", () => {
-     //                          const infoBox = document.querySelector(".info-box");
-     //                          infoBox.style.display = "flex";
-
-     //                           // Generar aleatoriamente las plazas totales y las plazas disponibles
-     //                         const totalPlazas = Math.floor(Math.random() * (200 - 50 + 1)) + 50; // Entre 50 y 200 plazas totales
-     //                         const plazasDisponibles = Math.floor(Math.random() * totalPlazas); // Aleatorio entre 0 y totalPlazas
-
-     //                         // Calcular porcentaje de ocupación
-     //                         const ocupacionPorcentaje = Math.round(((totalPlazas - plazasDisponibles) / totalPlazas) * 100);
-
-     //                          const allowedVehicles = allowedVehicleType
-     //                          ? allowedVehicleType.map(vehicle => vehicle.charAt(0).toUpperCase() + vehicle.slice(1)).join(", ")
-     //                          : 'No disponible';
-
-     //                          infoBox.innerHTML = `
-     //                              <div class='nameContainer'>
-     //                                  <p>${category}</p>
-     //                                  <p>${name}</p>
-     //                              </div>
-     //                              <img src='./assets/staticParkings.jpg'>
-     //                              <p>Address: ${streetAddress}</p>
-     //                              <p>Localización: ${addressRegion}</p>
-     //                              <p>Country: ${addressCountry}</p>
-     //                              <p>${description}</p>
-     //                              <p>Allowed Vehicles: ${allowedVehicles}</p>
-     //                              <p>Available Parking Spots: ${plazasDisponibles}</p>
-
-     //                             <div class="parking-bar-container">
-     //                                 <div class="parking-bar" style="width: ${ocupacionPorcentaje}%;"></div>
-     //                             </div>
-     //                             <p>${ocupacionPorcentaje}% Occupied</p>
-     //                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-     //                              <button class='share'><img src='./assets/shareIcon.svg'></button>
-     //                          `;
-     //                          document.getElementById("cerrar-info-box").addEventListener("click", () => {
-     //                              infoBox.style.display = "none";
-     //                          });
-     //                      });
-
-     //                      markersParkings.push(marker); // Añade el marcador al array de parkings
-     //                  }
-     //              });
-     //          })
-     //          .catch(error => console.error("Error al cargar los marcadores de Parkings:", error));
-     //  };
-
-     //  const eventParkings = document.getElementById("parking-sub-nav-item");
-     //  let markersParkings = []; // Array para almacenar los marcadores de parkings
-     //  let parkingsVisible = false; // Bandera para el estado de visibilidad
-
-     //  eventParkings.addEventListener("click", () => {
-     //      // Alternar la visibilidad de los marcadores de parkings
-     //      toggleMarcadores(markersParkings, parkingsVisible);
-     //      parkingsVisible = !parkingsVisible; // Cambia la bandera de visibilidad
-
-     //      // Si los marcadores aún no se han cargado, cargarlos
-     //      if (markersParkings.length === 0 && parkingsVisible) {
-     //          cargarMarcadoresParkings(); // Llama a la función para cargar los marcadores de parkings
-     //      }
-     //  });
-
 
      //! Función para Marcadores PARKING
      const parkingApiUrl = `/api/proxy?url=${ encodeURIComponent(
@@ -3956,7 +3908,8 @@ function initMap() {
 
           // Función para obtener las coordenadas del scooter sharing de la API y mover el marcador
           function obtenerYmoverScooter() {
-               fetch( apiUrl )
+               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               fetch( proxyUrl )
                     .then( response => {
                          if ( !response.ok ) {
                               throw new Error( `Error en la respuesta de la API: ${ response.status } ${ response.statusText }` );
@@ -4202,7 +4155,8 @@ function initMap() {
 
           // Función para obtener las coordenadas del autobús de la API y mover el marcador
           function obtenerYmoverAutobus() {
-               fetch( apiUrl )
+               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
                          // Asegurarse de que los datos están en el formato esperado
@@ -4449,7 +4403,9 @@ function initMap() {
                return;
           }
 
-          fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bus/Fiware_Mobility_Bus-00001?sp=r&st=2024-07-26T14:51:30Z&se=2089-12-31T23:51:30Z&sv=2022-11-02&sr=b&sig=eHtTxA7TYtGCSrPkSrGqyCsi7viqFfMjPywNvVsJSdM%3D' )
+          const proxyUrl = `/api/proxy?url=${encodeURIComponent('https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bus/Fiware_Mobility_Bus-00001?sp=r&st=2024-07-26T14:51:30Z&se=2089-12-31T23:51:30Z&sv=2022-11-02&sr=b&sig=eHtTxA7TYtGCSrPkSrGqyCsi7viqFfMjPywNvVsJSdM%3D')}`;
+
+          fetch(proxyUrl )
                .then( response => response.json() )
                .then( data => {
                     data.publictransportstop0001.slice( 0, 200 ).forEach( item => {
@@ -4506,8 +4462,9 @@ function initMap() {
                marcadoresRutas[ rutaId ].marker.setMap( null );
                delete marcadoresRutas[ rutaId ];
           } else {
+               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
                // Si no existe, crear un nuevo marcador
-               fetch( apiUrl )
+               fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
                          const coordenadas = data.coordenadas.map( coord => ( {
@@ -4583,111 +4540,6 @@ function initMap() {
 
      //! Función para Marcadores AIRPLANE
 
-     // const marcadoresAviones = {};
-
-     // function iniciarAvionEnMapa( avionId, iconUrl, title, apiUrl ) {
-     //      const defaultImageUrl = './assets/defaultAirplaneImage.png'; // Imagen predeterminada
-
-     //      // Verificar si el marcador ya existe
-     //      if ( marcadoresAviones[ avionId ] ) {
-     //           clearInterval( marcadoresAviones[ avionId ].intervaloId );
-     //           marcadoresAviones[ avionId ].marker.setMap( null );
-     //           delete marcadoresAviones[ avionId ];
-     //           return;
-     //      }
-
-     //      // Crear el marcador para el avión
-     //      const avionMarker = new google.maps.Marker( {
-     //           map: map,
-     //           title: title,
-     //           icon: iconUrl,
-     //      } );
-
-     //      function obtenerYmoverAvion() {
-     //           fetch( apiUrl )
-     //                .then( response => response.json() )
-     //                .then( data => {
-     //                     if ( data.locationUpdates && Array.isArray( data.locationUpdates ) ) {
-     //                          const coordenadas = data.locationUpdates.map( coord => ( {
-     //                               lat: coord.location.value.lat,
-     //                               lng: coord.location.value.lng,
-     //                               speed: coord.speed.value,
-     //                               status: coord.status.value
-     //                          } ) );
-
-     //                          const intervaloId = iniciarMovimientoMarcadorConVelocidadYEstado( avionMarker, coordenadas, 2000, avionId );
-     //                          marcadoresAviones[ avionId ] = {
-     //                               marker: avionMarker,
-     //                               intervaloId: intervaloId,
-     //                               datosAvion: data,
-     //                          };
-
-     //                          const imagenUrl = data[ "Imagen URL" ] || defaultImageUrl;
-
-     //                          avionMarker.addListener( "click", function () {
-     //                               const infoBox = document.querySelector( ".info-box" );
-     //                               infoBox.style.display = "flex";
-     //                               infoBox.innerHTML = `
-     //                               <img src="${ imagenUrl }" alt="Avión" onerror="this.src='${ defaultImageUrl }'"/>
-     //                               <div>Modelo: ${ data.model.value }</div>
-     //                               <div>Matrícula: ${ data.registrationNumber.value }</div>
-     //                               <div>ID Aerolínea: ${ data.airline.object }</div>
-     //                               <div>Capacidad: ${ data.capacity.value }</div>
-     //                               <div id="velocidad-info">Velocidad: ${ coordenadas[ 0 ].speed } KNT</div>
-     //                               <div id="status-info">Estado: ${ coordenadas[ 0 ].status }</div>
-     //                               <button id="cerrar-info-box">
-     //                                    <img src="./assets/botonCerrar.svg" alt="Cerrar">
-     //                               </button>
-     //                          `;
-     //                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-     //                                    infoBox.style.display = "none";
-     //                               } );
-     //                          } );
-     //                     } else {
-     //                          console.error( 'Los datos del avión no tienen el formato esperado:', data );
-     //                     }
-     //                } )
-     //                .catch( error => console.error( 'Error al obtener coordenadas del avión:', error ) );
-     //      }
-
-     //      obtenerYmoverAvion();
-     // }
-
-     // function iniciarMovimientoMarcadorConVelocidadYEstado( marker, coordenadas, delay, avionId ) {
-     //      let index = 0;
-
-     //      return setInterval( () => {
-     //           if ( index >= coordenadas.length ) {
-     //                clearInterval( marcadoresAviones[ avionId ].intervaloId );
-     //                return;
-     //           }
-
-     //           const nextPosition = new google.maps.LatLng( coordenadas[ index ].lat, coordenadas[ index ].lng );
-     //           marker.setPosition( nextPosition );
-
-     //           // Actualizar la información en el infobox si está abierto
-     //           const infoBox = document.querySelector( ".info-box" );
-     //           if ( infoBox.style.display === "flex" ) {
-     //                document.getElementById( "velocidad-info" ).textContent = `Velocidad: ${ coordenadas[ index ].speed } KNT`;
-     //                document.getElementById( "status-info" ).textContent = `Estado: ${ coordenadas[ index ].status }`;
-     //           }
-
-     //           index++;
-     //      }, delay );
-     // }
-
-     // // Añadir el evento para el botón del avión
-     // const eventAirplane = document.querySelector( ".airplane-sub-nav-item" );
-     // eventAirplane.addEventListener( 'click', function () {
-     //      iniciarAvionEnMapa(
-     //           'ryanair001', // ID del avión
-     //           './assets/airplaneQubo.svg', // Icono del avión
-     //           'Ryanair Boeing 737', // Título
-     //           'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Airplanes/fiware_ryanair_boeing_737_corrected.json?sp=r&st=2024-10-23T18:12:42Z&se=2099-10-24T02:12:42Z&sv=2022-11-02&sr=b&sig=yVq5tGcz0c8YXoFu%2FvwtFHtgL%2FFBUt2t%2B6Jt6yUm0kw%3D' // URL de la API
-     //      );
-     // } );
-
-
      const marcadoresAviones = {};
 
      function iniciarAvionEnMapa( avionId, iconUrl, title, apiUrl ) {
@@ -4709,7 +4561,8 @@ function initMap() {
           } );
 
           function obtenerYmoverAvion() {
-               fetch( apiUrl )
+               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
                          if ( data.locationUpdates && Array.isArray( data.locationUpdates ) ) {
@@ -4824,7 +4677,8 @@ function initMap() {
           } );
 
           function obtenerYmoverHelicoptero() {
-               fetch( apiUrl )
+               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
                          if ( data.locationUpdates && Array.isArray( data.locationUpdates ) ) {
@@ -5087,7 +4941,8 @@ function initMap() {
 
           // Función para obtener las coordenadas de la ambulancia de la API y mover el marcador
           function obtenerYmoverAmbulancia() {
-               fetch( apiUrl )
+               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
                          // Asegurarse de que los datos están en el formato esperado
@@ -6681,7 +6536,8 @@ function initMap() {
           } );
 
           function obtenerYmoverShips() {
-               fetch( apiUrl )
+               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
                          if ( data.location.coordinates && Array.isArray( data.location.coordinates ) ) {
@@ -6784,7 +6640,8 @@ function initMap() {
           } );
 
           function obtenerYmoverTruck() {
-               fetch( apiUrl )
+               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
                          if ( data.location.coordinates && Array.isArray( data.location.coordinates ) ) {
@@ -6933,7 +6790,8 @@ function initMap() {
           } );
 
           function obtenerYmoverTracking() {
-               fetch( apiUrl )
+               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
                          if ( data.currentLocation.coordinates && Array.isArray( data.currentLocation.coordinates ) ) {
@@ -7129,7 +6987,8 @@ function initMap() {
 
           // Función para obtener las coordenadas del paquete de la API y mover el marcador
           function obtenerYmoverPack() {
-               fetch( apiUrl )
+               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               fetch( proxyUrl )
                     .then( response => {
                          if ( !response.ok ) {
                               throw new Error( `HTTP error! Status: ${ response.status }` );
@@ -7396,7 +7255,10 @@ function toggleMarcadores( marcadores, visible ) {
 
 //! Función para mostrar NEW BUILDINGS
 // function cargarMarcadoresNewBuildings() {
-//      fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/New%20Buildings/Fiware_Buildings_NewBuildings-00001?sp=r&st=2024-06-01T10:24:46Z&se=2090-01-01T19:24:46Z&sv=2022-11-02&sr=b&sig=ZPMSJa5sRrTyLWd0t%2FgExVaS9hXxVIQdQchzXN4zAJY%3D' )
+     // const apiNewBuildingsUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/New%20Buildings/Fiware_Buildings_NewBuildings-00001?sp=r&st=2024-06-01T10:24:46Z&se=2090-01-01T19:24:46Z&sv=2022-11-02&sr=b&sig=ZPMSJa5sRrTyLWd0t%2FgExVaS9hXxVIQdQchzXN4zAJY%3D';
+     // const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiNewBuildingsUrl)}`;
+     
+//      fetch( proxyUrl )
 //           .then( response => response.json() )
 //           .then( data => {
 //                data.buildings0008.forEach( item => {
@@ -9059,10 +8921,14 @@ eventPorts.addEventListener( "click", () => {
 //! Función para mostrar EVENTS&CONCERTS
 
 function cargarMarcadoresEnventsConcerts() {
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Events%20%26%20Concerts/Fiware_Entertainment_EventsAndConcerts-00001?sp=r&st=2024-06-16T16:40:22Z&se=2090-01-01T01:40:22Z&sv=2022-11-02&sr=b&sig=zEVssSBnqIgsT4TQCkrlbKqG7xI%2BzoKA8VJ6zUH4IJk%3D' )
-          .then( response => response.json() )
-          .then( data => {
-               data.pois0001.forEach( item => {
+     const concertsEventsApiUrl = `/api/proxy?url=${ encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Events%20%26%20Concerts/Fiware_Entertainment_EventsAndConcerts-00001?sp=r&st=2024-06-16T16:40:22Z&se=2090-01-01T01:40:22Z&sv=2022-11-02&sr=b&sig=zEVssSBnqIgsT4TQCkrlbKqG7xI%2BzoKA8VJ6zUH4IJk%3D"
+     ) }`;
+
+     fetch( concertsEventsApiUrl )
+          .then( ( response ) => response.json() )
+          .then( ( data ) => {
+               data.pois0001.forEach( ( item ) => {
                     const {
                          ubicacion,
                          name,
@@ -9075,7 +8941,7 @@ function cargarMarcadoresEnventsConcerts() {
                          addressCountry,
                          neighborhood,
                          district,
-                         source
+                         source,
                     } = parseFiwareData( item );
 
                     if ( ubicacion && name ) {
@@ -9083,7 +8949,7 @@ function cargarMarcadoresEnventsConcerts() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/ConcertsEventsQubo.svg"
+                              icon: "./assets/ConcertsEventsQubo.svg",
                          } );
 
                          // Agrega un evento click a cada marcador para mostrar el infoBox
@@ -9116,8 +8982,9 @@ function cargarMarcadoresEnventsConcerts() {
                     }
                } );
           } )
-          .catch( error => console.error( "Error al cargar los marcadores de Events & Concerts:", error ) );
-};
+          .catch( ( error ) => console.error( "Error al cargar los marcadores de Events & Concerts:", error ) );
+}
+
 const eventConcertsEvents = document.getElementById( "eventsConcerts-sub-nav-item" );
 let markersConcertsEvents = []; // Array para almacenar los marcadores de parcelas
 let concertsEventsVisible = false; // Bandera para el estado de visibilidad
@@ -9133,10 +9000,16 @@ eventConcertsEvents.addEventListener( "click", () => {
      }
 } );
 
+
 //! Función para mostrar THEATRES
 
+const theatresApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Theatres/Fiware_Entertainment_Theaters-00001?sp=r&st=2024-06-16T16:44:06Z&se=2090-01-01T01:44:06Z&sv=2022-11-02&sr=b&sig=3Lv8dUd2Osbx%2FfzV1Vn6HdEnIUa6cuUiRzvxCgkrtVQ%3D'
+) }`;
+
+// Función para cargar y mostrar marcadores de teatros
 function cargarMarcadoresTheatres() {
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Theatres/Fiware_Entertainment_Theaters-00001?sp=r&st=2024-06-16T16:44:06Z&se=2090-01-01T01:44:06Z&sv=2022-11-02&sr=b&sig=3Lv8dUd2Osbx%2FfzV1Vn6HdEnIUa6cuUiRzvxCgkrtVQ%3D' )
+     fetch( theatresApiUrl )
           .then( response => response.json() )
           .then( data => {
                data.buildings0016.forEach( item => {
@@ -9152,7 +9025,7 @@ function cargarMarcadoresTheatres() {
                          addressCountry,
                          neighborhood,
                          district,
-                         source
+                         source,
                     } = parseFiwareData( item );
 
                     if ( ubicacion && name ) {
@@ -9160,10 +9033,10 @@ function cargarMarcadoresTheatres() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/TheatresQubo.svg"
+                              icon: "./assets/TheatresQubo.svg",
                          } );
 
-                         // Agrega un evento click a cada marcador para mostrar el infoBox
+                         // Evento para mostrar infoBox al hacer clic en el marcador
                          marker.addListener( "click", () => {
                               const infoBox = document.querySelector( ".info-box" );
                               infoBox.style.display = "flex";
@@ -9189,34 +9062,44 @@ function cargarMarcadoresTheatres() {
                               } );
                          } );
 
-                         markersTheatres.push( marker ); // Añade el marcador al array de parcelas
+                         markersTheatres.push( marker ); // Añade el marcador al array de marcadores
                     }
                } );
           } )
           .catch( error => console.error( "Error al cargar los marcadores de Theatres:", error ) );
-};
+}
+
+// Configurar evento para alternar visibilidad de teatros
 const eventTheatres = document.getElementById( "theatres-sub-nav-item" );
-let markersTheatres = []; // Array para almacenar los marcadores de parcelas
-let theatresVisible = false; // Bandera para el estado de visibilidad
+let markersTheatres = []; // Array para almacenar los marcadores
+let theatresVisible = false; // Bandera para estado de visibilidad
 
 eventTheatres.addEventListener( "click", () => {
-     // Alternar la visibilidad de los marcadores de parcelas
+     // Alternar la visibilidad de los marcadores
      toggleMarcadores( markersTheatres, theatresVisible );
-     theatresVisible = !theatresVisible; // Cambia la bandera de visibilidad
+     theatresVisible = !theatresVisible; // Cambia el estado de visibilidad
 
      // Si los marcadores aún no se han cargado, cargarlos
      if ( markersTheatres.length === 0 && theatresVisible ) {
-          cargarMarcadoresTheatres(); // Llama a la función para cargar los marcadores de parcelas
+          cargarMarcadoresTheatres(); // Llama a la función para cargar los marcadores
      }
 } );
 
+
 //! Función para mostrar CINEMAS
 
+
+// Define la URL de la API con el proxy
+const cinemasApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Cinemas/Fiware_Entertainment_Cinema-00001?sp=r&st=2024-06-16T16:52:22Z&se=2090-01-01T01:52:22Z&sv=2022-11-02&sr=b&sig=miAc9ZvoSlO6eExvcTCPbJ2o0fNTd2zeiddOSAbzdF4%3D"
+) }`;
+
+// Función para cargar y mostrar los marcadores de cines
 function cargarMarcadoresCinemas() {
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Cinemas/Fiware_Entertainment_Cinema-00001?sp=r&st=2024-06-16T16:52:22Z&se=2090-01-01T01:52:22Z&sv=2022-11-02&sr=b&sig=miAc9ZvoSlO6eExvcTCPbJ2o0fNTd2zeiddOSAbzdF4%3D' )
-          .then( response => response.json() )
-          .then( data => {
-               data.buildings0012.forEach( item => {
+     fetch( cinemasApiUrl )
+          .then( ( response ) => response.json() )
+          .then( ( data ) => {
+               data.buildings0012.forEach( ( item ) => {
                     const {
                          ubicacion,
                          name,
@@ -9229,7 +9112,7 @@ function cargarMarcadoresCinemas() {
                          addressCountry,
                          neighborhood,
                          district,
-                         source
+                         source,
                     } = parseFiwareData( item );
 
                     if ( ubicacion && name ) {
@@ -9237,7 +9120,7 @@ function cargarMarcadoresCinemas() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/CinemasQubo.svg"
+                              icon: "./assets/CinemasQubo.svg",
                          } );
 
                          // Agrega un evento click a cada marcador para mostrar el infoBox
@@ -9245,53 +9128,65 @@ function cargarMarcadoresCinemas() {
                               const infoBox = document.querySelector( ".info-box" );
                               infoBox.style.display = "flex";
                               infoBox.innerHTML = `
-                              <div class='nameContainer'>
-                                   <p>${ category }</p>
-                                   <p>${ name }</p>
-                              </div>
-                              <img src='./assets/staticCinemas.jpg'>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                              <p>Address: ${ streetAddress }</p>
-                              <p>C.P: ${ postalCode }</p>
-                              <p>Neighborhood: ${ neighborhood }</p>
-                              <p>District: ${ district }</p>
-                              <p>Country: ${ addressCountry }</p>
-                              <p>${ description }</p>
-                              <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
-                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                              <button class='share'><img src='./assets/shareIcon.svg'></button>
-                         `;
-                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                                   infoBox.style.display = "none";
-                              } );
+                    <div class='nameContainer'>
+                    <p>${ category }</p>
+                    <p>${ name }</p>
+                    </div>
+                    <img src='./assets/staticCinemas.jpg'>
+                    <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
+                    <p>Address: ${ streetAddress }</p>
+                    <p>C.P: ${ postalCode }</p>
+                    <p>Neighborhood: ${ neighborhood }</p>
+                    <p>District: ${ district }</p>
+                    <p>Country: ${ addressCountry }</p>
+                    <p>${ description }</p>
+                    <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
+                    <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+                    <button class='share'><img src='./assets/shareIcon.svg'></button>
+               `;
+                              document
+                                   .getElementById( "cerrar-info-box" )
+                                   .addEventListener( "click", () => {
+                                        infoBox.style.display = "none";
+                                   } );
                          } );
 
-                         markersCinemas.push( marker ); // Añade el marcador al array de parcelas
+                         markersCinemas.push( marker ); // Añade el marcador al array de cines
                     }
                } );
           } )
-          .catch( error => console.error( "Error al cargar los marcadores de Cinemas:", error ) );
-};
+          .catch( ( error ) =>
+               console.error( "Error al cargar los marcadores de Cinemas:", error )
+          );
+}
+
+// Lógica para alternar la visibilidad de los cines
 const eventCinemas = document.getElementById( "cinemas-sub-nav-item" );
-let markersCinemas = []; // Array para almacenar los marcadores de parcelas
+let markersCinemas = []; // Array para almacenar los marcadores de cines
 let cinemasVisible = false; // Bandera para el estado de visibilidad
 
 eventCinemas.addEventListener( "click", () => {
-     // Alternar la visibilidad de los marcadores de parcelas
+     // Alternar la visibilidad de los marcadores de cines
      toggleMarcadores( markersCinemas, cinemasVisible );
      cinemasVisible = !cinemasVisible; // Cambia la bandera de visibilidad
 
      // Si los marcadores aún no se han cargado, cargarlos
      if ( markersCinemas.length === 0 && cinemasVisible ) {
-          cargarMarcadoresCinemas(); // Llama a la función para cargar los marcadores de parcelas
+          cargarMarcadoresCinemas(); // Llama a la función para cargar los marcadores de cines
      }
 } );
 
 
+
 //! Función para mostrar LANDMARKS
 
+// URL de la API con el proxy
+const landmarksApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Landmarks/Fiware_Entertainment_Landmarks-00001?sp=r&st=2024-06-16T17:24:52Z&se=2090-01-01T02:24:52Z&sv=2022-11-02&sr=b&sig=ixGwZCchqFbUgjNVGbyGjQ%2FhDnJDmhYL3WSqUl4l5MI%3D"
+) }`;
+
 function cargarMarcadoresLandmarks() {
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Landmarks/Fiware_Entertainment_Landmarks-00001?sp=r&st=2024-06-16T17:24:52Z&se=2090-01-01T02:24:52Z&sv=2022-11-02&sr=b&sig=ixGwZCchqFbUgjNVGbyGjQ%2FhDnJDmhYL3WSqUl4l5MI%3D' )
+     fetch( landmarksApiUrl )
           .then( response => response.json() )
           .then( data => {
                data.pois0002.forEach( item => {
@@ -9307,7 +9202,7 @@ function cargarMarcadoresLandmarks() {
                          addressCountry,
                          neighborhood,
                          district,
-                         source
+                         source,
                     } = parseFiwareData( item );
 
                     if ( ubicacion && name ) {
@@ -9315,7 +9210,7 @@ function cargarMarcadoresLandmarks() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/LandmarksQubo.svg"
+                              icon: "./assets/LandmarksQubo.svg",
                          } );
 
                          // Agrega un evento click a cada marcador para mostrar el infoBox
@@ -9349,7 +9244,8 @@ function cargarMarcadoresLandmarks() {
                } );
           } )
           .catch( error => console.error( "Error al cargar los marcadores de Landmarks:", error ) );
-};
+}
+
 const eventLandmarks = document.getElementById( "landmarks-sub-nav-item" );
 let markersLandmarks = []; // Array para almacenar los marcadores de parcelas
 let landmarksVisible = false; // Bandera para el estado de visibilidad
@@ -9366,12 +9262,19 @@ eventLandmarks.addEventListener( "click", () => {
 } );
 
 
+
 //! Función para mostrar STADIUMS
+
+// Define la URL de la API con el proxy
+const stadiumsApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Stadiums/estadiosMadrid.json?sp=r&st=2024-04-14T17:49:26Z&se=2090-01-01T02:49:26Z&sv=2022-11-02&sr=b&sig=ji01C4KUVXV9XBkmWj4zW6wvfQeB5T4kYxZzs80MTpA%3D"
+) }`;
+
 const marcadoresEstadios = {};
 let estadiosVisible = false;
 
 function cargarEstadios() {
-     fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Stadiums/estadiosMadrid.json?sp=r&st=2024-04-14T17:49:26Z&se=2090-01-01T02:49:26Z&sv=2022-11-02&sr=b&sig=ji01C4KUVXV9XBkmWj4zW6wvfQeB5T4kYxZzs80MTpA%3D" )
+     fetch( stadiumsApiUrl )
           .then( response => response.json() )
           .then( data => {
                data.forEach( estadio => {
@@ -9387,18 +9290,18 @@ function cargarEstadios() {
                          const infoBox = document.querySelector( ".info-box" );
                          infoBox.style.display = "flex";
                          infoBox.innerHTML = `
-                        <h2>${ estadio.nombre }</h2>
-                        <img src="${ estadio.imgUrl }">
-                        <p>Capacidad: ${ estadio.capacidad }</p>
-                        <p>Inauguración: ${ estadio.inauguración }</p>
-                        <p>Equipo Local: ${ estadio.equipo_local }</p>
-                        <p>Uso: ${ estadio.uso }</p>
-                        <p>Dirección: ${ estadio.address }</p>
-                        <p>Teléfono: ${ estadio.telefono }</p>
-                        <p>Source: <a class="links-propiedades" href="${ estadio.url }" target="_blank">${ estadio.url }</a></p>
-                        <button id="cerrar-info-box">
-                            <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                        </button>
+                         <h2>${ estadio.nombre }</h2>
+                         <img src="${ estadio.imgUrl }">
+                         <p>Capacidad: ${ estadio.capacidad }</p>
+                         <p>Inauguración: ${ estadio.inauguración }</p>
+                         <p>Equipo Local: ${ estadio.equipo_local }</p>
+                         <p>Uso: ${ estadio.uso }</p>
+                         <p>Dirección: ${ estadio.address }</p>
+                         <p>Teléfono: ${ estadio.telefono }</p>
+                         <p>Source: <a class="links-propiedades" href="${ estadio.url }" target="_blank">${ estadio.url }</a></p>
+                         <button id="cerrar-info-box">
+                              <img src="./assets/botonCerrar.svg" alt="Cerrar">
+                         </button>
                     `;
                          document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
                               infoBox.style.display = "none";
@@ -9424,9 +9327,13 @@ document.getElementById( "stadiums-sub-nav-item" ).addEventListener( "click", fu
 
 
 //! Función para mostrar CLUBS&NIGHTLIFE
+// Define la URL de la API con el proxy
+const clubsAndNightlifeApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Clubs%20%26%20Nightlife/Fiware_Entertainment_ClubsAndNightlife-00001?sp=r&st=2024-04-01T11:01:02Z&se=2090-01-01T20:01:02Z&sv=2022-11-02&sr=b&sig=aIubcMnWFTYQ1APJNRVbNJ9YrWKFtzj88SWK07H0uXc%3D"
+) }`;
 const cargarYMostrarMarcadoresClubesYVidaNocturna = async () => {
      try {
-          const response = await fetch( "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Clubs%20%26%20Nightlife/Fiware_Entertainment_ClubsAndNightlife-00001?sp=r&st=2024-04-01T11:01:02Z&se=2090-01-01T20:01:02Z&sv=2022-11-02&sr=b&sig=aIubcMnWFTYQ1APJNRVbNJ9YrWKFtzj88SWK07H0uXc%3D" );
+          const response = await fetch( clubsAndNightlifeApiUrl );
           const data = await response.json();
 
           data.buildings0013.forEach( item => {
@@ -9495,148 +9402,79 @@ eventClubsAndNightlife.addEventListener( 'click', async () => {
 } );
 
 //! Función para mostrar HOTELS&APARTMENTS
+
+
+// Define la URL de la API con el proxy
+// const hotelsAndApartmentsApiUrl = `/api/proxy?url=${encodeURIComponent(
+//      "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Hotels%20%26%20Apartments/Fiware_Entertainment_HotelsAndApartments-00001?sp=r&st=2024-04-01T11:17:17Z&se=2090-01-01T20:17:17Z&sv=2022-11-02&sr=b&sig=0mN50aK5H8DLUYm0eYkR8%2Bk21mHSKhJesq9VdPvH%2Bko%3D"
+// )}`;
+
 // const cargarYMostrarMarcadoresHotelesYApartamentos = async () => {
 //      try {
-//          const response = await fetch("https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Hotels%20%26%20Apartments/Fiware_Entertainment_HotelsAndApartments-00001?sp=r&st=2024-04-01T11:17:17Z&se=2090-01-01T20:17:17Z&sv=2022-11-02&sr=b&sig=0mN50aK5H8DLUYm0eYkR8%2Bk21mHSKhJesq9VdPvH%2Bko%3D");
-//          const data = await response.json();
+//           const response = await fetch(hotelsAndApartmentsApiUrl);
+//           const data = await response.json();
 
-//          data.buildings0014.forEach(item => {
-//              // Verifica si la propiedad addressLocality es "Madrid"
-//              if (item.address.value.addressLocality === "Madrid") {
-//                  const ubicacion = item.location.value.coordinates;
-//                  console.log(item);
+//           data.buildings0014.forEach(item => {
+//                // Verifica si la propiedad addressLocality es "Madrid"
+//                if (item.address.value.addressLocality === "Madrid") {
+//                     const ubicacion = item.location.value.coordinates;
+//                     console.log(item);
 
-//                  const hotelMarker = new google.maps.Marker({
-//                      position: { lat: ubicacion[1], lng: ubicacion[0] },
-//                      map: map,
-//                      title: item.name.value,
-//                      icon: "./assets/hotelsAndApartments_Qubo.svg" // Asegúrate de tener un ícono adecuado para los hoteles y apartamentos
-//                  });
+//                     const hotelMarker = new google.maps.Marker({
+//                          position: { lat: ubicacion[1], lng: ubicacion[0] },
+//                          map: map,
+//                          title: item.name.value,
+//                          icon: "./assets/hotelsAndApartments_Qubo.svg"
+//                     });
 
-//                  hotelMarker.addListener('click', () => {
-//                      const infoBox = document.querySelector(".info-box");
-//                      infoBox.style.display = "flex";
-//                      const idWithoutPrefix = item.id.replace(/^property_/, '');
-//                      const capitalizedCategory = item.category.value[0].charAt(0).toUpperCase() + item.category.value[0].slice(1);
-//                      infoBox.innerHTML = `
-//                          <div class='nameContainer'>
-//                              <p>${capitalizedCategory}</p>
-//                              <p>${item.name.value}</p>
-//                          </div>
-//                          <img src='./assets/staticHotelsAndApartments.jpg'>
-//                          <p>Código identificador: ${idWithoutPrefix}</p>
-//                          <p>Address: ${item.address.value.streetAddress} C.P ${item.address.value.postalCode}</p>
-//                          <p>Localización: ${item.address.value.addressLocality}, ${item.address.value.addressRegion}</p>
-//                          <p>Source: <a class="links-propiedades" href="${item.source.value}" target="_blank">${item.source.value}</a></p>
-//                          <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-//                          <button class='share'><img src='./assets/shareIcon.svg'></button>
-//                      `;
-//                      document.getElementById("cerrar-info-box").addEventListener("click", () => {
-//                          infoBox.style.display = "none";
-//                      });
-//                  });
-
-//                  markersHotelsAndApartments.push(hotelMarker); // Añade el marcador al array de hoteles y apartamentos
-//              }
-//          });
-//      } catch (error) {
-//          console.error("Error fetching hotels and apartments:", error);
-//      }
-//  };
-
-
-//  const eventHotelsAndApartments = document.getElementById("hotelsAndApartments-sub-nav-item");
-// let markersHotelsAndApartments = []; // Array para almacenar los marcadores de hoteles y apartamentos
-// let hotelsAndApartmentsVisible = false; // Bandera para el estado de visibilidad
-
-// eventHotelsAndApartments.addEventListener('click', async () => {
-//     // Alternar la visibilidad de los marcadores de hoteles y apartamentos
-//     toggleMarcadores(markersHotelsAndApartments, hotelsAndApartmentsVisible);
-//     hotelsAndApartmentsVisible = !hotelsAndApartmentsVisible; // Cambia la bandera de visibilidad
-
-//     // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
-//     if (markersHotelsAndApartments.length === 0 && hotelsAndApartmentsVisible) {
-//         await cargarYMostrarMarcadoresHotelesYApartamentos();
-//     }
-// });
-
-
-//! Función para mostrar SPORTS FACILITIES
-
-// function cargarMarcadoresSportsFacilities() {
-//      fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/Fiware_Entertainment_SportFacilities-00001?sp=r&st=2024-06-16T17:37:10Z&se=2090-01-01T02:37:10Z&sv=2022-11-02&sr=b&sig=CqfiHAHx2l9YohnmzltaYcL1sdgpQXrUwYlGRs58C2E%3D' )
-//           .then( response => response.json() )
-//           .then( data => {
-//                data.buildings0013.forEach( item => {
-//                     const {
-//                          ubicacion,
-//                          name,
-//                          category,
-//                          description,
-//                          streetAddress,
-//                          postalCode,
-//                          addressLocality,
-//                          addressRegion,
-//                          addressCountry,
-//                          neighborhood,
-//                          district,
-//                          source
-//                     } = parseFiwareData( item );
-
-//                     if ( ubicacion && name ) {
-//                          const marker = new google.maps.Marker( {
-//                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
-//                               map: map,
-//                               title: name,
-//                               icon: "./assets/SportsFacilitiesQubo.svg"
-//                          } );
-
-//                          // Agrega un evento click a cada marcador para mostrar el infoBox
-//                          marker.addListener( "click", () => {
-//                               const infoBox = document.querySelector( ".info-box" );
-//                               infoBox.style.display = "flex";
-//                               infoBox.innerHTML = `
+//                     hotelMarker.addListener('click', () => {
+//                          const infoBox = document.querySelector(".info-box");
+//                          infoBox.style.display = "flex";
+//                          const idWithoutPrefix = item.id.replace(/^property_/, '');
+//                          const capitalizedCategory = item.category.value[0].charAt(0).toUpperCase() + item.category.value[0].slice(1);
+//                          infoBox.innerHTML = `
 //                               <div class='nameContainer'>
-//                                    <p>${ category }</p>
-//                                    <p>${ name }</p>
+//                                    <p>${capitalizedCategory}</p>
+//                                    <p>${item.name.value}</p>
 //                               </div>
-//                               <img src='./assets/staticSportsFacilities.jpg'>
-//                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-//                               <p>Address: ${ streetAddress }</p>
-//                               <p>C.P: ${ postalCode }</p>
-//                               <p>Neighborhood: ${ neighborhood }</p>
-//                               <p>District: ${ district }</p>
-//                               <p>Country: ${ addressCountry }</p>
-//                               <p>${ description }</p>
-//                               <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
+//                               <img src='./assets/staticHotelsAndApartments.jpg'>
+//                               <p>Código identificador: ${idWithoutPrefix}</p>
+//                               <p>Address: ${item.address.value.streetAddress} C.P ${item.address.value.postalCode}</p>
+//                               <p>Localización: ${item.address.value.addressLocality}, ${item.address.value.addressRegion}</p>
+//                               <p>Source: <a class="links-propiedades" href="${item.source.value}" target="_blank">${item.source.value}</a></p>
 //                               <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
 //                               <button class='share'><img src='./assets/shareIcon.svg'></button>
 //                          `;
-//                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-//                                    infoBox.style.display = "none";
-//                               } );
-//                          } );
+//                          document.getElementById("cerrar-info-box").addEventListener("click", () => {
+//                               infoBox.style.display = "none";
+//                          });
+//                     });
 
-//                          markersSportsFacilities.push( marker ); // Añade el marcador al array de parcelas
-//                     }
-//                } );
-//           } )
-//           .catch( error => console.error( "Error al cargar los marcadores de Sports Facilities:", error ) );
-// };
-// const eventSportsFacilities = document.getElementById( "sportsFacilities-sub-nav-item" );
-// let markersSportsFacilities = []; // Array para almacenar los marcadores de parcelas
-// let sportsFacilitiesVisible = false; // Bandera para el estado de visibilidad
-
-// eventSportsFacilities.addEventListener( "click", () => {
-//      // Alternar la visibilidad de los marcadores de parcelas
-//      toggleMarcadores( markersSportsFacilities, sportsFacilitiesVisible );
-//      sportsFacilitiesVisible = !sportsFacilitiesVisible; // Cambia la bandera de visibilidad
-
-//      // Si los marcadores aún no se han cargado, cargarlos
-//      if ( markersSportsFacilities.length === 0 && sportsFacilitiesVisible ) {
-//           cargarMarcadoresSportsFacilities(); // Llama a la función para cargar los marcadores de parcelas
+//                     markersHotelsAndApartments.push(hotelMarker);
+//                }
+//           });
+//      } catch (error) {
+//           console.error("Error fetching hotels and apartments:", error);
 //      }
-// } );
+// };
+
+// const eventHotelsAndApartments = document.getElementById("hotelsAndApartments-sub-nav-item");
+// let markersHotelsAndApartments = [];
+// let hotelsAndApartmentsVisible = false;
+
+// eventHotelsAndApartments.addEventListener('click', async () => {
+//      toggleMarcadores(markersHotelsAndApartments, hotelsAndApartmentsVisible);
+//      hotelsAndApartmentsVisible = !hotelsAndApartmentsVisible;
+
+//      if (markersHotelsAndApartments.length === 0 && hotelsAndApartmentsVisible) {
+//           await cargarYMostrarMarcadoresHotelesYApartamentos();
+//      }
+// });
+
+
+
+
+//! Función para mostrar SPORTS FACILITIES
 
 //! Función para cargar y mostrar el KML Layer en el mapa
 let kmlLayer;
@@ -9644,21 +9482,28 @@ let kmlLayer;
 function cargarKMLLayer() {
      const kmlUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/San%20Silvestre.kmz?sp=r&st=2024-12-08T12:36:53Z&se=2099-12-08T20:36:53Z&sv=2022-11-02&sr=b&sig=%2BrJwjOuvNGBjztJ%2BiHEy5ujNKFThqwG0UnCVVwZFwGY%3D';
 
-     if ( !kmlLayer ) {
-          kmlLayer = new google.maps.KmlLayer( {
-               url: kmlUrl,
-               map: map,
-               preserveViewport: false,
-               suppressInfoWindows: true,
-          } );
-     } else {
-          kmlLayer.setMap( kmlLayer.getMap() ? null : map );
+     // Si existe una capa KML previa, la eliminamos
+     if ( kmlLayer ) {
+          kmlLayer.setMap( null );
+          kmlLayer = null;
      }
+
+     // Creamos una nueva capa KML
+     kmlLayer = new google.maps.KmlLayer( {
+          url: kmlUrl,
+          map: map,
+          preserveViewport: false,
+          suppressInfoWindows: true,
+     } );
 }
 
 //! Función para cargar marcadores de Sports Facilities
+// Define la URL de la API con el proxy
+const sportsFacilitiesApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/Fiware_Entertainment_SportFacilities-00001?sp=r&st=2024-06-16T17:37:10Z&se=2090-01-01T02:37:10Z&sv=2022-11-02&sr=b&sig=CqfiHAHx2l9YohnmzltaYcL1sdgpQXrUwYlGRs58C2E%3D"
+) }`;
 function cargarMarcadoresSportsFacilities() {
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/Fiware_Entertainment_SportFacilities-00001?sp=r&st=2024-06-16T17:37:10Z&se=2090-01-01T02:37:10Z&sv=2022-11-02&sr=b&sig=CqfiHAHx2l9YohnmzltaYcL1sdgpQXrUwYlGRs58C2E%3D' )
+     fetch( sportsFacilitiesApiUrl )
           .then( response => response.json() )
           .then( data => {
                data.buildings0013.forEach( item => {
@@ -9689,21 +9534,21 @@ function cargarMarcadoresSportsFacilities() {
                               const infoBox = document.querySelector( ".info-box" );
                               infoBox.style.display = "flex";
                               infoBox.innerHTML = `
-                             <div class='nameContainer'>
-                                 <p>${ category }</p>
-                                 <p>${ name }</p>
-                             </div>
-                             <img src='./assets/staticSportsFacilities.jpg'>
-                             <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                             <p>Address: ${ streetAddress }</p>
-                             <p>C.P: ${ postalCode }</p>
-                             <p>Neighborhood: ${ neighborhood }</p>
-                             <p>District: ${ district }</p>
-                             <p>Country: ${ addressCountry }</p>
-                             <p>${ description }</p>
-                             <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
-                             <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                             <button class='share'><img src='./assets/shareIcon.svg'></button>
+                              <div class='nameContainer'>
+                                   <p>${ category }</p>
+                                   <p>${ name }</p>
+                              </div>
+                              <img src='./assets/staticSportsFacilities.jpg'>
+                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
+                              <p>Address: ${ streetAddress }</p>
+                              <p>C.P: ${ postalCode }</p>
+                              <p>Neighborhood: ${ neighborhood }</p>
+                              <p>District: ${ district }</p>
+                              <p>Country: ${ addressCountry }</p>
+                              <p>${ description }</p>
+                              <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
+                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+                              <button class='share'><img src='./assets/shareIcon.svg'></button>
                          `;
                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
                                    infoBox.style.display = "none";
@@ -9718,11 +9563,15 @@ function cargarMarcadoresSportsFacilities() {
 }
 
 //! Función para cargar y mover el marcador dinámico del corredor
+// Define la URL de la API con el proxy
+const corredorApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/san_silvestre_data.json?sp=r&st=2024-12-08T12:46:21Z&se=2099-12-08T20:46:21Z&sv=2022-11-02&sr=b&sig=lkvYTHmF7BXGl9H97bx%2Fk6j2ynipkAP3LrHbVJXzQiE%3D"
+) }`;
+
 let corredorMarker;
 let corredorInterval;
 
 function cargarCorredorDinamico() {
-     const corredorApiUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/san_silvestre_data.json?sp=r&st=2024-12-08T12:46:21Z&se=2099-12-08T20:46:21Z&sv=2022-11-02&sr=b&sig=lkvYTHmF7BXGl9H97bx%2Fk6j2ynipkAP3LrHbVJXzQiE%3D';
 
      fetch( corredorApiUrl )
           .then( response => response.json() )
@@ -9769,22 +9618,33 @@ function cargarCorredorDinamico() {
 }
 
 //! Función para cargar el marcador estático del evento
+// Define la URL de la API con el proxy
+const eventoApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/san_silvestre_event.json?sp=r&st=2024-12-08T13:04:51Z&se=2099-12-08T21:04:51Z&sv=2022-11-02&sr=b&sig=zs40%2Faq4HfQ92HaJnsUIX%2F1TpLIz4MyFN3rRee2FAjw%3D"
+) }`;
+let eventoMarker = null; // Variable global para el marcador del evento
+
 function cargarMarcadorEvento() {
-     const eventoApiUrl = 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Sports%20Facilities/san_silvestre_event.json?sp=r&st=2024-12-08T13:04:51Z&se=2099-12-08T21:04:51Z&sv=2022-11-02&sr=b&sig=zs40%2Faq4HfQ92HaJnsUIX%2F1TpLIz4MyFN3rRee2FAjw%3D';
+
+     // Si ya existe un marcador del evento, lo eliminamos primero
+     if ( eventoMarker ) {
+          eventoMarker.setMap( null );
+     }
+
 
      fetch( eventoApiUrl )
           .then( response => response.json() )
           .then( data => {
                const { Nombre, Fecha, Participantes, Distancia, Record, Recordman, ImagenURL } = data;
 
-               const marker = new google.maps.Marker( {
+               eventoMarker = new google.maps.Marker( {
                     map: map,
                     position: { lat: 40.45178, lng: -3.68445 }, // Cambiar por la primera coordenada del KML si es diferente
                     title: Nombre,
                     icon: './assets/SportsFacilitiesQubo.svg',
                } );
 
-               marker.addListener( "click", () => {
+               eventoMarker.addListener( "click", () => {
                     const infoBox = document.querySelector( ".info-box" );
                     infoBox.style.display = "flex";
                     infoBox.innerHTML = `
@@ -9811,17 +9671,41 @@ const eventSportsFacilities = document.getElementById( "sportsFacilities-sub-nav
 let markersSportsFacilities = [];
 let sportsFacilitiesVisible = false;
 
+
 eventSportsFacilities.addEventListener( "click", () => {
      toggleMarcadores( markersSportsFacilities, sportsFacilitiesVisible );
      sportsFacilitiesVisible = !sportsFacilitiesVisible;
 
-     if ( markersSportsFacilities.length === 0 && sportsFacilitiesVisible ) {
-          cargarMarcadoresSportsFacilities();
+     // Toggle KML Layer
+     if ( kmlLayer ) {
+          kmlLayer.setMap( kmlLayer.getMap() ? null : map );
      }
 
-     cargarKMLLayer();
-     cargarCorredorDinamico();
-     cargarMarcadorEvento();
+     // Limpiar marcador del corredor y detener el intervalo
+     if ( corredorMarker ) {
+          corredorMarker.setMap( null );
+          corredorMarker = null;
+     }
+     if ( corredorInterval ) {
+          clearInterval( corredorInterval );
+     }
+
+
+     // Limpiar marcador del evento
+     if ( eventoMarker ) {
+          eventoMarker.setMap( sportsFacilitiesVisible ? map : null );
+     }
+
+     // Si es la primera vez o si se está activando la capa
+     if ( sportsFacilitiesVisible ) {
+          // Si los marcadores no existen, cargarlos
+          if ( markersSportsFacilities.length === 0 ) {
+               cargarMarcadoresSportsFacilities();
+          }
+          cargarKMLLayer();
+          cargarCorredorDinamico();
+          cargarMarcadorEvento();
+     }
 } );
 
 
@@ -9830,8 +9714,15 @@ eventSportsFacilities.addEventListener( "click", () => {
 
 //! Función para mostrar MUSEUMS
 
+//! Función para mostrar MUSEUMS
+
+// Define la URL de la API con el proxy
+const museumsApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Museums/Fiware_Entertainment_Musuems-00001?sp=r&st=2024-06-16T17:49:06Z&se=2090-01-01T02:49:06Z&sv=2022-11-02&sr=b&sig=j%2BMozWtJqpIgWXgEitlNgqCHWhqw9XbBGOSJ%2Fy3pkbE%3D"
+) }`;
+
 function cargarMarcadoresMuseums() {
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Museums/Fiware_Entertainment_Musuems-00001?sp=r&st=2024-06-16T17:49:06Z&se=2090-01-01T02:49:06Z&sv=2022-11-02&sr=b&sig=j%2BMozWtJqpIgWXgEitlNgqCHWhqw9XbBGOSJ%2Fy3pkbE%3D' )
+     fetch( museumsApiUrl )
           .then( response => response.json() )
           .then( data => {
                data.pois0003.forEach( item => {
@@ -9858,7 +9749,6 @@ function cargarMarcadoresMuseums() {
                               icon: "./assets/MuseumsQubo.svg"
                          } );
 
-                         // Agrega un evento click a cada marcador para mostrar el infoBox
                          marker.addListener( "click", () => {
                               const infoBox = document.querySelector( ".info-box" );
                               infoBox.style.display = "flex";
@@ -9884,24 +9774,23 @@ function cargarMarcadoresMuseums() {
                               } );
                          } );
 
-                         markersMuseums.push( marker ); // Añade el marcador al array de parcelas
+                         markersMuseums.push( marker );
                     }
                } );
           } )
           .catch( error => console.error( "Error al cargar los marcadores Museums:", error ) );
-};
+}
+
 const eventMuseums = document.getElementById( "museums-sub-nav-item" );
-let markersMuseums = []; // Array para almacenar los marcadores de parcelas
-let museumsVisible = false; // Bandera para el estado de visibilidad
+let markersMuseums = [];
+let museumsVisible = false;
 
 eventMuseums.addEventListener( "click", () => {
-     // Alternar la visibilidad de los marcadores de parcelas
      toggleMarcadores( markersMuseums, museumsVisible );
-     museumsVisible = !museumsVisible; // Cambia la bandera de visibilidad
+     museumsVisible = !museumsVisible;
 
-     // Si los marcadores aún no se han cargado, cargarlos
      if ( markersMuseums.length === 0 && museumsVisible ) {
-          cargarMarcadoresMuseums(); // Llama a la función para cargar los marcadores de parcelas
+          cargarMarcadoresMuseums();
      }
 } );
 
@@ -9910,8 +9799,14 @@ eventMuseums.addEventListener( "click", () => {
 
 //! Función para mostrar SOCIAL SERVICES
 
+
+// Define la URL de la API con el proxy
+const socialServicesApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Services%20%26%20Administration/Social%20Services/Fiware_Services_Social-00001?sp=r&st=2024-06-16T17:59:29Z&se=2090-01-01T02:59:29Z&sv=2022-11-02&sr=b&sig=oBQu3hzgqmqx2L0eRX%2FipjagbMzy8Boe4ORmVpqDZV0%3D"
+) }`;
+
 function cargarMarcadoresSocialServices() {
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Services%20%26%20Administration/Social%20Services/Fiware_Services_Social-00001?sp=r&st=2024-06-16T17:59:29Z&se=2090-01-01T02:59:29Z&sv=2022-11-02&sr=b&sig=oBQu3hzgqmqx2L0eRX%2FipjagbMzy8Boe4ORmVpqDZV0%3D' )
+     fetch( socialServicesApiUrl )
           .then( response => response.json() )
           .then( data => {
                data.buildings0021.forEach( item => {
@@ -9938,7 +9833,6 @@ function cargarMarcadoresSocialServices() {
                               icon: "./assets/SocialServicesQubo.svg"
                          } );
 
-                         // Agrega un evento click a cada marcador para mostrar el infoBox
                          marker.addListener( "click", () => {
                               const infoBox = document.querySelector( ".info-box" );
                               infoBox.style.display = "flex";
@@ -9964,32 +9858,38 @@ function cargarMarcadoresSocialServices() {
                               } );
                          } );
 
-                         markersSocialServices.push( marker ); // Añade el marcador al array de parcelas
+                         markersSocialServices.push( marker );
                     }
                } );
           } )
           .catch( error => console.error( "Error al cargar los marcadores Social Services:", error ) );
-};
+}
+
 const eventSocialServices = document.getElementById( "socialServices-sub-nav-item" );
-let markersSocialServices = []; // Array para almacenar los marcadores de parcelas
-let socialServicesVisible = false; // Bandera para el estado de visibilidad
+let markersSocialServices = [];
+let socialServicesVisible = false;
 
 eventSocialServices.addEventListener( "click", () => {
-     // Alternar la visibilidad de los marcadores de parcelas
      toggleMarcadores( markersSocialServices, socialServicesVisible );
-     socialServicesVisible = !socialServicesVisible; // Cambia la bandera de visibilidad
+     socialServicesVisible = !socialServicesVisible;
 
-     // Si los marcadores aún no se han cargado, cargarlos
      if ( markersSocialServices.length === 0 && socialServicesVisible ) {
-          cargarMarcadoresSocialServices(); // Llama a la función para cargar los marcadores de parcelas
+          cargarMarcadoresSocialServices();
      }
 } );
 
 
 //! Función para mostrar ADMINISTRATION
 
+//! Función para mostrar ADMINISTRATION
+
+// Define la URL de la API con el proxy
+const administrationApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Services%20%26%20Administration/Administration/Fiware_Services_Administration-00001?sp=r&st=2024-06-16T18:03:33Z&se=2090-01-01T03:03:33Z&sv=2022-11-02&sr=b&sig=WwIaNf4gMfolhWsPkfUnOFOeHA9Oori3A7zGPQH5rYg%3D"
+) }`;
+
 function cargarMarcadoresAdministration() {
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Services%20%26%20Administration/Administration/Fiware_Services_Administration-00001?sp=r&st=2024-06-16T18:03:33Z&se=2090-01-01T03:03:33Z&sv=2022-11-02&sr=b&sig=WwIaNf4gMfolhWsPkfUnOFOeHA9Oori3A7zGPQH5rYg%3D' )
+     fetch( administrationApiUrl )
           .then( response => response.json() )
           .then( data => {
                data.buildings0019.forEach( item => {
@@ -10016,7 +9916,6 @@ function cargarMarcadoresAdministration() {
                               icon: "./assets/AdministrationQubo.svg"
                          } );
 
-                         // Agrega un evento click a cada marcador para mostrar el infoBox
                          marker.addListener( "click", () => {
                               const infoBox = document.querySelector( ".info-box" );
                               infoBox.style.display = "flex";
@@ -10042,31 +9941,36 @@ function cargarMarcadoresAdministration() {
                               } );
                          } );
 
-                         markersAdministration.push( marker ); // Añade el marcador al array de parcelas
+                         markersAdministration.push( marker );
                     }
                } );
           } )
-          .catch( error => console.error( "Error al cargar los marcadores Aministration:", error ) );
-};
+          .catch( error => console.error( "Error al cargar los marcadores Administration:", error ) );
+}
+
 const eventAdministration = document.getElementById( "administration-sub-nav-item" );
-let markersAdministration = []; // Array para almacenar los marcadores de parcelas
-let administrationVisible = false; // Bandera para el estado de visibilidad
+let markersAdministration = [];
+let administrationVisible = false;
 
 eventAdministration.addEventListener( "click", () => {
-     // Alternar la visibilidad de los marcadores de parcelas
      toggleMarcadores( markersAdministration, administrationVisible );
-     administrationVisible = !administrationVisible; // Cambia la bandera de visibilidad
+     administrationVisible = !administrationVisible;
 
-     // Si los marcadores aún no se han cargado, cargarlos
      if ( markersAdministration.length === 0 && administrationVisible ) {
-          cargarMarcadoresAdministration(); // Llama a la función para cargar los marcadores de parcelas
+          cargarMarcadoresAdministration();
      }
 } );
 
+
 //! Función para mostrar EDUCATION
 
-function cargarMarcadoresAdministration() {
-     fetch( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Services%20%26%20Administration/Education/Fiware_Services_Education-00001?sp=r&st=2024-06-16T18:07:19Z&se=2090-01-01T03:07:19Z&sv=2022-11-02&sr=b&sig=gG6j583zzB5xorwVszx7c84zXo4bIIdsYDTJT4c%2Bz2U%3D' )
+// Define la URL de la API con el proxy
+const educationApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Services%20%26%20Administration/Education/Fiware_Services_Education-00001?sp=r&st=2024-06-16T18:07:19Z&se=2090-01-01T03:07:19Z&sv=2022-11-02&sr=b&sig=gG6j583zzB5xorwVszx7c84zXo4bIIdsYDTJT4c%2Bz2U%3D"
+) }`;
+
+function cargarMarcadoresEducation() {
+     fetch( educationApiUrl )
           .then( response => response.json() )
           .then( data => {
                data.buildings0020.forEach( item => {
@@ -10093,7 +9997,6 @@ function cargarMarcadoresAdministration() {
                               icon: "./assets/EducationQubo.svg"
                          } );
 
-                         // Agrega un evento click a cada marcador para mostrar el infoBox
                          marker.addListener( "click", () => {
                               const infoBox = document.querySelector( ".info-box" );
                               infoBox.style.display = "flex";
@@ -10119,28 +10022,25 @@ function cargarMarcadoresAdministration() {
                               } );
                          } );
 
-                         markersEducation.push( marker ); // Añade el marcador al array de parcelas
+                         markersEducation.push( marker );
                     }
                } );
           } )
           .catch( error => console.error( "Error al cargar los marcadores Education:", error ) );
-};
+}
+
 const eventEducation = document.getElementById( "education-sub-nav-item" );
-let markersEducation = []; // Array para almacenar los marcadores de parcelas
-let educationVisible = false; // Bandera para el estado de visibilidad
+let markersEducation = [];
+let educationVisible = false;
 
 eventEducation.addEventListener( "click", () => {
-     // Alternar la visibilidad de los marcadores de parcelas
      toggleMarcadores( markersEducation, educationVisible );
-     educationVisible = !educationVisible; // Cambia la bandera de visibilidad
+     educationVisible = !educationVisible;
 
-     // Si los marcadores aún no se han cargado, cargarlos
      if ( markersEducation.length === 0 && educationVisible ) {
-          cargarMarcadoresAdministration(); // Llama a la función para cargar los marcadores de parcelas
+          cargarMarcadoresEducation(); // Corregido: llamada a la función correcta
      }
 } );
-
-
 
 
 //* --------------------------------------------------------------------------------------
