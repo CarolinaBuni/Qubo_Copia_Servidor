@@ -95,6 +95,14 @@ function initMap() {
      map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
 
 
+
+
+
+
+
+
+
+     
      // Define la URL de la imagen del icono personalizado
      const customIconUrl = "./assets/qubonegro.svg"; // Reemplaza con la URL de tu imagen
 
@@ -569,51 +577,217 @@ function initMap() {
      //********************************************************/
      //*Nuevo código para manejar el envío del formulario
 
-     document.addEventListener( 'DOMContentLoaded', function () {
-          const form = document.getElementById( 'categoryForm' );
-          const formContainer = document.querySelector( '.form-container' );
-          const messageBox = document.getElementById( 'messageBox' );
+     // document.addEventListener( 'DOMContentLoaded', function () {
+     //      const form = document.getElementById( 'categoryForm' );
+     //      const formContainer = document.querySelector( '.form-container' );
+     //      const messageBox = document.getElementById( 'messageBox' );
 
-          form.addEventListener( 'submit', function ( event ) {
-               event.preventDefault();
+     //      form.addEventListener( 'submit', function ( event ) {
+     //           event.preventDefault();
 
-               const startDate = new Date( document.getElementById( 'startDateTime' ).value );
-               const finishDate = new Date( document.getElementById( 'endDateTime' ).value );
+     //           const startDate = new Date( document.getElementById( 'startDateTime' ).value );
+     //           const finishDate = new Date( document.getElementById( 'endDateTime' ).value );
 
-               if ( isNaN( startDate.valueOf() ) || isNaN( finishDate.valueOf() ) ) {
-                    alert( 'Please enter valid start and finish dates.' );
-                    return; // No enviar formulario si las fechas son inválidas
+     //           if ( isNaN( startDate.valueOf() ) || isNaN( finishDate.valueOf() ) ) {
+     //                alert( 'Please enter valid start and finish dates.' );
+     //                return; // No enviar formulario si las fechas son inválidas
+     //           }
+
+     //           // Usar FormData para recopilar todos los datos del formulario, incluido el archivo
+     //           const formData = new FormData( form );
+
+     //           fetch( form.action, {
+     //                method: 'POST',
+     //                body: formData
+     //           } )
+     //                .then( response => response.json() )
+     //                .then( data => {
+     //                     console.log( 'Success:', data );
+                         
+     //                     messageBox.innerHTML = `Qubo añadido con éxito!`; // Cambiando el contenido del messageBox
+     //                     messageBox.style.display = 'block';
+     //                     // Aquí puedes redireccionar al usuario o limpiar el formulario, etc.
+     //                     // Cerrar el formulario automáticamente
+     //                     formContainer.classList.add( 'hidden' ); // Oculta el contenedor del formulario
+
+     //                     // Opcional: Limpiar el formulario
+     //                     form.reset();
+                         
+     //                     // setTimeout( () => {
+     //                     //      messageBox.style.display = 'none';
+     //                     // }, 8000 );
+     //                } )
+     //                .catch( ( error ) => {
+     //                     console.error( 'Error:', error );
+     //                     alert( 'Error al añadir el Qubo.' );
+     //                } );
+     //      } );
+     // } );
+
+     document.addEventListener('DOMContentLoaded', function() {
+          const form = document.getElementById('categoryForm');
+          const formContainer = document.querySelector('.form-container');
+          const messageBox = document.getElementById('messageBox');
+          const closeButton = document.getElementById('cerrar-form'); 
+          let currentMarker = null; // Variable para el marcador temporal
+          let isAddingQubo = false; // Definimos la variable de control aquí
+          
+          // Evento para el botón de añadir Qubo
+          const addQuboButton = document.getElementById('addQubo');
+          addQuboButton.addEventListener('click', function() {
+               isAddingQubo = true;
+               messageBox.style.display = 'block';
+               messageBox.innerHTML = 'Modo añadir Qubo activado, por favor haz clic en el mapa para seleccionar la ubicación.';
+          });
+
+          // Evento para el botón de cerrar formulario
+     closeButton.addEventListener('click', function() {
+          formContainer.classList.add('hidden');
+          messageBox.style.display = 'none';
+          // Eliminar el marcador temporal si existe
+          if (currentMarker) {
+               currentMarker.setMap(null);
+               currentMarker = null;
+          }
+          isAddingQubo = false; // Reseteamos el estado
+     });
+     
+          // Evento click en el mapa
+          map.addListener('click', function(event) {
+               if (isAddingQubo) {
+                    if (currentMarker) {
+                         currentMarker.setMap(null);
+                    }
+                    currentMarker = new google.maps.Marker({
+                         position: event.latLng,
+                         map: map,
+                         icon: './assets/quboNeutro.svg'
+                    });
+                    
+                    document.getElementById('clickedLat').value = event.latLng.lat();
+                    document.getElementById('clickedLng').value = event.latLng.lng();
+                    
+                    formContainer.classList.remove('hidden');
+                    messageBox.style.display = 'none';
+                    isAddingQubo = false;
                }
-
-               // Usar FormData para recopilar todos los datos del formulario, incluido el archivo
-               const formData = new FormData( form );
-
-               fetch( form.action, {
+          });
+     
+          // Evento submit del formulario
+          form.addEventListener('submit', function(event) {
+               event.preventDefault();
+     
+               const startDate = new Date(document.getElementById('startDateTime').value);
+               const finishDate = new Date(document.getElementById('endDateTime').value);
+     
+               if (isNaN(startDate.valueOf()) || isNaN(finishDate.valueOf())) {
+                    alert('Please enter valid start and finish dates.');
+                    return;
+               }
+     
+               const formData = new FormData(form);
+     
+               fetch(form.action, {
                     method: 'POST',
                     body: formData
-               } )
-                    .then( response => response.json() )
-                    .then( data => {
-                         console.log( 'Success:', data );
-                         messageBox.innerHTML = `Qubo añadido con éxito!`; // Cambiando el contenido del messageBox
-                         messageBox.style.display = 'block';
-                         // Aquí puedes redireccionar al usuario o limpiar el formulario, etc.
-                         // Cerrar el formulario automáticamente
-                         formContainer.classList.add( 'hidden' ); // Oculta el contenedor del formulario
-
-                         // Opcional: Limpiar el formulario
+               })
+                    .then(response => {
+                         if (!response.ok) {
+                              return response.text().then(text => {
+                                   throw new Error(`Error del servidor: ${text}`);
+                              });
+                         }
+                         return response.json();
+                    })
+                    .then(data => {
+                         console.log('Datos recibidos del servidor:', data);
+                         
+                         // Crear nuevo marcador con los datos recibidos
+                         const newMarker = new google.maps.Marker({
+                              position: { 
+                                   lat: parseFloat(data.latitude), // Usar los datos del servidor
+                                   lng: parseFloat(data.longitude) // Usar los datos del servidor
+                              },
+                              map: map,
+                              title: data.title, // Usar el título del servidor
+                              icon: subcategoryIcons[data.subcategory] || './assets/quboNeutro.svg'
+                         });
+                    
+                         // Añadir event listener al nuevo marcador usando la sintaxis correcta
+                         newMarker.addListener('click', function() {
+                              const infoBox = document.querySelector(".info-box");
+                              infoBox.style.display = 'flex';
+                              
+                              infoBox.innerHTML = `
+                                   <div class='nameContainer'>
+                                        <p>${data.category}</p>
+                                        <p>${data.title}</p>
+                                   </div>
+                                   <div class='own'>
+                                        <img src='${data.img}'>
+                                   </div>
+                                   <p>Descripción: ${data.description}</p>
+                                   <p>Subcategoría: ${data.subcategory}</p>
+                                   <p>Fecha de inicio: ${new Date(data.startDate).toLocaleDateString()} a las ${new Date(data.startDate).toLocaleTimeString()}</p>
+                                   <p>Fecha de finalización: ${new Date(data.finishDate).toLocaleDateString()} a las ${new Date(data.finishDate).toLocaleTimeString()}</p>
+                                   <p>Link: <a href="${data.link}" target="_blank">${data.link}</a></p>
+                                   <p>Anónimo: ${data.anonymous ? "Sí" : "No"}</p>
+                                   <button id="cerrar-info-box">
+                                        <img src='./assets/botonCerrar.svg'>
+                                   </button>
+                                   <button id="delete-qubo" data-qubo-id="${data._id}">
+                                        <img src='./assets/trash-can.svg'>
+                                   </button>
+                              `;
+                    
+                              // Añadir event listener al botón de cerrar
+                              const cerrarBoton = document.getElementById("cerrar-info-box");
+                              cerrarBoton.addEventListener("click", () => {
+                                   infoBox.style.display = "none";
+                              });
+                    
+                              // Añadir event listener al botón de eliminar
+                              const deleteButton = document.getElementById("delete-qubo");
+                              deleteButton.addEventListener("click", async () => {
+                                   if (confirm("¿Estás seguro de que deseas eliminar este Qubo?")) {
+                                        try {
+                                             const response = await fetch(`/api/v1/qubo/${data._id}`, {
+                                                  method: 'DELETE'
+                                             });
+                    
+                                             if (response.ok) {
+                                                  newMarker.setMap(null);
+                                                  infoBox.style.display = "none";
+                                                  alert("Qubo eliminado correctamente");
+                                             } else {
+                                                  throw new Error("Error al eliminar el Qubo");
+                                             }
+                                        } catch (error) {
+                                             console.error("Error:", error);
+                                             alert("Error al eliminar el Qubo");
+                                        }
+                                   }
+                              });
+                         });
+                    
+                         // Limpiar el formulario y mostrar mensaje de éxito
                          form.reset();
-                         setTimeout( () => {
-                              window.location.reload();
-                         }, 8000 );
-                    } )
-                    .catch( ( error ) => {
-                         console.error( 'Error:', error );
-                         alert( 'Error al añadir el Qubo.' );
-                    } );
-          } );
-     } );
-
+                         formContainer.classList.add('hidden');
+                         
+                         messageBox.innerHTML = `Qubo añadido con éxito!`;
+                         messageBox.style.display = 'flex';
+                         setTimeout(() => {
+                              messageBox.style.display = 'none';
+                         }, 3000);
+                    
+                         // Eliminar el marcador temporal
+                         if (currentMarker) {
+                              currentMarker.setMap(null);
+                              currentMarker = null;
+                         }
+                    })
+          });
+     });
 
 
      //! Función para activar/desactivar barrios
@@ -7564,6 +7738,7 @@ document.addEventListener( "DOMContentLoaded", () => {
                textElement.style.color = color;
           } );
      }
+     
 
 
      // Evento para cambiar a "Mapa" (2D)
