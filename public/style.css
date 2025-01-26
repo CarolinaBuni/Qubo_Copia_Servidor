@@ -417,7 +417,7 @@ span:hover {
      cursor: pointer;
 }
 
-body>div.info-box {
+body>div.info-box, .info-box {
      flex-direction: column;
      gap: 23px;
 }
