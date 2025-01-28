@@ -1,6 +1,7 @@
 /* Fuente Roboto*/
 @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
 /* Always set the map height explicitly  to define the size of the div
  * element that contains the map. */
 #gmp-map {
@@ -33,6 +34,8 @@ body {
 :root {
      --color-verde-qubo: #08ecc4;
 }
+
+
 
 #pac-input {
 
@@ -77,8 +80,6 @@ body {
      position: absolute;
      top: 114px;
 }
-
-
 
 
 
@@ -202,11 +203,27 @@ svg {
      transition: all 0.8s ease-in-out;
 }
 
-.bar-buttons:hover {
+/* .bar-buttons:hover {
      background-color: #08ecc4;
      transition: all 0.8s ease-in-out;
+} */
+
+/* Añadir estos nuevos estilos */
+.nav-bar > ul li a:hover .bar-buttons,
+.segunda-barra > ul li a:hover .bar-buttons {
+    background-color: #08ecc4;
+    transition: all 0.8s ease-in-out;
 }
 
+.nav-bar > ul li a:hover span,
+.segunda-barra > ul li a:hover span {
+    color: #08ecc4;
+    transition: all 0.8s ease-in-out;
+}
+#alerts-nav-item a:hover span,
+#alerts-incidences-nav-item a:hover span {
+    color: #de274c !important;
+}
 span {
      color: white;
      font-size: 12px;
@@ -215,10 +232,10 @@ span {
      transition: all 0.8s ease-in-out;
 }
 
-span:hover {
+/* span:hover {
      color: #08ecc4;
      transition: all 0.8s ease-in-out;
-}
+} */
 
 .links-propiedades {
      color: white;
@@ -243,9 +260,14 @@ span:hover {
      border-radius: 25px;
      padding: 20px;
      overflow-x: hidden;
+     cursor: move;
+     user-select: none;
+     /* pointer-events: none; */
 
-     /* Estilos adicionales, como posición y apariencia, pueden agregarse aquí */
 }
+
+/* PRUEBA CALENDARIO */
+
 
 .info-box p {
      font-size: 17px;
@@ -486,6 +508,8 @@ body>div.info-box, .info-box {
      pointer-events: none;
      cursor: not-allowed;
  }
+
+ 
  
 
 /* #addQubo:hover,
@@ -650,6 +674,7 @@ body>div.info-box, .info-box {
      position: fixed;
      /* cursor: move; */
      z-index: 999999999;
+     user-select: none;
 }
 
 #cerrar-form {
