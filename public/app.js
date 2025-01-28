@@ -17,6 +17,10 @@ function initMap() {
           mapTypeId: "satellite",
      };
 
+
+     // Crear el mapa y establecerlo en el div con el id "gmp-map"
+     map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
+
      document.addEventListener( 'DOMContentLoaded', function () {
           // Asumiendo que 'map' es tu variable de mapa de Google Maps ya inicializada
           fetch( '/api/v1/qubo' ) // Asegúrate de que la URL es correcta
@@ -36,7 +40,7 @@ function initMap() {
                               infoBox.style.display = 'block';
                               const startDate = new Date( qubo.startDate );
                               const finishDate = new Date( qubo.finishDate );
-                              
+
                               infoBox.innerHTML = `
                          <div class='nameContainer'>
                          <p>${ qubo.category }</p>
@@ -52,47 +56,47 @@ function initMap() {
                          <p>Link: <a href="${ qubo.link }" target="_blank">${ qubo.link }</a></p>
                          <p>Anónimo: ${ qubo.anonymous ? "Sí" : "No" }</p>
                          <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                          <button id="delete-qubo" data-qubo-id="${qubo._id}">
+                          <button id="delete-qubo" data-qubo-id="${ qubo._id }">
                                         <img src='./assets/trash-can.svg'>
                                    </button>
                          `;
+
+
                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
                                    infoBox.style.display = "none";
                               } );
 
-                               // Evento para eliminar el Qubo
-                               document.getElementById("delete-qubo").addEventListener("click", async () => {
-                                   if (confirm("¿Estás seguro de que deseas eliminar este Qubo?")) {
+                              // Evento para eliminar el Qubo
+                              document.getElementById( "delete-qubo" ).addEventListener( "click", async () => {
+                                   if ( confirm( "¿Estás seguro de que deseas eliminar este Qubo?" ) ) {
                                         try {
-                                             const response = await fetch(`/api/v1/qubo/${qubo._id}`, {
+                                             const response = await fetch( `/api/v1/qubo/${ qubo._id }`, {
                                                   method: 'DELETE'
-                                             });
+                                             } );
 
-                                             if (response.ok) {
+                                             if ( response.ok ) {
                                                   // Eliminar el marcador del mapa
-                                                  marker.setMap(null);
+                                                  marker.setMap( null );
                                                   // Cerrar el infoBox
                                                   infoBox.style.display = "none";
                                                   // Mostrar mensaje de éxito
-                                                  alert("Qubo eliminado correctamente");
+                                                  alert( "Qubo eliminado correctamente" );
                                              } else {
                                                   const error = await response.json();
-                                                  throw new Error(error.message);
+                                                  throw new Error( error.message );
                                              }
-                                        } catch (error) {
-                                             console.error("Error al eliminar el Qubo:", error);
-                                             alert("Error al eliminar el Qubo: " + error.message);
+                                        } catch ( error ) {
+                                             console.error( "Error al eliminar el Qubo:", error );
+                                             alert( "Error al eliminar el Qubo: " + error.message );
                                         }
                                    }
-                              });
+                              } );
                          } );
                     } );
                } )
                .catch( error => console.error( 'Error al cargar los Qubos:', error ) );
      } );
 
-     // Crear el mapa y establecerlo en el div con el id "gmp-map"
-     map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
 
 
 
@@ -102,7 +106,8 @@ function initMap() {
 
 
 
-     
+
+
      // Define la URL de la imagen del icono personalizado
      const customIconUrl = "./assets/qubonegro.svg"; // Reemplaza con la URL de tu imagen
 
@@ -355,7 +360,7 @@ function initMap() {
           } );
 
           map.addListener( 'click', function ( event ) {
-               if ( isAddingQubo ) {
+               if ( isAddingQubo  ) {
                     const lat = event.latLng.lat();
                     const lng = event.latLng.lng();
                     console.log( "Latitud:", lat, "Longitud:", lng );
@@ -603,7 +608,7 @@ function initMap() {
      //                .then( response => response.json() )
      //                .then( data => {
      //                     console.log( 'Success:', data );
-                         
+
      //                     messageBox.innerHTML = `Qubo añadido con éxito!`; // Cambiando el contenido del messageBox
      //                     messageBox.style.display = 'block';
      //                     // Aquí puedes redireccionar al usuario o limpiar el formulario, etc.
@@ -612,7 +617,7 @@ function initMap() {
 
      //                     // Opcional: Limpiar el formulario
      //                     form.reset();
-                         
+
      //                     // setTimeout( () => {
      //                     //      messageBox.style.display = 'none';
      //                     // }, 8000 );
@@ -624,170 +629,173 @@ function initMap() {
      //      } );
      // } );
 
-     document.addEventListener('DOMContentLoaded', function() {
-          const form = document.getElementById('categoryForm');
-          const formContainer = document.querySelector('.form-container');
-          const messageBox = document.getElementById('messageBox');
-          const closeButton = document.getElementById('cerrar-form'); 
+     document.addEventListener( 'DOMContentLoaded', function () {
+          const form = document.getElementById( 'categoryForm' );
+          const formContainer = document.querySelector( '.form-container' );
+          const messageBox = document.getElementById( 'messageBox' );
+          const closeButton = document.getElementById( 'cerrar-form' );
           let currentMarker = null; // Variable para el marcador temporal
           let isAddingQubo = false; // Definimos la variable de control aquí
-          
+
           // Evento para el botón de añadir Qubo
-          const addQuboButton = document.getElementById('addQubo');
-          addQuboButton.addEventListener('click', function() {
+          const addQuboButton = document.getElementById( 'addQubo' );
+          addQuboButton.addEventListener( 'click', function () {
                isAddingQubo = true;
                messageBox.style.display = 'block';
                messageBox.innerHTML = 'Modo añadir Qubo activado, por favor haz clic en el mapa para seleccionar la ubicación.';
-          });
+          } );
+
 
           // Evento para el botón de cerrar formulario
-     closeButton.addEventListener('click', function() {
-          formContainer.classList.add('hidden');
-          messageBox.style.display = 'none';
-          // Eliminar el marcador temporal si existe
-          if (currentMarker) {
-               currentMarker.setMap(null);
-               currentMarker = null;
-          }
-          isAddingQubo = false; // Reseteamos el estado
-     });
-     
+          closeButton.addEventListener( 'click', function () {
+               formContainer.classList.add( 'hidden' );
+               messageBox.style.display = 'none';
+               // Eliminar el marcador temporal si existe
+               if ( currentMarker ) {
+                    currentMarker.setMap( null );
+                    currentMarker = null;
+               }
+               isAddingQubo = false; // Reseteamos el estado
+          } );
+
           // Evento click en el mapa
-          map.addListener('click', function(event) {
-               if (isAddingQubo) {
-                    if (currentMarker) {
-                         currentMarker.setMap(null);
+          map.addListener( 'click', function ( event ) {
+               if ( isAddingQubo ) {
+                    if ( currentMarker ) {
+                         currentMarker.setMap( null );
                     }
-                    currentMarker = new google.maps.Marker({
+                    currentMarker = new google.maps.Marker( {
                          position: event.latLng,
                          map: map,
                          icon: './assets/quboNeutro.svg'
-                    });
-                    
-                    document.getElementById('clickedLat').value = event.latLng.lat();
-                    document.getElementById('clickedLng').value = event.latLng.lng();
-                    
-                    formContainer.classList.remove('hidden');
+                    } );
+
+                    document.getElementById( 'clickedLat' ).value = event.latLng.lat();
+                    document.getElementById( 'clickedLng' ).value = event.latLng.lng();
+
+                    formContainer.classList.remove( 'hidden' );
                     messageBox.style.display = 'none';
                     isAddingQubo = false;
                }
-          });
-     
+          } );
+
           // Evento submit del formulario
-          form.addEventListener('submit', function(event) {
+          form.addEventListener( 'submit', function ( event ) {
                event.preventDefault();
-     
-               const startDate = new Date(document.getElementById('startDateTime').value);
-               const finishDate = new Date(document.getElementById('endDateTime').value);
-     
-               if (isNaN(startDate.valueOf()) || isNaN(finishDate.valueOf())) {
-                    alert('Please enter valid start and finish dates.');
+
+               const startDate = new Date( document.getElementById( 'startDateTime' ).value );
+               const finishDate = new Date( document.getElementById( 'endDateTime' ).value );
+
+               if ( isNaN( startDate.valueOf() ) || isNaN( finishDate.valueOf() ) ) {
+                    alert( 'Please enter valid start and finish dates.' );
                     return;
                }
-     
-               const formData = new FormData(form);
-     
-               fetch(form.action, {
+
+               const formData = new FormData( form );
+
+               fetch( form.action, {
                     method: 'POST',
                     body: formData
-               })
-                    .then(response => {
-                         if (!response.ok) {
-                              return response.text().then(text => {
-                                   throw new Error(`Error del servidor: ${text}`);
-                              });
+               } )
+                    .then( response => {
+                         if ( !response.ok ) {
+                              return response.text().then( text => {
+                                   throw new Error( `Error del servidor: ${ text }` );
+                              } );
                          }
                          return response.json();
-                    })
-                    .then(data => {
-                         console.log('Datos recibidos del servidor:', data);
-                         
+                    } )
+                    .then( data => {
+                         console.log( 'Datos recibidos del servidor:', data );
+
                          // Crear nuevo marcador con los datos recibidos
-                         const newMarker = new google.maps.Marker({
-                              position: { 
-                                   lat: parseFloat(data.latitude), // Usar los datos del servidor
-                                   lng: parseFloat(data.longitude) // Usar los datos del servidor
+                         const newMarker = new google.maps.Marker( {
+                              position: {
+                                   lat: parseFloat( data.latitude ), // Usar los datos del servidor
+                                   lng: parseFloat( data.longitude ) // Usar los datos del servidor
                               },
                               map: map,
                               title: data.title, // Usar el título del servidor
-                              icon: subcategoryIcons[data.subcategory] || './assets/quboNeutro.svg'
-                         });
-                    
+                              icon: subcategoryIcons[ data.subcategory ] || './assets/quboNeutro.svg'
+                         } );
+
                          // Añadir event listener al nuevo marcador usando la sintaxis correcta
-                         newMarker.addListener('click', function() {
-                              const infoBox = document.querySelector(".info-box");
+                         newMarker.addListener( 'click', function () {
+                              const infoBox = document.querySelector( ".info-box" );
                               infoBox.style.display = 'flex';
-                              
+
                               infoBox.innerHTML = `
                                    <div class='nameContainer'>
-                                        <p>${data.category}</p>
-                                        <p>${data.title}</p>
+                                        <p>${ data.category }</p>
+                                        <p>${ data.title }</p>
                                    </div>
                                    <div class='own'>
-                                        <img src='${data.img}'>
+                                        <img src='${ data.img }'>
                                    </div>
-                                   <p>Descripción: ${data.description}</p>
-                                   <p>Subcategoría: ${data.subcategory}</p>
-                                   <p>Fecha de inicio: ${new Date(data.startDate).toLocaleDateString()} a las ${new Date(data.startDate).toLocaleTimeString()}</p>
-                                   <p>Fecha de finalización: ${new Date(data.finishDate).toLocaleDateString()} a las ${new Date(data.finishDate).toLocaleTimeString()}</p>
-                                   <p>Link: <a href="${data.link}" target="_blank">${data.link}</a></p>
-                                   <p>Anónimo: ${data.anonymous ? "Sí" : "No"}</p>
+                                   <p>Descripción: ${ data.description }</p>
+                                   <p>Subcategoría: ${ data.subcategory }</p>
+                                   <p>Fecha de inicio: ${ new Date( data.startDate ).toLocaleDateString() } a las ${ new Date( data.startDate ).toLocaleTimeString() }</p>
+                                   <p>Fecha de finalización: ${ new Date( data.finishDate ).toLocaleDateString() } a las ${ new Date( data.finishDate ).toLocaleTimeString() }</p>
+                                   <p>Link: <a href="${ data.link }" target="_blank">${ data.link }</a></p>
+                                   <p>Anónimo: ${ data.anonymous ? "Sí" : "No" }</p>
                                    <button id="cerrar-info-box">
                                         <img src='./assets/botonCerrar.svg'>
                                    </button>
-                                   <button id="delete-qubo" data-qubo-id="${data._id}">
+                                   <button id="delete-qubo" data-qubo-id="${ data._id }">
                                         <img src='./assets/trash-can.svg'>
                                    </button>
                               `;
-                    
+
+
+
                               // Añadir event listener al botón de cerrar
-                              const cerrarBoton = document.getElementById("cerrar-info-box");
-                              cerrarBoton.addEventListener("click", () => {
+                              const cerrarBoton = document.getElementById( "cerrar-info-box" );
+                              cerrarBoton.addEventListener( "click", () => {
                                    infoBox.style.display = "none";
-                              });
-                    
+                              } );
+
                               // Añadir event listener al botón de eliminar
-                              const deleteButton = document.getElementById("delete-qubo");
-                              deleteButton.addEventListener("click", async () => {
-                                   if (confirm("¿Estás seguro de que deseas eliminar este Qubo?")) {
+                              const deleteButton = document.getElementById( "delete-qubo" );
+                              deleteButton.addEventListener( "click", async () => {
+                                   if ( confirm( "¿Estás seguro de que deseas eliminar este Qubo?" ) ) {
                                         try {
-                                             const response = await fetch(`/api/v1/qubo/${data._id}`, {
+                                             const response = await fetch( `/api/v1/qubo/${ data._id }`, {
                                                   method: 'DELETE'
-                                             });
-                    
-                                             if (response.ok) {
-                                                  newMarker.setMap(null);
+                                             } );
+
+                                             if ( response.ok ) {
+                                                  newMarker.setMap( null );
                                                   infoBox.style.display = "none";
-                                                  alert("Qubo eliminado correctamente");
+                                                  alert( "Qubo eliminado correctamente" );
                                              } else {
-                                                  throw new Error("Error al eliminar el Qubo");
+                                                  throw new Error( "Error al eliminar el Qubo" );
                                              }
-                                        } catch (error) {
-                                             console.error("Error:", error);
-                                             alert("Error al eliminar el Qubo");
+                                        } catch ( error ) {
+                                             console.error( "Error:", error );
+                                             alert( "Error al eliminar el Qubo" );
                                         }
                                    }
-                              });
-                         });
-                    
+                              } );
+                         } );
+
                          // Limpiar el formulario y mostrar mensaje de éxito
                          form.reset();
-                         formContainer.classList.add('hidden');
-                         
+                         formContainer.classList.add( 'hidden' );
+
                          messageBox.innerHTML = `Qubo añadido con éxito!`;
                          messageBox.style.display = 'flex';
-                         setTimeout(() => {
+                         setTimeout( () => {
                               messageBox.style.display = 'none';
-                         }, 3000);
-                    
+                         }, 3000 );
+
                          // Eliminar el marcador temporal
-                         if (currentMarker) {
-                              currentMarker.setMap(null);
+                         if ( currentMarker ) {
+                              currentMarker.setMap( null );
                               currentMarker = null;
                          }
-                    })
-          });
-     });
+                    } );
+          } );
+     } );
 
 
      //! Función para activar/desactivar barrios
@@ -803,7 +811,7 @@ function initMap() {
      // }
      // document.getElementById("toggleBarrios").addEventListener("click", toggleBarrios);
 
-    
+
      //! PRUEBA CON OTRO KML DE BARRIO
 
      // const barriosKmlUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Neighborhoods/Barrios2.kmz?sp=r&st=2024-03-19T17:54:24Z&se=2090-01-01T01:54:24Z&sv=2022-11-02&sr=b&sig=vpb7TFY02eM1%2Bb7ixsVEPQe7pt6dov0An3aNK%2BJCDw8%3D";
@@ -977,6 +985,7 @@ function initMap() {
      let kmlLayerWater = null; // Variable para mantener la capa KML
      let markersWater = []; // Array para almacenar los marcadores
      let waterVisible = false; // Bandera para el estado de visibilidad
+     let animatedWaterLines = [];
 
      const cargarMarcadoresWater = () => {
           fetch( waterDataUrl )
@@ -1046,25 +1055,90 @@ function initMap() {
                } );
      };
 
+     // Nueva función para crear línea de agua de prueba
+     function createTestWaterLine() {
+          const testCoordinates = [
+               { lat: 40.4165, lng: -3.7025 }, // Plaza Mayor
+               { lat: 40.4150, lng: -3.7147 }, // Puente de Segovia
+               { lat: 40.4130, lng: -3.7208 }, // Madrid Río
+               { lat: 40.4075, lng: -3.7236 }, // Matadero
+               { lat: 40.3983, lng: -3.7242 }  // Legazpi
+          ];
+
+          const waterPath = new google.maps.Polyline( {
+               path: testCoordinates,
+               geodesic: true,
+               strokeColor: '#08ecc4',
+               strokeOpacity: 0.8,
+               strokeWeight: 4,
+               icons: [ {
+                    icon: {
+                         path: 'M 0,-2 0,2',
+                         strokeColor: '#ffffff',
+                         strokeOpacity: 1,
+                         scale: 3
+                    },
+                    offset: '0',
+                    repeat: '20px'
+               } ],
+               map: map
+          } );
+
+          // Animar la línea
+          let count = 0;
+          window.setInterval( () => {
+               count = ( count + 1 ) % 200;
+               const icons = waterPath.get( 'icons' );
+               icons[ 0 ].offset = ( count / 2 ) + 'px';
+               waterPath.set( 'icons', icons );
+          }, 20 );
+
+          return waterPath;
+     }
+
+     // Event listener para el botón
      botonWater.addEventListener( 'click', () => {
-          // Alternar la visibilidad de los marcadores de Water
+          // Manejar marcadores existentes
           toggleMarcadores( markersWater, waterVisible );
-          waterVisible = !waterVisible; // Cambia la bandera de visibilidad
 
-          // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
-          if ( markersWater.length === 0 && waterVisible ) {
-               cargarMarcadoresWater();
-          }
+          if ( !waterVisible ) {
+               // Cargar marcadores si no existen
+               if ( markersWater.length === 0 ) {
+                    cargarMarcadoresWater();
+               }
 
-          // Alternar la visibilidad de la capa KML de Water
-          if ( kmlLayerWater ) {
-               kmlLayerWater.setMap( kmlLayerWater.getMap() ? null : map );
+               // Crear y mostrar la línea de prueba
+               const animatedLine = createTestWaterLine();
+               animatedWaterLines.push( animatedLine );
+
+               // Crear o mostrar la capa KML
+               if ( !kmlLayerWater ) {
+                    kmlLayerWater = new google.maps.KmlLayer( {
+                         url: canalMadrid,
+                         map: map,
+                         preserveViewport: true
+                    } );
+               } else {
+                    kmlLayerWater.setMap( map );
+               }
+
+               // Centrar el mapa en Madrid
+               map.setCenter( { lat: 40.4165, lng: -3.7025 } );
+               map.setZoom( 13 );
           } else {
-               kmlLayerWater = new google.maps.KmlLayer( {
-                    url: canalMadrid,
-                    map: map // Asegúrate de que 'map' es una referencia válida a tu instancia de Google Maps
+               // Ocultar las líneas animadas
+               animatedWaterLines.forEach( line => {
+                    if ( line ) line.setMap( null );
                } );
+
+               // Ocultar la capa KML
+               if ( kmlLayerWater ) {
+                    kmlLayerWater.setMap( null );
+               }
           }
+
+          waterVisible = !waterVisible;
+          document.getElementById( "toggleBarrios" ).classList.toggle( 'active' );
      } );
 
 
@@ -1089,14 +1163,15 @@ function initMap() {
      //* SEWAGE
 
      const sewageLayerUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Sewage/Sewage.kmz?sp=r&st=2024-06-09T18:27:56Z&se=2029-12-30T03:27:56Z&sv=2022-11-02&sr=b&sig=1gOMOStDlrl%2FWnbB1jf%2FOyJEjkGA%2FqJkAE4NCsyiAsc%3D";
-     const sewageDataUrl = `/api/proxy?url=${encodeURIComponent(
+     const sewageDataUrl = `/api/proxy?url=${ encodeURIComponent(
           "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Sewage/Fiware_Infrastrucutre_Sewage-00001?sp=r&st=2024-07-26T13:49:37Z&se=2090-01-01T22:49:37Z&sv=2022-11-02&sr=b&sig=BJE4RDiFv0hsozpEgXkY7%2FQXxtArJcdlmgsCnFN8i%2Fo%3D"
-     )}`;
+     ) }`;
      const botonSewage = document.getElementById( 'sewage-sub-nav-item' );
 
      let kmlLayerSewage = null; // Variable para mantener la capa KML
      let markersSewage = []; // Array para almacenar los marcadores
      let sewageVisible = false; // Bandera para el estado de visibilidad
+     let animatedSewageLines = [];
 
      const cargarMarcadoresSewage = () => {
           fetch( sewageDataUrl )
@@ -1164,37 +1239,114 @@ function initMap() {
                } );
      };
 
+     function createTestSewageLine() {
+          const diagonalCoordinates = [
+               { lat: 41.3918, lng: 2.1441 },  // Inicio cerca de Francesc Macià
+               { lat: 41.3925, lng: 2.1484 },  // Entorno de Pau Casals
+               { lat: 41.3944, lng: 2.1557 },  // Cerca de Passeig de Gràcia
+               { lat: 41.3976, lng: 2.1635 },  // Zona de Rambla de Catalunya
+               { lat: 41.4005, lng: 2.1738 },  // Alrededor de la Sagrada Familia
+               { lat: 41.4036, lng: 2.1824 },  // Plaça de les Glòries Catalanes
+               { lat: 41.4072, lng: 2.1905 },  // Próximo a Rambla Prim
+               { lat: 41.4102, lng: 2.2123 }   // Final en el Fórum
+          ];
+
+          const sewagePath = new google.maps.Polyline( {
+               path: diagonalCoordinates,
+               geodesic: true,
+               strokeColor: '#8B4513',  // Marrón más oscuro para la línea base
+               strokeOpacity: 1,        // Aumentada la opacidad
+               strokeWeight: 6,         // Aumentado el grosor
+               icons: [ {
+                    icon: {
+                         path: 'M 0,-2 0,2',
+                         strokeColor: '#D2691E',  // Marrón más claro para el efecto de movimiento
+                         strokeOpacity: 1,
+                         scale: 4                 // Aumentado el tamaño de los símbolos
+                    },
+                    offset: '0',
+                    repeat: '20px'
+               }, {
+                    // Segundo conjunto de símbolos para más efecto visual
+                    icon: {
+                         path: 'M 0,-1.5 0,1.5',
+                         strokeColor: '#A0522D',  // Marrón medio para variación
+                         strokeOpacity: 1,
+                         scale: 3
+                    },
+                    offset: '10px',
+                    repeat: '20px'
+               } ],
+               map: map
+          } );
+
+          // Animar la línea (igual que water)
+          let count = 0;
+          window.setInterval( () => {
+               count = ( count + 1 ) % 200;
+               const icons = sewagePath.get( 'icons' );
+               icons[ 0 ].offset = ( count / 2 ) + 'px';
+               icons[ 1 ].offset = ( ( count / 2 ) + 10 ) + 'px';  // Offset diferente para el segundo icono
+               sewagePath.set( 'icons', icons );
+          }, 20 );
+
+          return sewagePath;
+     }
+     // Event listener modificado para el botón
      botonSewage.addEventListener( 'click', () => {
+          // Manejar la capa KML
           if ( kmlLayerSewage ) {
-               // Si la capa KML ya existe, alternar su visibilidad
                kmlLayerSewage.setMap( kmlLayerSewage.getMap() ? null : map );
           } else {
-               // Si la capa KML no existe, crearla y añadirla al mapa
                kmlLayerSewage = new google.maps.KmlLayer( {
                     url: sewageLayerUrl,
-                    map: map // Asegúrate de que 'map' es una referencia válida a tu instancia de Google Maps
+                    map: map,
+                    preserveViewport: true
                } );
           }
 
-          // Alternar la visibilidad de los marcadores de Sewage
+          // Manejar los marcadores
           toggleMarcadores( markersSewage, sewageVisible );
-          sewageVisible = !sewageVisible; // Cambia la bandera de visibilidad
 
-          // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
-          if ( markersSewage.length === 0 && sewageVisible ) {
-               cargarMarcadoresSewage();
+          if ( !sewageVisible ) {
+               // Cargar marcadores si no existen
+               if ( markersSewage.length === 0 ) {
+                    cargarMarcadoresSewage();
+               }
+
+               // Crear y mostrar la línea animada
+               const animatedLine = createTestSewageLine();
+               animatedSewageLines.push( animatedLine );
+
+               // Centrar el mapa en Barcelona
+               map.setCenter( { lat: 41.3935, lng: 2.1527 } );
+               map.setZoom( 13 );
+          } else {
+               // Ocultar las líneas animadas
+               animatedSewageLines.forEach( line => {
+                    if ( line ) line.setMap( null );
+               } );
           }
+
+          sewageVisible = !sewageVisible;
      } );
 
 
      //* INTERNET
 
-     const internetApiUrl = `/api/proxy?url=${encodeURIComponent(
+     //* INTERNET
+     const internetApiUrl = `/api/proxy?url=${ encodeURIComponent(
           "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Internet/Fiware_Infrastructure_Internet-00001?sp=r&st=2024-07-26T13:38:02Z&se=2090-01-01T22:38:02Z&sv=2022-11-02&sr=b&sig=QEN2zLfP7J7RqY%2BDZlR%2BO5ggA0RVSGBdkGMMl4nOsRM%3D"
-     )}`;
+     ) }`;
+
+     const fiberOpticUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Internet/Fiber%20Optic%20Coverage%20in%20Europe.kmz?sp=r&st=2025-01-28T17:43:08Z&se=2090-01-29T01:43:08Z&sv=2022-11-02&sr=b&sig=9B2TfJ%2BKzrs71jAu6cWKG02oQg2neV47d%2BQ7UR%2BUDws%3D";
+
+     let kmlLayerFiberOptic = null;
+     let markersInternet = [];
+     let internetVisible = false;
 
      const cargarMarcadoresInternet = () => {
-          fetch (internetApiUrl )
+          fetch( internetApiUrl )
                .then( response => {
                     if ( response.ok ) {
                          return response.json();
@@ -1236,22 +1388,22 @@ function initMap() {
 
                                    infoBox.style.display = "flex";
                                    infoBox.innerHTML = `
-                              <div class='nameContainer'> 
-                                   <p>${ type }</p> 
-                                  <p>${ name }</p>
-                              </div>
-                              <img src='./assets/staticInternet.jpg'>
-                              <p>${ description }</p>
-                              <p>Localización: ${ addressCountry }, ${ addressRegion }</p>
-                              <p>ID: ${ id }</p>
-                              <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
-                              <button id="cerrar-info-box">
-                                  <img src='./assets/botonCerrar.svg'>
-                              </button>
-                              <button class='share'>
-                                  <img src='./assets/shareIcon.svg'>
-                              </button>
-                              `;
+                             <div class='nameContainer'> 
+                                 <p>${ type }</p> 
+                                 <p>${ name }</p>
+                             </div>
+                             <img src='./assets/staticInternet.jpg'>
+                             <p>${ description }</p>
+                             <p>Localización: ${ addressCountry }, ${ addressRegion }</p>
+                             <p>ID: ${ id }</p>
+                             <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
+                             <button id="cerrar-info-box">
+                                 <img src='./assets/botonCerrar.svg'>
+                             </button>
+                             <button class='share'>
+                                 <img src='./assets/shareIcon.svg'>
+                             </button>
+                         `;
 
                                    const cerrarBoton = document.getElementById( "cerrar-info-box" );
                                    cerrarBoton.addEventListener( "click", () => {
@@ -1259,7 +1411,7 @@ function initMap() {
                                    } );
                               } );
 
-                              markersInternet.push( marker ); // Añade el marcador al array de parques y jardines
+                              markersInternet.push( marker );
                          }
                     } );
                } )
@@ -1269,19 +1421,139 @@ function initMap() {
      };
 
      const eventInternet = document.getElementById( "internet-sub-nav-item" );
-     let markersInternet = []; // Array para almacenar los marcadores de parques y jardines
-     let internetVisible = false; // Bandera para el estado de visibilidad
 
      eventInternet.addEventListener( "click", () => {
-          // Alternar la visibilidad de los marcadores de parques y jardines
+          // Manejar los marcadores existentes
           toggleMarcadores( markersInternet, internetVisible );
-          internetVisible = !internetVisible; // Cambia la bandera de visibilidad
 
-          // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
-          if ( markersInternet.length === 0 && internetVisible ) {
-               cargarMarcadoresInternet();
+          if ( !internetVisible ) {
+               // Cargar marcadores si no existen
+               if ( markersInternet.length === 0 ) {
+                    cargarMarcadoresInternet();
+               }
+
+               // Crear o mostrar la capa KML
+               if ( !kmlLayerFiberOptic ) {
+                    kmlLayerFiberOptic = new google.maps.KmlLayer( {
+                         url: fiberOpticUrl,
+                         map: map,
+                         preserveViewport: false,
+                         // clickable: false 
+                    } );
+
+                    kmlLayerFiberOptic.addListener( 'metadata_changed', function () {
+                         console.log( "Metadata changed" );
+                         map.setZoom( 6 ); // Forzamos un zoom específico
+                    } );
+               } else {
+                    kmlLayerFiberOptic.setMap( map );
+                    map.setZoom( 6 ); // Mismo zoom cuando se vuelve a mostrar
+               }
+          } else {
+               // Ocultar la capa KML
+               if ( kmlLayerFiberOptic ) {
+                    kmlLayerFiberOptic.setMap( null );
+               }
           }
+
+          internetVisible = !internetVisible;
      } );
+
+     // const internetApiUrl = `/api/proxy?url=${ encodeURIComponent(
+     //      "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Internet/Fiware_Infrastructure_Internet-00001?sp=r&st=2024-07-26T13:38:02Z&se=2090-01-01T22:38:02Z&sv=2022-11-02&sr=b&sig=QEN2zLfP7J7RqY%2BDZlR%2BO5ggA0RVSGBdkGMMl4nOsRM%3D"
+     // ) }`;
+
+     // const fiberOpticUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Internet/Fiber%20Optic%20Coverage%20in%20Europe.kmz?sp=r&st=2025-01-28T17:43:08Z&se=2090-01-29T01:43:08Z&sv=2022-11-02&sr=b&sig=9B2TfJ%2BKzrs71jAu6cWKG02oQg2neV47d%2BQ7UR%2BUDws%3D";
+
+     // const cargarMarcadoresInternet = () => {
+     //      fetch( internetApiUrl )
+     //           .then( response => {
+     //                if ( response.ok ) {
+     //                     return response.json();
+     //                } else {
+     //                     throw new Error( "La solicitud no fue exitosa" );
+     //                }
+     //           } )
+     //           .then( data => {
+     //                const markersData = data.wifipointofinterest0001;
+
+     //                markersData.forEach( item => {
+     //                     const {
+     //                          ubicacion,
+     //                          id,
+     //                          name,
+     //                          type,
+     //                          description,
+     //                          streetAddress,
+     //                          postalCode,
+     //                          addressLocality,
+     //                          addressRegion,
+     //                          addressCountry,
+     //                          neighborhood,
+     //                          district,
+     //                          source,
+     //                          owner
+     //                     } = parseFiwareData( item );
+
+     //                     if ( ubicacion && name ) {
+     //                          const marker = new google.maps.Marker( {
+     //                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+     //                               map: map,
+     //                               title: name,
+     //                               icon: "./assets/internetQubo.svg",
+     //                          } );
+
+     //                          marker.addListener( "click", () => {
+     //                               const infoBox = document.querySelector( ".info-box" );
+
+     //                               infoBox.style.display = "flex";
+     //                               infoBox.innerHTML = `
+     //                          <div class='nameContainer'> 
+     //                               <p>${ type }</p> 
+     //                              <p>${ name }</p>
+     //                          </div>
+     //                          <img src='./assets/staticInternet.jpg'>
+     //                          <p>${ description }</p>
+     //                          <p>Localización: ${ addressCountry }, ${ addressRegion }</p>
+     //                          <p>ID: ${ id }</p>
+     //                          <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
+     //                          <button id="cerrar-info-box">
+     //                              <img src='./assets/botonCerrar.svg'>
+     //                          </button>
+     //                          <button class='share'>
+     //                              <img src='./assets/shareIcon.svg'>
+     //                          </button>
+     //                          `;
+
+     //                               const cerrarBoton = document.getElementById( "cerrar-info-box" );
+     //                               cerrarBoton.addEventListener( "click", () => {
+     //                                    infoBox.style.display = "none";
+     //                               } );
+     //                          } );
+
+     //                          markersInternet.push( marker ); // Añade el marcador al array de parques y jardines
+     //                     }
+     //                } );
+     //           } )
+     //           .catch( error => {
+     //                console.error( "Hubo un problema con la solicitud:", error );
+     //           } );
+     // };
+
+     // const eventInternet = document.getElementById( "internet-sub-nav-item" );
+     // let markersInternet = []; // Array para almacenar los marcadores de parques y jardines
+     // let internetVisible = false; // Bandera para el estado de visibilidad
+
+     // eventInternet.addEventListener( "click", () => {
+     //      // Alternar la visibilidad de los marcadores de parques y jardines
+     //      toggleMarcadores( markersInternet, internetVisible );
+     //      internetVisible = !internetVisible; // Cambia la bandera de visibilidad
+
+     //      // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
+     //      if ( markersInternet.length === 0 && internetVisible ) {
+     //           cargarMarcadoresInternet();
+     //      }
+     // } );
 
      //* ---------------------------------------------------------------------------------
      //* LÍNEAS METRO MADRID 
@@ -1583,9 +1855,9 @@ function initMap() {
      const kmlIncidenciasViaPublicaUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Incidencias%20Via%20Publica.kml?sp=r&st=2024-03-19T21:30:08Z&se=2090-01-01T05:30:08Z&sv=2022-11-02&sr=b&sig=KpdNugI91fHozgP79RHLCDrrygV5Ge22KOgoGSD79Cg%3D";
 
      // URL de la API de alertas de movilidad
-     const urlAlertsMobility = `/api/proxy?url=${encodeURIComponent(
+     const urlAlertsMobility = `/api/proxy?url=${ encodeURIComponent(
           "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Mobility%20Incidences/Fiware_Incidences_Mobility?sp=r&st=2024-07-26T13:05:48Z&se=2090-01-01T22:05:48Z&sv=2022-11-02&sr=b&sig=1XeWef46jcbbCgOKIPGENLNDuTAOqDjfq%2Fr3p59BT5A%3D"
-     )}`;
+     ) }`;
 
      // Botón de alertas de movilidad
      const botonAlertsMobility = document.getElementById( 'alerts-mobility-nav-item' );
@@ -1686,6 +1958,12 @@ function initMap() {
                cargarMarcadoresAlertsMobility(); // Llama a la función para cargar los marcadores de alertas de movilidad
           }
      } );
+
+     //* BOTÓN INCIDENCES SECURITY (CRIME ZONES) 
+
+
+
+
 
      //* ---------------------------------------------------------------------------------
      //* CÁMARAS DE TRÁFICO MADRID
@@ -1795,9 +2073,9 @@ function initMap() {
 
      //! Función para mostrar PARKS&GARDENS
 
-     const parksGardensApiUrl = `/api/proxy?url=${encodeURIComponent(
+     const parksGardensApiUrl = `/api/proxy?url=${ encodeURIComponent(
           "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Parks%20%26%20Gardens/Fiware_EnvAndSust_ParksAndGardens-00001?sp=r&st=2024-06-02T17:13:28Z&se=2090-01-01T02:13:28Z&sv=2022-11-02&sr=b&sig=XBdhgow87NphHa30BQWyt%2Bc%2FJsUyjU%2FXEVZuy9L12t8%3D"
-     )}`;
+     ) }`;
 
      const cargarMarcadoresParksGardens = () => {
           fetch( parksGardensApiUrl )
@@ -1921,9 +2199,9 @@ function initMap() {
      //! BOTÓN ENVIRONMENT
 
      // URL para el marcador de Air Quality Stations
-     const urlMarkerAirQuality = `/api/proxy?url=${encodeURIComponent(
+     const urlMarkerAirQuality = `/api/proxy?url=${ encodeURIComponent(
           "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Environment/Fiware_EnvAndSust_AirQualityStations-00001?sp=r&st=2024-04-01T12:52:31Z&se=2090-01-01T21:52:31Z&sv=2022-11-02&sr=b&sig=nykV2ypz1eiG3UtGZqKX%2B4M9aFzAayeAmI6Id42pg4w%3D"
-     )}`;
+     ) }`;
 
      // URL de la capa KML de residuos peligrosos
      const urlKmlResiduosPeligrosos = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Environment/Residuos_Peligrosos._Comunidad_de_Madrid..kml?sp=r&st=2024-03-19T21:58:39Z&se=2090-01-01T05:58:39Z&sv=2022-11-02&sr=b&sig=YholeRFpXhE%2B1Iwe3I0rILPDtAG0WD6qI2OUbZ6RokU%3D";
@@ -2027,17 +2305,17 @@ function initMap() {
      const urlReciclyingKML = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Residuos_Peligrosos._Comunidad_de_Madrid..kmz?sp=r&st=2024-04-01T13:39:06Z&se=2090-01-01T22:39:06Z&sv=2022-11-02&sr=b&sig=nzI8YMrIg%2BgJYXrMibgVTbxyFlkeVMefY55z8yyrAFc%3D";
 
      // URLs con proxy para los datos de puntos de reciclaje
-const urlWasteFixedPoints = `/api/proxy?url=${encodeURIComponent(
-     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_WasteFixedPoints-00001?sp=r&st=2024-06-02T18:30:56Z&se=2090-01-01T03:30:56Z&sv=2022-11-02&sr=b&sig=a71C%2Bbr30XCf7IXi2IuKVgW6rIiuY4Yy%2BFpCX5s21XA%3D"
-)}`;
+     const urlWasteFixedPoints = `/api/proxy?url=${ encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_WasteFixedPoints-00001?sp=r&st=2024-06-02T18:30:56Z&se=2090-01-01T03:30:56Z&sv=2022-11-02&sr=b&sig=a71C%2Bbr30XCf7IXi2IuKVgW6rIiuY4Yy%2BFpCX5s21XA%3D"
+     ) }`;
 
-const urlWasteMobilePoints = `/api/proxy?url=${encodeURIComponent(
-     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_WasteCleanMobilePoints-00001?sp=r&st=2024-06-02T18:30:23Z&se=2090-01-01T03:30:23Z&sv=2022-11-02&sr=b&sig=NJdkk6KkezyNPI2YvEhkzciBclrLL%2BTT%2FXfreIWEL10%3D"
-)}`;
+     const urlWasteMobilePoints = `/api/proxy?url=${ encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_WasteCleanMobilePoints-00001?sp=r&st=2024-06-02T18:30:23Z&se=2090-01-01T03:30:23Z&sv=2022-11-02&sr=b&sig=NJdkk6KkezyNPI2YvEhkzciBclrLL%2BTT%2FXfreIWEL10%3D"
+     ) }`;
 
-const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
-     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_ClothesRecycling-00001?sp=r&st=2024-06-02T18:27:06Z&se=2090-01-01T03:27:06Z&sv=2022-11-02&sr=b&sig=7P05HcKHRmT23shU0gVz%2BNcveL8SHWsk%2FZgriUKfe6w%3D"
-)}`;
+     const urlClothesRecycling = `/api/proxy?url=${ encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_ClothesRecycling-00001?sp=r&st=2024-06-02T18:27:06Z&se=2090-01-01T03:27:06Z&sv=2022-11-02&sr=b&sig=7P05HcKHRmT23shU0gVz%2BNcveL8SHWsk%2FZgriUKfe6w%3D"
+     ) }`;
      // const urlRecyclingContainers = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Recycling/Fiware_EnvAndSust_RecyclingContainers?sp=r&st=2024-06-02T18:29:14Z&se=2090-01-01T03:29:14Z&sv=2022-11-02&sr=b&sig=KHQi1VWqqEM%2Ffo7RoS8Mltd3zvWvhmdpo8xzepYh55M%3D";
 
      let kmlLayerRecycling = null;
@@ -2233,7 +2511,7 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
      }
 
      function cargarMarcadoresClothesRecycling() {
-          
+
           fetch( urlClothesRecycling )
                .then( response => response.json() )
                .then( data => {
@@ -2522,13 +2800,13 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
           { lat: 40.41634766873914, lng: -3.6600387459850556 },
      ];
 
-     
+
 
      // ! Botón para STTREETLIGHTS
      function cargarMarcadoresStreetlights() {
-          const urlStreetlights = `/api/proxy?url=${encodeURIComponent(
+          const urlStreetlights = `/api/proxy?url=${ encodeURIComponent(
                "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Streetlights/Fiware_EnvAndSust_Streetlights?sp=r&st=2024-06-02T18:39:47Z&se=2090-01-01T03:39:47Z&sv=2022-11-02&sr=b&sig=TfxEOSZ19Sp0%2BQFAg3AmmlIXUmkI1DX3JZfEjGH56gA%3D"
-          )}`;
+          ) }`;
 
           fetch( urlStreetlights )
                .then( response => response.json() )
@@ -2603,15 +2881,15 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
                cargarMarcadoresStreetlights();
           }
      } );
-    
+
      //! Botón ENERGY&EFFICIENCY
      // Función para cargar y mostrar marcadores de eficiencia energética
      const cargarYMostrarMarcadoresEnergiaEficiencia = async () => {
           try {
 
-               const urlEnergyEfficiency = `/api/proxy?url=${encodeURIComponent(
+               const urlEnergyEfficiency = `/api/proxy?url=${ encodeURIComponent(
                     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Energy%20Efficiency/Fiware_EnvAndSust_BuildingsEnergyEfficiency.json?sp=r&st=2024-01-04T16:17:19Z&se=2090-01-01T00:17:19Z&sv=2022-11-02&sr=b&sig=w%2B2x10PtsIkypmzPvwFSe0ZSOmVgBFy%2FsYlbf1ICgV4%3D"
-               )}`;
+               ) }`;
                const response = await fetch( urlEnergyEfficiency );
                const data = await response.json();
 
@@ -2681,9 +2959,9 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
      let marcadoresCamarasBarcelona = [];
      // Función modificada para crear marcadores de cámaras de Barcelona
      function crearMarcadoresCamarasBarcelona() {
-          const urlCamarasBarcelona = `/api/proxy?url=${encodeURIComponent(
+          const urlCamarasBarcelona = `/api/proxy?url=${ encodeURIComponent(
                "https://opendata-ajuntament.barcelona.cat/data/api/action/datastore_search?resource_id=cd1957a6-a06e-4a90-80bb-83e0e4c2d6e9&limit=5"
-          )}`;
+          ) }`;
           return fetch( urlCamarasBarcelona )
                .then( response => response.json() )
                .then( data => {
@@ -2728,9 +3006,9 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
      let marcadoresCamarasValencia = [];
      // Paso 2: Función modificada para crear marcadores de cámaras de Valencia
      function crearMarcadoresCamarasValencia() {
-          const urlCamarasValencia = `/api/proxy?url=${encodeURIComponent(
+          const urlCamarasValencia = `/api/proxy?url=${ encodeURIComponent(
                "https://valencia.opendatasoft.com/api/explore/v2.1/catalog/datasets/cameres-trafic-camaras-trafico/records?limit=20"
-          )}`;
+          ) }`;
           return fetch( urlCamarasValencia )
                .then( response => response.json() )
                .then( data => {
@@ -3012,7 +3290,7 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
      } );
 
      //!Función para Marcadores VTC's
-    
+
      function iniciarMovimientoMarcadorVTC( marker, coordinates, interval, isGeoJSON = false ) {
           let index = 0;
           const totalCoords = coordinates.length;
@@ -3393,7 +3671,7 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
 
           // Función para obtener las coordenadas del scooter sharing de la API y mover el marcador
           function obtenerYmoverScooter() {
-               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
                fetch( proxyUrl )
                     .then( response => {
                          if ( !response.ok ) {
@@ -3640,7 +3918,7 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
 
           // Función para obtener las coordenadas del autobús de la API y mover el marcador
           function obtenerYmoverAutobus() {
-               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
                fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
@@ -3888,9 +4166,9 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
                return;
           }
 
-          const proxyUrl = `/api/proxy?url=${encodeURIComponent('https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bus/Fiware_Mobility_Bus-00001?sp=r&st=2024-07-26T14:51:30Z&se=2089-12-31T23:51:30Z&sv=2022-11-02&sr=b&sig=eHtTxA7TYtGCSrPkSrGqyCsi7viqFfMjPywNvVsJSdM%3D')}`;
+          const proxyUrl = `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Bus/Fiware_Mobility_Bus-00001?sp=r&st=2024-07-26T14:51:30Z&se=2089-12-31T23:51:30Z&sv=2022-11-02&sr=b&sig=eHtTxA7TYtGCSrPkSrGqyCsi7viqFfMjPywNvVsJSdM%3D' ) }`;
 
-          fetch(proxyUrl )
+          fetch( proxyUrl )
                .then( response => response.json() )
                .then( data => {
                     data.publictransportstop0001.slice( 0, 200 ).forEach( item => {
@@ -3947,7 +4225,7 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
                marcadoresRutas[ rutaId ].marker.setMap( null );
                delete marcadoresRutas[ rutaId ];
           } else {
-               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
                // Si no existe, crear un nuevo marcador
                fetch( proxyUrl )
                     .then( response => response.json() )
@@ -4046,7 +4324,7 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
           } );
 
           function obtenerYmoverAvion() {
-               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
                fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
@@ -4162,7 +4440,7 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
           } );
 
           function obtenerYmoverHelicoptero() {
-               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
                fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
@@ -4381,7 +4659,7 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
 
           // Función para obtener las coordenadas de la ambulancia de la API y mover el marcador
           function obtenerYmoverAmbulancia() {
-               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
                fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
@@ -4545,7 +4823,7 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
           } );
 
           function obtenerYmoverShips() {
-               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
                fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
@@ -4649,7 +4927,7 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
           } );
 
           function obtenerYmoverTruck() {
-               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
                fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
@@ -4799,7 +5077,7 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
           } );
 
           function obtenerYmoverTracking() {
-               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
                fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
@@ -4887,7 +5165,7 @@ const urlClothesRecycling = `/api/proxy?url=${encodeURIComponent(
 
           // Función para obtener las coordenadas del paquete de la API y mover el marcador
           function obtenerYmoverPack() {
-               const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
                fetch( proxyUrl )
                     .then( response => {
                          if ( !response.ok ) {
@@ -5777,7 +6055,9 @@ eventHospitals.addEventListener( "click", () => {
 //! Función para mostrar OPTICS, DENTISTIS ETC
 
 // function cargarMarcadoresOpticsDentists() {
-//      fetch('https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Optics%2C%20Dentists%2C%20etc/Fiware_Health_DentistsOpticsEtc-00001?sp=r&st=2024-06-02T10:05:50Z&se=2090-01-01T19:05:50Z&sv=2022-11-02&sr=b&sig=VS7OweuOhqFPf1Axhuy%2FHBnBbNoQRM7LHkAlPJQg%2Fq4%3D')
+//      const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Optics%2C%20Dentists%2C%20etc/Fiware_Health_DentistsOpticsEtc-00001?sp=r&st=2024-06-02T10:05:50Z&se=2090-01-01T19:05:50Z&sv=2022-11-02&sr=b&sig=VS7OweuOhqFPf1Axhuy%2FHBnBbNoQRM7LHkAlPJQg%2Fq4%3D";
+//      const proxyUrl = `/api/proxy?url=${encodeURIComponent(endpoint)}`;
+//      fetch(proxyUrl)
 //      .then( response => response.json())
 //      .then( data => {
 //           data.buildings0011.forEach( item => {
@@ -5841,6 +6121,53 @@ eventHospitals.addEventListener( "click", () => {
 //           cargarMarcadoresOpticsDentists(); // Llama a la función para cargar los marcadores de parcelas
 //      }
 // } );
+
+
+//! Función para mostrar VIRUUS HAZARD
+
+
+const virusHazardKmlUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Virus%20Hazard/COVID_19_Case_Rate_Per_Zip_Code_without_Long_Term_Care_Facility_Cases_in_Jefferson_County_2C_KY.kml?sp=r&st=2025-01-26T22:02:42Z&se=2090-01-27T06:02:42Z&sv=2022-11-02&sr=b&sig=qer4d%2Bv8oI16lTYp5hC5hLiAje98XThj3xKbPqzjUaY%3D";
+
+let kmlLayerVirusHazard = null;
+let virusHazardVisible = false;
+
+function toggleVirusHazard() {
+     if ( !kmlLayerVirusHazard ) {
+          kmlLayerVirusHazard = new google.maps.KmlLayer( {
+               url: virusHazardKmlUrl,
+               map: map,
+               preserveViewport: false // Cambiado a false para permitir el zoom automático
+          } );
+
+          // Añadir listener para cuando el KML termine de cargar
+          google.maps.event.addListenerOnce( kmlLayerVirusHazard, 'defaultviewport_changed', () => {
+               // Obtener los límites del KML y centrar el mapa
+               const bounds = kmlLayerVirusHazard.getDefaultViewport();
+               map.fitBounds( bounds );
+               map.setZoom( map.getZoom() - 1 ); // Ajustar el zoom un nivel para mejor vista
+          } );
+     } else {
+          kmlLayerVirusHazard.setMap( kmlLayerVirusHazard.getMap() ? null : map );
+          if ( !kmlLayerVirusHazard.getMap() ) {
+               // Si se está ocultando la capa, volver a la vista de Madrid
+               map.setCenter( { lat: 40.4168, lng: -3.7038 } );
+               map.setZoom( 13 );
+          } else {
+               // Si se está mostrando de nuevo, volver a centrar en la zona del KML
+               const bounds = kmlLayerVirusHazard.getDefaultViewport();
+               map.fitBounds( bounds );
+               map.setZoom( map.getZoom() - 1 );
+          }
+     }
+
+     virusHazardVisible = !virusHazardVisible;
+     document.getElementById( "virus-hazard-nav-item" ).classList.toggle( 'active' );
+}
+
+// Event listener para el botón
+document.getElementById( "virus-hazard-nav-item" ).addEventListener( "click", toggleVirusHazard );
+
+
 
 //! Función para mostrar PHARMACY
 const cargarMarcadoresFarmacias = () => {
@@ -7738,7 +8065,7 @@ document.addEventListener( "DOMContentLoaded", () => {
                textElement.style.color = color;
           } );
      }
-     
+
 
 
      // Evento para cambiar a "Mapa" (2D)
