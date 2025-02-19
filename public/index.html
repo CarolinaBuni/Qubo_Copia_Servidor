@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
    <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="description" content="Qubo City es una aplicación web que permite a los usuarios agregar y compartir información sobre ubicaciones y eventos en tu ciudad. Con Qubo City, puedes agregar información sobre edificios, infraestructuras, servicios, eventos y más, y compartirla con otros usuarios. Además, puedes buscar información sobre ubicaciones y eventos en tu ciudad, y ver las ubicaciones y eventos de otras ciudades. ">
       <title>QUBO CITY</title>
       <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
       <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=&v=weekly&libraries=places&callback=initMap" defer></script> -->
@@ -14,23 +15,61 @@
          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCB-JwjJiauGErvF0S2_2ada4uVkShE7hE&callback=initMap&libraries=places&v=weekly"
          defer
       ></script>
+      
       <!-- Script para ChatGPT -->
       <script>
          window.__ow = window.__ow || {};
          window.__ow.organizationId = "312e0c2a-62a4-47a3-8814-73bb9ad55dec";
          window.__ow.integration_name = "manual_settings";
          window.__ow.product_name = "openwidget";
-         ;(function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n)}var e={_q:[],_h:null,_v:"2.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[OpenWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.openwidget.com/openwidget.js",t.head.appendChild(n)}};!n.__ow.asyncInit&&e.init(),n.OpenWidget=n.OpenWidget||e}(window,document,[].slice))
-       </script>
+         window.__ow.config = {
+            position: 'left-bottom',  // Añade esta línea
+            offset: {
+                left: '20px',         // Y estas líneas
+                bottom: '20px'
+            }
+        };
+         (function (n, t, c) {
+            function i(n) {
+               return e._h ? e._h.apply(null, n) : e._q.push(n);
+            }
+            var e = {
+               _q: [],
+               _h: null,
+               _v: "2.0",
+               on: function () {
+                  i(["on", c.call(arguments)]);
+               },
+               once: function () {
+                  i(["once", c.call(arguments)]);
+               },
+               off: function () {
+                  i(["off", c.call(arguments)]);
+               },
+               get: function () {
+                  if (!e._h) throw new Error("[OpenWidget] You can't use getters before load.");
+                  return i(["get", c.call(arguments)]);
+               },
+               call: function () {
+                  i(["call", c.call(arguments)]);
+               },
+               init: function () {
+                  var n = t.createElement("script");
+                  (n.async = !0),
+                     (n.type = "text/javascript"),
+                     (n.src = "https://cdn.openwidget.com/openwidget.js"),
+                     t.head.appendChild(n);
+               },
+            };
+            !n.__ow.asyncInit && e.init(), (n.OpenWidget = n.OpenWidget || e);
+         })(window, document, [].slice);
+      </script>
       <script src="https://cdn.rawgit.com/geocodezip/geoxml3/master/polys/geoxml3.js"></script>
 
       <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHSoLX8q5P986T2HReR8paHuCAsssqK-g&callback=initMap&libraries=&v=weekly" defer></script> -->
 
-
       <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9GPOoKpMcA4u-8uq0SgE8IIBH5C7XuGE-g&callback=initMap&libraries=&v=weekly" defer></script> -->
-
-     
-
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
       <link rel="stylesheet" href="./style.css" />
       <link rel="shortcut icon" href="./assets/icon-logo.svg" type="image/x-icon" />
    </head>
@@ -49,12 +88,12 @@
             </li>
             <li id="buttonSatelliteDetails">
                <div class="img-container">
-                   <img src="./assets/satellite1.svg" alt="button-satellite-details" />
+                  <img src="./assets/satellite1.svg" alt="button-satellite-details" />
                </div>
                <div class="button-title-container">
-                   <p>Detalles</p>
+                  <p>Detalles</p>
                </div>
-           </li>
+            </li>
             <li id="button3d">
                <div class="img-container">
                   <img src="./assets/button3dMap.svg" alt="button-3dmap" />
@@ -63,9 +102,6 @@
                   <p>3D Map</p>
                </div>
             </li>
-
-           
-
             <li id="button2d">
                <div class="img-container">
                   <img src="./assets/button2dMap.svg" alt="button-2dmap" />
@@ -236,6 +272,7 @@
       <div class="info-box-trucks info-box"></div>
       <div class="info-box-tracking info-box"></div>
       <div class="info-box-pack-location info-box"></div>
+      <div class="info-box-trucks-dinamicos" style="display: none"></div>
 
       <div class="nav-container">
          <nav class="nav-bar barra" id="nav-bar">
@@ -420,7 +457,7 @@
                   <span><br />E-Car<br />Stations</span>
                </a>
             </li>
-            <li>
+            <li id="car-sharing-sub-nav-item">
                <a href="#">
                   <img class="bar-buttons subLevel" src="./assets/iconCarSharing.svg" alt="Icon Car Sharing" />
                   <span><br />Car<br />Sharing</span>
@@ -935,6 +972,17 @@
             <img class="cerrar" src="./assets/minimize 3.svg" data-target="barra-alerts" alt="" />
          </ul>
       </div>
+      <!-- El iframe con el widget premade -->
+      <!-- Añade esto donde quieras que aparezca el chat -->
+      <div id="discord-widget" class="discord-widget">
+        
+         <!-- <a href="https://discord.gg/EmdTVnpc" target="_blank" class="discord-join-button">
+      
+            Unirse al Canal de Soporte
+         </a> -->
+      </div>
+
+      <!-- Botón fuera del iframe para redirigir al canal de Discord -->
 
       <div id="gmp-map"></div>
       <script src="./app.js"></script>

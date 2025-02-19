@@ -22,9 +22,19 @@ function initMap() {
      map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
 
      document.addEventListener( 'DOMContentLoaded', function () {
-          // Asumiendo que 'map' es tu variable de mapa de Google Maps ya inicializada
-          fetch( '/api/v1/qubo' ) // Asegúrate de que la URL es correcta
-               .then( response => response.json() )
+          // Fetch con autorización
+          fetch( '/api/v1/qubo', {
+               headers: {
+                    'Authorization': 'Bearer test123'
+               }
+          } )
+               .then( response => {
+                    if ( !response.ok ) {
+                         window.location.href = 'https://google.com';
+                         throw new Error( 'Token no válido' );
+                    }
+                    return response.json();
+               } )
                .then( qubos => {
                     qubos.forEach( qubo => {
                          const position = { lat: qubo.latitude, lng: qubo.longitude };
@@ -37,49 +47,48 @@ function initMap() {
 
                          marker.addListener( 'click', () => {
                               const infoBox = document.querySelector( ".info-box" );
-                              infoBox.style.display = 'block';
+                              infoBox.style.display = 'flex';
                               const startDate = new Date( qubo.startDate );
                               const finishDate = new Date( qubo.finishDate );
 
                               infoBox.innerHTML = `
-                         <div class='nameContainer'>
-                         <p>${ qubo.category }</p>
-                         <p>${ qubo.title }</p>
-                         </div>
-                         <div class='own'>
-                              <img src='${ qubo.img }'>
-                         </div>
-                         <p>Descripción: ${ qubo.description }</p>
-                         <p>Subcategoría: ${ qubo.subcategory }</p>
-                         <p>Fecha de inicio: ${ startDate.toLocaleDateString() } a las ${ startDate.toLocaleTimeString() }</p>
-                         <p>Fecha de finalización: ${ finishDate.toLocaleDateString() } a las ${ finishDate.toLocaleTimeString() }</p>
-                         <p>Link: <a href="${ qubo.link }" target="_blank">${ qubo.link }</a></p>
-                         <p>Anónimo: ${ qubo.anonymous ? "Sí" : "No" }</p>
-                         <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                          <button id="delete-qubo" data-qubo-id="${ qubo._id }">
-                                        <img src='./assets/trash-can.svg'>
-                                   </button>
-                         `;
-
+                    <div class='nameContainer'>
+                        <p>${ qubo.subcategory }</p>
+                        <p>${ qubo.title }</p>
+                    </div>
+                    <div class='own'>
+                        <img src='${ qubo.img }'>
+                    </div>
+                    <p>Descripción: ${ qubo.description }</p>
+                    <p>Categoría: ${ qubo.category }</p>
+                    <p>Fecha de inicio: ${ startDate.toLocaleDateString() } a las ${ startDate.toLocaleTimeString() }</p>
+                    <p>Fecha de finalización: ${ finishDate.toLocaleDateString() } a las ${ finishDate.toLocaleTimeString() }</p>
+                    <p>Link: <a href="${ qubo.link }" target="_blank">${ qubo.link }</a></p>
+                    <p>Anónimo: ${ qubo.anonymous ? "Sí" : "No" }</p>
+                    <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+                    <button id="delete-qubo" data-qubo-id="${ qubo._id }">
+                        <img src='./assets/trash-can.svg'>
+                    </button>
+                `;
 
                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
                                    infoBox.style.display = "none";
                               } );
 
-                              // Evento para eliminar el Qubo
+                              // Evento para eliminar el Qubo (también con autorización)
                               document.getElementById( "delete-qubo" ).addEventListener( "click", async () => {
                                    if ( confirm( "¿Estás seguro de que deseas eliminar este Qubo?" ) ) {
                                         try {
                                              const response = await fetch( `/api/v1/qubo/${ qubo._id }`, {
-                                                  method: 'DELETE'
+                                                  method: 'DELETE',
+                                                  headers: {
+                                                       'Authorization': 'Bearer test123'
+                                                  }
                                              } );
 
                                              if ( response.ok ) {
-                                                  // Eliminar el marcador del mapa
                                                   marker.setMap( null );
-                                                  // Cerrar el infoBox
                                                   infoBox.style.display = "none";
-                                                  // Mostrar mensaje de éxito
                                                   alert( "Qubo eliminado correctamente" );
                                              } else {
                                                   const error = await response.json();
@@ -96,10 +105,6 @@ function initMap() {
                } )
                .catch( error => console.error( 'Error al cargar los Qubos:', error ) );
      } );
-
-
-
-
 
 
 
@@ -271,67 +276,6 @@ function initMap() {
           formContainer.style.top = top + 'px';
      }
 
-     // let isAddingQubo = false;
-     // let currentMarker = null; // Variable para almacenar el marcador actual
-
-     // document.addEventListener( 'DOMContentLoaded', function () {
-     //      const addQuboButton = document.getElementById( 'addQubo' );
-     //      const formContainer = document.querySelector( '.form-container' );
-     //      const messageBox = document.getElementById( 'messageBox' );
-     //      const closeButton = document.getElementById( 'cerrar-form' );
-
-     //      // Activar modo de añadir Qubo
-     //      addQuboButton.addEventListener( 'click', function () {
-     //           isAddingQubo = true;
-     //           messageBox.style.display = 'block'; // Mostrar un mensaje para hacer clic en el mapa
-     //           formContainer.classList.add( 'hidden' ); // Asegúrate de que el formulario está oculto
-
-     //           console.log( 'Modo añadir Qubo activado, por favor haz clic en el mapa para seleccionar la ubicación.' );
-     //      } );
-
-     //      // Escucha clics en el mapa
-     //      map.addListener( 'click', function ( event ) {
-     //           if ( isAddingQubo ) {
-     //                // Capturar las coordenadas donde el usuario hizo clic
-     //                const lat = event.latLng.lat();
-     //                const lng = event.latLng.lng();
-     //                console.log( "Latitud:", lat, "Longitud:", lng );
-
-     //                // Crear un nuevo marcador y añadirlo al mapa
-     //                currentMarker = new google.maps.Marker( {
-     //                     position: event.latLng,
-     //                     map: map,
-     //                     title: 'Nuevo Qubo',
-     //                     icon: "./assets/quboNeutro.png"
-     //                } );
-
-     //                // Establecer valores en los campos ocultos del formulario
-     //                document.getElementById( 'clickedLat' ).value = lat;
-     //                document.getElementById( 'clickedLng' ).value = lng;
-
-     //                // Mostrar el formulario solo después de seleccionar la ubicación
-     //                formContainer.classList.remove( 'hidden' );
-     //                messageBox.style.display = 'none'; // Ocultar el mensaje
-     //                // centerFormContainer(); // Asegúrate de que el formulario se centre correctamente
-
-     //                isAddingQubo = false;
-     //                console.log( 'Formulario mostrado, por favor completa la información del Qubo.' );
-     //           }
-     //      } );
-
-     //      // Manejar el cierre del formulario
-     //      closeButton.addEventListener( 'click', function () {
-     //           formContainer.classList.add( 'hidden' );
-     //           isAddingQubo = false;
-
-     //           // Si existe un marcador actual, elimínalo del mapa
-     //           if ( currentMarker ) {
-     //                currentMarker.setMap( null );
-     //                currentMarker = null; // Resetea la variable del marcador
-     //           }
-
-     //           console.log( 'Formulario cerrado, marcador eliminado.' );
-     //      } );
      let subcategoryIcons = {};
 
      document.addEventListener( 'DOMContentLoaded', function () {
@@ -352,6 +296,16 @@ function initMap() {
           let isAddingQubo = false;
           let currentMarker = null;
 
+          // AQUÍ VA EL NUEVO CÓDIGO - JUSTO DESPUÉS DE DECLARAR currentMarker
+    document.getElementById('subcategory').addEventListener('change', function() {
+     if (currentMarker) {
+         const subcategory = this.value;
+         const iconUrl = subcategory ? (subcategoryIcons[subcategory] || './assets/quboNeutro.svg') : './assets/quboNeutro.svg';
+         console.log('Changing icon to:', iconUrl);
+         currentMarker.setIcon(iconUrl);
+     }
+ });
+
           addQuboButton.addEventListener( 'click', function () {
                isAddingQubo = true;
                messageBox.style.display = 'block';
@@ -360,13 +314,13 @@ function initMap() {
           } );
 
           map.addListener( 'click', function ( event ) {
-               if ( isAddingQubo  ) {
+               if ( isAddingQubo ) {
                     const lat = event.latLng.lat();
                     const lng = event.latLng.lng();
                     console.log( "Latitud:", lat, "Longitud:", lng );
 
                     const subcategory = document.getElementById( 'subcategory' ).value;
-                    const iconUrl = subcategoryIcons[ subcategory ] || './assets/quboNeutro.png';
+                    const iconUrl = subcategory ? ( subcategoryIcons[ subcategory ] || './assets/quboNeutro.svg' ) : './assets/quboNeutro.svg';
                     console.log( 'Subcategory:', subcategory );
                     console.log( 'Icon URL:', iconUrl );
 
@@ -582,6 +536,8 @@ function initMap() {
      //********************************************************/
      //*Nuevo código para manejar el envío del formulario
 
+
+
      // document.addEventListener( 'DOMContentLoaded', function () {
      //      const form = document.getElementById( 'categoryForm' );
      //      const formContainer = document.querySelector( '.form-container' );
@@ -695,6 +651,9 @@ function initMap() {
 
                fetch( form.action, {
                     method: 'POST',
+                    headers: {
+                         'Authorization': 'Bearer test123'  // Añadimos el token aquí
+                    },
                     body: formData
                } )
                     .then( response => {
@@ -760,7 +719,11 @@ function initMap() {
                                    if ( confirm( "¿Estás seguro de que deseas eliminar este Qubo?" ) ) {
                                         try {
                                              const response = await fetch( `/api/v1/qubo/${ data._id }`, {
-                                                  method: 'DELETE'
+                                                  method: 'DELETE',
+                                                  headers: {
+                                                       'Authorization': 'Bearer test123',
+                                                       'Content-Type': 'application/json'
+                                                  }
                                              } );
 
                                              if ( response.ok ) {
@@ -882,6 +845,36 @@ function initMap() {
      document.getElementById( "toggleBarrios" ).addEventListener( "click", toggleBarrios );
 
 
+     //?
+     // Primero, añade esto al inicio de tu archivo donde tienes las otras variables globales
+     let allKMLLayers = [];  // Array para almacenar todas las capas KML
+
+     // Añade la función addKMLLayer
+     function addKMLLayer( kmlLayer ) {
+          allKMLLayers.push( kmlLayer );
+     }
+
+     // Luego tu código del car sharing
+     const carSharingUrl = "https://data-lakecountyil.opendata.arcgis.com/api/download/v1/items/3e0c1eb04e5c48b3be9040b0589d3ccf/kml?layers=8";
+     let kmlLayerCarSharing = null;
+     let carSharingVisible = false;
+
+     document.getElementById( 'car-sharing-sub-nav-item' ).addEventListener( 'click', function () {
+          if ( !kmlLayerCarSharing ) {
+               kmlLayerCarSharing = new google.maps.KmlLayer( {
+                    url: carSharingUrl,
+                    map: map,
+                    preserveViewport: false
+               } );
+
+               addKMLLayer( kmlLayerCarSharing );
+
+          } else {
+               kmlLayerCarSharing.setMap( kmlLayerCarSharing.getMap() ? null : map );
+          }
+
+          carSharingVisible = !carSharingVisible;
+     } );
      //! Botón INFRAESTRUCTURE ***************
 
      //* WASTE
@@ -3254,11 +3247,15 @@ function initMap() {
                const infoBox = document.querySelector( ".info-box" );
                infoBox.style.display = "flex";
                infoBox.innerHTML = `
+               <div class="nameContainer">
+                             <p>Taxi</p>
+                             <p>Taxis para todos</p>
+                         </div>
             <img src="${ datosTaxi.ImagenURL }" alt="Taxi Image" />
-            <div>Matrícula: ${ datosTaxi.Matricula }</div>
-            <div>Licencia: ${ datosTaxi.Licencia }</div>
-            <div>Estado: ${ datosTaxi.Estado }</div>
-            <div>Número máximo de ocupantes: ${ datosTaxi[ "Numero max de ocupantes" ] }</div>
+            <p>Matrícula: ${ datosTaxi.Matricula }</p>
+            <p>Licencia: ${ datosTaxi.Licencia }</p>
+            <p>Estado: ${ datosTaxi.Estado }</p>
+            <p>Número máximo de ocupantes: ${ datosTaxi[ "Numero max de ocupantes" ] }</p>
             <button id="cerrar-info-box">
                 <img src="./assets/botonCerrar.svg" alt="Cerrar" />
             </button>
@@ -3370,12 +3367,16 @@ function initMap() {
                               if ( datosVTC.Empresa ) {
                                    // Nuevo formato JSON
                                    infoBox.innerHTML = `
-                                  <img style="width: 450px;height: 450px;" src="${ datosVTC.ImagenURL }" alt="Imagen VTC"/>
-                                  <div><strong>Empresa:</strong> ${ datosVTC.Empresa }</div>
-                                  <div><strong>Estado:</strong> ${ datosVTC.Estado }</div>
-                                  <div><strong>Matrícula:</strong> ${ datosVTC.Matricula }</div>
-                                  <div><strong>Licencia:</strong> ${ datosVTC.Licencia }</div>
-                                  <div><strong>Ocupantes Máx:</strong> ${ datosVTC[ "Numero max de ocupantes" ] }</div>
+                                   <div class="nameContainer">
+                                        <p>VTC</p>
+                                         <p>VTC para todos</p>
+                                   </div>
+                                  <img src="${ datosVTC.ImagenURL }" alt="Imagen VTC"/>
+                                  <p><strong>Empresa:</strong> ${ datosVTC.Empresa }</p>
+                                  <p><strong>Estado:</strong> ${ datosVTC.Estado }</p>
+                                  <p><strong>Matrícula:</strong> ${ datosVTC.Matricula }</p>
+                                  <p><strong>Licencia:</strong> ${ datosVTC.Licencia }</p>
+                                  <p><strong>Ocupantes Máx:</strong> ${ datosVTC[ "Numero max de ocupantes" ] }</p>
                                   <button id="cerrar-info-box">
                                       <img src="./assets/botonCerrar.svg" alt="Cerrar">
                                   </button>
@@ -3383,10 +3384,10 @@ function initMap() {
                               } else {
                                    // Formato GeoJSON
                                    infoBox.innerHTML = `
-                                  <div><strong>Nombre:</strong> ${ datosVTC.nombre }</div>
-                                  <div><strong>Estado:</strong> ${ datosVTC.Estado }</div>
-                                  <div><strong>Matrícula:</strong> ${ datosVTC.Matricula }</div>
-                                  <div><strong>Conductor:</strong> ${ datosVTC.Conductor }</div>
+                                  <p><strong>Nombre:</strong> ${ datosVTC.nombre }</p>
+                                  <p><strong>Estado:</strong> ${ datosVTC.Estado }</p>
+                                  <p><strong>Matrícula:</strong> ${ datosVTC.Matricula }</p>
+                                  <p><strong>Conductor:</strong> ${ datosVTC.Conductor }</p>
                                   <button id="cerrar-info-box">
                                       <img src="./assets/botonCerrar.svg" alt="Cerrar">
                                   </button>
@@ -3490,27 +3491,27 @@ function initMap() {
                                    : "No disponible";
 
                               infoBox.innerHTML = `
-                         <div class='nameContainer'>
-                             <p>${ category }</p>
-                             <p>${ name }</p>
-                         </div>
-                         <img src='./assets/staticParkings.jpg'>
-                         <div class="parking-info">
-                             <div class="parking-bar-container">
-                                 <div class="parking-bar" style="width: ${ ocupacionPorcentaje }%;"></div>
-                                 <div class="parking-bar-text">${ ocupacionPorcentaje }% Occupied</div>
-                             </div>
-                             <p>Total Parking Spots: ${ totalPlazas }</p>
-                             <p>Available Parking Spots: ${ plazasDisponibles }</p>
-                         </div>
-                         <p>Address: ${ streetAddress }</p>
-                         <p>Localización: ${ addressRegion }</p>
-                         <p>Country: ${ addressCountry }</p>
-                         <p>${ description }</p>
-                         <p>Allowed Vehicles: ${ allowedVehicles }</p>
-                         <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                         <button class='share'><img src='./assets/shareIcon.svg'></button>
-                     `;
+                              <div class='nameContainer'>
+                                   <p>${ category }</p>
+                                   <p>${ name }</p>
+                              </div>
+                              <img src='./assets/staticParkings.jpg'>
+                              <div class="parking-info">
+                              <div class="parking-bar-container">
+                                   <div class="parking-bar" style="width: ${ ocupacionPorcentaje }%;"></div>
+                                   <div class="parking-bar-text">${ ocupacionPorcentaje }% Occupied</div>
+                              </div>
+                              <p>Total Parking Spots: ${ totalPlazas }</p>
+                              <p>Available Parking Spots: ${ plazasDisponibles }</p>
+                              </div>
+                              <p>Address: ${ streetAddress }</p>
+                              <p>Localización: ${ addressRegion }</p>
+                              <p>Country: ${ addressCountry }</p>
+                              <p>${ description }</p>
+                              <p>Allowed Vehicles: ${ allowedVehicles }</p>
+                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+                              <button class='share'><img src='./assets/shareIcon.svg'></button>
+                         `;
 
                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
                                    infoBox.style.display = "none";
@@ -3595,15 +3596,15 @@ function initMap() {
                }
 
                infoBox.innerHTML = `
-            <div>${ title }</div>
-            <img src="${ datosMoto.ImagenURL || "./assets/defaultMotoImage.svg" }" alt="Moto Image">
-            <p>Estado: ${ datosMoto.Estado || "No disponible" }</p>
-            <p>Matrícula: ${ datosMoto.Matricula || "No disponible" }</p>
-            <p>Batería: ${ datosMoto.Bateria || "No disponible" }</p>
-            <button id="cerrar-info-box">
-                <img src="./assets/botonCerrar.svg" alt="Cerrar">
-            </button>
-        `;
+                    <div>${ title }</div>
+                    <img src="${ datosMoto.ImagenURL || "./assets/defaultMotoImage.svg" }" alt="Moto Image">
+                    <p>Estado: ${ datosMoto.Estado || "No disponible" }</p>
+                    <p>Matrícula: ${ datosMoto.Matricula || "No disponible" }</p>
+                    <p>Batería: ${ datosMoto.Bateria || "No disponible" }</p>
+                    <button id="cerrar-info-box">
+                         <img src="./assets/botonCerrar.svg" alt="Cerrar">
+                    </button>
+               `;
 
                document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
                     infoBox.style.display = "none";
@@ -3754,10 +3755,10 @@ function initMap() {
                     infoBoxContent += `<p>Batería: ${ datosPatinete.Bateria }</p>`;
                }
                infoBoxContent += `
-         <button id="cerrar-info-box">
-             <img src="./assets/botonCerrar.svg" alt="Cerrar">
-         </button>
-     `;
+                    <button id="cerrar-info-box">
+                         <img src="./assets/botonCerrar.svg" alt="Cerrar">
+                    </button>
+                    `;
                // Mostrar el contenido en el infoBox
                infoBox.innerHTML = infoBoxContent;
                document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
@@ -4350,17 +4351,21 @@ function initMap() {
                                    const infoBox = document.querySelector( ".info-box" );
                                    infoBox.style.display = "flex";
                                    infoBox.innerHTML = `
-                            <img src="${ imagenUrl }" alt="Avión" onerror="this.src='${ defaultImageUrl }'"/>
-                            <div>Modelo: ${ data.model.value }</div>
-                            <div>Matrícula: ${ data.registrationNumber.value }</div>
-                            <div>ID Aerolínea: ${ data.airline.object }</div>
-                            <div>Capacidad: ${ data.capacity.value }</div>
-                            <div id="velocidad-info-${ avionId }">Velocidad: ${ coordenadas[ 0 ].speed } KNT</div>
-                            <div id="status-info-${ avionId }">Estado: ${ coordenadas[ 0 ].status }</div>
-                            <button id="cerrar-info-box">
-                                <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                            </button>
-                        `;
+                                   <div class='nameContainer'>
+                                        <p>PLane</p>
+                                        <p></p>
+                                   </div>
+                                        <img src="${ imagenUrl }" alt="Avión" onerror="this.src='${ defaultImageUrl }'"/>
+                                        <p>Modelo: ${ data.model.value }</p>
+                                        <p>Matrícula: ${ data.registrationNumber.value }</p>
+                                        <p>ID Aerolínea: ${ data.airline.object }</p>
+                                        <p>Capacidad: ${ data.capacity.value }</p>
+                                        <p id="velocidad-info-${ avionId }">Velocidad: ${ coordenadas[ 0 ].speed } KNT</p>
+                                        <p id="status-info-${ avionId }">Estado: ${ coordenadas[ 0 ].status }</p>
+                                        <button id="cerrar-info-box">
+                                             <img src="./assets/botonCerrar.svg" alt="Cerrar">
+                                        </button>
+                                   `;
                                    document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
                                         infoBox.style.display = "none";
                                    } );
@@ -4465,13 +4470,17 @@ function initMap() {
                                    const infoBox = document.querySelector( ".info-box" );
                                    infoBox.style.display = "flex";
                                    infoBox.innerHTML = `
+                                   <div class='nameContainer'>
+                                        <p>Helicopter</p>
+                                        <p></p>
+                                   </div>
                                    <img src="${ imagenUrl }" alt="Helicóptero" onerror="this.src='${ defaultImageUrl }'"/>
-                                   <div>Modelo: ${ data.model.value }</div>
-                                   <div>Matrícula: ${ data.registrationNumber.value }</div>
-                                   <div>Propietario: ${ data.owner.object }</div>
-                                   <div>Capacidad: ${ data.capacity.value }</div>
-                                   <div id="velocidad-info-${ helicopteroId }">Velocidad: ${ coordenadas[ 0 ].speed } KNT</div>
-                                   <div id="status-info-${ helicopteroId }">Estado: ${ coordenadas[ 0 ].status }</div>
+                                   <p>Modelo: ${ data.model.value }</p>
+                                   <p>Matrícula: ${ data.registrationNumber.value }</p>
+                                   <p>Propietario: ${ data.owner.object }</p>
+                                   <p>Capacidad: ${ data.capacity.value }</p>
+                                   <p id="velocidad-info-${ helicopteroId }">Velocidad: ${ coordenadas[ 0 ].speed } KNT</p>
+                                   <p id="status-info-${ helicopteroId }">Estado: ${ coordenadas[ 0 ].status }</p>
                                    <button id="cerrar-info-box">
                                         <img src="./assets/botonCerrar.svg" alt="Cerrar">
                                    </button>
@@ -4693,17 +4702,21 @@ function initMap() {
                infoBox.style.display = "flex";
                const datosAmbulancia = marcadoresAmbulancias[ ambulanciaId ].datosAmbulancia;
                infoBox.innerHTML = `
-        <img src="${ datosAmbulancia.ImagenURL }" alt="Imagen de la Ambulancia"/>
-        <div>Estado: ${ datosAmbulancia.Estado }</div>
-        <div>Conductor/a: ${ datosAmbulancia[ 'Conductor/a' ] }</div>
-        <div>Médico: ${ datosAmbulancia.Medico }</div>
-        <div>Enfermero/a: ${ datosAmbulancia[ 'Enfermero/a' ] }</div>
-        <div>Indicativo: ${ datosAmbulancia.Indicativo }</div>
-        <div>Matrícula: ${ datosAmbulancia.Matricula }</div>
-        <button id="cerrar-info-box">
-            <img src="./assets/botonCerrar.svg" alt="Cerrar">
-        </button>
-        `;
+                    <div class='nameContainer'>
+                              <p>Ambulances/p>
+                              <p></p>
+                              </div>
+               <img src="${ datosAmbulancia.ImagenURL }" alt="Imagen de la Ambulancia"/>
+               <p>Estado: ${ datosAmbulancia.Estado }</p>
+               <p>Conductor/a: ${ datosAmbulancia[ 'Conductor/a' ] }</p>
+               <p>Médico: ${ datosAmbulancia.Medico }</p>
+               <p>Enfermero/a: ${ datosAmbulancia[ 'Enfermero/a' ] }</p>
+               <p>Indicativo: ${ datosAmbulancia.Indicativo }</p>
+               <p>Matrícula: ${ datosAmbulancia.Matricula }</p>
+               <button id="cerrar-info-box">
+                    <img src="./assets/botonCerrar.svg" alt="Cerrar">
+               </button>
+               `;
                document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
                     infoBox.style.display = "none";
                } );
@@ -4742,19 +4755,12 @@ function initMap() {
      };
 
 
-     //* ESTE VA BIEN, DEJAR SI EL OTRO NO VA *//
-     // Variables globales para el estado del barco y el camión
-     let barcoFinalizado = false;
-     let camionIniciado = false;
-
+     //* FUNCIÓN PARA SHIPS LOGISTICS*//
+     // Variables globales solo para ships
      let kmzLayerTrayectoShips = null;
-     let kmzLayerTrayectoTrucks = null;
-
      const marcadoresShips = {};
-     const marcadoresTrucks = {};
-     const marcadoresTracking = {};
 
-     // Función para alternar la visibilidad de la capa KMZ para los Ships
+     // Función para el KMZ de Ships
      function toggleKMZLayerTrayectoShips() {
           if ( kmzLayerTrayectoShips ) {
                kmzLayerTrayectoShips.setMap( kmzLayerTrayectoShips.getMap() ? null : map );
@@ -4763,28 +4769,10 @@ function initMap() {
                     url: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/modified_tang_ale_minimal_change.kmz?sp=r&st=2024-08-25T11:06:21Z&se=2090-01-01T20:06:21Z&sv=2022-11-02&sr=b&sig=ee8VNVuRSEOfVPuzSCiLcOZGS8tPCQaTkjhlbW6Hs2w%3D",
                     map: map
                } );
-               google.maps.event.addListener( kmzLayerTrayectoShips, 'status_changed', function () {
-                    console.log( "KMZ Layer status:", kmzLayerTrayectoShips.getStatus() );
-               } );
           }
      }
 
-     // Función para alternar la visibilidad de la capa KMZ para los Trucks
-     function toggleKMZLayerTrayectoTrucks() {
-          if ( kmzLayerTrayectoTrucks ) {
-               kmzLayerTrayectoTrucks.setMap( kmzLayerTrayectoTrucks.getMap() ? null : map );
-          } else {
-               kmzLayerTrayectoTrucks = new google.maps.KmlLayer( {
-                    url: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/recorrido_camion.kmz?sp=r&st=2024-08-20T10:36:43Z&se=2090-01-01T19:36:43Z&sv=2022-11-02&sr=b&sig=17%2B4tRK6JTzNxSO7BSurPvjvAVJALezGO3X3CqtUzA0%3D",
-                    map: map
-               } );
-               google.maps.event.addListener( kmzLayerTrayectoTrucks, 'status_changed', function () {
-                    console.log( "KMZ Layer status:", kmzLayerTrayectoTrucks.getStatus() );
-               } );
-          }
-     }
-
-     // Función para mover el marcador del barco (Ship)
+     // Función para mover el marcador del barco
      function iniciarMovimientoMarcadorShip( marker, coordinates, interval, updateInfoBox ) {
           let index = 0;
           const totalCoords = coordinates.length;
@@ -4792,28 +4780,25 @@ function initMap() {
           const intervalId = setInterval( () => {
                marker.setPosition( new google.maps.LatLng( coordinates[ index ].lat, coordinates[ index ].lng ) );
                if ( updateInfoBox ) {
-                    updateInfoBox( index ); // Actualiza el infobox con los datos de la coordenada actual
+                    updateInfoBox( index );
                }
 
                index++;
-
                if ( index >= totalCoords ) {
-                    clearInterval( intervalId ); // Detener el movimiento al final de las coordenadas
-                    barcoFinalizado = true; // Indicar que el barco ha completado su viaje
-                    iniciarMovimientoCamion(); // Iniciar el movimiento del camión
+                    clearInterval( intervalId );
                }
           }, interval );
 
           return intervalId;
      }
 
-     // Función para iniciar el movimiento del barco
+     // Función para iniciar el barco
      function iniciarShipsEnMapa( shipsId, iconUrl, title, apiUrl ) {
           if ( marcadoresShips[ shipsId ] ) {
                clearInterval( marcadoresShips[ shipsId ].intervaloId );
                marcadoresShips[ shipsId ].marker.setMap( null );
-               delete marcadoresShips[ shipsId ]; // Eliminar el marcador del objeto
-               return; // Salir de la función
+               delete marcadoresShips[ shipsId ];
+               return;
           }
 
           const shipsMarker = new google.maps.Marker( {
@@ -4838,25 +4823,23 @@ function initMap() {
                                    const infoBox = document.querySelector( ".info-box-ships" );
                                    if ( infoBox ) {
                                         infoBox.innerHTML = `
-                                <div><strong>Ship Information</strong></div>
-                                <img src="${ data.ImagenURL }" alt="Imagen del Ship"/>
-                                <div>Tipo: ${ data.type }</div>
-                                <div>Name: ${ data.name }</div>
-                                <div>Model: ${ data.model }</div>
-                                <div>Manufacturer: ${ data.manufacturer }</div>
-                                <div>Owner: ${ data.owner.name } (${ data.owner.contact })</div>
-                                <div>Speed: ${ coord.speed } knots</div>
-                                <div>Fuel Consumption: ${ coord.fuelConsumption } L/100km</div>
-                                <div>Cumm. CO2 Emissions: ${ coord.CummCO2emissions } kg</div>
-                                <div><strong>Destination:</strong> ${ data.destination }</div>
-                                <div><strong>Heading:</strong> ${ data.heading }</div>
-                                <button id="cerrar-info-box-ships"><img src="./assets/botonCerrar.svg" alt="Cerrar"></button>
-                            `;
-                                        document.getElementById( "cerrar-info-box-ships" ).addEventListener( "click", function () {
+                                        <div><strong>Ship Information</strong></div>
+                                        <img src="${ data.ImagenURL }" alt="Imagen del Ship"/>
+                                        <p>Tipo: ${ data.type }</p>
+                                        <p>Name: ${ data.name }</p>
+                                        <p>Model: ${ data.model }</p>
+                                        <p>Manufacturer: ${ data.manufacturer }</p>
+                                        <p>Owner: ${ data.owner.name } (${ data.owner.contact })</p>
+                                        <p>Speed: ${ coord.speed } knots</p>
+                                        <p>Fuel Consumption: ${ coord.fuelConsumption } L/100km</p>
+                                        <p>Cumm. CO2 Emissions: ${ coord.CummCO2emissions } kg</p>
+                                        <p><strong>Destination:</strong> ${ data.destination }</p>
+                                        <p><strong>Heading:</strong> ${ data.heading }</p>
+                                        <button id="cerrar-info-box-ships"><img src="./assets/botonCerrar.svg" alt="Cerrar"></button>
+                                   `;
+                                        document.getElementById( "cerrar-info-box-ships" ).addEventListener( "click", () => {
                                              infoBox.style.display = "none";
                                         } );
-                                   } else {
-                                        console.error( 'No se encontró el elemento ".info-box-ships" en el DOM' );
                                    }
                               }
 
@@ -4867,15 +4850,13 @@ function initMap() {
                                    datosShips: data
                               };
 
-                              shipsMarker.addListener( "click", function () {
+                              shipsMarker.addListener( "click", () => {
                                    const infoBox = document.querySelector( ".info-box-ships" );
                                    if ( infoBox ) {
                                         infoBox.style.display = "flex";
                                         actualizarInfoBox( 0 );
                                    }
                               } );
-                         } else {
-                              console.error( 'Los datos del barco no tienen el formato esperado:', data );
                          }
                     } )
                     .catch( error => console.error( 'Error al obtener coordenadas del barco:', error ) );
@@ -4884,155 +4865,157 @@ function initMap() {
           obtenerYmoverShips();
      }
 
-     // Función para mover el marcador del camión (Truck)
-     function iniciarMovimientoMarcadorTruck( marker, coordinates, interval, updateInfoBox ) {
-          let index = 0;
-          const totalCoords = coordinates.length;
-
-          const intervalId = setInterval( () => {
-               marker.setPosition( new google.maps.LatLng( coordinates[ index ].lat, coordinates[ index ].lng ) );
-               if ( updateInfoBox ) {
-                    updateInfoBox( index ); // Actualiza el infobox con los datos de la coordenada actual
-               }
-
-               index++;
-
-               if ( index >= totalCoords ) {
-                    clearInterval( intervalId ); // Detener el movimiento al final de las coordenadas
-               }
-          }, interval );
-
-          return intervalId;
-     }
-
-     // Función para iniciar y mover el camión en el mapa
-     function iniciarTruckEnMapa( truckId, iconUrl, title, apiUrl ) {
-          const imgTruck = document.querySelector( "#trucks-sub-nav-item a img" );
-
-          if ( marcadoresTrucks[ truckId ] ) {
-               clearInterval( marcadoresTrucks[ truckId ].intervaloId );
-               marcadoresTrucks[ truckId ].marker.setMap( null );
-               delete marcadoresTrucks[ truckId ]; // Eliminar el marcador del objeto
-               camionIniciado = false;
-
-               // Quitar la clase que indica que el botón está activo
-               imgTruck.classList.remove( "activo" );
-               return; // Salir de la función
-          }
-
-          const truckMarker = new google.maps.Marker( {
-               map: map,
-               title: title,
-               icon: iconUrl,
-          } );
-
-          function obtenerYmoverTruck() {
-               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
-               fetch( proxyUrl )
-                    .then( response => response.json() )
-                    .then( data => {
-                         if ( data.location.coordinates && Array.isArray( data.location.coordinates ) ) {
-                              const coordenadas = data.location.coordinates.map( coord => ( {
-                                   lat: parseFloat( coord.lat ),
-                                   lng: parseFloat( coord.lng )
-                              } ) );
-
-                              function actualizarInfoBox( index ) {
-                                   const coord = data.location.coordinates[ index ];
-                                   const infoBox = document.querySelector( ".info-box-trucks" );
-                                   if ( infoBox ) {
-                                        infoBox.innerHTML = `
-                                <div><strong>Truck Information</strong></div>
-                                <img src="${ data.imagenURL }" alt="Imagen del Truck"/>
-                                <div>Name: ${ data.name }</div>
-                                <div>Model: ${ data.model }</div>
-                                <div>Manufacturer: ${ data.manufacturer }</div>
-                                <div>Owner: ${ data.owner.name } (${ data.owner.contact })</div>
-                                <div>Speed: ${ coord.speed } km/h</div>
-                                <div>Fuel Consumption: ${ coord.fuelConsumption } L/100km</div>
-                                <div>Cumm. CO2 Emissions: ${ coord.CummCO2emissions } kg</div>
-                                <div><strong>Destination:</strong> ${ data.destination }</div>
-                                <div><strong>Heading:</strong> ${ data.heading }</div>
-                                <button id="cerrar-info-box-trucks"><img src="./assets/botonCerrar.svg" alt="Cerrar"></button>
-                            `;
-                                        document.getElementById( "cerrar-info-box-trucks" ).addEventListener( "click", function () {
-                                             infoBox.style.display = "none";
-                                        } );
-                                   } else {
-                                        console.error( 'No se encontró el elemento ".info-box-trucks" en el DOM' );
-                                   }
-                              }
-
-                              const intervaloId = iniciarMovimientoMarcadorTruck( truckMarker, coordenadas, 500, actualizarInfoBox );
-                              marcadoresTrucks[ truckId ] = {
-                                   marker: truckMarker,
-                                   intervaloId: intervaloId,
-                                   datosTruck: data
-                              };
-
-                              truckMarker.addListener( "click", function () {
-                                   const infoBox = document.querySelector( ".info-box-trucks" );
-                                   if ( infoBox ) {
-                                        infoBox.style.display = "flex";
-                                        actualizarInfoBox( 0 );
-                                   }
-                              } );
-
-                              // Agregar la clase que indica que el botón está activo
-                              imgTruck.classList.add( "activo" );
-                         } else {
-                              console.error( 'Los datos del camión no tienen el formato esperado:', data );
-                         }
-                    } )
-                    .catch( error => console.error( 'Error al obtener coordenadas del camión:', error ) );
-          }
-
-          obtenerYmoverTruck();
-     }
-
-     // Función para mover el camión después de que el barco haya terminado
-     function iniciarMovimientoCamion() {
-          if ( barcoFinalizado && !camionIniciado ) {
-               camionIniciado = true;
-
-               // Marcar el botón de trucks como activo
-               const imgTruck = document.querySelector( "#trucks-sub-nav-item a img" );
-               imgTruck.classList.add( "activo" );
-
-               // Llamar a la capa KMZ del camión y comenzar el movimiento
-               toggleKMZLayerTrayectoTrucks();
-               iniciarTruckEnMapa( 1, './assets/truckQubo.svg', 'Logistics Truck 01', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/camion_fiware_mod1.json?sp=r&st=2024-08-20T10:31:15Z&se=2090-01-01T19:31:15Z&sv=2022-11-02&sr=b&sig=9a7e8ZgHM5m9C1ZiYuxyjPDUMorfdmRJm31WCR4NzHk%3D' );
-          }
-     }
-
-     // Función para iniciar el movimiento del paquete (Tracking) junto con el barco y el camión
-     function iniciarTrackingConBarcoYCamion( trackingId, iconUrl, title, apiUrl ) {
-          iniciarTrackingEnMapa( trackingId, iconUrl, title, apiUrl );
-          toggleKMZLayerTrayectoShips();
-          iniciarShipsEnMapa( 1, './assets/shipsQubo.svg', 'Logistics Ship', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/ship.json?sp=r&st=2024-07-26T17:13:49Z&se=2090-01-01T02:13:49Z&sv=2022-11-02&sr=b&sig=B3GhjJFd%2FjJeGN46olFo9NWlu3Lu6le9eAycQhPO1s8%3D' );
-     }
-
-     // Evento para iniciar el movimiento del barco
+     // Evento para ships
      const eventShips = document.getElementById( "ships-sub-nav-item" );
      eventShips.addEventListener( "click", function () {
           toggleKMZLayerTrayectoShips();
           iniciarShipsEnMapa( 1, './assets/shipsQubo.svg', 'Logistics Ship', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/ship.json?sp=r&st=2024-07-26T17:13:49Z&se=2090-01-01T02:13:49Z&sv=2022-11-02&sr=b&sig=B3GhjJFd%2FjJeGN46olFo9NWlu3Lu6le9eAycQhPO1s8%3D' );
      } );
 
-     // Evento para manejar el movimiento del camión
-     const eventTrucks = document.getElementById( "trucks-sub-nav-item" );
-     eventTrucks.addEventListener( "click", function () {
-          const img = eventTrucks.querySelector( "a img" );
+     //* FUNCIÓN PARA TRUCKS Y VANS LOGISTICS*//
 
-          if ( camionIniciado ) {
-               if ( img.classList.contains( "activo" ) ) {
-                    // Si ya está activo, desactivar y quitar el marcador
-                    toggleKMZLayerTrayectoTrucks();
-                    iniciarTruckEnMapa( 1, './assets/truckQubo.svg', 'Logistics Truck 01', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/camion_fiware_mod1.json?sp=r&st=2024-08-20T10:31:15Z&se=2090-01-01T19:31:15Z&sv=2022-11-02&sr=b&sig=9a7e8ZgHM5m9C1ZiYuxyjPDUMorfdmRJm31WCR4NzHk%3D' );
-                    img.classList.remove( "activo" );
+     const marcadoresVehiculos = {};
+
+     function iniciarMovimientoMarcador( marker, coordinates, interval, updateInfoBox ) {
+          let index = 0;
+          const totalCoords = coordinates.length;
+
+          const intervalId = setInterval( () => {
+               marker.setPosition( new google.maps.LatLng( coordinates[ index ].lat, coordinates[ index ].lng ) );
+               if ( updateInfoBox ) {
+                    updateInfoBox( index );
                }
+
+               index++;
+               if ( index >= totalCoords ) {
+                    index = 0;
+               }
+          }, interval );
+
+          return intervalId;
+     }
+
+     function iniciarVehiculoEnMapa( vehiculoId, iconUrl, title, apiUrl, esVan = false ) {
+          if ( marcadoresVehiculos[ vehiculoId ] ) {
+               clearInterval( marcadoresVehiculos[ vehiculoId ].intervaloId );
+               marcadoresVehiculos[ vehiculoId ].marker.setMap( null );
+               delete marcadoresVehiculos[ vehiculoId ];
+               return;
           }
+
+          const vehiculoMarker = new google.maps.Marker( {
+               map: map,
+               title: title,
+               icon: iconUrl,
+          } );
+
+          const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
+          fetch( proxyUrl )
+               .then( response => response.json() )
+               .then( data => {
+                    if ( data.Coordenadas && Array.isArray( data.Coordenadas ) ) {
+                         const coordenadas = data.Coordenadas.map( coord => ( {
+                              lat: parseFloat( coord.lat ),
+                              lng: parseFloat( coord.lng )
+                         } ) );
+
+                         function actualizarInfoBox( index ) {
+                              const coord = data.Coordenadas[ index ];
+                              const infoBox = document.querySelector( ".info-box-trucks" );
+                              if ( infoBox &&
+                                   infoBox.style.display === "flex" &&
+                                   infoBox.getAttribute( 'data-vehiculo-id' ) === vehiculoId.toString() ) {
+
+                                        if ( esVan ) {
+                                             // Infobox estático para vans
+                                             infoBox.innerHTML = `
+                                   <div class="nameContainer">
+                                        <p>Van</p>
+                                        <p>Logistics Van</p>
+                                   </div>
+                                   <div class="own">
+                                        <img src="${ data.ImagenURL }" alt="Van Image" />
+                                   </div>
+                                   <p>ID Conductor: ${ data[ "ID Conductor" ] }</p>
+                                   <p>ID Vehículo: ${ data[ "ID Vehiculo" ] }</p>
+                                   <p>Matrícula: ${ data.Matricula }</p>
+                                   <p>Empresa: ${ data.Empresa }</p>
+                                   <button id="cerrar-info-box-trucks">
+                                        <img src='./assets/botonCerrar.svg' alt="Cerrar" />
+                                   </button>
+                              `;
+                                   } else {
+                                        // Infobox dinámico para trucks
+                                        infoBox.innerHTML = `
+                                   <div class="nameContainer">
+                                        <p>Truck</p>
+                                        <p>Logistics Truck</p>
+                                   </div>
+                                   <div class="own">
+                                        <img src="${ data.ImagenURL }" alt="Truck Image" />
+                                   </div>
+                                   <p>ID Conductor: ${ data[ "ID Conductor" ] }</p>
+                                   <p>ID Vehículo: ${ data[ "ID Vehiculo" ] }</p>
+                                   <p>Matrícula: ${ data.Matricula }</p>
+                                   <p>Empresa: ${ data.Empresa }</p>
+                                   <p>Combustible: ${ coord[ "Combustible (%)" ] }%</p>
+                                   ${ coord[ "Emisiones CO2 (g)" ] !== undefined ?
+                                                       `<p>Emisiones CO2: ${ coord[ "Emisiones CO2 (g)" ] } g</p>` : '' }
+                                   <p>Distancia a destino: ${ coord[ "Distancia a destino (mi)" ] } mi</p>
+                                   <button id="cerrar-info-box-trucks">
+                                        <img src='./assets/botonCerrar.svg' alt="Cerrar" />
+                                   </button>
+                              `;
+                                   }
+
+                                   document.getElementById( "cerrar-info-box-trucks" ).addEventListener( "click", () => {
+                                        infoBox.style.display = "none";
+                                   } );
+                              }
+                         }
+
+                         // Ahora TODAS las vans y trucks se mueven
+                         const intervaloId = iniciarMovimientoMarcador(
+                              vehiculoMarker,
+                              coordenadas,
+                              500,
+                              actualizarInfoBox
+                         );
+
+                         marcadoresVehiculos[ vehiculoId ] = {
+                              marker: vehiculoMarker,
+                              intervaloId: intervaloId,
+                              datosVehiculo: data
+                         };
+
+                         vehiculoMarker.addListener( "click", () => {
+                              const infoBox = document.querySelector( ".info-box-trucks" );
+                              if ( infoBox ) {
+                                   infoBox.setAttribute( 'data-vehiculo-id', vehiculoId );
+                                   infoBox.style.display = "flex";
+                                   actualizarInfoBox( 0 );
+                              }
+                         } );
+                    }
+               } )
+               .catch( error => console.error( "Error al obtener coordenadas del vehículo:", error ) );
+     }
+
+     // Event listener para el botón de trucks
+     const eventTrucks = document.getElementById( "trucks-sub-nav-item" );
+     eventTrucks.addEventListener( 'click', function () {
+          // Iniciamos los tres camiones y la van
+          iniciarVehiculoEnMapa( 1, './assets/truckQubo.svg', 'Truck 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck_data_final_updated.json?sp=r&st=2025-02-10T19:02:46Z&se=2099-02-11T03:02:46Z&sv=2022-11-02&sr=b&sig=%2BYAtmguCffqiUlLNILe60nYEiXtYtU1bCE5Rsqywz%2FU%3D' );
+          iniciarVehiculoEnMapa( 2, './assets/truckQubo.svg', 'Truck 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck2_data_final_updated.json?sp=r&st=2025-02-10T19:03:13Z&se=2099-02-11T03:03:13Z&sv=2022-11-02&sr=b&sig=uFSo%2B7rpy1GBaCjpTWwvkJ1pd3rmkCglH9ZsEfn4vYg%3D' );
+          iniciarVehiculoEnMapa( 3, './assets/truckQubo.svg', 'Truck 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck3_data_final.json?sp=r&st=2025-02-10T19:03:40Z&se=2099-02-11T03:03:40Z&sv=2022-11-02&sr=b&sig=E9Md4DIMtRIV%2FwUjCs0y57MMMr1pS3%2BnMq4DCkr%2FogE%3D' );
+          iniciarVehiculoEnMapa( 4, './assets/truckQubo.svg', 'Van Miami', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_miami_data.json?sp=r&st=2025-02-09T22:40:50Z&se=2099-02-10T06:40:50Z&sv=2022-11-02&sr=b&sig=3mt25X3t7dbbt8fcEWiI%2BCjrBny6EN%2FkNOvMMcZ9T%2FY%3D', true );
+          iniciarVehiculoEnMapa( 5, './assets/truckQubo.svg', 'Van New York', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_new_york_data.json?sp=r&st=2025-02-09T22:41:40Z&se=2099-02-10T06:41:40Z&sv=2022-11-02&sr=b&sig=teiu0TH1VHhOUVdsDHH9VAXM16R11M%2FSc2mbznyKq5Q%3D', true );
+          iniciarVehiculoEnMapa( 6, './assets/truckQubo.svg', 'Van San Luis', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_san_luis_data.json?sp=r&st=2025-02-09T22:41:58Z&se=2099-02-10T06:41:58Z&sv=2022-11-02&sr=b&sig=2hyY5AtQQ210htuWhxIfPce8QrSuAs1ED1V6grcj%2FQc%3D', true );
      } );
+
+
+     //* FUNCIÓN PARA TRACKING*//
+
 
      // Evento para iniciar el movimiento del paquete (Tracking)
      const eventTracking = document.getElementById( "tracking-sub-nav-item" );
@@ -6270,10 +6253,15 @@ function parseFiwareData( item ) {
      const ubicacion = safeAccess( item, 'location', 'value', 'coordinates', 'Ubicación no disponible' );
      const name = safeAccess( item, 'name', 'value', 'Nombre no disponible' );
 
-     // const categoryArray = safeAccess( item, 'category', 'object', [] );
-     // let category = categoryArray.length > 0 ? convertToTitleCase( categoryArray[ 0 ] ) : 'Categoría no disponible';
-
-     const categoryArray = safeAccess( item, 'category', 'value', [] );
+     // Modificamos la obtención de la categoría para manejar tanto 'value' como 'object'
+     let categoryArray;
+     if ( item.category?.value ) {
+          categoryArray = safeAccess( item, 'category', 'value', [] );
+     } else if ( item.category?.object ) {
+          categoryArray = safeAccess( item, 'category', 'object', [] );
+     } else {
+          categoryArray = [];
+     }
 
      // Se asegura de que categoryArray es un array y tiene al menos un elemento
      let category = ( Array.isArray( categoryArray ) && categoryArray.length > 0 )
@@ -8159,4 +8147,57 @@ document.addEventListener( 'DOMContentLoaded', function () {
           topBottoms.style.display = 'flex';
           optionButton.style.display = 'none';
      } );
+
+     // // Crear el botón de minimizar
+     // const discordWidget = document.querySelector( '.discord-widget' );
+     // const toggleButton = document.createElement( 'button' );
+     // toggleButton.className = 'discord-toggle';
+     // toggleButton.innerHTML = '<img src="./assets/botonCerrar.svg" alt="Toggle Discord">';
+     // document.body.appendChild( toggleButton );
+
+     // // Manejar el click para mostrar/ocultar
+     // let widgetVisible = true;
+     // toggleButton.addEventListener( 'click', () => {
+     //      widgetVisible = !widgetVisible;
+     //      discordWidget.style.display = widgetVisible ? 'flex' : 'none';
+     //      toggleButton.style.transform = widgetVisible ? 'rotate(0deg)' : 'rotate(180deg)';
+     // } );
 } );
+
+// Función para manejar el widget de Discord
+function initDiscordWidget() {
+     const widgetContainer = document.querySelector( '.discord-widget' );
+     let isMinimized = true; // Estado inicial minimizado
+
+     // Crear el contenedor del widget con estado minimizado
+     widgetContainer.innerHTML = `
+               <div class="discord-widget-header">
+                    <i class="fab fa-discord"></i>
+                    <span>Discord Chat</span>
+                    <button class="toggle-widget">+</button>
+               </div>
+               <div class="discord-widget-content" style="display: none;">
+                    <iframe 
+                         src="https://discord.com/widget?id=1338208014183956560&theme=dark" 
+                         width="350" 
+                         height="500" 
+                         allowtransparency="true" 
+                         frameborder="0" 
+                         sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
+                    </iframe>
+               </div>
+               `;
+
+     // Añadir el evento para minimizar/maximizar
+     const toggleButton = widgetContainer.querySelector( '.toggle-widget' );
+     const widgetContent = widgetContainer.querySelector( '.discord-widget-content' );
+
+     toggleButton.addEventListener( 'click', () => {
+          isMinimized = !isMinimized;
+          widgetContent.style.display = isMinimized ? 'none' : 'block';
+          toggleButton.textContent = isMinimized ? '+' : '-';
+     } );
+}
+
+// Inicializar el widget cuando el documento esté listo
+document.addEventListener( 'DOMContentLoaded', initDiscordWidget );
