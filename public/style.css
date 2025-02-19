@@ -1098,7 +1098,7 @@ strong {
      }
 }
 
-/* WIDGET DISCORD */
+/* WIDGET DISCORD
 
 .discord-widget {
      position: fixed;
@@ -1123,7 +1123,7 @@ strong {
  .discord-widget-header i {
      font-size: 24px;
      margin-right: 10px;
-     color: #5865F2; /* Color oficial de Discord */
+     color: #5865F2; 
  }
 
 
@@ -1151,7 +1151,88 @@ strong {
  .discord-widget-content iframe {
      display: block;
      width: 100%;
+ } */
+
+
+/* WIDGET DISCORD */
+.discord-widget {
+     position: fixed;
+     bottom: 20px;
+     left: 20px;
+     z-index: 1000;
  }
-
- /* WIDGET CHATGPT */
-
+ 
+ .discord-icon-button {
+     width: 60px;
+     height: 60px;
+     border-radius: 50%;
+     background: #5865F2;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     cursor: pointer;
+     box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+     transition: all 0.3s ease;
+ }
+ 
+ .discord-icon-button:hover {
+     transform: scale(1.1);
+     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+ }
+ 
+ .discord-icon-button i {
+     font-size: 30px;
+     color: white;
+ }
+ 
+ .discord-widget-expanded {
+     width: 350px;
+     background: #36393f;
+     border-radius: 8px;
+     box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+ }
+ 
+ .discord-widget-header {
+     display: flex;
+     align-items: center;
+     padding: 12px;
+     background: #202225;
+     border-radius: 8px 8px 0 0;
+ }
+ 
+ .discord-widget-header i {
+     font-size: 24px;
+     margin-right: 10px;
+     color: #5865F2;
+ }
+ 
+ .discord-widget-header span {
+     color: white;
+     flex-grow: 1;
+     font-size: 16px;
+ }
+ 
+ .close-widget {
+     background: none;
+     border: none;
+     color: #dcddde;
+     cursor: pointer;
+     padding: 0;
+     font-size: 20px;
+     transition: color 0.2s ease;
+ }
+ 
+ .close-widget:hover {
+     color: white;
+ }
+ 
+ .discord-widget-content {
+     border-radius: 0 0 8px 8px;
+     overflow: hidden;
+ }
+ 
+ .discord-widget-content iframe {
+     display: block;
+     width: 100%;
+     border: none;
+ }

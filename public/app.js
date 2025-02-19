@@ -297,14 +297,14 @@ function initMap() {
           let currentMarker = null;
 
           // AQUÍ VA EL NUEVO CÓDIGO - JUSTO DESPUÉS DE DECLARAR currentMarker
-    document.getElementById('subcategory').addEventListener('change', function() {
-     if (currentMarker) {
-         const subcategory = this.value;
-         const iconUrl = subcategory ? (subcategoryIcons[subcategory] || './assets/quboNeutro.svg') : './assets/quboNeutro.svg';
-         console.log('Changing icon to:', iconUrl);
-         currentMarker.setIcon(iconUrl);
-     }
- });
+          document.getElementById( 'subcategory' ).addEventListener( 'change', function () {
+               if ( currentMarker ) {
+                    const subcategory = this.value;
+                    const iconUrl = subcategory ? ( subcategoryIcons[ subcategory ] || './assets/quboNeutro.svg' ) : './assets/quboNeutro.svg';
+                    console.log( 'Changing icon to:', iconUrl );
+                    currentMarker.setIcon( iconUrl );
+               }
+          } );
 
           addQuboButton.addEventListener( 'click', function () {
                isAddingQubo = true;
@@ -4874,6 +4874,149 @@ function initMap() {
 
      //* FUNCIÓN PARA TRUCKS Y VANS LOGISTICS*//
 
+     // const marcadoresVehiculos = {};
+
+     // function iniciarMovimientoMarcador( marker, coordinates, interval, updateInfoBox ) {
+     //      let index = 0;
+     //      const totalCoords = coordinates.length;
+
+     //      const intervalId = setInterval( () => {
+     //           marker.setPosition( new google.maps.LatLng( coordinates[ index ].lat, coordinates[ index ].lng ) );
+     //           if ( updateInfoBox ) {
+     //                updateInfoBox( index );
+     //           }
+
+     //           index++;
+     //           if ( index >= totalCoords ) {
+     //                index = 0;
+     //           }
+     //      }, interval );
+
+     //      return intervalId;
+     // }
+
+     // function iniciarVehiculoEnMapa( vehiculoId, iconUrl, title, apiUrl, esVan = false ) {
+     //      if ( marcadoresVehiculos[ vehiculoId ] ) {
+     //           clearInterval( marcadoresVehiculos[ vehiculoId ].intervaloId );
+     //           marcadoresVehiculos[ vehiculoId ].marker.setMap( null );
+     //           delete marcadoresVehiculos[ vehiculoId ];
+     //           return;
+     //      }
+
+     //      const vehiculoMarker = new google.maps.Marker( {
+     //           map: map,
+     //           title: title,
+     //           icon: iconUrl,
+     //      } );
+
+     //      const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
+     //      fetch( proxyUrl )
+     //           .then( response => response.json() )
+     //           .then( data => {
+     //                if ( data.Coordenadas && Array.isArray( data.Coordenadas ) ) {
+     //                     const coordenadas = data.Coordenadas.map( coord => ( {
+     //                          lat: parseFloat( coord.lat ),
+     //                          lng: parseFloat( coord.lng )
+     //                     } ) );
+
+
+
+     //                     function actualizarInfoBox( index ) {
+     //                          const coord = data.Coordenadas[ index ];
+     //                          const infoBox = document.querySelector( ".info-box-trucks" );
+     //                          if ( infoBox &&
+     //                               infoBox.style.display === "flex" &&
+     //                               infoBox.getAttribute( 'data-vehiculo-id' ) === vehiculoId.toString() ) {
+
+     //                                    if ( esVan ) {
+     //                                         // Infobox estático para vans
+     //                                         infoBox.innerHTML = `
+     //                               <div class="nameContainer">
+     //                                    <p>Van</p>
+     //                                    <p>Logistics Van</p>
+     //                               </div>
+     //                               <div class="own">
+     //                                    <img src="${ data.ImagenURL }" alt="Van Image" />
+     //                               </div>
+     //                               <p>ID Conductor: ${ data[ "ID Conductor" ] }</p>
+     //                               <p>ID Vehículo: ${ data[ "ID Vehiculo" ] }</p>
+     //                               <p>Matrícula: ${ data.Matricula }</p>
+     //                               <p>Empresa: ${ data.Empresa }</p>
+     //                               <button id="cerrar-info-box-trucks">
+     //                                    <img src='./assets/botonCerrar.svg' alt="Cerrar" />
+     //                               </button>
+     //                          `;
+     //                               } else {
+     //                                    // Infobox dinámico para trucks
+     //                                    infoBox.innerHTML = `
+     //                               <div class="nameContainer">
+     //                                    <p>Truck</p>
+     //                                    <p>Logistics Truck</p>
+     //                               </div>
+     //                               <div class="own">
+     //                                    <img src="${ data.ImagenURL }" alt="Truck Image" />
+     //                               </div>
+     //                               <p>ID Conductor: ${ data[ "ID Conductor" ] }</p>
+     //                               <p>ID Vehículo: ${ data[ "ID Vehiculo" ] }</p>
+     //                               <p>Matrícula: ${ data.Matricula }</p>
+     //                               <p>Empresa: ${ data.Empresa }</p>
+     //                               <p>Combustible: ${ coord[ "Combustible (%)" ] }%</p>
+     //                               ${ coord[ "Emisiones CO2 (g)" ] !== undefined ?
+     //                                                   `<p>Emisiones CO2: ${ coord[ "Emisiones CO2 (g)" ] } g</p>` : '' }
+     //                               <p>Distancia a destino: ${ coord[ "Distancia a destino (mi)" ] } mi</p>
+     //                               <button id="cerrar-info-box-trucks">
+     //                                    <img src='./assets/botonCerrar.svg' alt="Cerrar" />
+     //                               </button>
+     //                          `;
+     //                               }
+
+     //                               document.getElementById( "cerrar-info-box-trucks" ).addEventListener( "click", () => {
+     //                                    infoBox.style.display = "none";
+     //                               } );
+     //                          }
+     //                     }
+
+     //                     // Ahora TODAS las vans y trucks se mueven
+     //                     const intervaloId = iniciarMovimientoMarcador(
+     //                          vehiculoMarker,
+     //                          coordenadas,
+     //                          500,
+     //                          actualizarInfoBox
+     //                     );
+
+     //                     marcadoresVehiculos[ vehiculoId ] = {
+     //                          marker: vehiculoMarker,
+     //                          intervaloId: intervaloId,
+     //                          datosVehiculo: data
+     //                     };
+
+     //                     vehiculoMarker.addListener( "click", () => {
+     //                          const infoBox = document.querySelector( ".info-box-trucks" );
+     //                          if ( infoBox ) {
+     //                               infoBox.setAttribute( 'data-vehiculo-id', vehiculoId );
+     //                               infoBox.style.display = "flex";
+     //                               actualizarInfoBox( 0 );
+     //                          }
+     //                     } );
+     //                }
+     //           } )
+     //           .catch( error => console.error( "Error al obtener coordenadas del vehículo:", error ) );
+     // }
+
+     // // Event listener para el botón de trucks
+     // const eventTrucks = document.getElementById( "trucks-sub-nav-item" );
+     // eventTrucks.addEventListener( 'click', function () {
+     //      // Iniciamos los tres camiones y la van
+     //      iniciarVehiculoEnMapa( 1, './assets/truckQubo.svg', 'Truck 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck_data_final_updated.json?sp=r&st=2025-02-10T19:02:46Z&se=2099-02-11T03:02:46Z&sv=2022-11-02&sr=b&sig=%2BYAtmguCffqiUlLNILe60nYEiXtYtU1bCE5Rsqywz%2FU%3D' );
+     //      iniciarVehiculoEnMapa( 2, './assets/truckQubo.svg', 'Truck 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck2_data_final_updated.json?sp=r&st=2025-02-10T19:03:13Z&se=2099-02-11T03:03:13Z&sv=2022-11-02&sr=b&sig=uFSo%2B7rpy1GBaCjpTWwvkJ1pd3rmkCglH9ZsEfn4vYg%3D' );
+     //      iniciarVehiculoEnMapa( 3, './assets/truckQubo.svg', 'Truck 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck3_data_final.json?sp=r&st=2025-02-10T19:03:40Z&se=2099-02-11T03:03:40Z&sv=2022-11-02&sr=b&sig=E9Md4DIMtRIV%2FwUjCs0y57MMMr1pS3%2BnMq4DCkr%2FogE%3D' );
+     //      iniciarVehiculoEnMapa( 4, './assets/truckQubo.svg', 'Van Miami', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_miami_data.json?sp=r&st=2025-02-09T22:40:50Z&se=2099-02-10T06:40:50Z&sv=2022-11-02&sr=b&sig=3mt25X3t7dbbt8fcEWiI%2BCjrBny6EN%2FkNOvMMcZ9T%2FY%3D', true );
+     //      iniciarVehiculoEnMapa( 5, './assets/truckQubo.svg', 'Van New York', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_new_york_data.json?sp=r&st=2025-02-09T22:41:40Z&se=2099-02-10T06:41:40Z&sv=2022-11-02&sr=b&sig=teiu0TH1VHhOUVdsDHH9VAXM16R11M%2FSc2mbznyKq5Q%3D', true );
+     //      iniciarVehiculoEnMapa( 6, './assets/truckQubo.svg', 'Van San Luis', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_san_luis_data.json?sp=r&st=2025-02-09T22:41:58Z&se=2099-02-10T06:41:58Z&sv=2022-11-02&sr=b&sig=2hyY5AtQQ210htuWhxIfPce8QrSuAs1ED1V6grcj%2FQc%3D', true );
+     // } );
+
+     //* FUNCIÓN PARA TRUCKS Y VANS LOGISTICS*//
+
      const marcadoresVehiculos = {};
 
      function iniciarMovimientoMarcador( marker, coordinates, interval, updateInfoBox ) {
@@ -4926,46 +5069,46 @@ function initMap() {
                                    infoBox.style.display === "flex" &&
                                    infoBox.getAttribute( 'data-vehiculo-id' ) === vehiculoId.toString() ) {
 
-                                        if ( esVan ) {
-                                             // Infobox estático para vans
-                                             infoBox.innerHTML = `
-                                   <div class="nameContainer">
-                                        <p>Van</p>
-                                        <p>Logistics Van</p>
-                                   </div>
-                                   <div class="own">
-                                        <img src="${ data.ImagenURL }" alt="Van Image" />
-                                   </div>
-                                   <p>ID Conductor: ${ data[ "ID Conductor" ] }</p>
-                                   <p>ID Vehículo: ${ data[ "ID Vehiculo" ] }</p>
-                                   <p>Matrícula: ${ data.Matricula }</p>
-                                   <p>Empresa: ${ data.Empresa }</p>
-                                   <button id="cerrar-info-box-trucks">
-                                        <img src='./assets/botonCerrar.svg' alt="Cerrar" />
-                                   </button>
-                              `;
+                                   if ( esVan ) {
+                                        // Infobox estático para vans
+                                        infoBox.innerHTML = `
+                                <div class="nameContainer">
+                                    <p>Van</p>
+                                    <p>Logistics Van</p>
+                                </div>
+                                <div class="own">
+                                    <img src="${ data.ImagenURL }" alt="Van Image" />
+                                </div>
+                                <p>ID Conductor: ${ data[ "ID Conductor" ] }</p>
+                                <p>ID Vehículo: ${ data[ "ID Vehiculo" ] }</p>
+                                <p>Matrícula: ${ data.Matricula }</p>
+                                <p>Empresa: ${ data.Empresa }</p>
+                                <button id="cerrar-info-box-trucks">
+                                    <img src='./assets/botonCerrar.svg' alt="Cerrar" />
+                                </button>
+                            `;
                                    } else {
                                         // Infobox dinámico para trucks
                                         infoBox.innerHTML = `
-                                   <div class="nameContainer">
-                                        <p>Truck</p>
-                                        <p>Logistics Truck</p>
-                                   </div>
-                                   <div class="own">
-                                        <img src="${ data.ImagenURL }" alt="Truck Image" />
-                                   </div>
-                                   <p>ID Conductor: ${ data[ "ID Conductor" ] }</p>
-                                   <p>ID Vehículo: ${ data[ "ID Vehiculo" ] }</p>
-                                   <p>Matrícula: ${ data.Matricula }</p>
-                                   <p>Empresa: ${ data.Empresa }</p>
-                                   <p>Combustible: ${ coord[ "Combustible (%)" ] }%</p>
-                                   ${ coord[ "Emisiones CO2 (g)" ] !== undefined ?
-                                                       `<p>Emisiones CO2: ${ coord[ "Emisiones CO2 (g)" ] } g</p>` : '' }
-                                   <p>Distancia a destino: ${ coord[ "Distancia a destino (mi)" ] } mi</p>
-                                   <button id="cerrar-info-box-trucks">
-                                        <img src='./assets/botonCerrar.svg' alt="Cerrar" />
-                                   </button>
-                              `;
+                                <div class="nameContainer">
+                                    <p>Truck</p>
+                                    <p>Logistics Truck</p>
+                                </div>
+                                <div class="own">
+                                    <img src="${ data.ImagenURL }" alt="Truck Image" />
+                                </div>
+                                <p>ID Conductor: ${ data[ "ID Conductor" ] }</p>
+                                <p>ID Vehículo: ${ data[ "ID Vehiculo" ] }</p>
+                                <p>Matrícula: ${ data.Matricula }</p>
+                                <p>Empresa: ${ data.Empresa }</p>
+                                <p>Combustible: ${ coord[ "Combustible (%)" ] }</p>
+                                ${ coord[ "Emisiones CO2 (g)" ] !== undefined ?
+                                                  `<p>Emisiones CO2: ${ coord[ "Emisiones CO2 (g)" ] } g</p>` : '' }
+                                <p>Distancia a destino: ${ coord[ "Distancia a destino (mi)" ] } mi</p>
+                                <button id="cerrar-info-box-trucks">
+                                    <img src='./assets/botonCerrar.svg' alt="Cerrar" />
+                                </button>
+                            `;
                                    }
 
                                    document.getElementById( "cerrar-info-box-trucks" ).addEventListener( "click", () => {
@@ -4974,7 +5117,6 @@ function initMap() {
                               }
                          }
 
-                         // Ahora TODAS las vans y trucks se mueven
                          const intervaloId = iniciarMovimientoMarcador(
                               vehiculoMarker,
                               coordenadas,
@@ -5004,13 +5146,47 @@ function initMap() {
      // Event listener para el botón de trucks
      const eventTrucks = document.getElementById( "trucks-sub-nav-item" );
      eventTrucks.addEventListener( 'click', function () {
-          // Iniciamos los tres camiones y la van
-          iniciarVehiculoEnMapa( 1, './assets/truckQubo.svg', 'Truck 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck_data_final_updated.json?sp=r&st=2025-02-10T19:02:46Z&se=2099-02-11T03:02:46Z&sv=2022-11-02&sr=b&sig=%2BYAtmguCffqiUlLNILe60nYEiXtYtU1bCE5Rsqywz%2FU%3D' );
-          iniciarVehiculoEnMapa( 2, './assets/truckQubo.svg', 'Truck 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck2_data_final_updated.json?sp=r&st=2025-02-10T19:03:13Z&se=2099-02-11T03:03:13Z&sv=2022-11-02&sr=b&sig=uFSo%2B7rpy1GBaCjpTWwvkJ1pd3rmkCglH9ZsEfn4vYg%3D' );
-          iniciarVehiculoEnMapa( 3, './assets/truckQubo.svg', 'Truck 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck3_data_final.json?sp=r&st=2025-02-10T19:03:40Z&se=2099-02-11T03:03:40Z&sv=2022-11-02&sr=b&sig=E9Md4DIMtRIV%2FwUjCs0y57MMMr1pS3%2BnMq4DCkr%2FogE%3D' );
-          iniciarVehiculoEnMapa( 4, './assets/truckQubo.svg', 'Van Miami', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_miami_data.json?sp=r&st=2025-02-09T22:40:50Z&se=2099-02-10T06:40:50Z&sv=2022-11-02&sr=b&sig=3mt25X3t7dbbt8fcEWiI%2BCjrBny6EN%2FkNOvMMcZ9T%2FY%3D', true );
-          iniciarVehiculoEnMapa( 5, './assets/truckQubo.svg', 'Van New York', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_new_york_data.json?sp=r&st=2025-02-09T22:41:40Z&se=2099-02-10T06:41:40Z&sv=2022-11-02&sr=b&sig=teiu0TH1VHhOUVdsDHH9VAXM16R11M%2FSc2mbznyKq5Q%3D', true );
-          iniciarVehiculoEnMapa( 6, './assets/truckQubo.svg', 'Van San Luis', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_san_luis_data.json?sp=r&st=2025-02-09T22:41:58Z&se=2099-02-10T06:41:58Z&sv=2022-11-02&sr=b&sig=2hyY5AtQQ210htuWhxIfPce8QrSuAs1ED1V6grcj%2FQc%3D', true );
+          // Crear bounds para todos los vehículos
+          const bounds = new google.maps.LatLngBounds();
+
+          // Array de promesas para cargar todos los datos
+          const promesas = [
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck_data_final_updated.json?sp=r&st=2025-02-10T19:02:46Z&se=2099-02-11T03:02:46Z&sv=2022-11-02&sr=b&sig=%2BYAtmguCffqiUlLNILe60nYEiXtYtU1bCE5Rsqywz%2FU%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck2_data_final_updated.json?sp=r&st=2025-02-10T19:03:13Z&se=2099-02-11T03:03:13Z&sv=2022-11-02&sr=b&sig=uFSo%2B7rpy1GBaCjpTWwvkJ1pd3rmkCglH9ZsEfn4vYg%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck3_data_final.json?sp=r&st=2025-02-10T19:03:40Z&se=2099-02-11T03:03:40Z&sv=2022-11-02&sr=b&sig=E9Md4DIMtRIV%2FwUjCs0y57MMMr1pS3%2BnMq4DCkr%2FogE%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_miami_data.json?sp=r&st=2025-02-09T22:40:50Z&se=2099-02-10T06:40:50Z&sv=2022-11-02&sr=b&sig=3mt25X3t7dbbt8fcEWiI%2BCjrBny6EN%2FkNOvMMcZ9T%2FY%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_new_york_data.json?sp=r&st=2025-02-09T22:41:40Z&se=2099-02-10T06:41:40Z&sv=2022-11-02&sr=b&sig=teiu0TH1VHhOUVdsDHH9VAXM16R11M%2FSc2mbznyKq5Q%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_san_luis_data.json?sp=r&st=2025-02-09T22:41:58Z&se=2099-02-10T06:41:58Z&sv=2022-11-02&sr=b&sig=2hyY5AtQQ210htuWhxIfPce8QrSuAs1ED1V6grcj%2FQc%3D' ) }` )
+          ];
+
+          // Procesar todas las promesas
+          Promise.all( promesas )
+               .then( responses => Promise.all( responses.map( r => r.json() ) ) )
+               .then( datos => {
+                    // Extender bounds con todas las coordenadas
+                    datos.forEach( data => {
+                         if ( data.Coordenadas && Array.isArray( data.Coordenadas ) ) {
+                              data.Coordenadas.forEach( coord => {
+                                   bounds.extend( new google.maps.LatLng(
+                                        parseFloat( coord.lat ),
+                                        parseFloat( coord.lng )
+                                   ) );
+                              } );
+                         }
+                    } );
+
+                    // Ajustar el mapa a los bounds
+                    map.fitBounds( bounds );
+
+                    // Iniciar todos los vehículos
+                    iniciarVehiculoEnMapa( 1, './assets/truckQubo.svg', 'Truck 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck_data_final_updated.json?sp=r&st=2025-02-10T19:02:46Z&se=2099-02-11T03:02:46Z&sv=2022-11-02&sr=b&sig=%2BYAtmguCffqiUlLNILe60nYEiXtYtU1bCE5Rsqywz%2FU%3D' );
+                    iniciarVehiculoEnMapa( 2, './assets/truckQubo.svg', 'Truck 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck2_data_final_updated.json?sp=r&st=2025-02-10T19:03:13Z&se=2099-02-11T03:03:13Z&sv=2022-11-02&sr=b&sig=uFSo%2B7rpy1GBaCjpTWwvkJ1pd3rmkCglH9ZsEfn4vYg%3D' );
+                    iniciarVehiculoEnMapa( 3, './assets/truckQubo.svg', 'Truck 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck3_data_final.json?sp=r&st=2025-02-10T19:03:40Z&se=2099-02-11T03:03:40Z&sv=2022-11-02&sr=b&sig=E9Md4DIMtRIV%2FwUjCs0y57MMMr1pS3%2BnMq4DCkr%2FogE%3D' );
+                    iniciarVehiculoEnMapa( 4, './assets/truckQubo.svg', 'Van Miami', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_miami_data.json?sp=r&st=2025-02-09T22:40:50Z&se=2099-02-10T06:40:50Z&sv=2022-11-02&sr=b&sig=3mt25X3t7dbbt8fcEWiI%2BCjrBny6EN%2FkNOvMMcZ9T%2FY%3D', true );
+                    iniciarVehiculoEnMapa( 5, './assets/truckQubo.svg', 'Van New York', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_new_york_data.json?sp=r&st=2025-02-09T22:41:40Z&se=2099-02-10T06:41:40Z&sv=2022-11-02&sr=b&sig=teiu0TH1VHhOUVdsDHH9VAXM16R11M%2FSc2mbznyKq5Q%3D', true );
+                    iniciarVehiculoEnMapa( 6, './assets/truckQubo.svg', 'Van San Luis', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_san_luis_data.json?sp=r&st=2025-02-09T22:41:58Z&se=2099-02-10T06:41:58Z&sv=2022-11-02&sr=b&sig=2hyY5AtQQ210htuWhxIfPce8QrSuAs1ED1V6grcj%2FQc%3D', true );
+               } )
+               .catch( error => console.error( "Error al cargar los datos:", error ) );
      } );
 
 
@@ -8148,56 +8324,195 @@ document.addEventListener( 'DOMContentLoaded', function () {
           optionButton.style.display = 'none';
      } );
 
-     // // Crear el botón de minimizar
-     // const discordWidget = document.querySelector( '.discord-widget' );
-     // const toggleButton = document.createElement( 'button' );
-     // toggleButton.className = 'discord-toggle';
-     // toggleButton.innerHTML = '<img src="./assets/botonCerrar.svg" alt="Toggle Discord">';
-     // document.body.appendChild( toggleButton );
-
-     // // Manejar el click para mostrar/ocultar
-     // let widgetVisible = true;
-     // toggleButton.addEventListener( 'click', () => {
-     //      widgetVisible = !widgetVisible;
-     //      discordWidget.style.display = widgetVisible ? 'flex' : 'none';
-     //      toggleButton.style.transform = widgetVisible ? 'rotate(0deg)' : 'rotate(180deg)';
-     // } );
 } );
 
-// Función para manejar el widget de Discord
+//? Función para manejar el widget de Discord
+// function initDiscordWidget() {
+//      const widgetContainer = document.querySelector( '.discord-widget' );
+//      let isMinimized = true; // Estado inicial minimizado
+
+//      // Crear el contenedor del widget con estado minimizado
+//      widgetContainer.innerHTML = `
+//                <div class="discord-widget-header">
+//                     <i class="fab fa-discord"></i>
+//                     <span>Discord Chat</span>
+//                     <button class="toggle-widget">+</button>
+//                </div>
+//                <div class="discord-widget-content" style="display: none;">
+//                     <iframe 
+//                          src="https://discord.com/widget?id=1338208014183956560&theme=dark" 
+//                          width="350" 
+//                          height="500" 
+//                          allowtransparency="true" 
+//                          frameborder="0" 
+//                          sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
+//                     </iframe>
+//                </div>
+//                `;
+
+//      // Añadir el evento para minimizar/maximizar
+//      const toggleButton = widgetContainer.querySelector( '.toggle-widget' );
+//      const widgetContent = widgetContainer.querySelector( '.discord-widget-content' );
+
+//      toggleButton.addEventListener( 'click', () => {
+//           isMinimized = !isMinimized;
+//           widgetContent.style.display = isMinimized ? 'none' : 'block';
+//           toggleButton.textContent = isMinimized ? '+' : '-';
+//      } );
+// }
+
+// // Inicializar el widget cuando el documento esté listo
+// document.addEventListener( 'DOMContentLoaded', initDiscordWidget );
+//? Función para manejar el widget de Discord
 function initDiscordWidget() {
      const widgetContainer = document.querySelector( '.discord-widget' );
-     let isMinimized = true; // Estado inicial minimizado
+     let isMinimized = true;
 
-     // Crear el contenedor del widget con estado minimizado
+     // Crear el contenedor del widget con solo el icono inicialmente
      widgetContainer.innerHTML = `
+          <div class="discord-icon-button">
+               <i class="fab fa-discord"></i>
+          </div>
+          <div class="discord-widget-expanded" style="display: none;">
                <div class="discord-widget-header">
                     <i class="fab fa-discord"></i>
                     <span>Discord Chat</span>
-                    <button class="toggle-widget">+</button>
+                    <button class="close-widget">
+                         <i class="fas fa-times"></i>
+                    </button>
                </div>
-               <div class="discord-widget-content" style="display: none;">
+               <div class="discord-widget-content">
                     <iframe 
-                         src="https://discord.com/widget?id=1338208014183956560&theme=dark" 
+                         src="about:blank"
                          width="350" 
                          height="500" 
                          allowtransparency="true" 
                          frameborder="0" 
-                         sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
+                         sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
+                         loading="lazy">
                     </iframe>
                </div>
-               `;
+          </div>
+          `;
 
-     // Añadir el evento para minimizar/maximizar
-     const toggleButton = widgetContainer.querySelector( '.toggle-widget' );
-     const widgetContent = widgetContainer.querySelector( '.discord-widget-content' );
+     const iconButton = widgetContainer.querySelector( '.discord-icon-button' );
+     const expandedWidget = widgetContainer.querySelector( '.discord-widget-expanded' );
+     const closeButton = widgetContainer.querySelector( '.close-widget' );
+     const iframe = widgetContainer.querySelector( 'iframe' );
+     let iframeLoaded = false;
 
-     toggleButton.addEventListener( 'click', () => {
-          isMinimized = !isMinimized;
-          widgetContent.style.display = isMinimized ? 'none' : 'block';
-          toggleButton.textContent = isMinimized ? '+' : '-';
+     iconButton.addEventListener( 'click', () => {
+          isMinimized = false;
+          iconButton.style.display = 'none';
+          expandedWidget.style.display = 'block';
+
+          // Cargar el iframe solo la primera vez
+          if ( !iframeLoaded ) {
+               iframe.src = "https://discord.com/widget?id=1338208014183956560&theme=dark";
+               iframeLoaded = true;
+          }
+     } );
+
+     closeButton.addEventListener( 'click', () => {
+          isMinimized = true;
+          expandedWidget.style.display = 'none';
+          iconButton.style.display = 'flex';
      } );
 }
 
-// Inicializar el widget cuando el documento esté listo
 document.addEventListener( 'DOMContentLoaded', initDiscordWidget );
+
+//? Arrastrar info-box
+
+// Función para hacer un elemento arrastrable
+function hacerArrastrable( elemento, mango ) {
+     let isDown = false;
+     let offsetX, offsetY;
+
+     // Primero removemos los event listeners anteriores si existen
+     const nuevoMango = mango.cloneNode( true );
+     mango.parentNode.replaceChild( nuevoMango, mango );
+
+     nuevoMango.addEventListener( 'mousedown', function ( e ) {
+          // Verifica si el evento se originó en un botón o select
+          if ( e.target.closest( 'button' ) || e.target.closest( 'select' ) ) {
+               return;
+          }
+
+          isDown = true;
+          offsetX = e.clientX - elemento.getBoundingClientRect().left;
+          offsetY = e.clientY - elemento.getBoundingClientRect().top;
+
+          // Añadir clase mientras se arrastra
+          elemento.classList.add( 'dragging' );
+     } );
+
+     document.addEventListener( 'mouseup', function () {
+          isDown = false;
+          elemento.classList.remove( 'dragging' );
+     } );
+
+     document.addEventListener( 'mousemove', function ( e ) {
+          if ( !isDown ) return;
+
+          elemento.style.left = ( e.clientX - offsetX ) + 'px';
+          elemento.style.top = ( e.clientY - offsetY ) + 'px';
+     } );
+}
+
+// Función para inicializar el arrastre en un infobox
+function inicializarArrastre( infoBox ) {
+     const nameContainer = infoBox.querySelector( '.nameContainer' );
+     if ( nameContainer ) {
+          hacerArrastrable( infoBox, nameContainer );
+     }
+}
+
+// Observar cambios en el DOM
+const observer = new MutationObserver( function ( mutations ) {
+     mutations.forEach( function ( mutation ) {
+          mutation.addedNodes.forEach( function ( node ) {
+               if ( node.nodeType === 1 ) { // Es un elemento
+                    if ( node.classList && ( node.classList.contains( 'info-box' ) || node.classList.contains( 'info-box-trucks' ) ) ) {
+                         inicializarArrastre( node );
+                    }
+               }
+          } );
+
+          // También verificar cambios en el estilo (cuando se muestra un infobox existente)
+          if ( mutation.type === 'attributes' &&
+               mutation.attributeName === 'style' &&
+               ( mutation.target.classList.contains( 'info-box' ) || mutation.target.classList.contains( 'info-box-trucks' ) ) ) {
+               if ( mutation.target.style.display === 'flex' ) {
+                    inicializarArrastre( mutation.target );
+               }
+          }
+     } );
+} );
+
+// Inicializar la observación
+document.addEventListener( 'DOMContentLoaded', function () {
+     // Observar todo el documento para detectar nuevos infobox
+     observer.observe( document.body, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: [ 'style' ]
+     } );
+
+     // Añadir estilos CSS necesarios
+     const style = document.createElement( 'style' );
+     style.textContent = `
+          .info-box, .info-box-trucks {
+               position: absolute !important;
+               cursor: default;
+          }
+          .info-box .nameContainer, .info-box-trucks .nameContainer {
+               cursor: move;
+          }
+          .dragging {
+               opacity: 0.9;
+          }
+          `;
+     document.head.appendChild( style );
+} );
