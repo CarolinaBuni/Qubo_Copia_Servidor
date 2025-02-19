@@ -6,10 +6,12 @@ const app = express();
 const cors = require('cors');
 const { connectDB } = require( './src/config/db' );
 const router = require( './src/utils/apiRpoutes' );
+const isAuth = require( './src/middlewares/auth' );
 const cloudinary = require('cloudinary').v2;
-// const fetch = require('node-fetch')
 
 connectDB();
+
+
 app.use(express.json());
 app.use(cors());
 
@@ -19,29 +21,19 @@ cloudinary.config({
     api_secret: process.env.API_SECRET
 });
 
-// app.get('/api/icons', (req, res) => {
-//     cloudinary.api.resources(
-//         { type: 'upload', prefix: 'Qubos_Qubo_City/' },
-//         function (error, result) {
-//             if (error) {
-//                 return res.status(500).json({ error: 'Error fetching icons from Cloudinary' });
-//             }
-//             const subcategoryIcons = result.resources.reduce((acc, resource) => {
-//                 const subcategory = resource.public_id.replace('Qubos_Qubo_City/', '').replace(/\.[^/.]+$/, '');
-//                 acc[subcategory] = resource.secure_url;
-//                 return acc;
-//             }, {});
-//             res.json(subcategoryIcons);
-//         }
-//     );
-// });
+// Servir archivos estáticos después del middleware de autenticación
+app.use(express.static(path.join(__dirname, 'public')));
+
+
 
 app.get('/api/qubo-icons', (req, res) => {
     const icons = {
         iconic: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186037/Qubos_Qubo_City/quboIconic_osq4i3.svg",
+        stadiums: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/Qubos_Qubo_City/stadiums_Qubo_edwamz.svg"
     };
 
     res.json(icons);
+
 });
 
 //************************************* */
@@ -78,19 +70,22 @@ app.get('/api/proxy', async (req, res) => {
     }
 });
 
-
-//********************************************** */
-
-app.use(express.static(path.join(__dirname, 'public')));
-// app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
-
 app.use("/api/v1/", router);
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+
+
+// Proteger todas las rutas excepto assets
+app.use((req, res, next) => {
+    // Permitir acceso a archivos CSS, JS e imágenes
+    if (req.path.includes('.css') || req.path.includes('.js') || req.path.includes('.svg')) {
+        next();
+    } else {
+        isAuth(req, res, next);
+    }
 });
+
+
 
 app.listen(3000, () => {
     console.log('Servidor escuchando en http://localhost:3000');
 });
-

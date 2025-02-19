@@ -4,14 +4,32 @@ const cloudinary = require( 'cloudinary' ).v2;
 
 
 
-const getQubo = async ( req, res, next ) => {
+// const getQubo = async ( req, res, next ) => {
+//     try {
+//         const allQubos = await Qubo.find();
+//         return res.status( 200 ).json( allQubos );
+//     } catch ( error ) {
+//         return res.status( 400 ).json( "Ha fallado la creación del qubo" );
+//     }
+// };
+
+const getQubo = async (req, res, next) => {
     try {
+        // Verificar el token
+        const token = req.headers.authorization?.split(' ')[1]; // Obtiene el token del header
+
+        if (!token || token !== 'test123') {
+            return res.redirect('https://google.com');
+        }
+
         const allQubos = await Qubo.find();
-        return res.status( 200 ).json( allQubos );
-    } catch ( error ) {
-        return res.status( 400 ).json( "Ha fallado la creación del qubo" );
+        return res.status(200).json(allQubos);
+    } catch (error) {
+        return res.status(400).json("Ha fallado la obtención de qubos");
     }
 };
+
+
 
 
 const postQubo = async ( req, res, next ) => {
