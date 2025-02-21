@@ -31,3 +31,11 @@ async function testUserModel() {
 
 // Ejecutar la prueba
 testUserModel();
+
+// const { verifyToken } = require( './utils/jwt' );
+
+// // Token de ejemplo que te dio tu compañero
+// const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhdXRoMHw2Nzk2YTRmNGQ4YTVkMzhmYmIwODkyZTAiLCJlbWFpbCI6ImRvbnF1aXhvdGVkbG1AZ21haWwuY29tIiwibmFtZSI6IkRvbiBRdWl4b3RlIiwiaWF0IjoxNzM5MzYxNjM2LCJleHAiOjE3MzkzNjUyMzZ9.rfMO3YxiFFQVGg08zC9TcGLDU76DDvFIG5wFG0RpGRs';
+
+// const result = verifyToken(testToken);
+// console.log('Resultado de la verificación:', result);

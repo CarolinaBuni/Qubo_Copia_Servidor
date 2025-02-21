@@ -464,7 +464,7 @@ function initMap() {
                categoryMappings[ selectedCategory ].forEach( ( subcategory ) => {
                     const option = document.createElement( "option" );
                     // Cambiar la transformación para que coincida con el formato camelCase
-                    const value = subcategory.replace(/\s+/g, '').charAt(0).toLowerCase() + subcategory.replace(/\s+/g, '').slice(1);
+                    const value = subcategory.replace( /\s+/g, '' ).charAt( 0 ).toLowerCase() + subcategory.replace( /\s+/g, '' ).slice( 1 );
                     option.value = value;
                     option.textContent = subcategory;
                     subcategorySelect.appendChild( option );
@@ -5806,7 +5806,24 @@ eventIconic.addEventListener( "click", () => {
 
 //! Función para mostrar UNDER CONSTRUCTION
 
+//* UNDER CONSTRUCTION
+const underConstructionUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Under%20Construction/Buildings_UnderConstruction_RestrictedAreas.kmz?sp=r&st=2025-02-21T20:16:33Z&se=2099-02-22T04:16:33Z&sv=2022-11-02&sr=b&sig=73j1VsueLl3YvnhB62Ikua%2BSBneVRRCNU3DgSu4ZBoA%3D";
 
+const botonUnderConstruction = document.getElementById( 'underConstruction-sub-nav-item' );
+let kmlUnderConstruction = null;
+
+botonUnderConstruction.addEventListener( 'click', () => {
+     if ( kmlUnderConstruction ) {
+          // Si la capa KML ya existe, alternar su visibilidad
+          kmlUnderConstruction.setMap( kmlUnderConstruction.getMap() ? null : map );
+     } else {
+          // Si la capa KML no existe, crearla y añadirla al mapa
+          kmlUnderConstruction = new google.maps.KmlLayer( {
+               url: underConstructionUrl,
+               map: map
+          } );
+     }
+} );
 
 //* BOTÓN HEALTH ****************
 //! Función para mostrar HOSPITALS&CLINICS
