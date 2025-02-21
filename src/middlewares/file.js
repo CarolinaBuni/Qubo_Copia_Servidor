@@ -9,7 +9,7 @@ const cloudinary = require('cloudinary').v2;
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-        folder: 'Qubos_Qubo_City', // Carpeta en Cloudinary donde se guardarán los archivos
+        folder: 'qubo/user_uploads', // Carpeta en Cloudinary donde se guardarán los archivos
         allowed_formats: ['jpg', 'png', 'jpeg', 'svg', 'webp', 'gif'], // Formatos permitidos
     },
 });

@@ -8,6 +8,7 @@ const { connectDB } = require( './src/config/db' );
 const router = require( './src/utils/apiRpoutes' );
 const isAuth = require( './src/middlewares/auth' );
 const cloudinary = require('cloudinary').v2;
+const QUBO_ICONS = require( './src/constants/cloudinaryUrls' );
 
 connectDB();
 
@@ -24,19 +25,11 @@ cloudinary.config({
 // Servir archivos estáticos después del middleware de autenticación
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-
 app.get('/api/qubo-icons', (req, res) => {
-    const icons = {
-        iconic: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186037/Qubos_Qubo_City/quboIconic_osq4i3.svg",
-        stadiums: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/Qubos_Qubo_City/stadiums_Qubo_edwamz.svg"
-    };
-
-    res.json(icons);
-
+    res.json(QUBO_ICONS);
 });
 
-//************************************* */
+
 
 
 app.get('/api/proxy', async (req, res) => {
