@@ -1,11 +1,11 @@
 const QUBO_ICONS = {
-     vtc: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg',
+     VTC: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg',
      taxi: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg',
      stadiums: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/stadiums_Qubo_edwamz.svg',
      scooterSharing: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg',
-     parcelos: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/quboParcels_cbp7cu.svg',
+     parcels: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/quboParcels_cbp7cu.svg',
      iconic: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186037/qubo/qubos/quboIconic_osq4i3.svg',
-     hospitals: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186037/qubo/qubos/quboHospitals_rqrldc.svg',
+     hospitalsAndClinics: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186037/qubo/qubos/quboHospitals_rqrldc.svg',
      bicycleSharing: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186036/qubo/qubos/quboBicycle_beyrut.svg',
      camaras: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186036/qubo/qubos/quboCamaras_cggy7p.svg',
      otherBuildings: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/otherBuildingsQubo_riecvd.svg',
@@ -18,8 +18,14 @@ const QUBO_ICONS = {
      environment: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/environment_Qubo_qqip5m.svg',
      bus: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/bus_Qubo_bjpfxf.svg',
      clubsNightlife: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/clubsAndnightlife_Qubo_cgliaf.svg',
-     commercialIndustrial: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/commercialOrIndustrialQubo_nb1ksg.svg',
-     boats: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg'
+     commercialOrIndustrial: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/commercialOrIndustrialQubo_nb1ksg.svg',
+     boats: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg',
+     parking: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740155107/qubo/qubos/parkingsQubo_w1gvgb.svg',
+     carTraffic: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740163400/qubo/qubos/carTraffic_xnhkcs.svg',
+     underConstruction: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740163298/qubo/qubos/underConstruction_rvazgq.svg',
+     newBuildings: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740163211/qubo/qubos/newBuildings_eqkwj5.svg',
+     carSharing: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740169870/qubo/qubos/carSharing_vqr18h.svg',
+     buildings: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740171937/qubo/qubos/incidences-buildings-qubo_yd9p0n.svg'
 }
 
 module.exports = { QUBO_ICONS };
