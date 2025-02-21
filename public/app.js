@@ -1,11 +1,24 @@
 "use strict";
 
+let activeMarkers = new Map();
 let map;
 let myLocationMarker;
 let autocomplete;
 
-function initMap() {
 
+function precargarImagenes() {
+     try {
+          Object.values( STATIC_IMAGES ).forEach( url => {
+               const img = new Image();
+               img.src = url;
+          } );
+     } catch ( error ) {
+          console.error( 'Error al cargar las imágenes:', error );
+     }
+}
+
+function initMap() {
+     // precargarImagenes();
      // Crear un objeto de opciones del mapa
      const mapOptions = {
           zoom: 10,
@@ -16,6 +29,37 @@ function initMap() {
           streetViewControl: true,
           mapTypeId: "satellite",
      };
+
+     // Función para manejar la eliminación de Qubos
+     function handleQuboDelete( quboId, marker, infoBox, messageBox ) {
+          return async () => {
+               if ( confirm( "¿Estás seguro de que deseas eliminar este Qubo?" ) ) {
+                    try {
+                         const response = await fetch( `/api/v1/qubo/${ quboId }`, {
+                              method: 'DELETE',
+                              headers: {
+                                   'Authorization': 'Bearer test123'
+                              }
+                         } );
+
+                         if ( response.ok ) {
+                              marker.setMap( null );
+                              infoBox.style.display = "none";
+                              messageBox.innerHTML = "Qubo eliminado correctamente";
+                              messageBox.style.display = 'flex';
+                              setTimeout( () => {
+                                   messageBox.style.display = 'none';
+                              }, 3000 );
+                         } else {
+                              throw new Error( "Error al eliminar el Qubo" );
+                         }
+                    } catch ( error ) {
+                         console.error( "Error:", error );
+                         alert( "Error al eliminar el Qubo" );
+                    }
+               }
+          };
+     }
 
 
      // Crear el mapa y establecerlo en el div con el id "gmp-map"
@@ -42,7 +86,7 @@ function initMap() {
                               position: position,
                               map: map,
                               title: qubo.title,
-                              icon: "./assets/quboNeutro.svg"
+                              icon: subcategoryIcons.QUBO_ICONS[ qubo.subcategory ] || './assets/quboNeutro.svg'
                          } );
 
                          marker.addListener( 'click', () => {
@@ -52,54 +96,42 @@ function initMap() {
                               const finishDate = new Date( qubo.finishDate );
 
                               infoBox.innerHTML = `
-                    <div class='nameContainer'>
-                        <p>${ qubo.subcategory }</p>
-                        <p>${ qubo.title }</p>
-                    </div>
-                    <div class='own'>
-                        <img src='${ qubo.img }'>
-                    </div>
-                    <p>Descripción: ${ qubo.description }</p>
-                    <p>Categoría: ${ qubo.category }</p>
-                    <p>Fecha de inicio: ${ startDate.toLocaleDateString() } a las ${ startDate.toLocaleTimeString() }</p>
-                    <p>Fecha de finalización: ${ finishDate.toLocaleDateString() } a las ${ finishDate.toLocaleTimeString() }</p>
-                    <p>Link: <a href="${ qubo.link }" target="_blank">${ qubo.link }</a></p>
-                    <p>Anónimo: ${ qubo.anonymous ? "Sí" : "No" }</p>
-                    <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                    <button id="delete-qubo" data-qubo-id="${ qubo._id }">
-                        <img src='./assets/trash-can.svg'>
-                    </button>
-                `;
+                         <div class='nameContainer'>
+                         <p>${ qubo.subcategory }</p>
+                         <p>${ qubo.title }</p>
+                         </div>
+                         <div class='own'>
+                         <img src='${ qubo.img }'>
+                         </div>
+                         <p>Descripción: ${ qubo.description }</p>
+                         <p>Categoría: ${ qubo.category }</p>
+                         <p>Fecha de inicio: ${ startDate.toLocaleDateString() } a las ${ startDate.toLocaleTimeString() }</p>
+                         <p>Fecha de finalización: ${ finishDate.toLocaleDateString() } a las ${ finishDate.toLocaleTimeString() }</p>
+                         <p>Link: <a href="${ qubo.link }" target="_blank">${ qubo.link }</a></p>
+                         <p>Anónimo: ${ qubo.anonymous ? "Sí" : "No" }</p>
+                         <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+                         <button id="delete-qubo" data-qubo-id="${ qubo._id }">
+                         <img src='./assets/trash-can.svg'>
+                         </button>
+                    `;
+                              // Eliminar listeners anteriores y crear nuevos
+                              const closeButton = document.getElementById( "cerrar-info-box" );
+                              const deleteButton = document.getElementById( "delete-qubo" );
 
-                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
+                              // Clonar y reemplazar los botones para eliminar listeners anteriores
+                              const newCloseButton = closeButton.cloneNode( true );
+                              const newDeleteButton = deleteButton.cloneNode( true );
+                              closeButton.parentNode.replaceChild( newCloseButton, closeButton );
+                              deleteButton.parentNode.replaceChild( newDeleteButton, deleteButton );
+
+                              newCloseButton.addEventListener( "click", () => {
                                    infoBox.style.display = "none";
                               } );
 
-                              // Evento para eliminar el Qubo (también con autorización)
-                              document.getElementById( "delete-qubo" ).addEventListener( "click", async () => {
-                                   if ( confirm( "¿Estás seguro de que deseas eliminar este Qubo?" ) ) {
-                                        try {
-                                             const response = await fetch( `/api/v1/qubo/${ qubo._id }`, {
-                                                  method: 'DELETE',
-                                                  headers: {
-                                                       'Authorization': 'Bearer test123'
-                                                  }
-                                             } );
+                              // Para Qubos existentes (en el fetch inicial)
+                              newDeleteButton.addEventListener( "click", handleQuboDelete( qubo._id, marker, infoBox, messageBox ) );
 
-                                             if ( response.ok ) {
-                                                  marker.setMap( null );
-                                                  infoBox.style.display = "none";
-                                                  alert( "Qubo eliminado correctamente" );
-                                             } else {
-                                                  const error = await response.json();
-                                                  throw new Error( error.message );
-                                             }
-                                        } catch ( error ) {
-                                             console.error( "Error al eliminar el Qubo:", error );
-                                             alert( "Error al eliminar el Qubo: " + error.message );
-                                        }
-                                   }
-                              } );
+
                          } );
                     } );
                } )
@@ -139,79 +171,6 @@ function initMap() {
           } );
      } );
 
-     //? DATOS PARA VALENCIA BARRIOS/POLÍGONOS
-
-     // fetch(valenciaAPIURL)
-     //   .then((response) => {
-     //       if (response.ok) {
-     //         return response.json(); // Obtener los datos en formato JSON
-     //       } else {
-     //         throw new Error("La solicitud no fue exitosa");
-     //       }
-     //     })
-     //     .then((data) => {
-     //        // console.log(data);
-
-     //        //? Función para conseguir NOMBRES de los barrios de VALENCIA
-     //       const nombresBarrioValencia = data.results;
-
-     //       const getNamesValencia = () => {
-     //         for (let i = 0; i < nombresBarrioValencia.length; i++) {
-     //             const element = nombresBarrioValencia[i].nombre;
-     //             // console.log(element);
-     //         }
-     //       };
-     //       getNamesValencia();
-
-     //       // Itera sobre los resultados para dibujar polígonos en el mapa
-     //       data.results.forEach((result) => {
-     //         const coordinates = result.geo_shape.geometry.coordinates[0];
-
-     //         // Convertir las coordenadas a un arreglo de objetos de LatLng
-     //         const latLngs = coordinates.map((coordinate) => ({
-     //             lat: coordinate[1],
-     //             lng: coordinate[0],
-     //         }));
-
-     //         // Dibuja el polígono en el mapa
-     //         const polygon = new google.maps.Polygon({
-     //             paths: latLngs,
-     //             strokeColor: "#08ecc4",
-     //             strokeOpacity: 0.8,
-     //             strokeWeight: 4,
-     //             fillColor: "#08ecc4",
-     //             fillOpacity: 0.35,
-     //             map: barriosVisible ? map : null,
-     //         });
-     //         poligonosBarrios.push(polygon);
-     //       });
-     //   })
-     //   .catch((error) => {
-     //       console.error("Hubo un problema con la solicitud:", error);
-     //   });
-
-     //!----------------------------------------------------------
-     // document.addEventListener( 'DOMContentLoaded', () => {
-     //      const inputContainer = document.getElementById( 'input-container' );
-     //      const searchDirectionButton = document.getElementById( 'search-direction-button' );
-
-     //      // Función para mostrar y ocultar el inputContainer
-     //      const toggleInputContainer = () => {
-     //           if ( inputContainer.style.display === 'none' || inputContainer.style.display === '' ) {
-     //                inputContainer.style.display = 'block';
-     //                inputContainer.style.opacity = '1';
-     //                searchDirectionButton.classList.add( 'active' );
-
-     //           } else {
-     //                inputContainer.style.display = 'none';
-     //                inputContainer.style.opacity = '0';
-     //                searchDirectionButton.classList.remove( 'active' );
-     //           }
-     //      };
-
-     //      // Evento para mostrar y ocultar el inputContainer al hacer clic en el botón
-     //      searchDirectionButton.addEventListener( 'click', toggleInputContainer );
-     // } );
      document.addEventListener( 'DOMContentLoaded', () => {
           const inputContainer = document.getElementById( 'input-container' );
           const searchDirectionButton = document.getElementById( 'search-direction-button' );
@@ -300,7 +259,9 @@ function initMap() {
           document.getElementById( 'subcategory' ).addEventListener( 'change', function () {
                if ( currentMarker ) {
                     const subcategory = this.value;
-                    const iconUrl = subcategory ? ( subcategoryIcons[ subcategory ] || './assets/quboNeutro.svg' ) : './assets/quboNeutro.svg';
+                    const iconUrl = subcategory && subcategoryIcons.QUBO_ICONS ?
+                         ( subcategoryIcons.QUBO_ICONS[ subcategory ] || './assets/quboNeutro.svg' ) :
+                         './assets/quboNeutro.svg';
                     console.log( 'Changing icon to:', iconUrl );
                     currentMarker.setIcon( iconUrl );
                }
@@ -320,7 +281,9 @@ function initMap() {
                     console.log( "Latitud:", lat, "Longitud:", lng );
 
                     const subcategory = document.getElementById( 'subcategory' ).value;
-                    const iconUrl = subcategory ? ( subcategoryIcons[ subcategory ] || './assets/quboNeutro.svg' ) : './assets/quboNeutro.svg';
+                    const iconUrl = subcategory && subcategoryIcons.QUBO_ICONS ?
+                         ( subcategoryIcons.QUBO_ICONS[ subcategory ] || './assets/quboNeutro.svg' ) :
+                         './assets/quboNeutro.svg';
                     console.log( 'Subcategory:', subcategory );
                     console.log( 'Icon URL:', iconUrl );
 
@@ -500,8 +463,9 @@ function initMap() {
           if ( selectedCategory && categoryMappings[ selectedCategory ] ) {
                categoryMappings[ selectedCategory ].forEach( ( subcategory ) => {
                     const option = document.createElement( "option" );
-                    // option.value = subcategory;
-                    option.value = subcategory.toLowerCase().replace( /\s+/g, "" );
+                    // Cambiar la transformación para que coincida con el formato camelCase
+                    const value = subcategory.replace(/\s+/g, '').charAt(0).toLowerCase() + subcategory.replace(/\s+/g, '').slice(1);
+                    option.value = value;
                     option.textContent = subcategory;
                     subcategorySelect.appendChild( option );
                } );
@@ -536,54 +500,6 @@ function initMap() {
      //********************************************************/
      //*Nuevo código para manejar el envío del formulario
 
-
-
-     // document.addEventListener( 'DOMContentLoaded', function () {
-     //      const form = document.getElementById( 'categoryForm' );
-     //      const formContainer = document.querySelector( '.form-container' );
-     //      const messageBox = document.getElementById( 'messageBox' );
-
-     //      form.addEventListener( 'submit', function ( event ) {
-     //           event.preventDefault();
-
-     //           const startDate = new Date( document.getElementById( 'startDateTime' ).value );
-     //           const finishDate = new Date( document.getElementById( 'endDateTime' ).value );
-
-     //           if ( isNaN( startDate.valueOf() ) || isNaN( finishDate.valueOf() ) ) {
-     //                alert( 'Please enter valid start and finish dates.' );
-     //                return; // No enviar formulario si las fechas son inválidas
-     //           }
-
-     //           // Usar FormData para recopilar todos los datos del formulario, incluido el archivo
-     //           const formData = new FormData( form );
-
-     //           fetch( form.action, {
-     //                method: 'POST',
-     //                body: formData
-     //           } )
-     //                .then( response => response.json() )
-     //                .then( data => {
-     //                     console.log( 'Success:', data );
-
-     //                     messageBox.innerHTML = `Qubo añadido con éxito!`; // Cambiando el contenido del messageBox
-     //                     messageBox.style.display = 'block';
-     //                     // Aquí puedes redireccionar al usuario o limpiar el formulario, etc.
-     //                     // Cerrar el formulario automáticamente
-     //                     formContainer.classList.add( 'hidden' ); // Oculta el contenedor del formulario
-
-     //                     // Opcional: Limpiar el formulario
-     //                     form.reset();
-
-     //                     // setTimeout( () => {
-     //                     //      messageBox.style.display = 'none';
-     //                     // }, 8000 );
-     //                } )
-     //                .catch( ( error ) => {
-     //                     console.error( 'Error:', error );
-     //                     alert( 'Error al añadir el Qubo.' );
-     //                } );
-     //      } );
-     // } );
 
      document.addEventListener( 'DOMContentLoaded', function () {
           const form = document.getElementById( 'categoryForm' );
@@ -635,6 +551,7 @@ function initMap() {
                }
           } );
 
+          // let newMarker;
           // Evento submit del formulario
           form.addEventListener( 'submit', function ( event ) {
                event.preventDefault();
@@ -668,18 +585,21 @@ function initMap() {
                          console.log( 'Datos recibidos del servidor:', data );
 
                          // Crear nuevo marcador con los datos recibidos
-                         const newMarker = new google.maps.Marker( {
+                         const marker = new google.maps.Marker( {
                               position: {
-                                   lat: parseFloat( data.latitude ), // Usar los datos del servidor
-                                   lng: parseFloat( data.longitude ) // Usar los datos del servidor
+                                   lat: parseFloat( data.latitude ),
+                                   lng: parseFloat( data.longitude )
                               },
                               map: map,
                               title: data.title, // Usar el título del servidor
-                              icon: subcategoryIcons[ data.subcategory ] || './assets/quboNeutro.svg'
+                              icon: subcategoryIcons.QUBO_ICONS[ data.subcategory ] || './assets/quboNeutro.svg'
                          } );
 
+                         // Guardar el marcador en nuestro registro
+                         activeMarkers.set( data._id, marker );
+
                          // Añadir event listener al nuevo marcador usando la sintaxis correcta
-                         newMarker.addListener( 'click', function () {
+                         marker.addListener( 'click', function () {
                               const infoBox = document.querySelector( ".info-box" );
                               infoBox.style.display = 'flex';
 
@@ -705,41 +625,26 @@ function initMap() {
                                    </button>
                               `;
 
+                              // Obtener los botones
+                              const closeButton = document.getElementById( "cerrar-info-box" );
+                              const deleteButton = document.getElementById( "delete-qubo" );
 
+                              // Clonar los botones para eliminar event listeners anteriores
+                              const newCloseButton = closeButton.cloneNode( true );
+                              const newDeleteButton = deleteButton.cloneNode( true );
+                              closeButton.parentNode.replaceChild( newCloseButton, closeButton );
+                              deleteButton.parentNode.replaceChild( newDeleteButton, deleteButton );
 
-                              // Añadir event listener al botón de cerrar
-                              const cerrarBoton = document.getElementById( "cerrar-info-box" );
-                              cerrarBoton.addEventListener( "click", () => {
+                              // Añadir nuevos event listeners a los botones clonados
+                              newCloseButton.addEventListener( "click", () => {
                                    infoBox.style.display = "none";
                               } );
 
-                              // Añadir event listener al botón de eliminar
-                              const deleteButton = document.getElementById( "delete-qubo" );
-                              deleteButton.addEventListener( "click", async () => {
-                                   if ( confirm( "¿Estás seguro de que deseas eliminar este Qubo?" ) ) {
-                                        try {
-                                             const response = await fetch( `/api/v1/qubo/${ data._id }`, {
-                                                  method: 'DELETE',
-                                                  headers: {
-                                                       'Authorization': 'Bearer test123',
-                                                       'Content-Type': 'application/json'
-                                                  }
-                                             } );
+                              // Para Qubos nuevos (en el submit del formulario)
+                              newDeleteButton.addEventListener( "click", handleQuboDelete( data._id, marker, infoBox, messageBox ) );
 
-                                             if ( response.ok ) {
-                                                  newMarker.setMap( null );
-                                                  infoBox.style.display = "none";
-                                                  alert( "Qubo eliminado correctamente" );
-                                             } else {
-                                                  throw new Error( "Error al eliminar el Qubo" );
-                                             }
-                                        } catch ( error ) {
-                                             console.error( "Error:", error );
-                                             alert( "Error al eliminar el Qubo" );
-                                        }
-                                   }
-                              } );
                          } );
+
 
                          // Limpiar el formulario y mostrar mensaje de éxito
                          form.reset();
@@ -759,20 +664,6 @@ function initMap() {
                     } );
           } );
      } );
-
-
-     //! Función para activar/desactivar barrios
-
-     // let barriosVisible = false;
-     // const poligonosBarrios = [];
-
-     // function toggleBarrios() {
-     //   for (let i = 0; i < poligonosBarrios.length; i++) {
-     //       poligonosBarrios[i].setMap(barriosVisible ? map : null);
-     //   }
-     //   barriosVisible = !barriosVisible;
-     // }
-     // document.getElementById("toggleBarrios").addEventListener("click", toggleBarrios);
 
 
      //! PRUEBA CON OTRO KML DE BARRIO
@@ -888,6 +779,7 @@ function initMap() {
      let wasteVisible = false; // Bandera para el estado de visibilidad
 
      const cargarMarcadoresWaste = () => {
+
           fetch( wasteDataUrl )
                .then( response => response.json() )
                .then( data => {
@@ -925,7 +817,7 @@ function initMap() {
                                              <p>${ type }</p>
                                              <p>${ name }</p>
                                         </div>
-                                        <img src='./assets/staticWaste.jpg'>
+                                        <img src='${ STATIC_IMAGES.waste }'>
                                         <p>${ description }</p>
                                         <p>Address: ${ streetAddress }, ${ postalCode }</p>
                                         <p>Localización: ${ addressLocality }, ${ addressCountry }, ${ addressRegion }</p>
@@ -981,6 +873,7 @@ function initMap() {
      let animatedWaterLines = [];
 
      const cargarMarcadoresWater = () => {
+
           fetch( waterDataUrl )
                .then( response => response.json() )
                .then( data => {
@@ -1019,7 +912,7 @@ function initMap() {
                                              <p>Waste Water Plant</p>
                                              <p>${ name }</p>
                                         </div>
-                                        <img src='./assets/staticWater.jpg'>
+                                        <img src='${ STATIC_IMAGES.water }'>
                                         <p>${ description }</p>
                                         <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                                         <p>Country: ${ addressCountry }</p>
@@ -1167,6 +1060,7 @@ function initMap() {
      let animatedSewageLines = [];
 
      const cargarMarcadoresSewage = () => {
+
           fetch( sewageDataUrl )
                .then( response => response.json() )
                .then( data => {
@@ -1204,7 +1098,7 @@ function initMap() {
                                 <p>${ type }</p>
                                 <p>${ name }</p>
                             </div>
-                            <img src='./assets/staticSewage.jpg'>
+                            <img src='${ STATIC_IMAGES.sewage }'>
                             <p>${ description }</p>
                             <p>Localización: ${ addressCountry }, ${ addressRegion }</p>
                             <p>ID: ${ id }</p>
@@ -1385,7 +1279,7 @@ function initMap() {
                                  <p>${ type }</p> 
                                  <p>${ name }</p>
                              </div>
-                             <img src='./assets/staticInternet.jpg'>
+                             <img src='${ STATIC_IMAGES.internet }'>
                              <p>${ description }</p>
                              <p>Localización: ${ addressCountry }, ${ addressRegion }</p>
                              <p>ID: ${ id }</p>
@@ -1452,101 +1346,7 @@ function initMap() {
           internetVisible = !internetVisible;
      } );
 
-     // const internetApiUrl = `/api/proxy?url=${ encodeURIComponent(
-     //      "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Internet/Fiware_Infrastructure_Internet-00001?sp=r&st=2024-07-26T13:38:02Z&se=2090-01-01T22:38:02Z&sv=2022-11-02&sr=b&sig=QEN2zLfP7J7RqY%2BDZlR%2BO5ggA0RVSGBdkGMMl4nOsRM%3D"
-     // ) }`;
 
-     // const fiberOpticUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Internet/Fiber%20Optic%20Coverage%20in%20Europe.kmz?sp=r&st=2025-01-28T17:43:08Z&se=2090-01-29T01:43:08Z&sv=2022-11-02&sr=b&sig=9B2TfJ%2BKzrs71jAu6cWKG02oQg2neV47d%2BQ7UR%2BUDws%3D";
-
-     // const cargarMarcadoresInternet = () => {
-     //      fetch( internetApiUrl )
-     //           .then( response => {
-     //                if ( response.ok ) {
-     //                     return response.json();
-     //                } else {
-     //                     throw new Error( "La solicitud no fue exitosa" );
-     //                }
-     //           } )
-     //           .then( data => {
-     //                const markersData = data.wifipointofinterest0001;
-
-     //                markersData.forEach( item => {
-     //                     const {
-     //                          ubicacion,
-     //                          id,
-     //                          name,
-     //                          type,
-     //                          description,
-     //                          streetAddress,
-     //                          postalCode,
-     //                          addressLocality,
-     //                          addressRegion,
-     //                          addressCountry,
-     //                          neighborhood,
-     //                          district,
-     //                          source,
-     //                          owner
-     //                     } = parseFiwareData( item );
-
-     //                     if ( ubicacion && name ) {
-     //                          const marker = new google.maps.Marker( {
-     //                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
-     //                               map: map,
-     //                               title: name,
-     //                               icon: "./assets/internetQubo.svg",
-     //                          } );
-
-     //                          marker.addListener( "click", () => {
-     //                               const infoBox = document.querySelector( ".info-box" );
-
-     //                               infoBox.style.display = "flex";
-     //                               infoBox.innerHTML = `
-     //                          <div class='nameContainer'> 
-     //                               <p>${ type }</p> 
-     //                              <p>${ name }</p>
-     //                          </div>
-     //                          <img src='./assets/staticInternet.jpg'>
-     //                          <p>${ description }</p>
-     //                          <p>Localización: ${ addressCountry }, ${ addressRegion }</p>
-     //                          <p>ID: ${ id }</p>
-     //                          <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
-     //                          <button id="cerrar-info-box">
-     //                              <img src='./assets/botonCerrar.svg'>
-     //                          </button>
-     //                          <button class='share'>
-     //                              <img src='./assets/shareIcon.svg'>
-     //                          </button>
-     //                          `;
-
-     //                               const cerrarBoton = document.getElementById( "cerrar-info-box" );
-     //                               cerrarBoton.addEventListener( "click", () => {
-     //                                    infoBox.style.display = "none";
-     //                               } );
-     //                          } );
-
-     //                          markersInternet.push( marker ); // Añade el marcador al array de parques y jardines
-     //                     }
-     //                } );
-     //           } )
-     //           .catch( error => {
-     //                console.error( "Hubo un problema con la solicitud:", error );
-     //           } );
-     // };
-
-     // const eventInternet = document.getElementById( "internet-sub-nav-item" );
-     // let markersInternet = []; // Array para almacenar los marcadores de parques y jardines
-     // let internetVisible = false; // Bandera para el estado de visibilidad
-
-     // eventInternet.addEventListener( "click", () => {
-     //      // Alternar la visibilidad de los marcadores de parques y jardines
-     //      toggleMarcadores( markersInternet, internetVisible );
-     //      internetVisible = !internetVisible; // Cambia la bandera de visibilidad
-
-     //      // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
-     //      if ( markersInternet.length === 0 && internetVisible ) {
-     //           cargarMarcadoresInternet();
-     //      }
-     // } );
 
      //* ---------------------------------------------------------------------------------
      //* LÍNEAS METRO MADRID 
@@ -1634,7 +1434,7 @@ function initMap() {
                                              <p>${ item.category.object }</p>
                                              <p>${ name }</p>
                                         </div>
-                                        <img src='./assets/staticBicycleSharing.jpg'>
+                                        <img src='${ STATIC_IMAGES.bicyleSharing }'>
                                         <p>${ description }</p>
                                         <p>Address: ${ streetAddress }, ${ postalCode }</p>
                                         <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
@@ -1769,6 +1569,10 @@ function initMap() {
                fetch( apiUrl )
                     .then( response => response.json() )
                     .then( data => {
+                         if ( data.ImagenURL ) {
+                              const img = new Image();
+                              img.src = data.ImagenURL;
+                         }
                          // Asegurarse de que los datos están en el formato esperado
                          if ( data.Coordenadas && Array.isArray( data.Coordenadas ) ) {
                               const coordenadas = data.Coordenadas.map( coord => ( {
@@ -2080,6 +1884,7 @@ function initMap() {
                     }
                } )
                .then( data => {
+
                     const markersData = data.parksandg0001;
 
                     markersData.forEach( item => {
@@ -2115,7 +1920,7 @@ function initMap() {
                                    <p>Parque</p> 
                                   <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticParksGardens.jpg'>
+                             <img src='${ STATIC_IMAGES.parksGardens }'>
                               <p>${ description }</p>
                               
                               <p>Address: ${ streetAddress }, ${ postalCode }</p>
@@ -2229,7 +2034,7 @@ function initMap() {
                      <p>${ item.description.value }</p>
                          <p>${ nombre }</p> <!-- Utilizar el nombre extraído -->
                      </div>
-                     <img src='./assets/staticEnvironment.jpg'>
+                     <img src='${ STATIC_IMAGES.environment }'>
                      <p>Código identificador: ${ idWithoutPrefix }</p>
                      <p>Address: ${ address }</p>
                      <p>Localización: ${ item.address.value.addressLocality }, ${ item.address.value.addressRegion }</p>
@@ -2383,6 +2188,7 @@ function initMap() {
                     infoBox.style.display = "flex";
                     infoBox.innerHTML = `
                 <h2>Camión de residuos</h2>
+                <img src='${ STATIC_IMAGES.recycling }'>
                 <p>Última actualización: 28-10-2023  23:51h</p>
                 <p>Matrícula: 0000 AAA</p>
                 <p>Estado: Activo</p>
@@ -2426,7 +2232,7 @@ function initMap() {
                                 <p>${ parsedData.category }</p>
                                 <p>${ parsedData.name }</p>
                             </div>
-                            <img src='./assets/staticRecycling.jpg'/>
+                            <img src='${ STATIC_IMAGES.recycling }'>
                             <p>Localización: ${ parsedData.addressLocality }, ${ parsedData.addressRegion }</p>
                             <p>Address: ${ parsedData.streetAddress }</p>
                             <p>C.P: ${ parsedData.postalCode }</p>
@@ -2472,7 +2278,7 @@ function initMap() {
                                 <p>${ parsedData.category }</p>
                                 <p>${ parsedData.name }</p>
                             </div>
-                            <img src='./assets/staticRecycling.jpg'/>
+                            <img src='${ STATIC_IMAGES.recycling }'>
                             <p>Localización: ${ parsedData.addressLocality }, ${ parsedData.addressRegion }</p>
                             <p>Address: ${ parsedData.streetAddress }</p>
                             <p>C.P: ${ parsedData.postalCode }</p>
@@ -2541,7 +2347,7 @@ function initMap() {
                                  <p>${ parsedData.category }</p>
                                  <p>${ parsedData.name }</p>
                              </div>
-                             <img src='./assets/staticRecycling.jpg'/>
+                             <img src='${ STATIC_IMAGES.recycling }'>
                              <p>Localización: ${ parsedData.addressLocality }, ${ parsedData.addressRegion }</p>
                              <p>Address: ${ parsedData.streetAddress }</p>
                              <p>C.P: ${ parsedData.postalCode }</p>
@@ -2587,7 +2393,7 @@ function initMap() {
      //                                  <p>${parsedData.category}</p>
      //                                  <p>${parsedData.name}</p>
      //                              </div>
-     //                              <img src='./assets/staticRecycling.jpg'/>
+     //                              <img src='${STATIC_IMAGES.recycling}'>
      //                              <p>Localización: ${parsedData.addressLocality}, ${parsedData.addressRegion}</p>
      //                              <p>Address: ${parsedData.streetAddress}</p>
      //                              <p>C.P: ${parsedData.postalCode}</p>
@@ -2836,7 +2642,7 @@ function initMap() {
                                   <p>${ category }</p>
                                   <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticStreetlights.jpg'/>
+                              <img src='${ STATIC_IMAGES.streetlights }'>
                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                               <p>Address: ${ streetAddress }</p>
                               <p>C.P: ${ postalCode }</p>
@@ -2908,7 +2714,7 @@ function initMap() {
                               <div class='nameContainer'>
                                    <p>${ item.name.value }</p>
                               </div>
-                              <img src='./assets/StaticEnergyEfficiency.jpg'/>
+                              <img src='${ STATIC_IMAGES.energyEfficiency }'>
                               <p>Código identificador: ${ idWithoutPrefix }</p>
                               <p>Address: ${ item.address.value.streetAddress }</p>
                               <p>Barrio: ${ item.address.value.neighborhood }</p>
@@ -3495,7 +3301,7 @@ function initMap() {
                                    <p>${ category }</p>
                                    <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticParkings.jpg'>
+                              <img src='${ STATIC_IMAGES.parkings }'>
                               <div class="parking-info">
                               <div class="parking-bar-container">
                                    <div class="parking-bar" style="width: ${ ocupacionPorcentaje }%;"></div>
@@ -4194,7 +4000,7 @@ function initMap() {
                                         <p>${ type }</p>
                                         <strong>${ name }</strong>
                                    </div>
-                                   <img src='./assets/staticBusStop.jpg'>
+                                   <img src='${ STATIC_IMAGES.bus }'>
                                    <p>Dirección: ${ streetAddress }, ${ addressRegion } ${ addressCountry }</p>
                                    <p>${ description }</p>
                                    <button id="cerrar-info-box">
@@ -4872,148 +4678,7 @@ function initMap() {
           iniciarShipsEnMapa( 1, './assets/shipsQubo.svg', 'Logistics Ship', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/ship.json?sp=r&st=2024-07-26T17:13:49Z&se=2090-01-01T02:13:49Z&sv=2022-11-02&sr=b&sig=B3GhjJFd%2FjJeGN46olFo9NWlu3Lu6le9eAycQhPO1s8%3D' );
      } );
 
-     //* FUNCIÓN PARA TRUCKS Y VANS LOGISTICS*//
 
-     // const marcadoresVehiculos = {};
-
-     // function iniciarMovimientoMarcador( marker, coordinates, interval, updateInfoBox ) {
-     //      let index = 0;
-     //      const totalCoords = coordinates.length;
-
-     //      const intervalId = setInterval( () => {
-     //           marker.setPosition( new google.maps.LatLng( coordinates[ index ].lat, coordinates[ index ].lng ) );
-     //           if ( updateInfoBox ) {
-     //                updateInfoBox( index );
-     //           }
-
-     //           index++;
-     //           if ( index >= totalCoords ) {
-     //                index = 0;
-     //           }
-     //      }, interval );
-
-     //      return intervalId;
-     // }
-
-     // function iniciarVehiculoEnMapa( vehiculoId, iconUrl, title, apiUrl, esVan = false ) {
-     //      if ( marcadoresVehiculos[ vehiculoId ] ) {
-     //           clearInterval( marcadoresVehiculos[ vehiculoId ].intervaloId );
-     //           marcadoresVehiculos[ vehiculoId ].marker.setMap( null );
-     //           delete marcadoresVehiculos[ vehiculoId ];
-     //           return;
-     //      }
-
-     //      const vehiculoMarker = new google.maps.Marker( {
-     //           map: map,
-     //           title: title,
-     //           icon: iconUrl,
-     //      } );
-
-     //      const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
-     //      fetch( proxyUrl )
-     //           .then( response => response.json() )
-     //           .then( data => {
-     //                if ( data.Coordenadas && Array.isArray( data.Coordenadas ) ) {
-     //                     const coordenadas = data.Coordenadas.map( coord => ( {
-     //                          lat: parseFloat( coord.lat ),
-     //                          lng: parseFloat( coord.lng )
-     //                     } ) );
-
-
-
-     //                     function actualizarInfoBox( index ) {
-     //                          const coord = data.Coordenadas[ index ];
-     //                          const infoBox = document.querySelector( ".info-box-trucks" );
-     //                          if ( infoBox &&
-     //                               infoBox.style.display === "flex" &&
-     //                               infoBox.getAttribute( 'data-vehiculo-id' ) === vehiculoId.toString() ) {
-
-     //                                    if ( esVan ) {
-     //                                         // Infobox estático para vans
-     //                                         infoBox.innerHTML = `
-     //                               <div class="nameContainer">
-     //                                    <p>Van</p>
-     //                                    <p>Logistics Van</p>
-     //                               </div>
-     //                               <div class="own">
-     //                                    <img src="${ data.ImagenURL }" alt="Van Image" />
-     //                               </div>
-     //                               <p>ID Conductor: ${ data[ "ID Conductor" ] }</p>
-     //                               <p>ID Vehículo: ${ data[ "ID Vehiculo" ] }</p>
-     //                               <p>Matrícula: ${ data.Matricula }</p>
-     //                               <p>Empresa: ${ data.Empresa }</p>
-     //                               <button id="cerrar-info-box-trucks">
-     //                                    <img src='./assets/botonCerrar.svg' alt="Cerrar" />
-     //                               </button>
-     //                          `;
-     //                               } else {
-     //                                    // Infobox dinámico para trucks
-     //                                    infoBox.innerHTML = `
-     //                               <div class="nameContainer">
-     //                                    <p>Truck</p>
-     //                                    <p>Logistics Truck</p>
-     //                               </div>
-     //                               <div class="own">
-     //                                    <img src="${ data.ImagenURL }" alt="Truck Image" />
-     //                               </div>
-     //                               <p>ID Conductor: ${ data[ "ID Conductor" ] }</p>
-     //                               <p>ID Vehículo: ${ data[ "ID Vehiculo" ] }</p>
-     //                               <p>Matrícula: ${ data.Matricula }</p>
-     //                               <p>Empresa: ${ data.Empresa }</p>
-     //                               <p>Combustible: ${ coord[ "Combustible (%)" ] }%</p>
-     //                               ${ coord[ "Emisiones CO2 (g)" ] !== undefined ?
-     //                                                   `<p>Emisiones CO2: ${ coord[ "Emisiones CO2 (g)" ] } g</p>` : '' }
-     //                               <p>Distancia a destino: ${ coord[ "Distancia a destino (mi)" ] } mi</p>
-     //                               <button id="cerrar-info-box-trucks">
-     //                                    <img src='./assets/botonCerrar.svg' alt="Cerrar" />
-     //                               </button>
-     //                          `;
-     //                               }
-
-     //                               document.getElementById( "cerrar-info-box-trucks" ).addEventListener( "click", () => {
-     //                                    infoBox.style.display = "none";
-     //                               } );
-     //                          }
-     //                     }
-
-     //                     // Ahora TODAS las vans y trucks se mueven
-     //                     const intervaloId = iniciarMovimientoMarcador(
-     //                          vehiculoMarker,
-     //                          coordenadas,
-     //                          500,
-     //                          actualizarInfoBox
-     //                     );
-
-     //                     marcadoresVehiculos[ vehiculoId ] = {
-     //                          marker: vehiculoMarker,
-     //                          intervaloId: intervaloId,
-     //                          datosVehiculo: data
-     //                     };
-
-     //                     vehiculoMarker.addListener( "click", () => {
-     //                          const infoBox = document.querySelector( ".info-box-trucks" );
-     //                          if ( infoBox ) {
-     //                               infoBox.setAttribute( 'data-vehiculo-id', vehiculoId );
-     //                               infoBox.style.display = "flex";
-     //                               actualizarInfoBox( 0 );
-     //                          }
-     //                     } );
-     //                }
-     //           } )
-     //           .catch( error => console.error( "Error al obtener coordenadas del vehículo:", error ) );
-     // }
-
-     // // Event listener para el botón de trucks
-     // const eventTrucks = document.getElementById( "trucks-sub-nav-item" );
-     // eventTrucks.addEventListener( 'click', function () {
-     //      // Iniciamos los tres camiones y la van
-     //      iniciarVehiculoEnMapa( 1, './assets/truckQubo.svg', 'Truck 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck_data_final_updated.json?sp=r&st=2025-02-10T19:02:46Z&se=2099-02-11T03:02:46Z&sv=2022-11-02&sr=b&sig=%2BYAtmguCffqiUlLNILe60nYEiXtYtU1bCE5Rsqywz%2FU%3D' );
-     //      iniciarVehiculoEnMapa( 2, './assets/truckQubo.svg', 'Truck 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck2_data_final_updated.json?sp=r&st=2025-02-10T19:03:13Z&se=2099-02-11T03:03:13Z&sv=2022-11-02&sr=b&sig=uFSo%2B7rpy1GBaCjpTWwvkJ1pd3rmkCglH9ZsEfn4vYg%3D' );
-     //      iniciarVehiculoEnMapa( 3, './assets/truckQubo.svg', 'Truck 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck3_data_final.json?sp=r&st=2025-02-10T19:03:40Z&se=2099-02-11T03:03:40Z&sv=2022-11-02&sr=b&sig=E9Md4DIMtRIV%2FwUjCs0y57MMMr1pS3%2BnMq4DCkr%2FogE%3D' );
-     //      iniciarVehiculoEnMapa( 4, './assets/truckQubo.svg', 'Van Miami', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_miami_data.json?sp=r&st=2025-02-09T22:40:50Z&se=2099-02-10T06:40:50Z&sv=2022-11-02&sr=b&sig=3mt25X3t7dbbt8fcEWiI%2BCjrBny6EN%2FkNOvMMcZ9T%2FY%3D', true );
-     //      iniciarVehiculoEnMapa( 5, './assets/truckQubo.svg', 'Van New York', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_new_york_data.json?sp=r&st=2025-02-09T22:41:40Z&se=2099-02-10T06:41:40Z&sv=2022-11-02&sr=b&sig=teiu0TH1VHhOUVdsDHH9VAXM16R11M%2FSc2mbznyKq5Q%3D', true );
-     //      iniciarVehiculoEnMapa( 6, './assets/truckQubo.svg', 'Van San Luis', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_san_luis_data.json?sp=r&st=2025-02-09T22:41:58Z&se=2099-02-10T06:41:58Z&sv=2022-11-02&sr=b&sig=2hyY5AtQQ210htuWhxIfPce8QrSuAs1ED1V6grcj%2FQc%3D', true );
-     // } );
 
      //* FUNCIÓN PARA TRUCKS Y VANS LOGISTICS*//
 
@@ -5056,6 +4721,11 @@ function initMap() {
           fetch( proxyUrl )
                .then( response => response.json() )
                .then( data => {
+                    // Precargamos la imagen inmediatamente cuando recibimos los datos
+                    if ( data.ImagenURL ) {
+                         const img = new Image();
+                         img.src = data.ImagenURL;
+                    }
                     if ( data.Coordenadas && Array.isArray( data.Coordenadas ) ) {
                          const coordenadas = data.Coordenadas.map( coord => ( {
                               lat: parseFloat( coord.lat ),
@@ -5251,7 +4921,7 @@ function initMap() {
                                    const infoBox = document.querySelector( ".info-box-tracking" );
                                    infoBox.innerHTML = `
                             <div><strong>Tracking Package</strong></div>
-                            <img src='./assets/staticTracking.png' alt="Imagen del Tracking"/>
+                            <img src='${ STATIC_IMAGES.tracking }'>
                             <div>Tracking Number: ${ data.trackingNumber }</div>
                             <div>Description: ${ data.description }</div>
                             <div>Dimensions: ${ data.dimensions.length } x ${ data.dimensions.width } x ${ data.dimensions.height } ${ data.dimensions.unit }</div>
@@ -5571,7 +5241,7 @@ function cargarMarcadoresNewBuildings() {
                                    <p>${ category }</p>
                                    <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticOtherBuildings.jpg'>
+                              <img src='${ STATIC_IMAGES.otherBuildings }'>
                               <p>Address: ${ streetAddress }, ${ postalCode }</p>
                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                               <p>District: ${ district }</p>
@@ -5613,10 +5283,18 @@ eventNewBuildings.addEventListener( "click", () => {
 const cargarYMostrarMarcadoresCasas = async () => {
      try {
           const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Houses/Fiware_Buildings_Houses-00001?sp=r&st=2024-03-31T08:25:20Z&se=2090-01-01T17:25:20Z&sv=2022-11-02&sr=b&sig=gYyNiUSwKU5upO86hX1DgDGRmoosucVSPcYZ%2BxGSnHY%3D";
-          const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`; // Construye la URL del proxy
+          const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
 
-          const response = await fetch( proxyUrl ); // Llama al proxy en lugar de directamente al endpoint
+          const response = await fetch( proxyUrl );
           const data = await response.json();
+
+          // Precargar todas las imágenes al recibir los datos
+          data.buildings0007.forEach( item => {
+               if ( item.thumbnail && item.thumbnail.value ) {
+                    const img = new Image();
+                    img.src = item.thumbnail.value;
+               }
+          } );
 
           data.buildings0007.forEach( item => {
                const parsedData = parseFiwareData( item );
@@ -5720,7 +5398,7 @@ const cargarYMostrarMarcadoresOficinas = async () => {
                               <p>${ capitalizedCategory }</p>
                               <p>${ item.name.value }</p>
                          </div>
-                         <img src='./assets/staticOffices.jpg'>
+                         <img src='${ STATIC_IMAGES.offices }'>
                          <p>Código identificador: ${ idWithoutPrefix }</p>
                          <p>Address: ${ item.address.value.streetAddress }</p>
                          <p>District: ${ item.address.value.district }</p>
@@ -5799,7 +5477,7 @@ function cargarMarcadoresCommercialOrIndustrial() {
                                    <p>${ category }</p>
                                    <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticCommercialOrIndustrial.jpg'>
+                              <img src='${ STATIC_IMAGES.commercialIndustrial }'>
                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                               <p>Neighborhood: ${ neighborhood }</p>
                               <p>District: ${ district }</p>
@@ -5868,7 +5546,7 @@ const cargarYMostrarMarcadoresGarages = async () => {
                              <p>Garaje</p>
                              <p>${ name }</p>
                          </div>
-                         <img src='./assets/staticGarages.jpg'>
+                         <img src='${ STATIC_IMAGES.garages }'>
                          <p>Address: ${ neighborhood }, ${ district }</p>
                          <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                          <p>${ description }</p>
@@ -5946,7 +5624,7 @@ function cargarMarcadoresParcels() {
                                    <p>Terreno</p>
                                    <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticParcels.jpg'>
+                              <img src='${ STATIC_IMAGES.parcels }'>
                               <p>Address: ${ streetAddress }, ${ postalCode }</p>
                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                               <p>Owner: ${ owner }</p>
@@ -6014,7 +5692,7 @@ eventparcels.addEventListener( "click", () => {
 //                                    <p>Terreno</p>
 //                                    <p>${ name }</p>
 //                               </div>
-//                               <img src='./assets/staticOtherBuildings.jpg'>
+//                               <img src='${STATIC_IMAGES.otherBuildings}'>
 
 //                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
 //                               <p>Neighborhood: ${ neighborhood }</p>
@@ -6091,7 +5769,7 @@ function cargarMarcadoresIconic() {
                              <p>${ category }</p>
                              <p>${ name }</p>
                          </div>
-                         <img src='./assets/staticIconic.jpg'>
+                         <img src='${ STATIC_IMAGES.iconic }'>
                          <p>${ description }</p>
                          <p>Address: ${ streetAddress }, ${ postalCode }</p>
                          <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
@@ -6185,7 +5863,7 @@ eventHospitals.addEventListener( "click", () => {
                                         <p>${ category }</p>
                                         <p>${ name }</p>
                                    </div>
-                                   <img src='./assets/staticHospital.jpg'>
+                                   <img src='${ STATIC_IMAGES.hospital }'>
                                    <p>Address: ${ streetAddress }, ${ postalCode }</p>
                                    <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                                    <p>${ addressCountry }</p>
@@ -6378,7 +6056,7 @@ const cargarMarcadoresFarmacias = () => {
                               <p>${ description }</p>
                               <p>${ name }</p>
                          </div>
-                         <img src='./assets/staticPharmacy.png'>
+                         <img src='${ STATIC_IMAGES.pharmacy }'>
                          <p>Owner: ${ owner }</p>
                          <p>Address: ${ streetAddress }</p>
                          <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
@@ -6552,7 +6230,7 @@ function cargarMarcadoresPolice() {
              <p>${ category }</p>
              <p>${ name }</p>
          </div>
-         <img src='./assets/staticPoliceStation.jpeg'>
+         <img src='${ STATIC_IMAGES.police }'>
      `;
 
                               // Agregar solo los campos que tienen datos válidos
@@ -6659,7 +6337,7 @@ eventPolice.addEventListener( "click", () => {
 //                              <p>${ category }</p>
 //                              <p>${ name }</p>
 //                          </div>
-//                          <img src='./assets/staticFireStation.jpeg'/>
+//                          <img src='${STATIC_IMAGES.fire}'/>
 //                          <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
 //                          <p>Address: ${ streetAddress }</p>
 //                          <p>C.P: ${ postalCode }</p>
@@ -6752,7 +6430,7 @@ function cargarMarcadoresFire() {
                                  <p>${ category }</p>
                                  <p>${ name }</p>
                              </div>
-                             <img src='./assets/staticFireStation.jpeg'/>
+                             <img src='${ STATIC_IMAGES.fire }'/>
                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                              <p>Address: ${ streetAddress }</p>
                              <p>C.P: ${ postalCode }</p>
@@ -6808,28 +6486,6 @@ eventFire.addEventListener( "click", () => {
 
 
 //* BOTÓN LOGISTICS ****************
-//! Trayecto Tager-Algeciras ****************
-// const trayectoLogistics = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/modified_tang_ale_minimal_change.kmz?sp=r&st=2024-08-25T11:06:21Z&se=2090-01-01T20:06:21Z&sv=2022-11-02&sr=b&sig=ee8VNVuRSEOfVPuzSCiLcOZGS8tPCQaTkjhlbW6Hs2w%3D";
-// let kmzLayerTrayecto = null;
-
-// function toggleKMZLayerTrayecto() {
-//      console.log("toggleKMZLayerTrayecto called");
-//      if ( kmzLayerTrayecto ) {
-//           // Si la capa KMZ ya existe, alternar su visibilidad
-//           kmzLayerTrayecto.setMap( kmzLayerTrayecto.getMap() ? null : map );
-//      } else {
-//           // Si la capa KMZ no existe, crearla y añadirla al mapa
-//           kmzLayerTrayecto = new google.maps.KmlLayer( {
-//                url: trayectoLogistics,
-//                map: map // Asegúrate de que 'map' sea una referencia válida a tu instancia de Google Maps
-//           } );
-//      }
-// };
-
-// // Suponiendo que tienes un botón con ID 'kmz-layer-toggle' para alternar la capa KMZ
-// const botonKMZTrayecto = document.getElementById( 'ships-sub-nav-item' );
-// botonKMZTrayecto.addEventListener( 'click', toggleKMZLayerTrayecto );
-
 
 
 
@@ -6952,7 +6608,7 @@ function cargarMarcadoresEnventsConcerts() {
                                    <p>${ category }</p>
                                    <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticConcertsEvents.jpg'>
+                              <img src='${ STATIC_IMAGES.concertsEvents }'>
                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                               <p>Address: ${ streetAddress }</p>
                               <p>C.P: ${ postalCode }</p>
@@ -7036,7 +6692,7 @@ function cargarMarcadoresTheatres() {
                                    <p>${ category }</p>
                                    <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticTheatres.jpg'>
+                              <img src='${ STATIC_IMAGES.theatres }'>
                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                               <p>Address: ${ streetAddress }</p>
                               <p>C.P: ${ postalCode }</p>
@@ -7123,7 +6779,7 @@ function cargarMarcadoresCinemas() {
                     <p>${ category }</p>
                     <p>${ name }</p>
                     </div>
-                    <img src='./assets/staticCinemas.jpg'>
+                    <img src='${ STATIC_IMAGES.cinemas }'>
                     <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                     <p>Address: ${ streetAddress }</p>
                     <p>C.P: ${ postalCode }</p>
@@ -7213,7 +6869,7 @@ function cargarMarcadoresLandmarks() {
                                    <p>${ category }</p>
                                    <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticLandmarks.jpg'>
+                              <img src='${ STATIC_IMAGES.landmarks }'>
                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                               <p>Address: ${ streetAddress }</p>
                               <p>C.P: ${ postalCode }</p>
@@ -7356,7 +7012,7 @@ const cargarYMostrarMarcadoresClubesYVidaNocturna = async () => {
                               <p>${ capitalizedCategory }</p>
                               <p>${ name }</p>
                          </div>
-                         <img src='./assets/staticClubsAndNightlife.jpg'>
+                         <img src='${ STATIC_IMAGES.clubsNightlife }'>
                          <p>Código identificador: ${ idWithoutPrefix }</p>
                          <p>Address: ${ streetAddress } C.P ${ postalCode }</p>
                          <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
@@ -7529,7 +7185,7 @@ function cargarMarcadoresSportsFacilities() {
                                    <p>${ category }</p>
                                    <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticSportsFacilities.jpg'>
+                              <img src='${ STATIC_IMAGES.sportsFacilities }'>
                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                               <p>Address: ${ streetAddress }</p>
                               <p>C.P: ${ postalCode }</p>
@@ -7742,7 +7398,7 @@ function cargarMarcadoresMuseums() {
                                    <p>${ category }</p>
                                    <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticMuseums.jpg'>
+                              <img src='${ STATIC_IMAGES.museums }'>
                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                               <p>Address: ${ streetAddress }</p>
                               <p>C.P: ${ postalCode }</p>
@@ -7826,7 +7482,7 @@ function cargarMarcadoresSocialServices() {
                                    <p>${ category }</p>
                                    <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticSocialServices.jpg'>
+                              <img src='${ STATIC_IMAGES.socialServices }'>
                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                               <p>Address: ${ streetAddress }</p>
                               <p>C.P: ${ postalCode }</p>
@@ -7907,7 +7563,7 @@ function cargarMarcadoresAdministration() {
                                    <p>${ category }</p>
                                    <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticAdministration.jpg'>
+                              <img src='${ STATIC_IMAGES.administration }'>
                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                               <p>Address: ${ streetAddress }</p>
                               <p>C.P: ${ postalCode }</p>
@@ -7988,7 +7644,7 @@ function cargarMarcadoresEducation() {
                                    <p>${ category }</p>
                                    <p>${ name }</p>
                               </div>
-                              <img src='./assets/staticEducation.jpg'>
+                              <img src='${ STATIC_IMAGES.education }'>
                               <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
                               <p>Address: ${ streetAddress }</p>
                               <p>C.P: ${ postalCode }</p>
@@ -8282,7 +7938,7 @@ document.addEventListener( "DOMContentLoaded", () => {
      } );
 
      // Verificar tipo de mapa inicial al cargar la página
-     checkInitialMapType();
+     // checkInitialMapType();
 } );
 
 
