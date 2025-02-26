@@ -30,21 +30,50 @@ function initMap() {
           mapTypeId: "satellite",
      };
 
+     // Recuperar el token de las cookies
+    const token = getCookie('access_token');
+    console.log("Token en frontend:", token); 
+
+    // Verificar si el token existe
+    if (!token) {
+        // Si no hay token, redirige a la página de error
+        window.location.href = '/login';  // Redirigir a la página de error
+        return;  // Detener la ejecución de la función si no hay token
+    }
+
+     // Crear el mapa y establecerlo en el div con el id "gmp-map"
+     map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
+
      // Función para manejar la eliminación de Qubos
      function handleQuboDelete( quboId, marker, infoBox, messageBox ) {
           return async () => {
                if ( confirm( "¿Estás seguro de que deseas eliminar este Qubo?" ) ) {
                     try {
+                         console.log( 'Intentando eliminar Qubo:', quboId );
+                         console.log( 'Marker antes de eliminar:', marker );
+                         console.log( 'ActiveMarkers antes de eliminar:', activeMarkers );
+
                          const response = await fetch( `/api/v1/qubo/${ quboId }`, {
                               method: 'DELETE',
                               headers: {
-                                   'Authorization': 'Bearer test123'
+                                   'Authorization': `Bearer ${ getCookie( 'access_token' ) }`,
                               }
                          } );
 
                          if ( response.ok ) {
+                              // Eliminar el marcador del mapa
                               marker.setMap( null );
+                              console.log( 'Marker después de setMap(null):', marker );
+
+                              // Eliminar el marcador de la colección activeMarkers
+                              const deleted = activeMarkers.delete( quboId );
+                              console.log( '¿Se eliminó de activeMarkers?:', deleted );
+                              console.log( 'ActiveMarkers después de eliminar:', activeMarkers );
+
+                              // Ocultar el infoBox
                               infoBox.style.display = "none";
+
+                              // Mostrar mensaje de éxito
                               messageBox.innerHTML = "Qubo eliminado correctamente";
                               messageBox.style.display = 'flex';
                               setTimeout( () => {
@@ -61,21 +90,39 @@ function initMap() {
           };
      }
 
+     function getCookie( name ) {
+          const value = `; ${ document.cookie }`;
+          const parts = value.split( `; ${ name }=` );
+          if ( parts.length === 2 ) {
+               const token = parts.pop().split( ';' ).shift();
+               console.log( "Token recuperado:", token );  // Verifica aquí que el token es correcto
+               return token;
+          }
+          return null;  // Si no encuentra la cookie, devuelve null
+     }
 
-     // Crear el mapa y establecerlo en el div con el id "gmp-map"
-     map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
 
      document.addEventListener( 'DOMContentLoaded', function () {
-          // Fetch con autorización
+          const token = getCookie( 'access_token' );
+          if (!token) {
+               
+               window.location.href = '/login';
+               return;
+           }
+
           fetch( '/api/v1/qubo', {
                headers: {
-                    'Authorization': 'Bearer test123'
-               }
+                    'Authorization': `Bearer ${ token }`
+               },
+               credentials: 'include'  // Importante para enviar cookies en solicitudes
           } )
                .then( response => {
                     if ( !response.ok ) {
-                         window.location.href = 'https://google.com';
-                         throw new Error( 'Token no válido' );
+                         // Si el token es inválido o no se encuentra, muestra el mensaje de error
+                         return response.json().then( error => {
+                              alert( error.message || 'Token no válido' );
+                              throw new Error( error.message || 'Token no válido' ); // Detén la ejecución si no es válido
+                         } );
                     }
                     return response.json();
                } )
@@ -88,6 +135,9 @@ function initMap() {
                               title: qubo.title,
                               icon: subcategoryIcons.QUBO_ICONS[ qubo.subcategory ] || './assets/quboNeutro.svg'
                          } );
+
+                         // Guardar el marcador en activeMarkers (añade esta línea)
+                         activeMarkers.set( qubo._id, marker );
 
                          marker.addListener( 'click', () => {
                               const infoBox = document.querySelector( ".info-box" );
@@ -255,15 +305,39 @@ function initMap() {
           let isAddingQubo = false;
           let currentMarker = null;
 
-          // AQUÍ VA EL NUEVO CÓDIGO - JUSTO DESPUÉS DE DECLARAR currentMarker
+          function normalizeString( str ) {
+               const normalized = str.toLowerCase()
+                    .replace( /&/g, 'and' )
+                    .replace( /[\s-_]+/g, '' )
+                    .trim();
+               console.log( 'Normalizando:', str, '→', normalized );
+               return normalized;
+          }
+
+
+          // En el event listener de 'change'
           document.getElementById( 'subcategory' ).addEventListener( 'change', function () {
                if ( currentMarker ) {
                     const subcategory = this.value;
-                    const iconUrl = subcategory && subcategoryIcons.QUBO_ICONS ?
-                         ( subcategoryIcons.QUBO_ICONS[ subcategory ] || './assets/quboNeutro.svg' ) :
-                         './assets/quboNeutro.svg';
+                    const normalizedSubcategory = normalizeString( subcategory );  // Normalizar el valor
+                    console.log( 'Subcategoría seleccionada:', subcategory );
+                    console.log( 'Subcategoría normalizada:', normalizedSubcategory );
+
+                    const position = currentMarker.getPosition();
+                    currentMarker.setMap( null );
+
+                    // Buscar el icono comparando valores normalizados
+                    const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
+                         .find( key => normalizeString( key ) === normalizedSubcategory );  // Comparar normalizados
+                    const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : './assets/quboNeutro.svg';
                     console.log( 'Changing icon to:', iconUrl );
-                    currentMarker.setIcon( iconUrl );
+
+                    currentMarker = new google.maps.Marker( {
+                         position: position,
+                         map: map,
+                         title: 'Nuevo Qubo',
+                         icon: iconUrl
+                    } );
                }
           } );
 
@@ -279,11 +353,14 @@ function initMap() {
                     const lat = event.latLng.lat();
                     const lng = event.latLng.lng();
                     console.log( "Latitud:", lat, "Longitud:", lng );
+                    if ( currentMarker ) {
+                         currentMarker.setMap( null );
+                    }
 
                     const subcategory = document.getElementById( 'subcategory' ).value;
-                    const iconUrl = subcategory && subcategoryIcons.QUBO_ICONS ?
-                         ( subcategoryIcons.QUBO_ICONS[ subcategory ] || './assets/quboNeutro.svg' ) :
-                         './assets/quboNeutro.svg';
+                    const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
+                         .find( key => normalizeString( key ) === subcategory );
+                    const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : './assets/quboNeutro.svg';
                     console.log( 'Subcategory:', subcategory );
                     console.log( 'Icon URL:', iconUrl );
 
@@ -450,7 +527,27 @@ function initMap() {
           // Añade más categorías y subcategorías aquí
      };
 
-     // Función para actualizar las subcategorías cuando se selecciona una categoría
+     // // Función para actualizar las subcategorías cuando se selecciona una categoría
+     // function updateSubcategories() {
+     //      const categorySelect = document.getElementById( "category" );
+     //      const subcategorySelect = document.getElementById( "subcategory" );
+     //      const selectedCategory = categorySelect.value;
+
+     //      // Limpiar subcategorías existentes
+     //      subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+
+     //      // Añadir nuevas subcategorías en función de la categoría seleccionada
+     //      if ( selectedCategory && categoryMappings[ selectedCategory ] ) {
+     //           categoryMappings[ selectedCategory ].forEach( ( subcategory ) => {
+     //                const option = document.createElement( "option" );
+     //                // Cambiar la transformación para que coincida con el formato camelCase
+     //                const value = subcategory.replace( /\s+/g, '' ).charAt( 0 ).toLowerCase() + subcategory.replace( /\s+/g, '' ).slice( 1 );
+     //                option.value = value;
+     //                option.textContent = subcategory;
+     //                subcategorySelect.appendChild( option );
+     //           } );
+     //      }
+     // }
      function updateSubcategories() {
           const categorySelect = document.getElementById( "category" );
           const subcategorySelect = document.getElementById( "subcategory" );
@@ -463,8 +560,8 @@ function initMap() {
           if ( selectedCategory && categoryMappings[ selectedCategory ] ) {
                categoryMappings[ selectedCategory ].forEach( ( subcategory ) => {
                     const option = document.createElement( "option" );
-                    // Cambiar la transformación para que coincida con el formato camelCase
-                    const value = subcategory.replace( /\s+/g, '' ).charAt( 0 ).toLowerCase() + subcategory.replace( /\s+/g, '' ).slice( 1 );
+                    // Simplemente eliminar espacios y convertir a minúsculas
+                    const value = subcategory.replace( /\s+/g, '' ).toLowerCase();
                     option.value = value;
                     option.textContent = subcategory;
                     subcategorySelect.appendChild( option );

@@ -2,24 +2,48 @@
 const Qubo = require( "../models/qubo" );
 const cloudinary = require( 'cloudinary' ).v2;
 const QUBO_ICONS = require( "../../constants/cloudinaryUrls" );
+const { verifyToken } = require( "../../utils/jwt" );
 
 
 
-const getQubo = async ( req, res, next ) => {
+// const getQubo = async ( req, res, next ) => {
+//     try {
+//         // Verificar el token
+//         const token = req.headers.authorization?.split(' ')[1]; // Obtiene el token del header
+
+//         if (!token) {
+//             return res.status(401).json({ message: 'No se encontró token, no estás autenticado' }); // En vez de redirigir, devuelves un error
+//         }
+
+//         const allQubos = await Qubo.find();
+//         return res.status( 200 ).json( allQubos );
+//     } catch ( error ) {
+//         return res.status( 400 ).json( "Ha fallado la obtención de qubos" );
+//     }
+// };
+const getQubo = async (req, res, next) => {
     try {
         // Verificar el token
-        const token = req.headers.authorization?.split( ' ' )[ 1 ]; // Obtiene el token del header
+        const token = req.headers.authorization?.split(' ')[1]; // Obtiene el token del header
+        console.log("Token recibido por getQubo:", token);
 
-        if ( !token || token !== 'test123' ) {
-            return res.redirect( 'https://google.com' );
+        if (!token) {
+            return res.status(401).json({ message: 'Token no encontrado, no estás autenticado' });
+        }
+
+        const result = verifyToken(token);
+        if (!result.success) {
+            return res.status(401).json({ message: 'Token inválido', error: result.error });
         }
 
         const allQubos = await Qubo.find();
-        return res.status( 200 ).json( allQubos );
-    } catch ( error ) {
-        return res.status( 400 ).json( "Ha fallado la obtención de qubos" );
+        return res.status(200).json(allQubos);
+    } catch (error) {
+        console.error("Error en getQubo:", error);
+        return res.status(500).json({ message: 'Error al obtener los qubos', error: error.message });
     }
 };
+
 
 
 const postQubo = async ( req, res, next ) => {

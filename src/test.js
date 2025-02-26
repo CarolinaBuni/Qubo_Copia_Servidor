@@ -14,13 +14,17 @@ async function testUserModel() {
           console.log( 'Colecciones disponibles:', collections.map( c => c.name ) );
 
           // Buscar un usuario específico
-          const user = await User.findOne( { email: "ineslopezjuan1@gmail.com" } );
+          const user = await User.findOne( { email: "donquixotedlm@gmail.com" } );
           console.log( 'Usuario encontrado:', user );
 
           // Buscar todos los usuarios
           const allUsers = await User.find();
           console.log( 'Total usuarios:', allUsers.length );
-          console.log( 'Roles de usuarios:', allUsers.map( u => ( { email: u.email, roles: u.role } ) ) );
+          console.log( 'Roles de usuarios:', allUsers.map( u => ( {
+                email: u.email, 
+                roles: u.rol,
+                modules: u.modules
+          } ) ) );
 
      } catch ( error ) {
           console.error( '❌ Error:', error );
