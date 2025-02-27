@@ -43,7 +43,7 @@ const isAuth = async (req, res, next) => {
 
         if (!token) {
             console.log("❌ No se encontró el token en las cookies");
-            return res.redirect("/login");
+            return res.redirect("/login?error=no_token");
         }
 
         // 2. Verificar el token
@@ -51,7 +51,7 @@ const isAuth = async (req, res, next) => {
 
         if (!result.success) {
             console.error("❌ Token inválido:", result.error);
-            return res.redirect("/login");
+            return res.redirect("/login?error=token_invalido");
         }
 
         // 3. Guardar datos del token en el request
@@ -65,7 +65,7 @@ const isAuth = async (req, res, next) => {
 
         if (!dbUser) {
             console.log('❌ Usuario no encontrado en la base de datos');
-            return res.redirect("/login");
+            return res.redirect("/login?error=usuario_no_encontrado");
         }
 
         // 5. Añadir información de la base de datos al request
@@ -81,7 +81,7 @@ const isAuth = async (req, res, next) => {
 
     } catch (error) {
         console.error('❌ Error en autenticación:', error);
-        return res.redirect("/login");
+        return res.redirect(`/login?error=${encodeURIComponent(error.message)}`);
     }
 };
 

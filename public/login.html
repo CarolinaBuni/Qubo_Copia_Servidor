@@ -23,6 +23,26 @@
             color: #333;
         }
     </style>
+    <script>
+        window.onload = function() {
+            // Obtener el error de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            
+            if (error) {
+                const errorMessages = {
+                    'no_token': 'No se encontró el token de autenticación',
+                    'token_invalido': 'El token de autenticación es inválido o ha expirado',
+                    'usuario_no_encontrado': 'Usuario no encontrado en la base de datos'
+                };
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = errorMessages[error] || `Error de autenticación: ${error}`;
+                document.querySelector('.login-container').appendChild(errorDiv);
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="login-container">
