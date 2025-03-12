@@ -162,34 +162,47 @@ app.get("/auth/session", async (req, res) => {
            return res.status(400).json({ error: 'No sessionId provided' });
        }
 
+       console.log("🔍 Buscando sesión en la colección 'sessions'");
        
-        // Modificamos esta parte para no usar mongoose directamente
-        console.log("🔍 Buscando sesión con ID:", sessionId);
+       // Buscar directamente en la colección sessions usando el ID como string
+       const session = await mongoose.connection.useDb('QuboUsers')
+           .collection('sessions')
+           .findOne({
+               _id: sessionId,  // Ya no intentamos convertir a ObjectId
+               expires: { $gt: new Date() } // Solo sesiones no expiradas
+           });
 
-       console.log("🔍 Buscando sesión:", sessionId);
-       const session = await Session.findById(sessionId);
+       console.log("🔍 Resultado de búsqueda:", session ? "Sesión encontrada" : "Sesión no encontrada");
        
-       if (session && session.token) {
-           console.log("✅ Sesión encontrada para userId:", session.userId);
-           res.cookie('access_token', session.token, {
+       if (session && session.session?.user) {
+           console.log("✅ Sesión válida encontrada para:", session.session.user.email);
+           
+           // Usar el sub de Auth0 como token
+           const userToken = session.session.user.sub;
+           
+           res.cookie('access_token', userToken, {
                httpOnly: true,
                secure: true,
                sameSite: 'Lax',
                maxAge: 3600000 // 1 hora
            });
+           
            return res.json({ 
                success: true, 
-               userId: session.userId 
+               userId: session.session.user.sub,
+               email: session.session.user.email
            });
        } else {
-           console.log("❌ Sesión no encontrada o token no válido");
+           console.log("❌ Sesión no encontrada o expirada");
            return res.status(404).json({ error: 'Invalid session' });
        }
    } catch (error) {
        console.error("❌ Error al procesar sessionId:", error);
-       if (error.name === 'CastError') {
-           return res.status(400).json({ error: 'Invalid session ID format' });
-       }
+       console.error("Detalles del error:", {
+           mensaje: error.message,
+           tipo: error.name,
+           stack: error.stack
+       });
        return res.status(500).json({ error: 'Error processing session' });
    }
 });
