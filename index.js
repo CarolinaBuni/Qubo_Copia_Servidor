@@ -162,25 +162,25 @@ app.get("/auth/session", async (req, res) => {
            return res.status(400).json({ error: 'No sessionId provided' });
        }
 
-       console.log("🔍 Buscando sesión en la colección 'sessions'");
+       console.log("🔍 Buscando sesión en la colección 'Sessions'");
        
-       // Buscar directamente en la colección sessions usando el ID como string
+       // Buscar en la colección Sessions con la estructura correcta
        const session = await mongoose.connection.useDb('QuboUsers')
-           .collection('sessions')
+           .collection('Sessions')  // Con S mayúscula
            .findOne({
-               _id: sessionId,  // Ya no intentamos convertir a ObjectId
-               expires: { $gt: new Date() } // Solo sesiones no expiradas
+               _id: new mongoose.Types.ObjectId(sessionId), // Ahora sí convertimos a ObjectId
+               createdAt: { 
+                   $gt: new Date(Date.now() - 3600000) // Sesiones no expiradas (menos de 1 hora)
+               }
            });
 
        console.log("🔍 Resultado de búsqueda:", session ? "Sesión encontrada" : "Sesión no encontrada");
        
-       if (session && session.session?.user) {
-           console.log("✅ Sesión válida encontrada para:", session.session.user.email);
+       if (session && session.token) {
+           console.log("✅ Sesión válida encontrada para userId:", session.userId);
            
-           // Usar el sub de Auth0 como token
-           const userToken = session.session.user.sub;
-           
-           res.cookie('access_token', userToken, {
+           // Usar el token JWT que viene en la sesión
+           res.cookie('access_token', session.token, {
                httpOnly: true,
                secure: true,
                sameSite: 'Lax',
@@ -189,8 +189,7 @@ app.get("/auth/session", async (req, res) => {
            
            return res.json({ 
                success: true, 
-               userId: session.session.user.sub,
-               email: session.session.user.email
+               userId: session.userId
            });
        } else {
            console.log("❌ Sesión no encontrada o expirada");
@@ -198,11 +197,9 @@ app.get("/auth/session", async (req, res) => {
        }
    } catch (error) {
        console.error("❌ Error al procesar sessionId:", error);
-       console.error("Detalles del error:", {
-           mensaje: error.message,
-           tipo: error.name,
-           stack: error.stack
-       });
+       if (error.name === 'CastError' || error.name === 'BSONError') {
+           return res.status(400).json({ error: 'Invalid session ID format' });
+       }
        return res.status(500).json({ error: 'Error processing session' });
    }
 });

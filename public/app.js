@@ -61,23 +61,30 @@ function procesarSesion() {
          credentials: 'include' // Importante para que se envíen/reciban cookies
      })
      .then(response => {
-         if (!response.ok) throw new Error('Error procesando sesión');
+         if (!response.ok) {
+             console.log("❌ Error en la respuesta:", response.status);
+             throw new Error('Error procesando sesión');
+         }
          return response.json();
      })
      .then(data => {
-         console.log("✅ Sesión procesada correctamente");
-         // Limpiamos la URL sin recargar la página
-         window.history.replaceState({}, document.title, window.location.pathname);
-         // Continuamos con la carga del mapa
-         initMap();
+         console.log("✅ Sesión procesada correctamente:", data);
+         if (data.success && data.userId) {
+             console.log("👤 Usuario autenticado:", data.userId);
+             // Limpiamos la URL sin recargar la página
+             window.history.replaceState({}, document.title, window.location.pathname);
+             // Continuamos con la carga del mapa
+             initMap();
+         } else {
+             throw new Error('Datos de sesión inválidos');
+         }
      })
      .catch(error => {
          console.error("❌ Error:", error);
          window.location.href = '/login';
      });
      
-     return true;
- }
+   
 
 function initMap() {
 
