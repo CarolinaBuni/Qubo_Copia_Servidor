@@ -84,7 +84,18 @@ function procesarSesion() {
          window.location.href = '/login';
      });
      
-   
+     return true;
+}
+
+function initMap() {
+     if (procesarSesion()) {
+          console.log("⏳ Procesando sesión, esperando...");
+          return;
+     }
+
+     // El resto de tu código initMap() se mantiene igual
+     // ... código existente ...
+}
 
 function initMap() {
 
