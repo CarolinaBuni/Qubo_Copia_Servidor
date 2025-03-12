@@ -1,3 +1,5 @@
+//* routes qubo.js
+
 const upload = require( "../../middlewares/file" );
 const { postQubo, getQubo, deleteQubo } = require( "../controllers/qubo" );
 
