@@ -150,7 +150,8 @@ cloudinary.config( {
 
 // Ruta principal que maneja el sessionId
 app.get( "/", async ( req, res, next ) => {
-   console.log( "Query params recibidos:", req.query );
+   console.log("📍 Accediendo a ruta principal");
+   console.log("🔍 Query params recibidos:", req.query);
    if ( req.query.sessionId ) {
       try {
          console.log( "Buscando sesión:", req.query.sessionId );
@@ -160,11 +161,11 @@ app.get( "/", async ( req, res, next ) => {
             res.cookie( 'access_token', session.token, {
                httpOnly: true,
                secure: true,
-               sameSite: 'Strict',
+               sameSite: 'Lax',
                maxAge: 3600000 // 1 hora
             } );
          } else {
-            console.log( "No se encontró la sesión" );
+            console.log("🍪 Cookie establecida");
          }
       } catch ( error ) {
          console.error( "Error al procesar sessionId:", error );
