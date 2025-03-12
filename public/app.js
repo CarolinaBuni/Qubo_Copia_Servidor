@@ -1,9 +1,40 @@
 "use strict";
 
 let activeMarkers = new Map();
+let marcadoresTiendas = {};
+let storesActivos = false;
 let map;
 let myLocationMarker;
 let autocomplete;
+
+// Añadir al inicio del archivo, después de las declaraciones de variables
+function handleSharedUrl() {
+     const urlParams = new URLSearchParams( window.location.search );
+     const view = urlParams.get( 'view' );
+     const id = urlParams.get( 'id' );
+
+     if ( view === 'store' && id ) {
+          // Activar la capa de tiendas si no está activa
+          if ( !storesActivos ) {
+               document.getElementById( 'stores-sub-nav-item' ).click();
+          }
+
+          // Esperar a que los marcadores se carguen
+          const checkMarkers = setInterval( () => {
+               if ( marcadoresTiendas[ id ] ) {
+                    clearInterval( checkMarkers );
+                    // Simular click en el marcador
+                    google.maps.event.trigger( marcadoresTiendas[ id ].marker, 'click' );
+                    // Centrar el mapa en el marcador
+                    map.setCenter( marcadoresTiendas[ id ].marker.getPosition() );
+                    map.setZoom( 18 );
+               }
+          }, 100 );
+     }
+}
+
+// Llamar a la función cuando se carga la página
+window.addEventListener( 'load', handleSharedUrl );
 
 
 function precargarImagenes() {
@@ -18,7 +49,13 @@ function precargarImagenes() {
 }
 
 function initMap() {
-     // precargarImagenes();
+     if ( localStorage.getItem( "googleMapsLoaded" ) ) {
+          console.log( "El mapa ya está cargado desde la caché" );
+          loadCachedMap();
+     } else {
+
+     }
+     precargarImagenes();
      // Crear un objeto de opciones del mapa
      const mapOptions = {
           zoom: 10,
@@ -31,15 +68,15 @@ function initMap() {
      };
 
      // Recuperar el token de las cookies
-    const token = getCookie('access_token');
-    console.log("Token en frontend:", token); 
+     const token = getCookie( 'access_token' );
+     console.log( "Token en frontend:", token );
 
-    // Verificar si el token existe
-    if (!token) {
-        // Si no hay token, redirige a la página de error
-        window.location.href = '/login';  // Redirigir a la página de error
-        return;  // Detener la ejecución de la función si no hay token
-    }
+     // Verificar si el token existe
+     if ( !token ) {
+          // Si no hay token, redirige a la página de error
+          window.location.href = '/login';  // Redirigir a la página de error
+          return;  // Detener la ejecución de la función si no hay token
+     }
 
      // Crear el mapa y establecerlo en el div con el id "gmp-map"
      map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
@@ -74,17 +111,17 @@ function initMap() {
                               infoBox.style.display = "none";
 
                               // Mostrar mensaje de éxito
-                              messageBox.innerHTML = "Qubo eliminado correctamente";
+                              messageBox.innerHTML = "Qubo deleted successfully";
                               messageBox.style.display = 'flex';
                               setTimeout( () => {
                                    messageBox.style.display = 'none';
                               }, 3000 );
                          } else {
-                              throw new Error( "Error al eliminar el Qubo" );
+                              throw new Error( "Error deleting Qubo" );
                          }
                     } catch ( error ) {
                          console.error( "Error:", error );
-                         alert( "Error al eliminar el Qubo" );
+                         alert( "Error deleting Qubo" );
                     }
                }
           };
@@ -104,11 +141,11 @@ function initMap() {
 
      document.addEventListener( 'DOMContentLoaded', function () {
           const token = getCookie( 'access_token' );
-          if (!token) {
-               
+          if ( !token ) {
+
                window.location.href = '/login';
                return;
-           }
+          }
 
           fetch( '/api/v1/qubo', {
                headers: {
@@ -117,12 +154,9 @@ function initMap() {
                credentials: 'include'  // Importante para enviar cookies en solicitudes
           } )
                .then( response => {
+                    // Quitar la verificación de token aquí también
                     if ( !response.ok ) {
-                         // Si el token es inválido o no se encuentra, muestra el mensaje de error
-                         return response.json().then( error => {
-                              alert( error.message || 'Token no válido' );
-                              throw new Error( error.message || 'Token no válido' ); // Detén la ejecución si no es válido
-                         } );
+                         return response.json();
                     }
                     return response.json();
                } )
@@ -153,9 +187,9 @@ function initMap() {
                          <div class='own'>
                          <img src='${ qubo.img }'>
                          </div>
-                         <p>Descripción: ${ qubo.description }</p>
-                         <p>Categoría: ${ qubo.category }</p>
-                         <p>Fecha de inicio: ${ startDate.toLocaleDateString() } a las ${ startDate.toLocaleTimeString() }</p>
+                         <p>Descripción: <span>${ qubo.description }</span> </p>
+                         <p>Categoría: <span>${ qubo.category }</span> </p>
+                         <p>Fecha de inicio: <span>${ startDate.toLocaleDateString() } a las ${ startDate.toLocaleTimeString() }</span> </p>
                          <p>Fecha de finalización: ${ finishDate.toLocaleDateString() } a las ${ finishDate.toLocaleTimeString() }</p>
                          <p>Link: <a href="${ qubo.link }" target="_blank">${ qubo.link }</a></p>
                          <p>Anónimo: ${ qubo.anonymous ? "Sí" : "No" }</p>
@@ -187,12 +221,6 @@ function initMap() {
                } )
                .catch( error => console.error( 'Error al cargar los Qubos:', error ) );
      } );
-
-
-
-
-
-
 
 
      // Define la URL de la imagen del icono personalizado
@@ -310,7 +338,6 @@ function initMap() {
                     .replace( /&/g, 'and' )
                     .replace( /[\s-_]+/g, '' )
                     .trim();
-               console.log( 'Normalizando:', str, '→', normalized );
                return normalized;
           }
 
@@ -335,7 +362,7 @@ function initMap() {
                     currentMarker = new google.maps.Marker( {
                          position: position,
                          map: map,
-                         title: 'Nuevo Qubo',
+                         title: 'New Qubo',
                          icon: iconUrl
                     } );
                }
@@ -345,7 +372,7 @@ function initMap() {
                isAddingQubo = true;
                messageBox.style.display = 'block';
                formContainer.classList.add( 'hidden' );
-               console.log( 'Modo añadir Qubo activado, por favor haz clic en el mapa para seleccionar la ubicación.' );
+               console.log( 'Qubo add mode activated, please click on the map to select the location.' );
           } );
 
           map.addListener( 'click', function ( event ) {
@@ -484,7 +511,7 @@ function initMap() {
           ],
           Security: [ "Police", "Fire", "Military", "Cybersecurity" ],
           Infraestructure: [ "Waste", "Water", "Electricity", "Sewage", "Internet" ],
-          Logistics: [ "Pick-up Points", "Pack Location" ],
+          Logistics: [ "Pick-up Points", "Pack Location", "Tracking", "Ports", "Ships", "Trucks", "Stores" ],
           "Environment & Sustainability": [
                "Parks & Gardens",
                "Fountains",
@@ -611,7 +638,7 @@ function initMap() {
           addQuboButton.addEventListener( 'click', function () {
                isAddingQubo = true;
                messageBox.style.display = 'block';
-               messageBox.innerHTML = 'Modo añadir Qubo activado, por favor haz clic en el mapa para seleccionar la ubicación.';
+               messageBox.innerHTML = 'Qubo add mode activated, please click on the map to select the location.';
           } );
 
 
@@ -915,11 +942,11 @@ function initMap() {
                                              <p>${ name }</p>
                                         </div>
                                         <img src='${ STATIC_IMAGES.waste }'>
-                                        <p>${ description }</p>
-                                        <p>Address: ${ streetAddress }, ${ postalCode }</p>
-                                        <p>Localización: ${ addressLocality }, ${ addressCountry }, ${ addressRegion }</p>
-                                        <p>Owner: ${ owner }</p>
-                                        <p>ID: ${ id }</p>
+                                        <p> <span>${ description }</span> </p>
+                                        <p>Address: <span>${ streetAddress }, ${ postalCode }</span> </p>
+                                        <p>Localización: <span>${ addressLocality }, ${ addressCountry }, ${ addressRegion }</span> </p>
+                                        <p>Owner: <span>${ owner }</span> </p>
+                                        <p>ID: <span>${ id }</span> </p>
                                         <button id="cerrar-info-box">
                                              <img src='./assets/botonCerrar.svg'>
                                         </button>
@@ -1010,10 +1037,10 @@ function initMap() {
                                              <p>${ name }</p>
                                         </div>
                                         <img src='${ STATIC_IMAGES.water }'>
-                                        <p>${ description }</p>
-                                        <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                                        <p>Country: ${ addressCountry }</p>
-                                        <p>ID: ${ id }</p>
+                                        <p> <span>${ description }</span> </p>
+                                        <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
+                                        <p>Country: <span>${ addressCountry }</span> </p>
+                                        <p>ID: <span>${ id }</span> </p>
                                         <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
                                         <button id="cerrar-info-box">
                                              <img src='./assets/botonCerrar.svg'>
@@ -1196,9 +1223,9 @@ function initMap() {
                                 <p>${ name }</p>
                             </div>
                             <img src='${ STATIC_IMAGES.sewage }'>
-                            <p>${ description }</p>
-                            <p>Localización: ${ addressCountry }, ${ addressRegion }</p>
-                            <p>ID: ${ id }</p>
+                            <p> <span>  ${ description }</span> </p>
+                            <p>Localización: <span>${ addressCountry }, ${ addressRegion }</span> </p>
+                            <p>ID: <span>${ id }</span> </p>
                             <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
                             <button id="cerrar-info-box">
                                 <img src='./assets/botonCerrar.svg'>
@@ -1377,9 +1404,9 @@ function initMap() {
                                  <p>${ name }</p>
                              </div>
                              <img src='${ STATIC_IMAGES.internet }'>
-                             <p>${ description }</p>
-                             <p>Localización: ${ addressCountry }, ${ addressRegion }</p>
-                             <p>ID: ${ id }</p>
+                             <p> <span>${ description }</span> </p>
+                             <p>Localización: <span>${ addressCountry }, ${ addressRegion }</span> </p>
+                             <p>ID: <span>${ id }</span> </p>
                              <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
                              <button id="cerrar-info-box">
                                  <img src='./assets/botonCerrar.svg'>
@@ -1524,34 +1551,142 @@ function initMap() {
                               } );
 
                               marker.addListener( "click", () => {
-                                   const infoBox = document.querySelector( ".info-box" );
-                                   infoBox.style.display = "flex";
-                                   infoBox.innerHTML = `
-                                        <div class='nameContainer'>
-                                             <p>${ item.category.object }</p>
-                                             <p>${ name }</p>
-                                        </div>
-                                        <img src='${ STATIC_IMAGES.bicyleSharing }'>
-                                        <p>${ description }</p>
-                                        <p>Address: ${ streetAddress }, ${ postalCode }</p>
-                                        <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                                        <p>Country: ${ addressCountry }</p>
-                                        <p>Owner: ${ owner }</p>
-                                        <p>ID: ${ id }</p>
-                                        <button id="cerrar-info-box">
-                                             <img src='./assets/botonCerrar.svg'>
-                                        </button>
-                                        <button class='share'>
-                                             <img src='./assets/shareIcon.svg'>
-                                        </button>
-                                        `;
+                                   const existingPinnedBox = document.querySelector( `.info-box.pinned[data-bicipark-id="${ id }"]` );
+                                   if ( existingPinnedBox ) {
+                                        existingPinnedBox.classList.add( 'highlight' );
+                                        setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                        return;
+                                   }
 
-                                   const cerrarBoton = document.getElementById( "cerrar-info-box" );
-                                   cerrarBoton.addEventListener( "click", () => {
-                                        infoBox.style.display = "none";
+                                   let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                                   if ( !currentInfoBox ) {
+                                        currentInfoBox = document.createElement( 'div' );
+                                        currentInfoBox.className = 'info-box';
+                                        document.body.appendChild( currentInfoBox );
+                                   }
+
+                                   currentInfoBox.setAttribute( 'data-bicipark-id', id );
+                                   currentInfoBox.style.display = "flex";
+                                   currentInfoBox.innerHTML = `
+                                       <div class="info-header">
+                                           <img src="${ STATIC_IMAGES.bicyleSharing }" alt="Bicipark" class="property-image"/>
+                                           <div class="header-bar">
+                                               <div class="property-badges">
+                                                   <div class="badge-container">
+                                                       <span class="badge primary">BICIPARK</span>
+                                                       <div class="badge-location nameContainer">
+                                                           <span>${ name }</span>
+                                                           <span>${ addressLocality }, ${ addressCountry }</span>
+                                                       </div>
+                                                   </div>
+                                               </div>
+                                               <div class="action-buttons">
+                                                   <button class="action-btn pin-btn" title="Fijar ventana">
+                                                       <i class="action-icon">📌</i>
+                                                   </button>
+                                                   <button class="action-btn share-btn" title="Compartir">
+                                                       <i class="action-icon">📤</i>
+                                                   </button>
+                                                   <button class="action-btn close-btn" title="Cerrar">
+                                                       <i class="action-icon">✕</i>
+                                                   </button>
+                                               </div>
+                                           </div>
+                                       </div>
+                               
+                                       <div class="info-content">
+                                           <div class="info-section">
+                                               <div class="info-grid">
+                                                   <div class="info-row">
+                                                       <div class="info-item id-container">
+                                                           <label>Código identificador</label>
+                                                           <div class="id-value-container">
+                                                               <div class="id-wrapper">
+                                                                   <span title="${ id }">${ id.length > 20 ? id.substring( 0, 20 ) + '...' : id }</span>
+                                                                   <button class="copy-btn" title="Copiar código completo">
+                                                                       <i class="copy-icon">📋</i>
+                                                                   </button>
+                                                               </div>
+                                                           </div>
+                                                       </div>
+                                                   </div>
+                               
+                                                   <div class="status-cards">
+                                                       <div class="status-card">
+                                                           <div class="status-icon">📍</div>
+                                                           <div class="status-details">
+                                                               <label>Dirección</label>
+                                                               <span>${ streetAddress }${ postalCode ? `, ${ postalCode }` : '' }</span>
+                                                           </div>
+                                                       </div>
+                                                       <div class="status-card">
+                                                           <div class="status-icon">🏢</div>
+                                                           <div class="status-details">
+                                                               <label>Localización</label>
+                                                               <span>${ addressLocality }, ${ addressRegion }</span>
+                                                           </div>
+                                                       </div>
+                                                   </div>
+                               
+                                                   <div class="info-row">
+                                                       <div class="info-item">
+                                                           <label>Propietario</label>
+                                                           <div class="owner-badge">
+                                                               <span class="company-badge">${ owner }</span>
+                                                               <span class="country-tag">${ addressCountry }</span>
+                                                           </div>
+                                                       </div>
+                                                   </div>
+                                               </div>
+                                           </div>
+                                       </div>
+                                   `;
+
+                                   // Event listeners
+                                   const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                                   pinBtn.addEventListener( "click", ( e ) => {
+                                        const infoBox = e.target.closest( '.info-box' );
+                                        if ( infoBox.classList.contains( 'pinned' ) ) {
+                                             infoBox.classList.remove( 'pinned' );
+                                             pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                             pinBtn.title = "Fijar ventana";
+                                        } else {
+                                             infoBox.classList.add( 'pinned' );
+                                             pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                             pinBtn.title = "Desfijar ventana";
+                                        }
+                                   } );
+
+                                   currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                        currentInfoBox.remove();
+                                   } );
+
+                                   currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                        try {
+                                             if ( navigator.share ) {
+                                                  await navigator.share( {
+                                                       title: `Bicipark - ${ name }`,
+                                                       text: description || '',
+                                                       url: window.location.href
+                                                  } );
+                                             } else {
+                                                  await navigator.clipboard.writeText( window.location.href );
+                                                  showNotification( '¡Enlace copiado!' );
+                                             }
+                                        } catch ( error ) {
+                                             console.error( 'Error al compartir:', error );
+                                        }
+                                   } );
+
+                                   currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                        try {
+                                             await navigator.clipboard.writeText( id );
+                                             showNotification( '¡Código copiado!' );
+                                        } catch ( error ) {
+                                             console.error( 'Error al copiar:', error );
+                                        }
                                    } );
                               } );
-
                               markersBiciparks.push( marker ); // Añade el marcador al array de marcadores de Biciparks
                          }
                     } );
@@ -1696,20 +1831,109 @@ function initMap() {
 
           // Añadir un evento click al marcador de la bicicleta para mostrar información
           bicicletaMarker.addListener( "click", function () {
-               const infoBox = document.querySelector( ".info-box" );
-               infoBox.style.display = "flex";
                const datosBicicleta = marcadoresBicicletas[ bicicletaId ].datosBicicleta;
-               infoBox.innerHTML = `
-                    <img src="${ datosBicicleta.ImagenURL }" alt="Imagen de la Bicicleta"/>
-                    <div>Usuario: ${ datosBicicleta.Usuario }</div>
-                    <div>Matrícula: ${ datosBicicleta.Matricula }</div>
-                    <div>Batería: ${ datosBicicleta.Bateria }</div>
-                    <button id="cerrar-info-box">
-                         <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                    </button>
+
+               const existingPinnedBox = document.querySelector( `.info-box.pinned[data-bici-id="${ bicicletaId }"]` );
+               if ( existingPinnedBox ) {
+                    existingPinnedBox.classList.add( 'highlight' );
+                    setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                    return;
+               }
+
+               let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+               if ( !currentInfoBox ) {
+                    currentInfoBox = document.createElement( 'div' );
+                    currentInfoBox.className = 'info-box';
+                    document.body.appendChild( currentInfoBox );
+               }
+
+               currentInfoBox.setAttribute( 'data-bici-id', bicicletaId );
+               currentInfoBox.style.display = "flex";
+               currentInfoBox.innerHTML = `
+                   <div class="info-header">
+                       <img src="${ datosBicicleta.ImagenURL || '/assets/photo-1593341476900-a1cfedc5c489.avif' }" alt="Bicicleta" class="property-image"/>
+                       <div class="header-bar">
+                           <div class="property-badges">
+                               <div class="badge-container">
+                                   <span class="badge primary">BICI</span>
+                                   <div class="badge-location nameContainer">
+                                       <span>${ datosBicicleta.Usuario }</span>
+                                       <span>Madrid, España</span>
+                                   </div>
+                               </div>
+                           </div>
+                           <div class="action-buttons">
+                               <button class="action-btn pin-btn" title="Fijar ventana">
+                                   <i class="action-icon">📌</i>
+                               </button>
+                               <button class="action-btn share-btn" title="Compartir">
+                                   <i class="action-icon">📤</i>
+                               </button>
+                               <button class="action-btn close-btn" title="Cerrar">
+                                   <i class="action-icon">✕</i>
+                               </button>
+                           </div>
+                       </div>
+                   </div>
+           
+                   <div class="info-content">
+                       <div class="info-section">
+                           <div class="info-grid">
+                               <div class="info-row">
+                                   <div class="info-item">
+                                       <label>Usuario</label>
+                                       <span>${ datosBicicleta.Usuario }</span>
+                                   </div>
+                                   <div class="info-item">
+                                       <label>Matrícula</label>
+                                       <span class="plate-number">${ datosBicicleta.Matricula }</span>
+                                   </div>
+                               </div>
+                               <div class="info-row">
+                                   <div class="info-item">
+                                       <label>Batería</label>
+                                       <span class="battery-badge">${ datosBicicleta.Bateria }</span>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
                `;
-               document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                    infoBox.style.display = "none";
+
+               // Event listeners
+               const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+               pinBtn.addEventListener( "click", ( e ) => {
+                    const infoBox = e.target.closest( '.info-box' );
+                    if ( infoBox.classList.contains( 'pinned' ) ) {
+                         infoBox.classList.remove( 'pinned' );
+                         pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                         pinBtn.title = "Fijar ventana";
+                    } else {
+                         infoBox.classList.add( 'pinned' );
+                         pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                         pinBtn.title = "Desfijar ventana";
+                    }
+               } );
+
+               currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                    currentInfoBox.remove();
+               } );
+
+               currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                    try {
+                         if ( navigator.share ) {
+                              await navigator.share( {
+                                   title: `Bicicleta - ${ datosBicicleta.Usuario }`,
+                                   text: `Bicicleta de ${ datosBicicleta.Usuario }`,
+                                   url: window.location.href
+                              } );
+                         } else {
+                              await navigator.clipboard.writeText( window.location.href );
+                              showNotification( '¡Enlace copiado!' );
+                         }
+                    } catch ( error ) {
+                         console.error( 'Error al compartir:', error );
+                    }
                } );
           } );
      }
@@ -1814,11 +2038,11 @@ function initMap() {
                                 <p>${ category }</p>
                                 <p>${ name }</p>
                             </div>
-                            <p>Address: ${ streetAddress }</p>
-                            <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
+                            <p>Address: <span>${ streetAddress }</span> </p>
+                            <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
                             <p>${ addressCountry }</p>
                             <p>${ description }</p>
-                            <p>ID: ${ id }</p>
+                            <p>ID: <span>${ id }</span> </p>
                             <p>Source: <a href="${ source }" target="_blank">${ source }</a></p>
                             <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                             <button class='share'><img src='./assets/shareIcon.svg'></button>
@@ -1943,25 +2167,249 @@ function initMap() {
      //* ---------------------------------------------------------------------------------
      //* CERCARNÍAS
 
-     const cercaniasMadridKMZ = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Trains/Cercanias_de_Madrid.kmz?sp=r&st=2024-03-19T15:31:15Z&se=2089-12-31T23:31:15Z&sv=2022-11-02&sr=b&sig=W0iAEncbPWs4ZEbtrxBW%2BP6oRF9aeVDY%2Bxu%2BuDMu1fQ%3D";
-     let kmzLayerCercaniasMadrid = null;
+     // const cercaniasMadridKMZ = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Trains/Cercanias_de_Madrid.kmz?sp=r&st=2024-03-19T15:31:15Z&se=2089-12-31T23:31:15Z&sv=2022-11-02&sr=b&sig=W0iAEncbPWs4ZEbtrxBW%2BP6oRF9aeVDY%2Bxu%2BuDMu1fQ%3D";
+     // let kmzLayerCercaniasMadrid = null;
 
+     // function toggleKMZLayerCercaniasMadrid() {
+     //      if ( kmzLayerCercaniasMadrid ) {
+     //           // Si la capa KMZ ya existe, alternar su visibilidad
+     //           kmzLayerCercaniasMadrid.setMap( kmzLayerCercaniasMadrid.getMap() ? null : map );
+     //      } else {
+     //           // Si la capa KMZ no existe, crearla y añadirla al mapa
+     //           kmzLayerCercaniasMadrid = new google.maps.KmlLayer( {
+     //                url: cercaniasMadridKMZ,
+     //                map: map // Asegúrate de que 'map' sea una referencia válida a tu instancia de Google Maps
+     //           } );
+     //      }
+     // };
+
+     // // Suponiendo que tienes un botón con ID 'kmz-layer-toggle' para alternar la capa KMZ
+     // const botonKMZ = document.getElementById( 'trains-sub-nav-item' );
+     // botonKMZ.addEventListener( 'click', toggleKMZLayerCercaniasMadrid );
+
+     //* FUNCIÓN PARA TRAINS *//
+     // Variables globales para trains
+     let kmzLayerCercaniasMadrid = null;
+     const marcadoresTrenes = {};
+
+     // Función para el KMZ de Trains
      function toggleKMZLayerCercaniasMadrid() {
           if ( kmzLayerCercaniasMadrid ) {
-               // Si la capa KMZ ya existe, alternar su visibilidad
                kmzLayerCercaniasMadrid.setMap( kmzLayerCercaniasMadrid.getMap() ? null : map );
           } else {
-               // Si la capa KMZ no existe, crearla y añadirla al mapa
                kmzLayerCercaniasMadrid = new google.maps.KmlLayer( {
-                    url: cercaniasMadridKMZ,
-                    map: map // Asegúrate de que 'map' sea una referencia válida a tu instancia de Google Maps
+                    url: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Trains/Cercanias_de_Madrid.kmz?sp=r&st=2024-03-19T15:31:15Z&se=2089-12-31T23:31:15Z&sv=2022-11-02&sr=b&sig=W0iAEncbPWs4ZEbtrxBW%2BP6oRF9aeVDY%2Bxu%2BuDMu1fQ%3D",
+                    map: map
                } );
           }
-     };
+     }
 
-     // Suponiendo que tienes un botón con ID 'kmz-layer-toggle' para alternar la capa KMZ
-     const botonKMZ = document.getElementById( 'trains-sub-nav-item' );
-     botonKMZ.addEventListener( 'click', toggleKMZLayerCercaniasMadrid );
+     // Función para mover el marcador del tren
+     function iniciarMovimientoMarcadorTrain( marker, coordinates, interval, updateInfoBox ) {
+          let index = 0;
+          const totalCoords = coordinates.length;
+
+          const intervalId = setInterval( () => {
+               marker.setPosition( new google.maps.LatLng( coordinates[ index ][ 1 ], coordinates[ index ][ 0 ] ) );
+               if ( updateInfoBox ) {
+                    updateInfoBox( index );
+               }
+
+               index++;
+               if ( index >= totalCoords ) {
+                    index = 0; // Volver al inicio para ciclar
+               }
+          }, interval );
+
+          return intervalId;
+     }
+     function iniciarTrainsEnMapa( trainId, iconUrl, title, apiUrl ) {
+          if ( marcadoresTrenes[ trainId ] ) {
+               clearInterval( marcadoresTrenes[ trainId ].intervaloId );
+               marcadoresTrenes[ trainId ].marker.setMap( null );
+               delete marcadoresTrenes[ trainId ];
+               return;
+          }
+
+          const trainMarker = new google.maps.Marker( {
+               map: map,
+               title: title,
+               icon: {
+                    url: iconUrl
+               }
+          } );
+
+          function obtenerYmoverTrain() {
+               const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
+               fetch( proxyUrl )
+                    .then( response => response.json() )
+                    .then( data => {
+                         if ( data.location.value.coordinates && Array.isArray( data.location.value.coordinates ) ) {
+                              const coordenadas = data.location.value.coordinates;
+
+                              // Función para actualizar todas las info boxes
+                              function actualizarInfoBox( index ) {
+                                   // Actualizar la caja no pinneada
+                                   const unpinnedBox = document.querySelector( ".info-box:not(.pinned)" );
+                                   if ( unpinnedBox && unpinnedBox.style.display !== "none" ) {
+                                        const speedElement = unpinnedBox.querySelector( "#speedValue" );
+                                        if ( speedElement ) {
+                                             speedElement.textContent = `${ data.speed.value[ index ] } km/h`;
+                                        }
+                                   }
+
+                                   // Actualizar todas las cajas pinneadas
+                                   const pinnedBoxes = document.querySelectorAll( `.info-box.pinned[data-train-id="${ data.id }"]` );
+                                   pinnedBoxes.forEach( box => {
+                                        const speedElement = box.querySelector( "#speedValue" );
+                                        if ( speedElement ) {
+                                             speedElement.textContent = `${ data.speed.value[ index ] } km/h`;
+                                        }
+                                   } );
+                              }
+
+                              trainMarker.addListener( "click", () => {
+                                   const existingPinnedBox = document.querySelector( `.info-box.pinned[data-train-id="${ data.id }"]` );
+                                   if ( existingPinnedBox ) {
+                                        existingPinnedBox.classList.add( 'highlight' );
+                                        setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                        return;
+                                   }
+
+                                   let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                                   if ( !currentInfoBox ) {
+                                        currentInfoBox = document.createElement( 'div' );
+                                        currentInfoBox.className = 'info-box';
+                                        document.body.appendChild( currentInfoBox );
+                                   }
+
+                                   currentInfoBox.innerHTML = `
+                             <div class="info-header">
+                                 <img src="${ data.ImagenURL.value }" alt="Tren" class="property-image"/>
+                                 <div class="header-bar">
+                                     <div class="property-badges">
+                                         <div class="badge-container">
+                                             <span class="badge primary">TREN</span>
+                                             <div class="badge-location nameContainer">
+                                                 <span>${ data.name.value }</span>
+                                                 <span>Madrid, España</span>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="action-buttons">
+                                         <button class="action-btn pin-btn" title="Fijar ventana">
+                                             <i class="action-icon">📌</i>
+                                         </button>
+                                         <button class="action-btn share-btn" title="Compartir">
+                                             <i class="action-icon">📤</i>
+                                         </button>
+                                         <button class="action-btn close-btn" title="Cerrar">
+                                             <i class="action-icon">✕</i>
+                                         </button>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div class="info-content">
+                                 <div class="info-section">
+                                     <div class="info-grid">
+                                         <div class="info-row">
+                                             <div class="info-item id-container">
+                                                 <label>ID</label>
+                                                 <div class="id-value-container">
+                                                     <div class="id-wrapper">
+                                                         <span title="${ data.id }">${ data.id }</span>
+                                                         <button class="copy-btn" title="Copiar ID">
+                                                             <i class="copy-icon">📋</i>
+                                                         </button>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                         <div class="info-row">
+                                             <div class="info-item">
+                                                 <label>Tipo</label>
+                                                 <span class="type-badge">Train</span>
+                                             </div>
+                                             <div class="info-item">
+                                                 <label>Estado</label>
+                                                 <span class="status-badge activo">${ data.status.value }</span>
+                                             </div>
+                                         </div>
+                                         <div class="info-row">
+                                             <div class="info-item">
+                                                 <label>Velocidad</label>
+                                                 <span class="speed-badge" id="speedValue">${ data.speed.value[ 0 ] } km/h</span>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+                         `;
+
+                                   currentInfoBox.setAttribute( 'data-train-id', data.id );
+
+                                   // Event listeners
+                                   currentInfoBox.querySelector( ".pin-btn" ).addEventListener( "click", () => {
+                                        const newPinnedBox = currentInfoBox.cloneNode( true );
+                                        newPinnedBox.classList.add( 'pinned' );
+                                        document.body.appendChild( newPinnedBox );
+
+                                        // Configurar event listeners para la versión pinned
+                                        newPinnedBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                             newPinnedBox.remove();
+                                        } );
+
+                                        newPinnedBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                             try {
+                                                  await navigator.clipboard.writeText( data.id );
+                                                  showNotification( '¡ID copiado!' );
+                                             } catch ( error ) {
+                                                  console.error( 'Error al copiar:', error );
+                                             }
+                                        } );
+
+                                        newPinnedBox.querySelector( ".pin-btn" ).style.display = 'none';
+                                        inicializarArrastre( newPinnedBox );
+                                        currentInfoBox.style.display = "none";
+                                   } );
+
+                                   currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                        currentInfoBox.style.display = "none";
+                                   } );
+
+                                   currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                        try {
+                                             await navigator.clipboard.writeText( data.id );
+                                             showNotification( '¡ID copiado!' );
+                                        } catch ( error ) {
+                                             console.error( 'Error al copiar:', error );
+                                        }
+                                   } );
+
+                                   inicializarArrastre( currentInfoBox );
+                                   currentInfoBox.style.display = "flex";
+                              } );
+
+                              const intervaloId = iniciarMovimientoMarcadorTrain( trainMarker, coordenadas, 1000, actualizarInfoBox );
+                              marcadoresTrenes[ trainId ] = {
+                                   marker: trainMarker,
+                                   intervaloId: intervaloId,
+                                   datosTren: data
+                              };
+                         }
+                    } )
+                    .catch( error => console.error( 'Error al obtener coordenadas del tren:', error ) );
+          }
+
+          obtenerYmoverTrain();
+     }
+
+     // Evento para trains
+     const eventTrains = document.getElementById( "trains-sub-nav-item" );
+     eventTrains.addEventListener( "click", function () {
+          toggleKMZLayerCercaniasMadrid();
+          iniciarTrainsEnMapa( 1, './assets/trains_Qubo.svg', 'Cercanías Madrid', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Trains/Train_CercaniasC2_Fiware_Dynamic.json?sp=r&st=2025-03-10T18:01:55Z&se=2099-03-11T02:01:55Z&sv=2022-11-02&sr=b&sig=r6ZnY9dKMm8L%2FKsLQUMx0G0Hex8jOTjHCkJIfig84Bc%3D' );
+     } );
 
      //* BOTÓN ENVIRONMENT AND SUSTAINABILITY ****************
 
@@ -2018,11 +2466,11 @@ function initMap() {
                                   <p>${ name }</p>
                               </div>
                              <img src='${ STATIC_IMAGES.parksGardens }'>
-                              <p>${ description }</p>
+                              <p> <span>${ description }</span> </p>
                               
-                              <p>Address: ${ streetAddress }, ${ postalCode }</p>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                              <p>ID: ${ item.id }</p>
+                              <p>Address: <span>${ streetAddress }, ${ postalCode }</span> </p>
+                              <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
+                              <p>ID: <span>${ item.id }</span> </p>
                               <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
                               <button id="cerrar-info-box">
                                   <img src='./assets/botonCerrar.svg'>
@@ -2132,14 +2580,14 @@ function initMap() {
                          <p>${ nombre }</p> <!-- Utilizar el nombre extraído -->
                      </div>
                      <img src='${ STATIC_IMAGES.environment }'>
-                     <p>Código identificador: ${ idWithoutPrefix }</p>
-                     <p>Address: ${ address }</p>
-                     <p>Localización: ${ item.address.value.addressLocality }, ${ item.address.value.addressRegion }</p>
-                     <p>Fecha de alta: ${ item.annex.value.estacion_fecha_alta }</p>
-                     <p>Tipo de área: ${ item.annex.value.estacion_tipo_area }</p>
-                     <p>Tipo de estación: ${ item.annex.value.estacion_tipo_estacion }</p>
-                     <p>Calidad de aire: ${ item.annex.value.zona_calidad_aire_descripcion }</p>
-                     <p>${ item.description.value }</p>
+                     <p>Código identificador: <span>${ idWithoutPrefix }</span> </p>
+                     <p>Address: <span>${ address }</span> </p>
+                     <p>Localización: <span>${ item.address.value.addressLocality }, ${ item.address.value.addressRegion }</span> </p>
+                     <p>Fecha de alta: <span>${ item.annex.value.estacion_fecha_alta }</span> </p>
+                     <p>Tipo de área: <span>${ item.annex.value.estacion_tipo_area }</span> </p>
+                     <p>Tipo de estación: <span>${ item.annex.value.estacion_tipo_estacion }</span> </p>
+                     <p>Calidad de aire: <span>${ item.annex.value.zona_calidad_aire_descripcion }</span> </p>
+                     <p> <span>${ item.description.value }</span> </p>
                      <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                      <button class='share'><img src='./assets/shareIcon.svg'></button>
                  `;
@@ -2286,12 +2734,12 @@ function initMap() {
                     infoBox.innerHTML = `
                 <h2>Camión de residuos</h2>
                 <img src='${ STATIC_IMAGES.recycling }'>
-                <p>Última actualización: 28-10-2023  23:51h</p>
-                <p>Matrícula: 0000 AAA</p>
-                <p>Estado: Activo</p>
-                <p>Tipo de servicio: Recogida de residuos sólidos urbanos</p>
-                <p>Distintivo: XX0000 </p>
-                <p>Capacidad</p>
+                <p>Última actualización: <span>28-10-2023  23:51h</span> </p>
+                <p>Matrícula: <span>0000 AAA</span> </p>
+                <p>Estado: <span>Activo</span> </p>
+                <p>Tipo de servicio: <span>Recogida de residuos sólidos urbanos</span> </p>
+                <p>Distintivo: <span>XX0000</span> </p>
+                <p>Capacidad: <span>20%</span> </p>
                 <div class="progress-bar">
                     <div class="progress" style="width: 20%;"></div> 
                     <div class="progress-text">20%</div> 
@@ -2330,13 +2778,13 @@ function initMap() {
                                 <p>${ parsedData.name }</p>
                             </div>
                             <img src='${ STATIC_IMAGES.recycling }'>
-                            <p>Localización: ${ parsedData.addressLocality }, ${ parsedData.addressRegion }</p>
-                            <p>Address: ${ parsedData.streetAddress }</p>
-                            <p>C.P: ${ parsedData.postalCode }</p>
-                            <p>Neighborhood: ${ parsedData.neighborhood }</p>
-                            <p>District: ${ parsedData.district }</p>
-                            <p>Country: ${ parsedData.addressCountry }</p>
-                            <p>${ parsedData.description }</p>
+                            <p>Localización: <span>${ parsedData.addressLocality }, ${ parsedData.addressRegion }</span> </p>
+                            <p>Address: <span>${ parsedData.streetAddress }</span> </p>
+                            <p>C.P: <span>${ parsedData.postalCode }</span> </p>
+                            <p>Neighborhood: <span>${ parsedData.neighborhood }</span> </p>
+                            <p>District: <span>${ parsedData.district }</span> </p>
+                            <p>Country: <span>${ parsedData.addressCountry }</span> </p>
+                            <p> <span>${ parsedData.description }</span> </p>
                             <p>Link: <a href="${ parsedData.source }" target="_blank">${ parsedData.source }</a></p>
                             <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                             <button class='share'><img src='./assets/shareIcon.svg'></button>
@@ -2376,13 +2824,13 @@ function initMap() {
                                 <p>${ parsedData.name }</p>
                             </div>
                             <img src='${ STATIC_IMAGES.recycling }'>
-                            <p>Localización: ${ parsedData.addressLocality }, ${ parsedData.addressRegion }</p>
-                            <p>Address: ${ parsedData.streetAddress }</p>
-                            <p>C.P: ${ parsedData.postalCode }</p>
-                            <p>Neighborhood: ${ parsedData.neighborhood }</p>
-                            <p>District: ${ parsedData.district }</p>
-                            <p>Country: ${ parsedData.addressCountry }</p>
-                            <p>${ parsedData.description }</p>
+                            <p>Localización: <span>${ parsedData.addressLocality }, ${ parsedData.addressRegion }</span> </p>
+                            <p>Address: <span>${ parsedData.streetAddress }</span> </p>
+                            <p>C.P: <span>${ parsedData.postalCode }</span> </p>
+                            <p>Neighborhood: <span>${ parsedData.neighborhood }</span> </p>
+                            <p>District: <span>${ parsedData.district }</span> </p>
+                            <p>Country: <span>${ parsedData.addressCountry }</span> </p>
+                            <p> <span>${ parsedData.description }</span> </p>
                             <p>Link: <a href="${ parsedData.source }" target="_blank">${ parsedData.source }</a></p>
                             <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                             <button class='share'><img src='./assets/shareIcon.svg'></button>
@@ -2445,13 +2893,13 @@ function initMap() {
                                  <p>${ parsedData.name }</p>
                              </div>
                              <img src='${ STATIC_IMAGES.recycling }'>
-                             <p>Localización: ${ parsedData.addressLocality }, ${ parsedData.addressRegion }</p>
-                             <p>Address: ${ parsedData.streetAddress }</p>
-                             <p>C.P: ${ parsedData.postalCode }</p>
-                             <p>Neighborhood: ${ parsedData.neighborhood }</p>
-                             <p>District: ${ parsedData.district }</p>
-                             <p>Country: ${ parsedData.addressCountry }</p>
-                             <p>${ parsedData.description }</p>
+                             <p>Localización: <span>${ parsedData.addressLocality }, ${ parsedData.addressRegion }</span> </p>
+                             <p>Address: <span>${ parsedData.streetAddress }</span> </p>
+                             <p>C.P: <span>${ parsedData.postalCode }</span> </p>
+                             <p>Neighborhood: <span>${ parsedData.neighborhood }</span> </p>
+                             <p>District: <span>${ parsedData.district }</span> </p>
+                             <p>Country: <span>${ parsedData.addressCountry }</span> </p>
+                             <p> <span>${ parsedData.description }</span> </p>
                              <p>Link: <a href="${ parsedData.source }" target="_blank">${ parsedData.source }</a></p>
                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                              <button class='share'><img src='./assets/shareIcon.svg'></button>
@@ -2740,13 +3188,13 @@ function initMap() {
                                   <p>${ name }</p>
                               </div>
                               <img src='${ STATIC_IMAGES.streetlights }'>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                              <p>Address: ${ streetAddress }</p>
-                              <p>C.P: ${ postalCode }</p>
-                              <p>Neighborhood: ${ neighborhood }</p>
-                              <p>District: ${ district }</p>
-                              <p>Country: ${ addressCountry }</p>
-                              <p>${ description }</p>
+                              <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
+                              <p>Address: <span>${ streetAddress }</span> </p>
+                              <p>C.P: <span>${ postalCode }</span> </p>
+                              <p>Neighborhood: <span>${ neighborhood }</span> </p>
+                              <p>District: <span>${ district }</span> </p>
+                              <p>Country: <span>${ addressCountry }</span> </p>
+                              <p> <span>${ description }</span> </p>
                               <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
                               <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                               <button class='share'><img src='./assets/shareIcon.svg'></button>
@@ -2812,13 +3260,13 @@ function initMap() {
                                    <p>${ item.name.value }</p>
                               </div>
                               <img src='${ STATIC_IMAGES.energyEfficiency }'>
-                              <p>Código identificador: ${ idWithoutPrefix }</p>
-                              <p>Address: ${ item.address.value.streetAddress }</p>
-                              <p>Barrio: ${ item.address.value.neighborhood }</p>
-                              <p>Localización: ${ item.address.value.district }, ${ item.address.value.addressRegion }</p>
-                              <p>Año Contrucción: ${ item.month.value }/${ item.year.value }</p>
-                              <p>${ item.energyConsumedAndCost.value.energyType.value }: ${ item.energyConsumedAndCost.value.energyConsumed.value.value.value } ${ item.energyConsumedAndCost.value.energyConsumed.value.measurementUnit.value }</p>
-                              <p>${ item.description.value }</p>
+                              <p>Código identificador: <span>${ idWithoutPrefix }</span> </p>
+                              <p>Address: <span>${ item.address.value.streetAddress }</span> </p>
+                              <p>Barrio: <span>${ item.address.value.neighborhood }</span> </p>
+                              <p>Localización: <span>${ item.address.value.district }, ${ item.address.value.addressRegion }</span> </p>
+                              <p>Año Contrucción: <span>${ item.month.value }/${ item.year.value }</span> </p>
+                              <p>${ item.energyConsumedAndCost.value.energyType.value }: <span>${ item.energyConsumedAndCost.value.energyConsumed.value.value.value } ${ item.energyConsumedAndCost.value.energyConsumed.value.measurementUnit.value }</span>  </p>
+                              <p> <span>${ item.description.value }</span> </p>
                               <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                               <button class='share'><img src='./assets/shareIcon.svg'></button>
                          `;
@@ -3029,7 +3477,9 @@ function initMap() {
                infoBox.style.display = "flex";
                const datosBarco = marcadoresBarcos[ barcoId ].datosBarco;
                infoBox.innerHTML = `
-                         <div>${ datosBarco.nombre }</div>
+                         <div class='nameContainer'>
+                              <p>${ datosBarco.nombre }</p>
+                         </div>
                          <button id="cerrar-info-box">
                               <img src="./assets/botonCerrar.svg" alt="Cerrar">
                          </button>
@@ -3143,31 +3593,118 @@ function initMap() {
 
           // Añadir un evento click al marcador del taxi para mostrar información
           taxiMarker.addListener( "click", function () {
-               if ( !marcadoresTaxis[ taxiId ] || !marcadoresTaxis[ taxiId ].datosTaxi )
-                    return;
+               if ( !marcadoresTaxis[ taxiId ] || !marcadoresTaxis[ taxiId ].datosTaxi ) return;
 
                const datosTaxi = marcadoresTaxis[ taxiId ].datosTaxi;
-               const infoBox = document.querySelector( ".info-box" );
-               infoBox.style.display = "flex";
-               infoBox.innerHTML = `
-               <div class="nameContainer">
-                             <p>Taxi</p>
-                             <p>Taxis para todos</p>
-                         </div>
-            <img src="${ datosTaxi.ImagenURL }" alt="Taxi Image" />
-            <p>Matrícula: ${ datosTaxi.Matricula }</p>
-            <p>Licencia: ${ datosTaxi.Licencia }</p>
-            <p>Estado: ${ datosTaxi.Estado }</p>
-            <p>Número máximo de ocupantes: ${ datosTaxi[ "Numero max de ocupantes" ] }</p>
-            <button id="cerrar-info-box">
-                <img src="./assets/botonCerrar.svg" alt="Cerrar" />
-            </button>
-        `;
-               document
-                    .getElementById( "cerrar-info-box" )
-                    .addEventListener( "click", function () {
-                         infoBox.style.display = "none";
-                    } );
+
+               // Buscar si existe un infobox pinneado para este taxi
+               const existingPinnedBox = document.querySelector( `.info-box.pinned[data-taxi-id="${ taxiId }"]` );
+               if ( existingPinnedBox ) {
+                    existingPinnedBox.classList.add( 'highlight' );
+                    setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                    return;
+               }
+
+               // Buscar un infobox no pinneado o crear uno nuevo
+               let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+               if ( !currentInfoBox ) {
+                    currentInfoBox = document.createElement( 'div' );
+                    currentInfoBox.className = 'info-box';
+                    document.body.appendChild( currentInfoBox );
+               }
+
+               currentInfoBox.setAttribute( 'data-taxi-id', taxiId );
+               currentInfoBox.style.display = "flex";
+               currentInfoBox.innerHTML = `
+        <div class="info-header">
+            <img src="${ datosTaxi.ImagenURL }" alt="Taxi" class="property-image"/>
+            <div class="header-bar">
+                <div class="property-badges">
+                    <div class="badge-container">
+                        <span class="badge primary">TAXI</span>
+                        <div class="badge-location nameContainer">
+                            <span>Taxis para todos</span>
+                            <span>Madrid, España</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn pin-btn" title="Fijar ventana">
+                        <i class="action-icon">📌</i>
+                    </button>
+                    <button class="action-btn share-btn" title="Compartir">
+                        <i class="action-icon">📤</i>
+                    </button>
+                    <button class="action-btn close-btn" title="Cerrar">
+                        <i class="action-icon">✕</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-content">
+            <div class="info-section">
+                <div class="info-grid">
+                    <div class="info-row">
+                        <div class="info-item">
+                            <label>Matrícula</label>
+                            <span class="plate-number">${ datosTaxi.Matricula }</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Licencia</label>
+                            <span class="license-number">${ datosTaxi.Licencia }</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-item">
+                            <label>Estado</label>
+                            <span class="status-badge ${ datosTaxi.Estado.toLowerCase() }">${ datosTaxi.Estado }</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Ocupantes máx.</label>
+                            <span>${ datosTaxi[ "Numero max de ocupantes" ] } personas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+               currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                    currentInfoBox.remove();
+               } );
+
+
+               currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                    try {
+                         if ( navigator.share ) {
+                              await navigator.share( {
+                                   title: `Taxi - ${ datosTaxi.Matricula }`,
+                                   text: `Taxi con licencia ${ datosTaxi.Licencia }`,
+                                   url: window.location.href
+                              } );
+                         } else {
+                              await navigator.clipboard.writeText( window.location.href );
+                              showNotification( '¡Enlace copiado!' );
+                         }
+                    } catch ( error ) {
+                         console.error( 'Error al compartir:', error );
+                    }
+               } );
+
+               // Event listeners
+               const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+               pinBtn.addEventListener( "click", ( e ) => {
+                    const infoBox = e.target.closest( '.info-box' );
+                    if ( infoBox.classList.contains( 'pinned' ) ) {
+                         infoBox.classList.remove( 'pinned' );
+                         pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                         pinBtn.title = "Fijar ventana";
+                    } else {
+                         infoBox.classList.add( 'pinned' );
+                         pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                         pinBtn.title = "Desfijar ventana";
+                    }
+               } );
           } );
      }
      const eventTaxis = document.getElementById( "taxi-sub-nav-item" );
@@ -3263,44 +3800,132 @@ function initMap() {
                          };
 
                          vtcMarker.addListener( "click", function () {
-                              const infoBox = document.querySelector( ".info-box" );
-                              infoBox.style.display = "flex";
                               const datosVTC = marcadoresVTC[ title ].datosVTC;
 
-                              if ( datosVTC.Empresa ) {
-                                   // Nuevo formato JSON
-                                   infoBox.innerHTML = `
-                                   <div class="nameContainer">
-                                        <p>VTC</p>
-                                         <p>VTC para todos</p>
-                                   </div>
-                                  <img src="${ datosVTC.ImagenURL }" alt="Imagen VTC"/>
-                                  <p><strong>Empresa:</strong> ${ datosVTC.Empresa }</p>
-                                  <p><strong>Estado:</strong> ${ datosVTC.Estado }</p>
-                                  <p><strong>Matrícula:</strong> ${ datosVTC.Matricula }</p>
-                                  <p><strong>Licencia:</strong> ${ datosVTC.Licencia }</p>
-                                  <p><strong>Ocupantes Máx:</strong> ${ datosVTC[ "Numero max de ocupantes" ] }</p>
-                                  <button id="cerrar-info-box">
-                                      <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                                  </button>
-                              `;
-                              } else {
-                                   // Formato GeoJSON
-                                   infoBox.innerHTML = `
-                                  <p><strong>Nombre:</strong> ${ datosVTC.nombre }</p>
-                                  <p><strong>Estado:</strong> ${ datosVTC.Estado }</p>
-                                  <p><strong>Matrícula:</strong> ${ datosVTC.Matricula }</p>
-                                  <p><strong>Conductor:</strong> ${ datosVTC.Conductor }</p>
-                                  <button id="cerrar-info-box">
-                                      <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                                  </button>
-                              `;
+                              const existingPinnedBox = document.querySelector( `.info-box.pinned[data-vtc-id="${ title }"]` );
+                              if ( existingPinnedBox ) {
+                                   existingPinnedBox.classList.add( 'highlight' );
+                                   setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                   return;
                               }
 
-                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                                   infoBox.style.display = "none";
+                              let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                              if ( !currentInfoBox ) {
+                                   currentInfoBox = document.createElement( 'div' );
+                                   currentInfoBox.className = 'info-box';
+                                   document.body.appendChild( currentInfoBox );
+                              }
+
+                              currentInfoBox.setAttribute( 'data-vtc-id', title );
+                              currentInfoBox.style.display = "flex";
+                              currentInfoBox.innerHTML = `
+                                  <div class="info-header">
+                                      <img src="${ datosVTC.ImagenURL || '/assets/photo-1614091199036-e934784dbf0f.avif' }" alt="VTC" class="property-image"/>
+                                      <div class="header-bar">
+                                          <div class="property-badges">
+                                              <div class="badge-container">
+                                                  <span class="badge primary">VTC</span>
+                                                  <div class="badge-location nameContainer">
+                                                      <span>VTC para todos</span>
+                                                      <span>Madrid, España</span>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                          <div class="action-buttons">
+                                              <button class="action-btn pin-btn" title="Fijar ventana">
+                                                  <i class="action-icon">📌</i>
+                                              </button>
+                                              <button class="action-btn share-btn" title="Compartir">
+                                                  <i class="action-icon">📤</i>
+                                              </button>
+                                              <button class="action-btn close-btn" title="Cerrar">
+                                                  <i class="action-icon">✕</i>
+                                              </button>
+                                          </div>
+                                      </div>
+                                  </div>
+                          
+                                  <div class="info-content">
+                                      <div class="info-section">
+                                          <div class="info-grid">
+                                              <div class="info-row">
+                                                  <div class="info-item">
+                                                      <label>${ datosVTC.Empresa ? 'Empresa' : 'Nombre' }</label>
+                                                      <span class="company-badge">${ datosVTC.Empresa || datosVTC.nombre }</span>
+                                                  </div>
+                                                  <div class="info-item">
+                                                      <label>Estado</label>
+                                                      <span class="status-badge ${ datosVTC.Estado.toLowerCase() }">${ datosVTC.Estado }</span>
+                                                  </div>
+                                              </div>
+                                              <div class="info-row">
+                                                  <div class="info-item">
+                                                      <label>Matrícula</label>
+                                                      <span class="plate-number">${ datosVTC.Matricula }</span>
+                                                  </div>
+                                                  ${ datosVTC.Licencia ? `
+                                                      <div class="info-item">
+                                                          <label>Licencia</label>
+                                                          <span class="license-number">${ datosVTC.Licencia }</span>
+                                                      </div>
+                                                  ` : `
+                                                      <div class="info-item">
+                                                          <label>Conductor</label>
+                                                          <span>${ datosVTC.Conductor }</span>
+                                                      </div>
+                                                  `}
+                                              </div>
+                                              ${ datosVTC[ "Numero max de ocupantes" ] ? `
+                                                  <div class="info-row">
+                                                      <div class="info-item">
+                                                          <label>Ocupantes máx.</label>
+                                                          <span>${ datosVTC[ "Numero max de ocupantes" ] } personas</span>
+                                                      </div>
+                                                  </div>
+                                              ` : '' }
+                                          </div>
+                                      </div>
+                                  </div>
+                              `;
+
+                              // Event listeners
+                              const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                              pinBtn.addEventListener( "click", ( e ) => {
+                                   const infoBox = e.target.closest( '.info-box' );
+                                   if ( infoBox.classList.contains( 'pinned' ) ) {
+                                        infoBox.classList.remove( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                        pinBtn.title = "Fijar ventana";
+                                   } else {
+                                        infoBox.classList.add( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                        pinBtn.title = "Desfijar ventana";
+                                   }
+                              } );
+
+                              currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                   currentInfoBox.remove();
+                              } );
+
+                              currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                   try {
+                                        if ( navigator.share ) {
+                                             await navigator.share( {
+                                                  title: `VTC - ${ datosVTC.Matricula }`,
+                                                  text: `VTC ${ datosVTC.Empresa || datosVTC.nombre }`,
+                                                  url: window.location.href
+                                             } );
+                                        } else {
+                                             await navigator.clipboard.writeText( window.location.href );
+                                             showNotification( '¡Enlace copiado!' );
+                                        }
+                                   } catch ( error ) {
+                                        console.error( 'Error al compartir:', error );
+                                   }
                               } );
                          } );
+
+
                     } )
                     .catch( error => console.error( "Error al obtener coordenadas del VTC:", error ) );
           }
@@ -3361,6 +3986,7 @@ function initMap() {
                          const {
                               ubicacion,
                               name,
+                              id,
                               category,
                               description,
                               streetAddress,
@@ -3394,31 +4020,220 @@ function initMap() {
                                    : "No disponible";
 
                               infoBox.innerHTML = `
-                              <div class='nameContainer'>
-                                   <p>${ category }</p>
-                                   <p>${ name }</p>
-                              </div>
-                              <img src='${ STATIC_IMAGES.parkings }'>
-                              <div class="parking-info">
-                              <div class="parking-bar-container">
-                                   <div class="parking-bar" style="width: ${ ocupacionPorcentaje }%;"></div>
-                                   <div class="parking-bar-text">${ ocupacionPorcentaje }% Occupied</div>
-                              </div>
-                              <p>Total Parking Spots: ${ totalPlazas }</p>
-                              <p>Available Parking Spots: ${ plazasDisponibles }</p>
-                              </div>
-                              <p>Address: ${ streetAddress }</p>
-                              <p>Localización: ${ addressRegion }</p>
-                              <p>Country: ${ addressCountry }</p>
-                              <p>${ description }</p>
-                              <p>Allowed Vehicles: ${ allowedVehicles }</p>
-                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                              <button class='share'><img src='./assets/shareIcon.svg'></button>
-                         `;
+    <div class="info-header">
+        <img src="${ STATIC_IMAGES.parkings }" alt="Parking" class="property-image"/>
+        <div class="header-bar">
+            <div class="property-badges">
+                <div class="badge-container">
+                    <span class="badge primary">${ category }</span>
+                    <div class="badge-location nameContainer">
+                        <span>${ name }</span>
+                        <span>${ addressRegion }</span>
+                    </div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn share-btn" title="Compartir">
+                    <i class="action-icon">📤</i>
+                </button>
+                <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
+                    <i class="action-icon">✕</i>
+                </button>
+            </div>
+        </div>
+    </div>
 
+    <div class="id-row">
+            <span class="id-label">ID PARKING</span>
+            <span class="id-text">${ id }</span>
+            <div class="copy-container">
+                <button class="copy-btn">
+                    <i class="copy-icon">📋</i>
+                </button>
+            </div>
+        </div>
+    
+    <div class="info-content">
+        
+
+
+        <div class="occupancy-status">
+            <label>Estado de ocupación</label>
+            <div class="parking-bar-container">
+                <div class="parking-bar" style="width: ${ ocupacionPorcentaje }%;">
+                    <span class="parking-bar-text">${ ocupacionPorcentaje }% Ocupado</span>
+                </div>
+            </div>
+            <div class="info-grid">
+                <div class="info-row">
+                    <div class="info-item">
+                        <label>Plazas totales</label>
+                        <span>${ totalPlazas }</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Plazas disponibles</label>
+                        <span>${ plazasDisponibles }</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-row">
+                <div class="info-item">
+                    <label>Dirección</label>
+                    <span>${ streetAddress }</span>
+                </div>
+                <div class="info-item">
+                    <label>Localización</label>
+                    <span>${ addressRegion }</span>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-item">
+                    <label>País</label>
+                    <span>${ addressCountry }</span>
+                </div>
+                <div class="info-item">
+                    <label>Centro comercial</label>
+                    <span>${ description || 'N/A' }</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="parking-details">
+            <label>Detalles del parking</label>
+            <div class="info-grid">
+                <div class="info-row">
+                    <div class="info-item">
+                        <label>Tipo de parking</label>
+                        <span>Subterráneo</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Horario</label>
+                        <span>24/7</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-item">
+                        <label>Altura máxima</label>
+                        <span>2.10m</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Tipo de acceso</label>
+                        <span>Barrera automática</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="facilities">
+            <label>Servicios disponibles</label>
+            <div class="facilities-grid">
+                <div class="facility-item">
+                    <i class="facility-icon">🎥</i>
+                    <span>Vigilancia 24h</span>
+                </div>
+                <div class="facility-item">
+                    <i class="facility-icon">💡</i>
+                    <span>Bien iluminado</span>
+                </div>
+                <div class="facility-item">
+                    <i class="facility-icon">♿</i>
+                    <span>Acceso movilidad reducida</span>
+                </div>
+                <div class="facility-item">
+                    <i class="facility-icon">🔌</i>
+                    <span>Carga eléctrica</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="vehicles-allowed">
+            <label>Vehículos permitidos</label>
+            <div class="vehicles-grid">
+                ${ allowedVehicles.split( ", " ).map( vehicle => `
+                    <span class="vehicle-tag">${ vehicle }</span>
+                `).join( '' ) }
+            </div>
+        </div>
+    </div>
+`;
+                              // Y después añadimos el event listener
                               document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
                                    infoBox.style.display = "none";
                               }, { once: true } );
+                              // Añadir el event listener para el botón de compartir
+                              document.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                   const shareData = {
+                                        title: `Parking ${ name }`,
+                                        text: `Información sobre ${ name } en ${ addressRegion }`,
+                                        url: window.location.href
+                                   };
+
+                                   try {
+                                        // Intentar usar Web Share API primero
+                                        if ( navigator.share ) {
+                                             await navigator.share( shareData );
+                                        } else {
+                                             // Si Web Share API no está disponible, mostrar un tooltip con el enlace copiado
+                                             await navigator.clipboard.writeText( window.location.href );
+
+                                             // Crear notificación
+                                             const notification = document.createElement( 'div' );
+                                             notification.style.cssText = `
+                 position: fixed;
+                 top: 20px;
+                 right: 20px;
+                 background: rgba(8, 236, 196, 0.9);
+                 color: black;
+                 padding: 8px 16px;
+                 border-radius: 4px;
+                 font-size: 14px;
+                 z-index: 1000000;
+                 transition: opacity 0.3s ease;
+             `;
+                                             notification.textContent = '¡Enlace copiado!';
+                                             document.body.appendChild( notification );
+
+                                             // Eliminar después de 2 segundos
+                                             setTimeout( () => {
+                                                  notification.style.opacity = '0';
+                                                  setTimeout( () => notification.remove(), 300 );
+                                             }, 2000 );
+                                        }
+                                   } catch ( error ) {
+                                        console.error( 'Error al compartir:', error );
+                                   }
+                              } );
+                              // Añadir event listener para el botón de copiar
+                              document.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                   const idText = document.querySelector( ".id-text" ).textContent;
+                                   await navigator.clipboard.writeText( idText );
+
+                                   // Crear notificación
+                                   const notification = document.createElement( 'div' );
+                                   notification.style.cssText = `
+         position: fixed;
+         top: 20px;
+         right: 20px;
+         background: rgba(8, 236, 196, 0.9);
+         color: black;
+         padding: 8px 16px;
+         border-radius: 4px;
+         font-size: 14px;
+         z-index: 1000000;
+         transition: opacity 0.3s ease;
+     `;
+                                   notification.textContent = '¡ID copiado!';
+                                   document.body.appendChild( notification );
+
+                                   // Eliminar después de 2 segundos
+                                   setTimeout( () => {
+                                        notification.style.opacity = '0';
+                                        setTimeout( () => notification.remove(), 300 );
+                                   }, 2000 );
+                              } );
                          } );
 
                          markersParkings.push( marker );
@@ -3489,31 +4304,116 @@ function initMap() {
           obtenerYmoverMoto();
 
           motoMarker.addListener( "click", function () {
-               const infoBox = document.querySelector( ".info-box" );
-               infoBox.style.display = "flex";
                const datosMoto = marcadoresMoto[ title ]?.datosMoto;
 
-               if ( !datosMoto ) {
-                    infoBox.innerHTML = `<p>Error: No se encontraron datos para esta moto.</p>`;
+               if ( !datosMoto ) return;
+
+               const existingPinnedBox = document.querySelector( `.info-box.pinned[data-moto-id="${ title }"]` );
+               if ( existingPinnedBox ) {
+                    existingPinnedBox.classList.add( 'highlight' );
+                    setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
                     return;
                }
 
-               infoBox.innerHTML = `
-                    <div>${ title }</div>
-                    <img src="${ datosMoto.ImagenURL || "./assets/defaultMotoImage.svg" }" alt="Moto Image">
-                    <p>Estado: ${ datosMoto.Estado || "No disponible" }</p>
-                    <p>Matrícula: ${ datosMoto.Matricula || "No disponible" }</p>
-                    <p>Batería: ${ datosMoto.Bateria || "No disponible" }</p>
-                    <button id="cerrar-info-box">
-                         <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                    </button>
+               let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+               if ( !currentInfoBox ) {
+                    currentInfoBox = document.createElement( 'div' );
+                    currentInfoBox.className = 'info-box';
+                    document.body.appendChild( currentInfoBox );
+               }
+
+               currentInfoBox.setAttribute( 'data-moto-id', title );
+               currentInfoBox.style.display = "flex";
+               currentInfoBox.innerHTML = `
+                   <div class="info-header">
+                       <img src="${ datosMoto.ImagenURL || './assets/defaultMotoImage.svg' }" alt="Moto" class="property-image"/>
+                       <div class="header-bar">
+                           <div class="property-badges">
+                               <div class="badge-container">
+                                   <span class="badge primary">MOTO</span>
+                                   <div class="badge-location nameContainer">
+                                       <span>${ title }</span>
+                                       <span>Madrid, España</span>
+                                   </div>
+                               </div>
+                           </div>
+                           <div class="action-buttons">
+                               <button class="action-btn pin-btn" title="Fijar ventana">
+                                   <i class="action-icon">📌</i>
+                               </button>
+                               <button class="action-btn share-btn" title="Compartir">
+                                   <i class="action-icon">📤</i>
+                               </button>
+                               <button class="action-btn close-btn" title="Cerrar">
+                                   <i class="action-icon">✕</i>
+                               </button>
+                           </div>
+                       </div>
+                   </div>
+           
+                   <div class="info-content">
+                       <div class="info-section">
+                           <div class="info-grid">
+                               <div class="info-row">
+                                   <div class="info-item">
+                                       <label>Estado</label>
+                                       <span class="status-badge ${ datosMoto.Estado?.toLowerCase() }">${ datosMoto.Estado || 'No disponible' }</span>
+                                   </div>
+                                   <div class="info-item">
+                                       <label>Batería</label>
+                                       <span class="battery-badge">${ datosMoto.Bateria || 'No disponible' }</span>
+                                   </div>
+                               </div>
+                               <div class="info-row">
+                                   <div class="info-item">
+                                       <label>Matrícula</label>
+                                       <span class="plate-number">${ datosMoto.Matricula || 'No disponible' }</span>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
                `;
 
-               document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                    infoBox.style.display = "none";
+               // Event listeners
+               const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+               pinBtn.addEventListener( "click", ( e ) => {
+                    const infoBox = e.target.closest( '.info-box' );
+                    if ( infoBox.classList.contains( 'pinned' ) ) {
+                         infoBox.classList.remove( 'pinned' );
+                         pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                         pinBtn.title = "Fijar ventana";
+                    } else {
+                         infoBox.classList.add( 'pinned' );
+                         pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                         pinBtn.title = "Desfijar ventana";
+                    }
+               } );
+
+               currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                    currentInfoBox.remove();
+               } );
+
+               currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                    try {
+                         if ( navigator.share ) {
+                              await navigator.share( {
+                                   title: `Moto - ${ title }`,
+                                   text: `Moto ${ datosMoto.Matricula || '' }`,
+                                   url: window.location.href
+                              } );
+                         } else {
+                              await navigator.clipboard.writeText( window.location.href );
+                              showNotification( '¡Enlace copiado!' );
+                         }
+                    } catch ( error ) {
+                         console.error( 'Error al compartir:', error );
+                    }
                } );
           } );
      }
+
+     //
 
      const eventMoto = document.getElementById( "moto-sub-nav-item" );
 
@@ -3629,45 +4529,163 @@ function initMap() {
           };
 
           // Añadir un evento click al marcador del scooter sharing para mostrar información
-          scooterMarker.addListener( "click", function () {
-               const infoBox = document.querySelector( ".info-box" );
-               infoBox.style.display = "flex";
-               const datosPatinete = marcadoresScooter[ title ].datosPatinete;
-
-               // Crear contenido del infoBox dinámicamente según los datos disponibles
-               let infoBoxContent = `<div>${ title }</div>`;
-               if ( datosPatinete.ImagenURL ) {
-                    infoBoxContent += `<img src="${ datosPatinete.ImagenURL }" alt="scooter-image">`;
-               }
-               if ( datosPatinete.Empresa ) {
-                    infoBoxContent += `<p>Empresa: ${ datosPatinete.Empresa }</p>`;
-               }
-               if ( datosPatinete.Estado ) {
-                    infoBoxContent += `<p>Estado: ${ datosPatinete.Estado }</p>`;
-               }
-               if ( datosPatinete.Matricula ) {
-                    infoBoxContent += `<p>Matricula: ${ datosPatinete.Matricula }</p>`;
-               }
-               if ( datosPatinete.Identificador ) {
-                    infoBoxContent += `<p>Identificador: ${ datosPatinete.Identificador }</p>`;
-               }
-               if ( datosPatinete.Velocidad ) {
-                    infoBoxContent += `<p>Velocidad: ${ datosPatinete.Velocidad }</p>`;
-               }
-               if ( datosPatinete.Bateria ) {
-                    infoBoxContent += `<p>Batería: ${ datosPatinete.Bateria }</p>`;
-               }
-               infoBoxContent += `
-                    <button id="cerrar-info-box">
-                         <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                    </button>
-                    `;
-               // Mostrar el contenido en el infoBox
-               infoBox.innerHTML = infoBoxContent;
-               document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                    infoBox.style.display = "none";
-               } );
-          } );
+          // Añadir un evento click al marcador del scooter sharing para mostrar información
+scooterMarker.addListener("click", function() {
+     const datosPatinete = marcadoresScooter[title].datosPatinete;
+ 
+     const existingPinnedBox = document.querySelector(`.info-box.pinned[data-scooter-id="${title}"]`);
+     if (existingPinnedBox) {
+         existingPinnedBox.classList.add('highlight');
+         setTimeout(() => existingPinnedBox.classList.remove('highlight'), 1000);
+         return;
+     }
+ 
+     let currentInfoBox = document.querySelector(".info-box:not(.pinned)");
+     if (!currentInfoBox) {
+         currentInfoBox = document.createElement('div');
+         currentInfoBox.className = 'info-box';
+         document.body.appendChild(currentInfoBox);
+     }
+ 
+     currentInfoBox.setAttribute('data-scooter-id', title);
+     currentInfoBox.style.display = "flex";
+     currentInfoBox.innerHTML = `
+         <div class="info-header">
+             <img src="${datosPatinete.ImagenURL}" alt="Scooter" class="property-image"/>
+             <div class="header-bar">
+                 <div class="property-badges">
+                     <div class="badge-container">
+                         <span class="badge primary">SCOOTER</span>
+                         <div class="badge-location nameContainer">
+                             <span>${datosPatinete.Empresa || title}</span>
+                             <span>Madrid, España</span>
+                         </div>
+                     </div>
+                 </div>
+                 <div class="action-buttons">
+                     <button class="action-btn pin-btn" title="Fijar ventana">
+                         <i class="action-icon">📌</i>
+                     </button>
+                     <button class="action-btn share-btn" title="Compartir">
+                         <i class="action-icon">📤</i>
+                     </button>
+                     <button class="action-btn close-btn" title="Cerrar">
+                         <i class="action-icon">✕</i>
+                     </button>
+                 </div>
+             </div>
+         </div>
+ 
+         <div class="info-content">
+             <div class="info-section">
+                 <div class="info-grid">
+                     <div class="info-row">
+                         <div class="info-item">
+                             <label>ID</label>
+                             <div class="id-value-container">
+                                 <div class="id-wrapper">
+                                     <span title="${datosPatinete.Matricula || datosPatinete.Identificador}">${datosPatinete.Matricula || datosPatinete.Identificador}</span>
+                                     <button class="copy-btn" title="Copiar ID">
+                                         <i class="copy-icon">📋</i>
+                                     </button>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+ 
+                     <div class="info-row">
+                         <div class="info-item">
+                             <label>Estado</label>
+                             <div class="status-badge ${datosPatinete.Estado?.toLowerCase() || 'activo'}">
+                                 ${datosPatinete.Estado || 'Activo'}
+                             </div>
+                         </div>
+                         ${datosPatinete.Velocidad ? `
+                         <div class="info-item">
+                             <label>Velocidad</label>
+                             <span class="speed-badge">${datosPatinete.Velocidad} km/h</span>
+                         </div>
+                         ` : ''}
+                     </div>
+ 
+                     ${datosPatinete.Bateria ? `
+                     <div class="info-row">
+                         <div class="info-item">
+                             <label>Batería</label>
+                             <div class="status-indicator">
+                                 <span class="battery-badge">${datosPatinete.Bateria}%</span>
+                             </div>
+                         </div>
+                     </div>
+                     ` : ''}
+                 </div>
+             </div>
+         </div>
+     `;
+ 
+     // Event listeners
+     const pinBtn = currentInfoBox.querySelector(".pin-btn");
+     pinBtn.addEventListener("click", (e) => {
+         const infoBox = e.target.closest(".info-box");
+         if (infoBox.classList.contains("pinned")) {
+             infoBox.classList.remove("pinned");
+             pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+             pinBtn.title = "Fijar ventana";
+         } else {
+             infoBox.classList.add("pinned");
+             pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+             pinBtn.title = "Desfijar ventana";
+ 
+             // Crear nuevo infobox para futuras propiedades
+             const newInfoBox = document.createElement("div");
+             newInfoBox.className = "info-box";
+             newInfoBox.style.display = "none";
+             document.body.appendChild(newInfoBox);
+         }
+     });
+ 
+     currentInfoBox.querySelector(".share-btn").addEventListener("click", async () => {
+         try {
+             const baseUrl = window.location.origin + window.location.pathname;
+             const shareUrl = `${baseUrl}?view=scooter&id=${datosPatinete.Matricula || datosPatinete.Identificador}`;
+ 
+             const shareData = {
+                 title: `${datosPatinete.Empresa || title} - Scooter`,
+                 text: `🛴 ID: ${datosPatinete.Matricula || datosPatinete.Identificador}\n` +
+                       `📍 Madrid, España\n` +
+                       `🔋 Batería: ${datosPatinete.Bateria}%\n` +
+                       `⚡ Velocidad: ${datosPatinete.Velocidad || 0} km/h`,
+                 url: shareUrl
+             };
+ 
+             if (navigator.share && navigator.canShare(shareData)) {
+                 await navigator.share(shareData);
+             } else {
+                 const shareText = `${shareData.title}\n\n${shareData.text}\n\n🔗 Ver detalles: ${shareUrl}`;
+                 await navigator.clipboard.writeText(shareText);
+                 showNotification('¡Información copiada al portapapeles!');
+             }
+         } catch (error) {
+             console.error('Error al compartir:', error);
+         }
+     });
+ 
+     currentInfoBox.querySelector(".close-btn").addEventListener("click", () => {
+         currentInfoBox.remove();
+     });
+ 
+     currentInfoBox.querySelector(".copy-btn").addEventListener("click", async () => {
+         try {
+             await navigator.clipboard.writeText(datosPatinete.Matricula || datosPatinete.Identificador);
+             showNotification("¡ID copiado!");
+         } catch (error) {
+             console.error("Error al copiar:", error);
+         }
+     });
+ 
+     inicializarArrastre(currentInfoBox);
+     currentInfoBox.style.display = "flex";
+ });
      }
 
      // Modificar el evento del botón para manejar todos los marcadores de scooter sharing
@@ -3860,9 +4878,9 @@ function initMap() {
                infoBox.innerHTML = `
                     <div>${ title }</div>
                     <img src="${ datosAutobus.ImagenURL }" alt="Autobús Image">
-                    <p>Matrícula: ${ datosAutobus.Matricula }</p>
-                    <p>Estado: ${ datosAutobus.Estado }</p>
-                    <p>Línea: ${ datosAutobus.Linea }</p>
+                    <p>Matrícula: <span>${ datosAutobus.Matricula }</span> </p>
+                    <p>Estado: <span>${ datosAutobus.Estado }</span> </p>
+                    <p>Línea: <span>${ datosAutobus.Linea }</span> </p>
                     <button id="cerrar-info-box">
                          <img src="./assets/botonCerrar.svg" alt="Cerrar">
                     </button>
@@ -4098,8 +5116,8 @@ function initMap() {
                                         <strong>${ name }</strong>
                                    </div>
                                    <img src='${ STATIC_IMAGES.bus }'>
-                                   <p>Dirección: ${ streetAddress }, ${ addressRegion } ${ addressCountry }</p>
-                                   <p>${ description }</p>
+                                   <p>Dirección: <span>${ streetAddress }, ${ addressRegion } ${ addressCountry }</span> </p>
+                                   <p> <span>${ description }</span> </p>
                                    <button id="cerrar-info-box">
                                         <img src="./assets/botonCerrar.svg" alt="Cerrar">
                                    </button>
@@ -4153,31 +5171,185 @@ function initMap() {
                               datosRuta: data
                          };
 
-                         // Evento click para mostrar información detallada
-                         marker.addListener( "click", function () {
-                              const infoBox = document.querySelector( ".info-box" );
-                              infoBox.style.display = "flex";
-                              infoBox.innerHTML = `
-                                   <div><strong>${ data.nombre_ruta }</strong></div>
-                                   <img src="${ data.imagen_autobus }" alt="Imagen del autobús">
-                                   <p>Matrícula: ${ data.matricula_autobus }</p>
-                                   <p>Tipo: ${ data.tipo_autobus }</p>
-                                   <p>Capacidad: ${ data.capacidad }</p>
-                                   <p>Accesibilidad: ${ data.accesibilidad }</p>
-                                   <p>Año de fabricación: ${ data.año_fabricacion }</p>
-                                   <p>Operador: ${ data.operador }</p>
-                                   <p>Frecuencia: ${ data.frecuencia_servicio }</p>
-                                   <ul>
-                                        ${ data.caracteristicas.map( caracteristica => `<li>${ caracteristica }</li>` ).join( '' ) }
-                                   </ul>
-                                   <button id="cerrar-info-box">
-                                        <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                                   </button>
-                                   `;
-                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                                   infoBox.style.display = "none";
-                              } );
-                         } );
+
+                         // Objeto para mapear características a iconos
+const caracteristicasIconos = {
+     // Conectividad
+    'Conexión WiFi 5G': '📶',
+    'WiFi gratuito': '📶',
+    
+    // Carga y energía
+    'Puertos de carga rápida USB-C': '🔌',
+    'Puertos USB': '🔌',
+    
+    // Aire y climatización
+    'Sistema de purificación de aire': '🌬️',
+    'Aire acondicionado': '❄️',
+    
+    // Seguridad y monitoreo
+    'Monitoreo con cámaras HD': '📹',
+    'Vigilancia por CCTV': '📹',
+    
+    // Sistemas de información
+    'Sistema de billete electrónico': '🎫',
+    'Pantallas informativas internas': '📺',
+    
+    // Espacio y accesibilidad
+    'Espacio ampliado para bicicletas': '🚲',
+    
+    // Por defecto para cualquier característica nueva
+    'default': '🚌'
+ };
+ 
+ // Evento click para mostrar información detallada
+ marker.addListener("click", function() {
+     const existingPinnedBox = document.querySelector(`.info-box.pinned[data-bus-id="${data.matricula_autobus}"]`);
+     if (existingPinnedBox) {
+         existingPinnedBox.classList.add('highlight');
+         setTimeout(() => existingPinnedBox.classList.remove('highlight'), 1000);
+         return;
+     }
+ 
+     let currentInfoBox = document.querySelector(".info-box:not(.pinned)");
+     if (!currentInfoBox) {
+         currentInfoBox = document.createElement('div');
+         currentInfoBox.className = 'info-box';
+         document.body.appendChild(currentInfoBox);
+     }
+ 
+     currentInfoBox.setAttribute('data-bus-id', data.matricula_autobus);
+     currentInfoBox.style.display = "flex";
+     currentInfoBox.innerHTML = `
+         <div class="info-header">
+             <img src="${data.imagen_autobus}" alt="Bus" class="property-image"/>
+             <div class="header-bar">
+                 <div class="property-badges">
+                     <div class="badge-container">
+                         <span class="badge primary">LÍNEA ${data.nombre_ruta}</span>
+                         <div class="badge-location nameContainer">
+                            
+                             <span>${data.operador}</span>
+                         </div>
+                     </div>
+                 </div>
+                 <div class="action-buttons">
+                     <button class="action-btn pin-btn" title="Fijar ventana">
+                         <i class="action-icon">📌</i>
+                     </button>
+                     <button class="action-btn share-btn" title="Compartir">
+                         <i class="action-icon">📤</i>
+                     </button>
+                     <button class="action-btn close-btn" title="Cerrar">
+                         <i class="action-icon">✕</i>
+                     </button>
+                 </div>
+             </div>
+         </div>
+ 
+         <div class="info-content">
+             <div class="info-section">
+                 <div class="info-grid">
+                     <div class="info-row">
+                         <div class="info-item">
+                             <label>Matrícula</label>
+                             <span>${data.matricula_autobus}</span>
+                         </div>
+                         <div class="info-item">
+                             <label>Año</label>
+                             <span>${data.año_fabricacion}</span>
+                         </div>
+                     </div>
+                     <div class="info-row">
+                         <div class="info-item">
+                             <label>Capacidad</label>
+                             <span>${data.capacidad} pasajeros</span>
+                         </div>
+                         <div class="info-item">
+                             <label>Frecuencia</label>
+                             <span>${data.frecuencia_servicio}</span>
+                         </div>
+                     </div>
+                     <div class="info-row">
+                         <div class="info-item">
+                             <label>Accesibilidad</label>
+                             <span>${data.accesibilidad}</span>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+ 
+             <div class="info-section">
+                 <label class="section-label">Características</label>
+                 <div class="features-grid">
+                     ${data.caracteristicas.map(caracteristica => {
+                         const icono = caracteristicasIconos[caracteristica] || caracteristicasIconos['default'];
+    return `
+        <div class="feature-item">
+            <i class="feature-icon">${icono}</i>
+            <span>${caracteristica}</span>
+        </div>
+    `;
+                     }).join('')}
+                 </div>
+             </div>
+         </div>
+     `;
+ 
+     // Event listeners
+     const pinBtn = currentInfoBox.querySelector(".pin-btn");
+     pinBtn.addEventListener("click", (e) => {
+         const infoBox = e.target.closest(".info-box");
+         if (infoBox.classList.contains("pinned")) {
+             infoBox.classList.remove("pinned");
+             pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+             pinBtn.title = "Fijar ventana";
+         } else {
+             infoBox.classList.add("pinned");
+             pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+             pinBtn.title = "Desfijar ventana";
+ 
+             // Crear nuevo infobox para futuras propiedades
+             const newInfoBox = document.createElement("div");
+             newInfoBox.className = "info-box";
+             newInfoBox.style.display = "none";
+             document.body.appendChild(newInfoBox);
+         }
+     });
+ 
+     currentInfoBox.querySelector(".share-btn").addEventListener("click", async () => {
+         try {
+             const baseUrl = window.location.origin + window.location.pathname;
+             const shareUrl = `${baseUrl}?view=bus&id=${data.matricula_autobus}`;
+ 
+             const shareData = {
+                 title: `${data.nombre_ruta} - ${data.operador}`,
+                 text: `🚌 Línea: ${data.nombre_ruta}\n` +
+                       `📍 ${data.operador}\n` +
+                       `🔢 Matrícula: ${data.matricula_autobus}\n` +
+                       `👥 Capacidad: ${data.capacidad} pasajeros\n` +
+                       `⏱️ Frecuencia: ${data.frecuencia_servicio}`,
+                 url: shareUrl
+             };
+ 
+             if (navigator.share && navigator.canShare(shareData)) {
+                 await navigator.share(shareData);
+             } else {
+                 const shareText = `${shareData.title}\n\n${shareData.text}\n\n🔗 Ver detalles: ${shareUrl}`;
+                 await navigator.clipboard.writeText(shareText);
+                 showNotification('¡Información copiada al portapapeles!');
+             }
+         } catch (error) {
+             console.error('Error al compartir:', error);
+         }
+     });
+ 
+     currentInfoBox.querySelector(".close-btn").addEventListener("click", () => {
+         currentInfoBox.remove();
+     });
+ 
+     inicializarArrastre(currentInfoBox);
+     currentInfoBox.style.display = "flex";
+ });
                     } )
                     .catch( error => console.error( 'Error al cargar datos del autobús:', error ) );
           }
@@ -4259,12 +5431,12 @@ function initMap() {
                                         <p></p>
                                    </div>
                                         <img src="${ imagenUrl }" alt="Avión" onerror="this.src='${ defaultImageUrl }'"/>
-                                        <p>Modelo: ${ data.model.value }</p>
-                                        <p>Matrícula: ${ data.registrationNumber.value }</p>
-                                        <p>ID Aerolínea: ${ data.airline.object }</p>
-                                        <p>Capacidad: ${ data.capacity.value }</p>
-                                        <p id="velocidad-info-${ avionId }">Velocidad: ${ coordenadas[ 0 ].speed } KNT</p>
-                                        <p id="status-info-${ avionId }">Estado: ${ coordenadas[ 0 ].status }</p>
+                                        <p>Modelo: <span>${ data.model.value }</span> </p>
+                                        <p>Matrícula: <span>${ data.registrationNumber.value }</span> </p>
+                                        <p>ID Aerolínea: <span>${ data.airline.object }</span> </p>
+                                        <p>Capacidad: <span>${ data.capacity.value }</span> </p>
+                                        <p id="velocidad-info-${ avionId }">Velocidad: <span>${ coordenadas[ 0 ].speed } KNT</span> </p>
+                                             <p id="status-info-${ avionId }">Estado: <span>${ coordenadas[ 0 ].status }</span> </p>
                                         <button id="cerrar-info-box">
                                              <img src="./assets/botonCerrar.svg" alt="Cerrar">
                                         </button>
@@ -4378,12 +5550,12 @@ function initMap() {
                                         <p></p>
                                    </div>
                                    <img src="${ imagenUrl }" alt="Helicóptero" onerror="this.src='${ defaultImageUrl }'"/>
-                                   <p>Modelo: ${ data.model.value }</p>
-                                   <p>Matrícula: ${ data.registrationNumber.value }</p>
-                                   <p>Propietario: ${ data.owner.object }</p>
-                                   <p>Capacidad: ${ data.capacity.value }</p>
-                                   <p id="velocidad-info-${ helicopteroId }">Velocidad: ${ coordenadas[ 0 ].speed } KNT</p>
-                                   <p id="status-info-${ helicopteroId }">Estado: ${ coordenadas[ 0 ].status }</p>
+                                   <p>Modelo: <span>${ data.model.value }</span> </p>
+                                   <p>Matrícula: <span>${ data.registrationNumber.value }</span> </p>
+                                   <p>Propietario: <span>${ data.owner.object }</span> </p>
+                                   <p>Capacidad: <span>${ data.capacity.value }</span> </p>
+                                   <p id="velocidad-info-${ helicopteroId }">Velocidad: <span>${ coordenadas[ 0 ].speed } KNT</span> </p>
+                                   <p id="status-info-${ helicopteroId }">Estado: <span>${ coordenadas[ 0 ].status }</span> </p>
                                    <button id="cerrar-info-box">
                                         <img src="./assets/botonCerrar.svg" alt="Cerrar">
                                    </button>
@@ -4500,25 +5672,28 @@ function initMap() {
 
                if ( policeId === 3 || policeId === 4 || policeId === 5 || policeId === 6 || policeId === 7 || policeId === 8 || policeId === 9 || policeId === 10 || policeId === 11 ) {
                     additionalInfo = `
-                <p>Flota: ${ datosPolicia[ "Flota" ] }</p>
-                <p>Dirección General o Servicio de Adscripción: ${ datosPolicia[ "Direccion General o Servicio de Adscripcion" ] }</p>
-                <p>Tipo de Uso: ${ datosPolicia[ "Tipo de Uso" ] }</p>
-                <p>Tipo Vehículo: ${ datosPolicia[ "Tipo Vehiculo" ] }</p>
-                <p>Relación Contractual: ${ datosPolicia[ "Relacion Contractual" ] }</p>
-                <p>Energía/Combustible: ${ datosPolicia[ "Energia/Combustible" ] }</p>
-                <p>Categoría Eléctrico: ${ datosPolicia[ "Categoria Electrico" ] }</p>
-                <p>Distintivo: ${ datosPolicia[ "Distintivo" ] }</p>
-                <p>Clase Industria: ${ datosPolicia[ "Clase Industria" ] }</p>
-                <p>Categoría Homologación UE: ${ datosPolicia[ "Categ Homologacion UE" ] }</p>
+                <p>Flota: <span>${ datosPolicia[ "Flota" ] }</span> </p>
+                <p>Dirección General o Servicio de Adscripción: <span>${ datosPolicia[ "Direccion General o Servicio de Adscripcion" ] }</span> </p>
+                <p>Tipo de Uso: <span>${ datosPolicia[ "Tipo de Uso" ] }</span> </p>
+                <p>Tipo Vehículo: <span>${ datosPolicia[ "Tipo Vehiculo" ] }</span> </p>
+                <p>Relación Contractual: <span>${ datosPolicia[ "Relacion Contractual" ] }</span> </p>
+                <p>Energía/Combustible: <span>${ datosPolicia[ "Energia/Combustible" ] }</span> </p>
+                <p>Categoría Eléctrico: <span>${ datosPolicia[ "Categoria Electrico" ] }</span> </p>
+                <p>Distintivo: <span>${ datosPolicia[ "Distintivo" ] }</span> </p>
+                <p>Clase Industria: <span>${ datosPolicia[ "Clase Industria" ] }</span> </p>
+                <p>Categoría Homologación UE: <span>${ datosPolicia[ "Categ Homologacion UE" ] }</span> </p>
             `;
                }
 
+
                infoBox.innerHTML = `
-            <div>${ title }</div>
+            <div class='nameContainer'>
+               <p>${ title }</p>
+            </div>
             <img src="${ datosPolicia.ImagenURL }" alt="Policía Image">
-            <p>Estado: ${ datosPolicia.Estado }</p>
-            <p>Matrícula: ${ datosPolicia.Matricula }</p>
-            <p>Indicativo: ${ datosPolicia.Indicativo }</p>
+            <p>Estado: <span>${ datosPolicia.Estado }</span> </p>
+            <p>Matrícula: <span>${ datosPolicia.Matricula }</span> </p>
+            <p>Indicativo: <span>${ datosPolicia.Indicativo }</span> </p>
             ${ additionalInfo }
             <button id="cerrar-info-box">
                 <img src="./assets/botonCerrar.svg" alt="Cerrar">
@@ -4610,12 +5785,12 @@ function initMap() {
                               <p></p>
                               </div>
                <img src="${ datosAmbulancia.ImagenURL }" alt="Imagen de la Ambulancia"/>
-               <p>Estado: ${ datosAmbulancia.Estado }</p>
-               <p>Conductor/a: ${ datosAmbulancia[ 'Conductor/a' ] }</p>
-               <p>Médico: ${ datosAmbulancia.Medico }</p>
-               <p>Enfermero/a: ${ datosAmbulancia[ 'Enfermero/a' ] }</p>
-               <p>Indicativo: ${ datosAmbulancia.Indicativo }</p>
-               <p>Matrícula: ${ datosAmbulancia.Matricula }</p>
+               <p>Estado: <span>${ datosAmbulancia.Estado }</span> </p>
+               <p>Conductor/a: <span>${ datosAmbulancia[ 'Conductor/a' ] }</span> </p>
+               <p>Médico: <span>${ datosAmbulancia.Medico }</span> </p>
+               <p>Enfermero/a: <span>${ datosAmbulancia[ 'Enfermero/a' ] }</span> </p>
+               <p>Indicativo: <span>${ datosAmbulancia.Indicativo }</span> </p>
+               <p>Matrícula: <span>${ datosAmbulancia.Matricula }</span> </p>
                <button id="cerrar-info-box">
                     <img src="./assets/botonCerrar.svg" alt="Cerrar">
                </button>
@@ -4695,7 +5870,6 @@ function initMap() {
           return intervalId;
      }
 
-     // Función para iniciar el barco
      function iniciarShipsEnMapa( shipsId, iconUrl, title, apiUrl ) {
           if ( marcadoresShips[ shipsId ] ) {
                clearInterval( marcadoresShips[ shipsId ].intervaloId );
@@ -4709,7 +5883,6 @@ function initMap() {
                title: title,
                icon: iconUrl,
           } );
-
           function obtenerYmoverShips() {
                const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
                fetch( proxyUrl )
@@ -4721,29 +5894,59 @@ function initMap() {
                                    lng: parseFloat( coord.lng )
                               } ) );
 
-                              function actualizarInfoBox( index ) {
-                                   const coord = data.location.coordinates[ index ];
+                              // PRIMER PASO: Crear el HTML inicial una sola vez
+                              shipsMarker.addListener( "click", () => {
                                    const infoBox = document.querySelector( ".info-box-ships" );
                                    if ( infoBox ) {
-                                        infoBox.innerHTML = `
-                                        <div><strong>Ship Information</strong></div>
-                                        <img src="${ data.ImagenURL }" alt="Imagen del Ship"/>
-                                        <p>Tipo: ${ data.type }</p>
-                                        <p>Name: ${ data.name }</p>
-                                        <p>Model: ${ data.model }</p>
-                                        <p>Manufacturer: ${ data.manufacturer }</p>
-                                        <p>Owner: ${ data.owner.name } (${ data.owner.contact })</p>
-                                        <p>Speed: ${ coord.speed } knots</p>
-                                        <p>Fuel Consumption: ${ coord.fuelConsumption } L/100km</p>
-                                        <p>Cumm. CO2 Emissions: ${ coord.CummCO2emissions } kg</p>
-                                        <p><strong>Destination:</strong> ${ data.destination }</p>
-                                        <p><strong>Heading:</strong> ${ data.heading }</p>
-                                        <button id="cerrar-info-box-ships"><img src="./assets/botonCerrar.svg" alt="Cerrar"></button>
-                                   `;
-                                        document.getElementById( "cerrar-info-box-ships" ).addEventListener( "click", () => {
-                                             infoBox.style.display = "none";
-                                        } );
+                                        // Solo creamos el HTML si no existe
+                                        if ( !infoBox.querySelector( '.nameContainer' ) ) {
+                                             infoBox.innerHTML = `
+                                           <div class='nameContainer'>
+                                               <p>Ship Information</p>
+                                           </div>
+                                           <img src="${ data.ImagenURL }" alt="Imagen del Ship"/>
+                                           <p>Tipo: <span>${ data.type }</span></p>
+                                           <p>Name: <span>${ data.name }</span></p>
+                                           <p>Model: <span>${ data.model }</span></p>
+                                           <p>Manufacturer: <span>${ data.manufacturer }</span></p>
+                                           <p>Owner: <span>${ data.owner.name } (${ data.owner.contact })</span></p>
+                                           <p>Speed: <span id="speedValue">0 knots</span></p>
+                                           <p>Fuel Consumption: <span id="fuelValue">0 L/100km</span></p>
+                                           <p>Cumm. CO2 Emissions: <span id="co2Value">0 kg</span></p>
+                                           <p><strong>Destination:</strong> <span>${ data.destination }</span></p>
+                                           <p><strong>Heading:</strong> <span>${ data.heading }</span></p>
+                                           <button id="cerrar-info-box-ships">
+                                               <img src="./assets/botonCerrar.svg" alt="Cerrar">
+                                           </button>
+                                       `;
+
+                                             // Configurar el botón de cerrar
+                                             document.getElementById( "cerrar-info-box-ships" ).addEventListener( "click", () => {
+                                                  infoBox.style.display = "none";
+                                             } );
+
+                                             // Inicializar el arrastre
+                                             inicializarArrastre( infoBox );
+                                        }
+                                        infoBox.style.display = "flex";
                                    }
+                              } );
+
+                              // SEGUNDO PASO: Función que solo actualiza los valores dinámicos
+                              function actualizarInfoBox( index ) {
+                                   const infoBox = document.querySelector( ".info-box-ships" );
+                                   if ( !infoBox || infoBox.style.display !== "flex" ) return;
+
+                                   const coord = data.location.coordinates[ index ];
+
+                                   // Solo actualizar los valores que cambian
+                                   const speedElement = document.getElementById( "speedValue" );
+                                   const fuelElement = document.getElementById( "fuelValue" );
+                                   const co2Element = document.getElementById( "co2Value" );
+
+                                   if ( speedElement ) speedElement.textContent = `${ coord.speed } knots`;
+                                   if ( fuelElement ) fuelElement.textContent = `${ coord.fuelConsumption } L/100km`;
+                                   if ( co2Element ) co2Element.textContent = `${ coord.CummCO2emissions } kg`;
                               }
 
                               const intervaloId = iniciarMovimientoMarcadorShip( shipsMarker, coordenadas, 500, actualizarInfoBox );
@@ -4752,14 +5955,6 @@ function initMap() {
                                    intervaloId: intervaloId,
                                    datosShips: data
                               };
-
-                              shipsMarker.addListener( "click", () => {
-                                   const infoBox = document.querySelector( ".info-box-ships" );
-                                   if ( infoBox ) {
-                                        infoBox.style.display = "flex";
-                                        actualizarInfoBox( 0 );
-                                   }
-                              } );
                          }
                     } )
                     .catch( error => console.error( 'Error al obtener coordenadas del barco:', error ) );
@@ -4800,7 +5995,7 @@ function initMap() {
           return intervalId;
      }
 
-     function iniciarVehiculoEnMapa( vehiculoId, iconUrl, title, apiUrl, esVan = false ) {
+     function iniciarVehiculoEnMapa( vehiculoId, iconUrl, title, apiUrl, esVan = false, esTruckArabia = false ) {
           if ( marcadoresVehiculos[ vehiculoId ] ) {
                clearInterval( marcadoresVehiculos[ vehiculoId ].intervaloId );
                marcadoresVehiculos[ vehiculoId ].marker.setMap( null );
@@ -4818,94 +6013,404 @@ function initMap() {
           fetch( proxyUrl )
                .then( response => response.json() )
                .then( data => {
-                    // Precargamos la imagen inmediatamente cuando recibimos los datos
-                    if ( data.ImagenURL ) {
+                    // Precargamos la imagen
+                    if ( data.ImagenURL || data[ "Imagen URL" ] ) {
                          const img = new Image();
-                         img.src = data.ImagenURL;
+                         img.src = data.ImagenURL || data[ "Imagen URL" ];
                     }
-                    if ( data.Coordenadas && Array.isArray( data.Coordenadas ) ) {
-                         const coordenadas = data.Coordenadas.map( coord => ( {
-                              lat: parseFloat( coord.lat ),
-                              lng: parseFloat( coord.lng )
+
+                    let coordenadas = [];
+                    if ( esTruckArabia && data.Coordinates ) {
+                         coordenadas = data.Coordinates.map( coord => ( {
+                              lat: parseFloat( coord.latitude ),
+                              lng: parseFloat( coord.longitude )
                          } ) );
+                    } else if ( data.Coordenadas ) {
+                         coordenadas = data.Coordenadas.map( coord => ( {
+                              lat: parseFloat( coord.latitude || coord.lat ),
+                              lng: parseFloat( coord.longitude || coord.lng )
+                         } ) );
+                    }
 
-                         function actualizarInfoBox( index ) {
-                              const coord = data.Coordenadas[ index ];
-                              const infoBox = document.querySelector( ".info-box-trucks" );
-                              if ( infoBox &&
-                                   infoBox.style.display === "flex" &&
-                                   infoBox.getAttribute( 'data-vehiculo-id' ) === vehiculoId.toString() ) {
+                    // PRIMER CAMBIO: Mover la creación del HTML al click del marcador
+                    vehiculoMarker.addListener( "click", () => {
+                         const infoBox = document.querySelector( ".info-box-trucks" );
+                         if ( infoBox ) {
+                              infoBox.setAttribute( 'data-vehiculo-id', vehiculoId );
 
-                                   if ( esVan ) {
-                                        // Infobox estático para vans
-                                        infoBox.innerHTML = `
-                                <div class="nameContainer">
-                                    <p>Van</p>
-                                    <p>Logistics Van</p>
-                                </div>
-                                <div class="own">
-                                    <img src="${ data.ImagenURL }" alt="Van Image" />
-                                </div>
-                                <p>ID Conductor: ${ data[ "ID Conductor" ] }</p>
-                                <p>ID Vehículo: ${ data[ "ID Vehiculo" ] }</p>
-                                <p>Matrícula: ${ data.Matricula }</p>
-                                <p>Empresa: ${ data.Empresa }</p>
-                                <button id="cerrar-info-box-trucks">
-                                    <img src='./assets/botonCerrar.svg' alt="Cerrar" />
-                                </button>
-                            `;
-                                   } else {
-                                        // Infobox dinámico para trucks
-                                        infoBox.innerHTML = `
-                                <div class="nameContainer">
-                                    <p>Truck</p>
-                                    <p>Logistics Truck</p>
-                                </div>
-                                <div class="own">
-                                    <img src="${ data.ImagenURL }" alt="Truck Image" />
-                                </div>
-                                <p>ID Conductor: ${ data[ "ID Conductor" ] }</p>
-                                <p>ID Vehículo: ${ data[ "ID Vehiculo" ] }</p>
-                                <p>Matrícula: ${ data.Matricula }</p>
-                                <p>Empresa: ${ data.Empresa }</p>
-                                <p>Combustible: ${ coord[ "Combustible (%)" ] }</p>
-                                ${ coord[ "Emisiones CO2 (g)" ] !== undefined ?
-                                                  `<p>Emisiones CO2: ${ coord[ "Emisiones CO2 (g)" ] } g</p>` : '' }
-                                <p>Distancia a destino: ${ coord[ "Distancia a destino (mi)" ] } mi</p>
-                                <button id="cerrar-info-box-trucks">
-                                    <img src='./assets/botonCerrar.svg' alt="Cerrar" />
-                                </button>
-                            `;
-                                   }
+                              if ( esTruckArabia ) {
+                                   infoBox.innerHTML = `
+                                  <div class="info-header">
+                                      <img src="${ data[ "Imagen URL" ] }" alt="Truck" class="property-image"/>
+                                      <div class="header-bar">
+                                          <div class="property-badges">
+                                              <div class="badge-container">
+                                                  <span class="badge primary">TRUCK</span>
+                                                  <div class="badge-location nameContainer">
+                                                      <span>Logistics Truck Arabia</span>
+                                                      <span>${ data.Company }</span>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                          <div class="action-buttons">
+                                              <button class="action-btn share-btn" title="Compartir">
+                                                  <i class="action-icon">📤</i>
+                                              </button>
+                                              <button class="action-btn close-btn" id="cerrar-info-box-trucks" title="Cerrar">
+                                                  <i class="action-icon">✕</i>
+                                              </button>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  
+                                  <div class="info-content">
+                                      <div class="info-grid">
+                                          <div class="info-row">
+                                              <div class="info-item">
+                                                  <label>Driver ID</label>
+                                                  <span class="highlight-value">${ data[ "Driver ID" ] }</span>
+                                              </div>
+                                              <div class="info-item">
+                                                  <label>Vehicle ID</label>
+                                                  <span class="highlight-value">${ data[ "Vehicle ID" ] }</span>
+                                              </div>
+                                          </div>
+                                          <div class="info-row">
+                                              <div class="info-item">
+                                                  <label>License Plate</label>
+                                                  <span class="plate-number">${ data[ "License Plate" ] }</span>
+                                              </div>
+                                              <div class="info-item">
+                                                  <label>Company</label>
+                                                  <span class="company-badge">${ data.Company }</span>
+                                              </div>
+                                          </div>
+                                      </div>
+                          
+                                      <div class="vehicle-status">
+                                          <label>Vehicle Status</label>
+                                          <div class="status-indicators">
+                                              <div class="status-item">
+                                                  <div class="status-icon">⛽</div>
+                                                  <div class="status-info">
+                                                      <label>Fuel Level</label>
+                                                      <div id="progress-bar">
+                                                          <div class="progress" id="progress-${ vehiculoId }" style="width: 0%">
+                                                              <span id="fuel-${ vehiculoId }">0%</span>
+                                                          </div>
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                              <div class="status-item">
+                                                  <div class="status-icon">🌱</div>
+                                                  <div class="status-info">
+                                                      <label>CO2 Emissions</label>
+                                                      <span class="emissions-badge" id="emissions-${ vehiculoId }">0 g</span>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                          
+                                      <div class="route-info">
+                                          <label>Route Information</label>
+                                          <div class="route-card">
+                                              <div class="route-icon">🚛</div>
+                                              <div class="route-details">
+                                                  <div class="distance-info">
+                                                      <span class="distance-value" id="distance-${ vehiculoId }">0 km</span>
+                                                      <span class="distance-label">to destination</span>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              `;
 
-                                   document.getElementById( "cerrar-info-box-trucks" ).addEventListener( "click", () => {
-                                        infoBox.style.display = "none";
-                                   } );
+                              } else if ( !esVan ) {
+                                   // Función auxiliar para manejar valores undefined
+                                   const getValue = ( value, defaultValue = 'N/A' ) => {
+                                        return value !== undefined ? value : defaultValue;
+                                   };
+
+                                   // Obtener los valores con manejo de undefined
+                                   const driverID = getValue( data[ "ID Conductor" ] );
+                                   const vehicleID = getValue( data[ "ID Vehiculo" ] );
+                                   const licensePlate = getValue( data.Matricula );
+                                   const company = getValue( data.Empresa );
+                                   const emissions = getValue( data[ "Emisiones CO2 (g)" ], '0' );
+                                   const distance = getValue( data[ "Distancia a destino (km)" ], '0' );
+
+                                   infoBox.innerHTML = `
+                                  <div class="info-header">
+                                      <img src="${ data.ImagenURL }" alt="Truck" class="property-image"/>
+                                      <div class="header-bar">
+                                          <div class="property-badges">
+                                              <div class="badge-container">
+                                                  <span class="badge primary">TRUCK</span>
+                                                  <div class="badge-location nameContainer">
+                                                      <span>Logistics Truck</span>
+                                                      <span>${ company }</span>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                          <div class="action-buttons">
+                                              <button class="action-btn share-btn" title="Compartir">
+                                                  <i class="action-icon">📤</i>
+                                              </button>
+                                              <button class="action-btn close-btn" id="cerrar-info-box-trucks" title="Cerrar">
+                                                  <i class="action-icon">✕</i>
+                                              </button>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  
+                                  <div class="info-content">
+                                      <div class="info-grid">
+                                          <div class="info-row">
+                                              <div class="info-item">
+                                                  <label>Driver ID</label>
+                                                  <span class="highlight-value">${ driverID }</span>
+                                              </div>
+                                              <div class="info-item">
+                                                  <label>Vehicle ID</label>
+                                                  <span class="highlight-value">${ vehicleID }</span>
+                                              </div>
+                                          </div>
+                                          <div class="info-row">
+                                              <div class="info-item">
+                                                  <label>License Plate</label>
+                                                  <span class="plate-number">${ licensePlate }</span>
+                                              </div>
+                                              <div class="info-item">
+                                                  <label>Company</label>
+                                                  <span class="company-badge">${ company }</span>
+                                              </div>
+                                          </div>
+                                      </div>
+                          
+                                      <div class="vehicle-status">
+                                          <label>Vehicle Status</label>
+                                          <div class="status-indicators">
+                                              <div class="status-item">
+                                                  <div class="status-icon">⛽</div>
+                                                  <div class="status-info">
+                                                      <label>Fuel Level</label>
+                                                      <div id="progress-bar">
+                                                          <div class="progress" id="progress-${ vehiculoId }" style="width: 0%">
+                                                              <span id="fuel-${ vehiculoId }">0%</span>
+                                                          </div>
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                              <div class="status-item">
+                                                  <div class="status-icon">🌱</div>
+                                                  <div class="status-info">
+                                                      <label>CO2 Emissions</label>
+                                                      <span class="emissions-badge" id="emissions-${ vehiculoId }">${ emissions } g</span>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                          
+                                      <div class="route-info">
+                                          <label>Route Information</label>
+                                          <div class="route-card">
+                                              <div class="route-icon">🚛</div>
+                                              <div class="route-details">
+                                                  <div class="distance-info">
+                                                      <span class="distance-value" id="distance-${ vehiculoId }">${ distance } km</span>
+                                                      <span class="distance-label">to destination</span>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              `;
+                              } else {
+                                   // Función auxiliar para verificar si un valor existe
+                                   const hasValue = ( value ) => value !== undefined && value !== null && value !== '';
+
+                                   // Preparar los datos solo si existen
+                                   const headerData = {
+                                        image: hasValue( data.ImagenURL ) ? `<img src="${ data.ImagenURL }" alt="Van" class="property-image"/>` : '',
+                                        company: hasValue( data.Empresa ) ? data.Empresa : ''
+                                   };
+                                   infoBox.innerHTML = `
+        <div class="info-header">
+            ${ headerData.image }
+            <div class="header-bar">
+                <div class="property-badges">
+                    <div class="badge-container">
+                        <span class="badge primary">VAN</span>
+                        <div class="badge-location nameContainer">
+                            <span>Logistics Van</span>
+                            ${ headerData.company ? `<span>${ headerData.company }</span>` : '' }
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                 <button class="action-btn share-btn" title="Compartir">
+                        <i class="action-icon">📤</i>
+                    </button>
+                    <button class="action-btn close-btn" id="cerrar-info-box-trucks" title="Cerrar">
+                        <i class="action-icon">✕</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-content">
+            <div class="info-grid">
+                ${ hasValue( data[ "ID Conductor" ] ) || hasValue( data[ "ID Vehiculo" ] ) ? `
+                    <div class="info-row">
+                        ${ hasValue( data[ "ID Conductor" ] ) ? `
+                            <div class="info-item">
+                                <label>Driver ID</label>
+                                <span class="highlight-value">${ data[ "ID Conductor" ] }</span>
+                            </div>
+                        ` : '' }
+                        ${ hasValue( data[ "ID Vehiculo" ] ) ? `
+                            <div class="info-item">
+                                <label>Vehicle ID</label>
+                                <span class="highlight-value">${ data[ "ID Vehiculo" ] }</span>
+                            </div>
+                        ` : '' }
+                    </div>
+                ` : '' }
+                
+                ${ hasValue( data.Matricula ) || hasValue( data.Empresa ) ? `
+                    <div class="info-row">
+                        ${ hasValue( data.Matricula ) ? `
+                            <div class="info-item">
+                                <label>License Plate</label>
+                                <span class="plate-number">${ data.Matricula }</span>
+                            </div>
+                        ` : '' }
+                        ${ hasValue( data.Empresa ) ? `
+                            <div class="info-item">
+                                <label>Company</label>
+                                <span class="company-badge">${ data.Empresa }</span>
+                            </div>
+                        ` : '' }
+                    </div>
+                ` : '' }
+            </div>
+        </div>
+    `;
                               }
+
+                              // Configurar el botón de cerrar
+                              document.getElementById( "cerrar-info-box-trucks" ).addEventListener( "click", () => {
+                                   infoBox.style.display = "none";
+                              } );
+
+                              // Inicializar el arrastre
+                              inicializarArrastre( infoBox );
+
+                              infoBox.style.display = "flex";
                          }
 
-                         const intervaloId = iniciarMovimientoMarcador(
-                              vehiculoMarker,
-                              coordenadas,
-                              500,
-                              actualizarInfoBox
-                         );
+                    } );
 
-                         marcadoresVehiculos[ vehiculoId ] = {
-                              marker: vehiculoMarker,
-                              intervaloId: intervaloId,
-                              datosVehiculo: data
-                         };
+                    // SEGUNDO CAMBIO: Función que solo actualiza los valores dinámicos
+                    //    function actualizarInfoBox(index) {
+                    //        const infoBox = document.querySelector(".info-box-trucks");
+                    //        if (!infoBox || 
+                    //            infoBox.style.display !== "flex" || 
+                    //            infoBox.getAttribute('data-vehiculo-id') !== vehiculoId.toString()) {
+                    //            return;
+                    //        }
 
-                         vehiculoMarker.addListener( "click", () => {
-                              const infoBox = document.querySelector( ".info-box-trucks" );
-                              if ( infoBox ) {
-                                   infoBox.setAttribute( 'data-vehiculo-id', vehiculoId );
-                                   infoBox.style.display = "flex";
-                                   actualizarInfoBox( 0 );
+                    //        let coord;
+                    //        if (esTruckArabia) {
+                    //            coord = data.Coordinates[index];
+                    //        } else if (!esVan) {
+                    //            coord = data.Coordenadas[index];
+                    //        }
+
+                    //        if (coord) {
+                    //            // Actualizar solo los valores dinámicos usando IDs únicos
+                    //            const fuelElement = document.getElementById(`fuel-${vehiculoId}`);
+                    //            const emissionsElement = document.getElementById(`emissions-${vehiculoId}`);
+                    //            const distanceElement = document.getElementById(`distance-${vehiculoId}`);
+
+                    //            if (esTruckArabia) {
+                    //                if (fuelElement) fuelElement.textContent = `${coord["Fuel (%)"]}`;
+                    //                if (emissionsElement) emissionsElement.textContent = `${coord["CO2 Emissions (g)"]} g`;
+                    //                if (distanceElement) distanceElement.textContent = `${coord["Distance to Destination (km)"]} km`;
+                    //            } else {
+                    //                if (fuelElement) fuelElement.textContent = `${coord["Combustible (%)"]}`;
+                    //                if (emissionsElement && coord["Emisiones CO2 (g)"]) {
+                    //                    emissionsElement.textContent = `${coord["Emisiones CO2 (g)"]} g`;
+                    //                }
+                    //                if (distanceElement) distanceElement.textContent = `${coord["Distancia a destino (km)"]} km`;
+                    //            }
+                    //        }
+                    //    }
+                    // SEGUNDO CAMBIO: Función que solo actualiza los valores dinámicos
+                    function actualizarInfoBox( index ) {
+                         const infoBox = document.querySelector( ".info-box-trucks" );
+                         if ( !infoBox ||
+                              infoBox.style.display !== "flex" ||
+                              infoBox.getAttribute( 'data-vehiculo-id' ) !== vehiculoId.toString() ) {
+                              return;
+                         }
+
+                         let coord;
+                         if ( esTruckArabia ) {
+                              coord = data.Coordinates[ index ];
+                         } else if ( !esVan ) {
+                              coord = data.Coordenadas[ index ];
+                         }
+
+                         if ( coord ) {
+                              // Actualizar el combustible con la barra de progreso
+                              const fuelElement = document.getElementById( `fuel-${ vehiculoId }` );
+                              const progressBar = document.getElementById( `progress-${ vehiculoId }` );
+
+                              if ( fuelElement && progressBar ) {
+                                   const fuelLevel = esTruckArabia ? coord[ "Fuel (%)" ] : coord[ "Combustible (%)" ];
+
+                                   // Actualizar el texto y la barra
+                                   fuelElement.textContent = `${ fuelLevel }%`;
+                                   progressBar.style.width = `${ fuelLevel }%`;
+
+                                   // Cambiar el color según el nivel
+                                   if ( fuelLevel < 20 ) {
+                                        progressBar.style.backgroundColor = '#ff4444';
+                                   } else if ( fuelLevel < 50 ) {
+                                        progressBar.style.backgroundColor = '#ffbb33';
+                                   } else {
+                                        progressBar.style.backgroundColor = 'var(--primary-color)';
+                                   }
                               }
-                         } );
+
+                              // Actualizar emisiones
+                              const emissionsElement = document.getElementById( `emissions-${ vehiculoId }` );
+                              if ( emissionsElement ) {
+                                   const emissions = esTruckArabia ?
+                                        coord[ "CO2 Emissions (g)" ] :
+                                        coord[ "Emisiones CO2 (g)" ];
+                                   emissionsElement.textContent = `${ emissions } g`;
+                              }
+
+                              // Actualizar distancia
+                              const distanceElement = document.getElementById( `distance-${ vehiculoId }` );
+                              if ( distanceElement ) {
+                                   const distance = esTruckArabia ?
+                                        coord[ "Distance to Destination (km)" ] :
+                                        coord[ "Distancia a destino (km)" ];
+                                   distanceElement.textContent = `${ distance } km`;
+                              }
+                         }
                     }
+
+                    const intervaloId = iniciarMovimientoMarcador( vehiculoMarker, coordenadas, 500, actualizarInfoBox );
+                    marcadoresVehiculos[ vehiculoId ] = {
+                         marker: vehiculoMarker,
+                         intervaloId: intervaloId,
+                         datosVehiculo: data
+                    };
                } )
                .catch( error => console.error( "Error al obtener coordenadas del vehículo:", error ) );
      }
@@ -4916,17 +6421,27 @@ function initMap() {
           // Crear bounds para todos los vehículos
           const bounds = new google.maps.LatLngBounds();
 
-          // Array de promesas para cargar todos los datos
           const promesas = [
                fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck_data_final_updated.json?sp=r&st=2025-02-10T19:02:46Z&se=2099-02-11T03:02:46Z&sv=2022-11-02&sr=b&sig=%2BYAtmguCffqiUlLNILe60nYEiXtYtU1bCE5Rsqywz%2FU%3D' ) }` ),
                fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck2_data_final_updated.json?sp=r&st=2025-02-10T19:03:13Z&se=2099-02-11T03:03:13Z&sv=2022-11-02&sr=b&sig=uFSo%2B7rpy1GBaCjpTWwvkJ1pd3rmkCglH9ZsEfn4vYg%3D' ) }` ),
                fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck3_data_final.json?sp=r&st=2025-02-10T19:03:40Z&se=2099-02-11T03:03:40Z&sv=2022-11-02&sr=b&sig=E9Md4DIMtRIV%2FwUjCs0y57MMMr1pS3%2BnMq4DCkr%2FogE%3D' ) }` ),
                fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_miami_data.json?sp=r&st=2025-02-09T22:40:50Z&se=2099-02-10T06:40:50Z&sv=2022-11-02&sr=b&sig=3mt25X3t7dbbt8fcEWiI%2BCjrBny6EN%2FkNOvMMcZ9T%2FY%3D' ) }` ),
                fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_new_york_data.json?sp=r&st=2025-02-09T22:41:40Z&se=2099-02-10T06:41:40Z&sv=2022-11-02&sr=b&sig=teiu0TH1VHhOUVdsDHH9VAXM16R11M%2FSc2mbznyKq5Q%3D' ) }` ),
-               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_san_luis_data.json?sp=r&st=2025-02-09T22:41:58Z&se=2099-02-10T06:41:58Z&sv=2022-11-02&sr=b&sig=2hyY5AtQQ210htuWhxIfPce8QrSuAs1ED1V6grcj%2FQc%3D' ) }` )
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_san_luis_data.json?sp=r&st=2025-02-09T22:41:58Z&se=2099-02-10T06:41:58Z&sv=2022-11-02&sr=b&sig=2hyY5AtQQ210htuWhxIfPce8QrSuAs1ED1V6grcj%2FQc%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_4.json?sp=r&st=2025-03-01T10:39:21Z&se=2099-03-01T18:39:21Z&sv=2022-11-02&sr=b&sig=ESDZjQckX%2FrG%2F5IGCuHWmgsP3L28q0fH9sSPDyJafNk%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_7.json?sp=r&st=2025-03-01T12:23:49Z&se=2099-03-01T20:23:49Z&sv=2022-11-02&sr=b&sig=qFY5KeqL1n4GUQIq%2F2xNx4TJy%2BZLmWKNgMWwdmb740U%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_10.json?sp=r&st=2025-03-01T12:36:55Z&se=2099-03-01T20:36:55Z&sv=2022-11-02&sr=b&sig=GcKRb8Bj6j9R0DFocHmLzauhPpJJhxwcTX9HHgIrHcU%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_5.json?sp=r&st=2025-03-01T12:38:00Z&se=2099-03-01T20:38:00Z&sv=2022-11-02&sr=b&sig=plN2yP%2BblzdbYGefmvC%2FaOwO9Soz9GOfL%2FA0OUoHdZQ%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_8.json?sp=r&st=2025-03-01T12:39:05Z&se=2099-03-01T20:39:05Z&sv=2022-11-02&sr=b&sig=swaoAkdKQ7mU8mBdqQ7BhwDX%2Bk%2FWzCdBkvqsN84a7s0%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_12.json?sp=r&st=2025-03-01T12:40:23Z&se=2099-03-01T20:40:23Z&sv=2022-11-02&sr=b&sig=hYgKj7v5NWSs5GK6LKEBEuNDl3mCky8qBCzto1eg1iI%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_6.json?sp=r&st=2025-03-01T12:41:22Z&se=2099-03-01T20:41:22Z&sv=2022-11-02&sr=b&sig=WA9lAB7Or%2BWd4L5f2r5ZjYxdo5RcrfM1Z84Y6U2Clk4%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_9.json?sp=r&st=2025-03-01T12:42:24Z&se=2099-03-01T20:42:24Z&sv=2022-11-02&sr=b&sig=uuEuEoTNWkfoWtb5pKBDnx00i1tcF49TqCSNFgtU9ko%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_11.json?sp=r&st=2025-03-01T12:43:17Z&se=2099-03-01T20:43:17Z&sv=2022-11-02&sr=b&sig=jpdoDeEluNz2pcI8VCR1lDB0EgU7qoFWnZfcgkaqUlE%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_Arabia_1.json?sp=r&st=2025-03-01T12:52:15Z&se=2099-03-01T20:52:15Z&sv=2022-11-02&sr=b&sig=Av%2F0%2F%2BZ6DC3IGW1u7jjhzxGyVD7udP4Oq5uLM6KWs0k%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_Arabia_2.json?sp=r&st=2025-03-02T11:50:40Z&se=2099-03-02T19:50:40Z&sv=2022-11-02&sr=b&sig=yvr7fnCy8VVS1Q2DROn36O9M5MYxgSZkbYCBXQrKNA4%3D' ) }` ),
+               fetch( `/api/proxy?url=${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_Arabia_3.json?sp=r&st=2025-03-02T11:52:14Z&se=2099-03-02T19:52:14Z&sv=2022-11-02&sr=b&sig=eV%2BTe1qIQv06aU9sJ%2B2OJvEHq57qUykc96Qkh9PS3Xw%3D' ) }` ),
           ];
 
-          // Procesar todas las promesas
           Promise.all( promesas )
                .then( responses => Promise.all( responses.map( r => r.json() ) ) )
                .then( datos => {
@@ -4935,15 +6450,24 @@ function initMap() {
                          if ( data.Coordenadas && Array.isArray( data.Coordenadas ) ) {
                               data.Coordenadas.forEach( coord => {
                                    bounds.extend( new google.maps.LatLng(
-                                        parseFloat( coord.lat ),
-                                        parseFloat( coord.lng )
+                                        parseFloat( coord.latitude || coord.lat ),
+                                        parseFloat( coord.longitude || coord.lng )
+                                   ) );
+                              } );
+                         }
+                         // Para vehículos con Coordinates (Arabia)
+                         if ( data.Coordinates && Array.isArray( data.Coordinates ) ) {
+                              data.Coordinates.forEach( coord => {
+                                   bounds.extend( new google.maps.LatLng(
+                                        parseFloat( coord.latitude ),
+                                        parseFloat( coord.longitude )
                                    ) );
                               } );
                          }
                     } );
 
                     // Ajustar el mapa a los bounds
-                    map.fitBounds( bounds );
+                    map.fitBounds( bounds, { padding: 50 } );
 
                     // Iniciar todos los vehículos
                     iniciarVehiculoEnMapa( 1, './assets/truckQubo.svg', 'Truck 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck_data_final_updated.json?sp=r&st=2025-02-10T19:02:46Z&se=2099-02-11T03:02:46Z&sv=2022-11-02&sr=b&sig=%2BYAtmguCffqiUlLNILe60nYEiXtYtU1bCE5Rsqywz%2FU%3D' );
@@ -4952,42 +6476,441 @@ function initMap() {
                     iniciarVehiculoEnMapa( 4, './assets/truckQubo.svg', 'Van Miami', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_miami_data.json?sp=r&st=2025-02-09T22:40:50Z&se=2099-02-10T06:40:50Z&sv=2022-11-02&sr=b&sig=3mt25X3t7dbbt8fcEWiI%2BCjrBny6EN%2FkNOvMMcZ9T%2FY%3D', true );
                     iniciarVehiculoEnMapa( 5, './assets/truckQubo.svg', 'Van New York', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_new_york_data.json?sp=r&st=2025-02-09T22:41:40Z&se=2099-02-10T06:41:40Z&sv=2022-11-02&sr=b&sig=teiu0TH1VHhOUVdsDHH9VAXM16R11M%2FSc2mbznyKq5Q%3D', true );
                     iniciarVehiculoEnMapa( 6, './assets/truckQubo.svg', 'Van San Luis', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_san_luis_data.json?sp=r&st=2025-02-09T22:41:58Z&se=2099-02-10T06:41:58Z&sv=2022-11-02&sr=b&sig=2hyY5AtQQ210htuWhxIfPce8QrSuAs1ED1V6grcj%2FQc%3D', true );
+                    iniciarVehiculoEnMapa( 7, './assets/truckQubo.svg', 'Truck 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_4.json?sp=r&st=2025-03-01T10:39:21Z&se=2099-03-01T18:39:21Z&sv=2022-11-02&sr=b&sig=ESDZjQckX%2FrG%2F5IGCuHWmgsP3L28q0fH9sSPDyJafNk%3D' );
+                    iniciarVehiculoEnMapa( 8, './assets/truckQubo.svg', 'Truck 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_7.json?sp=r&st=2025-03-01T12:23:49Z&se=2099-03-01T20:23:49Z&sv=2022-11-02&sr=b&sig=qFY5KeqL1n4GUQIq%2F2xNx4TJy%2BZLmWKNgMWwdmb740U%3D' );
+                    iniciarVehiculoEnMapa( 9, './assets/truckQubo.svg', 'Truck 10', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_10.json?sp=r&st=2025-03-01T12:36:55Z&se=2099-03-01T20:36:55Z&sv=2022-11-02&sr=b&sig=GcKRb8Bj6j9R0DFocHmLzauhPpJJhxwcTX9HHgIrHcU%3D' );
+                    iniciarVehiculoEnMapa( 10, './assets/truckQubo.svg', 'Truck 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_5.json?sp=r&st=2025-03-01T12:38:00Z&se=2099-03-01T20:38:00Z&sv=2022-11-02&sr=b&sig=plN2yP%2BblzdbYGefmvC%2FaOwO9Soz9GOfL%2FA0OUoHdZQ%3D' );
+                    iniciarVehiculoEnMapa( 11, './assets/truckQubo.svg', 'Truck 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_8.json?sp=r&st=2025-03-01T12:39:05Z&se=2099-03-01T20:39:05Z&sv=2022-11-02&sr=b&sig=swaoAkdKQ7mU8mBdqQ7BhwDX%2Bk%2FWzCdBkvqsN84a7s0%3D' );
+                    iniciarVehiculoEnMapa( 12, './assets/truckQubo.svg', 'Truck 12', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_12.json?sp=r&st=2025-03-01T12:40:23Z&se=2099-03-01T20:40:23Z&sv=2022-11-02&sr=b&sig=hYgKj7v5NWSs5GK6LKEBEuNDl3mCky8qBCzto1eg1iI%3D' );
+                    iniciarVehiculoEnMapa( 13, './assets/truckQubo.svg', 'Truck 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_6.json?sp=r&st=2025-03-01T12:41:22Z&se=2099-03-01T20:41:22Z&sv=2022-11-02&sr=b&sig=WA9lAB7Or%2BWd4L5f2r5ZjYxdo5RcrfM1Z84Y6U2Clk4%3D' );
+                    iniciarVehiculoEnMapa( 14, './assets/truckQubo.svg', 'Truck 9', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_9.json?sp=r&st=2025-03-01T12:42:24Z&se=2099-03-01T20:42:24Z&sv=2022-11-02&sr=b&sig=uuEuEoTNWkfoWtb5pKBDnx00i1tcF49TqCSNFgtU9ko%3D' );
+                    iniciarVehiculoEnMapa( 15, './assets/truckQubo.svg', 'Truck 11', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_11.json?sp=r&st=2025-03-01T12:43:17Z&se=2099-03-01T20:43:17Z&sv=2022-11-02&sr=b&sig=jpdoDeEluNz2pcI8VCR1lDB0EgU7qoFWnZfcgkaqUlE%3D' );
+                    iniciarVehiculoEnMapa( 16, './assets/truckQubo.svg', 'Truck Arabia 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_Arabia_1.json?sp=r&st=2025-03-01T12:52:15Z&se=2099-03-01T20:52:15Z&sv=2022-11-02&sr=b&sig=Av%2F0%2F%2BZ6DC3IGW1u7jjhzxGyVD7udP4Oq5uLM6KWs0k%3D', false, true );
+                    iniciarVehiculoEnMapa( 17, './assets/truckQubo.svg', 'Truck Arabia 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_Arabia_2.json?sp=r&st=2025-03-02T11:50:40Z&se=2099-03-02T19:50:40Z&sv=2022-11-02&sr=b&sig=yvr7fnCy8VVS1Q2DROn36O9M5MYxgSZkbYCBXQrKNA4%3D', false, true );
+                    iniciarVehiculoEnMapa( 18, './assets/truckQubo.svg', 'Truck Arabia 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_Arabia_3.json?sp=r&st=2025-03-02T11:52:14Z&se=2099-03-02T19:52:14Z&sv=2022-11-02&sr=b&sig=eV%2BTe1qIQv06aU9sJ%2B2OJvEHq57qUykc96Qkh9PS3Xw%3D', false, true );
                } )
                .catch( error => console.error( "Error al cargar los datos:", error ) );
      } );
 
+     //* FUNCIÓN PARA STORES *//
+
+     // let marcadoresTiendas = {};
+     // let storesActivos = false;
+
+     function iniciarStoresEnMapa() {
+          // Si ya están activos, los eliminamos
+          if ( storesActivos ) {
+               Object.values( marcadoresTiendas ).forEach( ( marker ) => {
+                    if ( marker.marker ) marker.marker.setMap( null );
+               } );
+               marcadoresTiendas = {};
+               storesActivos = false;
+               return;
+          }
+
+          // Si no están activos, los creamos
+          storesActivos = true;
+          const apiUrl =
+               "https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Stores/fiware_zara_150_stores_updated.json?sp=r&st=2025-03-10T15:00:24Z&se=2089-12-31T23:00:24Z&sv=2022-11-02&sr=b&sig=M6wkoyxB1gOt%2FwBJaGOfiOt632n9NmZ09zJl25IAQSw%3D";
+          const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
+
+          fetch( proxyUrl )
+               .then( ( response ) => response.json() )
+               .then( ( data ) => {
+                    data.data.forEach( ( tienda ) => {
+                         const coords = tienda.location.value.coordinates;
+                         const position = {
+                              lat: coords[ 1 ],
+                              lng: coords[ 0 ],
+                         };
+
+                         const marker = new google.maps.Marker( {
+                              position: position,
+                              map: map,
+                              title: tienda.name.value,
+                              icon: {
+                                   url: "./assets/stores_Qubo.svg",
+                              },
+                         } );
+
+                         marker.addListener( "click", () => {
+                              const existingPinnedBox = document.querySelector( `.info-box.pinned[data-store-id="${ tienda.id }"]` );
+                              if ( existingPinnedBox ) {
+                                   existingPinnedBox.classList.add( "highlight" );
+                                   setTimeout( () => existingPinnedBox.classList.remove( "highlight" ), 1000 );
+                                   return;
+                              }
+
+                              let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                              if ( !currentInfoBox ) {
+                                   currentInfoBox = document.createElement( "div" );
+                                   currentInfoBox.className = "info-box";
+                                   document.body.appendChild( currentInfoBox );
+                              }
+
+                              currentInfoBox.setAttribute( "data-store-id", tienda.id );
+                              currentInfoBox.innerHTML = `
+    <div class="info-header">
+        <img src="./assets/clark-street-mercantile-P3pI6xzovu0-unsplash.jpg" alt="Tienda" class="property-image"/>
+        <div class="header-bar">
+            <div class="property-badges">
+                <div class="badge-container">
+                    <span class="badge primary">STORE</span>
+                    <div class="badge-location nameContainer">
+                        <span>${ tienda.name.value }</span>
+                        <span>${ tienda.address.value.addressLocality }, ${ tienda.address.value.addressCountry }</span>
+                    </div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn pin-btn" title="Fijar ventana">
+                    <i class="action-icon">📌</i>
+                </button>
+                <button class="action-btn share-btn" title="Compartir">
+                    <i class="action-icon">📤</i>
+                </button>
+                <button class="action-btn close-btn" title="Cerrar">
+                    <i class="action-icon">✕</i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-content">
+        <div class="info-section">
+            <div class="info-grid">
+                <div class="info-row">
+                    <div class="info-item id-container">
+                        <label>ID</label>
+                        <div class="id-value-container">
+                            <div class="id-wrapper">
+                                <span title="${ tienda.id }">${ tienda.id }</span>
+                                <button class="copy-btn" title="Copiar ID">
+                                    <i class="copy-icon">📋</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-item">
+                        <label>Propietario</label>
+                        <div class="owner-badge">
+                            <span class="company-badge">${ tienda.owner.object[ 0 ] }</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label>Fuente</label>
+                        <div class="source-container">
+                            <a href="${ tienda.source.value }" target="_blank" class="source-link">
+                                <i class="source-icon">🔗</i>
+                                <span>zara.com</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-cards">
+                    <div class="status-card">
+                        <div class="status-icon">📍</div>
+                        <div class="status-details">
+                            <label>Dirección</label>
+                            <span>${ tienda.address.value.streetAddress }, ${ tienda.address.value.postalCode }</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-item">
+                        <label>Ventas Mensuales</label>
+                        <span class="sales-badge">${ tienda.annexZara.value.monthlySales }</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Beneficio Neto</label>
+                        <span class="profit-badge">${ tienda.annexZara.value.netIncome }</span>
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">👥</div>
+                        <div class="metric-details">
+                            <span class="metric-value">${ tienda.annexZara.value.dailyCustomers }</span>
+                            <label>Clientes Diarios</label>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🏷️</div>
+                        <div class="metric-details">
+                            <span class="metric-value">${ tienda.annexZara.value.averageTicket }</span>
+                            <label>Ticket Medio</label>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">👕</div>
+                        <div class="metric-details">
+                            <span class="metric-value">${ tienda.annexZara.value.inventoryAvailable }</span>
+                            <label>Inventario</label>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">👤</div>
+                        <div class="metric-details">
+                            <span class="metric-value">${ tienda.annexZara.value.numberOfEmployees }</span>
+                            <label>Empleados</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-item">
+                        <label>Productos más vendidos</label>
+                        <div class="tags-container">
+                            ${ tienda.annexZara.value.bestSellingProducts.map( product =>
+                                   `<span class="tag">${ product }</span>`
+                              ).join( '' ) }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-item">
+                        <label>Medidas de Sostenibilidad</label>
+                        <div class="sustainability-badges">
+                            ${ tienda.annexZara.value.sustainabilityMeasures.map( ( measure, index ) => {
+                                   const icon = index === 0 ? '♻️' : '🛍️';
+                                   return `<span class="eco-badge">${ icon } ${ measure }</span>`;
+                              } ).join( '' ) }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider">
+            <label>Datos Comerciales</label>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card highlight">
+                <div class="metric-icon">💰</div>
+                <div class="metric-details">
+                    <span class="metric-value">${ tienda.annexZara.value.numberOfTransactions }</span>
+                    <label>Transacciones</label>
+                </div>
+            </div>
+            <div class="metric-card highlight">
+                <div class="metric-icon">📈</div>
+                <div class="metric-details">
+                    <span class="metric-value ${ parseFloat( tienda.annexZara.value.salesComparison ) > 0 ? 'positive' : 'negative' }">
+                        ${ tienda.annexZara.value.salesComparison }
+                    </span>
+                    <label>Comparativa Ventas</label>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">↩️</div>
+                <div class="metric-details">
+                    <span class="metric-value">${ tienda.annexZara.value.customerReturnRate }</span>
+                    <label>Tasa Devolución</label>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">💹</div>
+                <div class="metric-details">
+                    <span class="metric-value">${ tienda.annexZara.value.profitMargin }</span>
+                    <label>Margen Beneficio</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-item">
+                <label>Costes Operativos</label>
+                <span class="cost-badge">${ tienda.annexZara.value.operationalCosts }</span>
+            </div>
+            <div class="info-item">
+                <label>Comparativa Precios</label>
+                <span class="price-comparison negative">${ tienda.annexZara.value.priceComparison }</span>
+            </div>
+        </div>
+
+        <div class="section-divider">
+            <label>Datos Logísticos</label>
+        </div>
+
+        <div class="logistics-grid">
+            <div class="logistics-card">
+                <div class="logistics-icon">📦</div>
+                <div class="logistics-details">
+                    <span>${ tienda.annexZara.value.pickupPoints } Puntos de recogida</span>
+                    <span class="secondary">Tiempo entrega: ${ tienda.annexZara.value.deliveryTime }</span>
+                </div>
+            </div>
+            <div class="logistics-card">
+                <div class="logistics-icon">🏪</div>
+                <div class="logistics-details">
+                    <span>${ tienda.annexZara.value.competitorStores } Tiendas competencia</span>
+                    <span class="secondary">Radio: 500m</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider">
+            <label>Datos Demográficos</label>
+        </div>
+
+        <div class="demographics-container">
+            <div class="demographics-chart">
+                <div class="chart-bar female" style="width: 60%">
+                    <span>Femenino 60%</span>
+                </div>
+                <div class="chart-bar male" style="width: 40%">
+                    <span>Masculino 40%</span>
+                </div>
+            </div>
+            <span class="age-range">Edad: 18-45 años</span>
+        </div>
+
+        <div class="section-divider">
+            <label>Seguridad y Personal</label>
+        </div>
+
+        <div class="security-grid">
+            ${ tienda.annexZara.value.securityMeasures.map( measure => `
+                <div class="measure-item">
+                    <i class="measure-icon">${ measure.includes( 'Cámaras' ) ? '🎥' : '👮' }</i>
+                    <span>${ measure }</span>
+                </div>
+            `).join( '' ) }
+            <div class="measure-item">
+                <i class="measure-icon">🔄</i>
+                <span>Rotación Personal ${ tienda.annexZara.value.staffTurnover }</span>
+            </div>
+            <div class="measure-item">
+                <i class="measure-icon">📚</i>
+                <span>${ tienda.annexZara.value.trainingDevelopment }</span>
+            </div>
+        </div>
+
+        <div class="section-divider">
+            <label>Impacto Ambiental</label>
+        </div>
+
+        <div class="environmental-impact">
+            <div class="impact-metric">
+                <i class="impact-icon">🌍</i>
+                <div class="impact-details">
+                    <span class="impact-value">${ tienda.annexZara.value.environmentalImpact }</span>
+                    <span class="impact-label">Huella de carbono</span>
+                </div>
+            </div>
+        </div>
+    </div>
+`;
+
+                              // Event listeners
+                              const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                              pinBtn.addEventListener( "click", ( e ) => {
+                                   const infoBox = e.target.closest( ".info-box" );
+                                   if ( infoBox.classList.contains( "pinned" ) ) {
+                                        // Desfijar
+                                        infoBox.classList.remove( "pinned" );
+                                        pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                        pinBtn.title = "Fijar ventana";
+                                   } else {
+                                        // Fijar
+                                        infoBox.classList.add( "pinned" );
+                                        pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                        pinBtn.title = "Desfijar ventana";
+
+                                        // Crear nuevo infobox para futuras propiedades
+                                        const newInfoBox = document.createElement( "div" );
+                                        newInfoBox.className = "info-box";
+                                        newInfoBox.style.display = "none";
+                                        document.body.appendChild( newInfoBox );
+                                   }
+                              } );
+
+                              currentInfoBox.querySelector( ".share-btn" )?.addEventListener( "click", async () => {
+                                   try {
+                                        // Construir una URL con los parámetros de la tienda
+                                        const baseUrl = window.location.origin + window.location.pathname;
+                                        const shareUrl = `${ baseUrl }?view=store&id=${ tienda.id }`;
+
+                                        const shareData = {
+                                             title: `${ tienda.name.value } - Zara Store`,
+                                             text: `📍 ${ tienda.address.value.addressLocality }, ${ tienda.address.value.addressCountry }\n` +
+                                                  `💰 Ventas Mensuales: ${ tienda.annexZara.value.monthlySales }\n` +
+                                                  `👥 Clientes Diarios: ${ tienda.annexZara.value.dailyCustomers }\n` +
+                                                  `👕 Inventario: ${ tienda.annexZara.value.inventoryAvailable }\n` +
+                                                  `👤 Empleados: ${ tienda.annexZara.value.numberOfEmployees }`,
+                                             url: shareUrl
+                                        };
+
+                                        if ( navigator.share && navigator.canShare( shareData ) ) {
+                                             await navigator.share( shareData );
+                                        } else {
+                                             const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+                                             await navigator.clipboard.writeText( shareText );
+                                             showNotification( '¡Información copiada al portapapeles!' );
+                                        }
+                                   } catch ( error ) {
+                                        console.error( 'Error al compartir:', error );
+                                   }
+                              } );
+
+                              currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                   currentInfoBox.remove();
+                              } );
+
+                              currentInfoBox.querySelector( ".copy-btn" )?.addEventListener( "click", async () => {
+                                   try {
+                                        await navigator.clipboard.writeText( tienda.id );
+                                        showNotification( "¡ID copiado!" );
+                                   } catch ( error ) {
+                                        console.error( "Error al copiar:", error );
+                                   }
+                              } );
+
+                              inicializarArrastre( currentInfoBox );
+                              currentInfoBox.style.display = "flex";
+                         } );
+
+                         marcadoresTiendas[ tienda.id ] = {
+                              marker: marker,
+                              datos: tienda,
+                         };
+                    } );
+
+                    if ( Object.keys( marcadoresTiendas ).length > 0 ) {
+                         const bounds = new google.maps.LatLngBounds();
+                         Object.values( marcadoresTiendas ).forEach( ( m ) => {
+                              if ( m.marker && m.marker.getPosition() ) {
+                                   bounds.extend( m.marker.getPosition() );
+                              }
+                         } );
+                         map.fitBounds( bounds );
+                    }
+               } )
+               .catch( ( error ) => console.error( "Error al cargar las tiendas:", error ) );
+     }
+
+     // Añadir el event listener para el botón de tiendas
+     document.getElementById( "stores-sub-nav-item" ).addEventListener( "click", iniciarStoresEnMapa );
+
+
+
+
+
+
 
      //* FUNCIÓN PARA TRACKING*//
 
+     // Variable global para los marcadores de tracking
+     const marcadoresTracking = {};
 
-     // Evento para iniciar el movimiento del paquete (Tracking)
-     const eventTracking = document.getElementById( "tracking-sub-nav-item" );
-     eventTracking.addEventListener( "click", function () {
-          iniciarTrackingConBarcoYCamion( 1, './assets/tracking_Qubo_Small.svg', 'Tracking Package', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Tracking/paquete_fiware_mod1.json?sp=r&st=2024-08-20T10:34:28Z&se=2090-01-01T19:34:28Z&sv=2022-11-02&sr=b&sig=nGoZVlF9Rs8qA87k7J5PK3Mf%2B6Kc16hsJflCyFMdRWg%3D' );
-     } );
-
-     // Función para mover el marcador del paquete (Tracking)
-     function iniciarMovimientoMarcador( marker, coordinates, interval, updateInfoBox ) {
-          let index = 0;
-          const totalCoords = coordinates.length;
-
-          const intervalId = setInterval( () => {
-               marker.setPosition( new google.maps.LatLng( coordinates[ index ].lat, coordinates[ index ].lng ) );
-               if ( updateInfoBox ) {
-                    updateInfoBox( index ); // Actualiza el infobox con los datos de la coordenada actual
-               }
-
-               index++;
-
-               if ( index >= totalCoords ) {
-                    clearInterval( intervalId ); // Detener el movimiento al final de las coordenadas
-               }
-          }, interval );
-
-          return intervalId;
-     }
-
-     // Función para iniciar y mover el paquete (Tracking) en el mapa
      function iniciarTrackingEnMapa( trackingId, iconUrl, title, apiUrl ) {
           if ( marcadoresTracking[ trackingId ] ) {
                clearInterval( marcadoresTracking[ trackingId ].intervaloId );
@@ -5007,158 +6930,226 @@ function initMap() {
                fetch( proxyUrl )
                     .then( response => response.json() )
                     .then( data => {
-                         if ( data.currentLocation.coordinates && Array.isArray( data.currentLocation.coordinates ) ) {
-                              const coordenadas = data.currentLocation.coordinates.map( coord => ( {
-                                   lat: parseFloat( coord.lat ),
-                                   lng: parseFloat( coord.lng )
-                              } ) );
+                         if ( data.currentLocation && Array.isArray( data.currentLocation.coordinates ) ) {
+                              const coordenadas = data.currentLocation.coordinates;
 
-                              function actualizarInfoBox( index ) {
-                                   const coord = data.currentLocation.coordinates[ index ];
+                              // Guardar los datos primero
+                              marcadoresTracking[ trackingId ] = {
+                                   marker: trackingMarker,
+                                   datosTracking: data
+                              };
+
+                              function actualizarInfoBoxInicial() {
                                    const infoBox = document.querySelector( ".info-box-tracking" );
                                    infoBox.innerHTML = `
-                            <div><strong>Tracking Package</strong></div>
-                            <img src='${ STATIC_IMAGES.tracking }'>
-                            <div>Tracking Number: ${ data.trackingNumber }</div>
-                            <div>Description: ${ data.description }</div>
-                            <div>Dimensions: ${ data.dimensions.length } x ${ data.dimensions.width } x ${ data.dimensions.height } ${ data.dimensions.unit }</div>
-                            <div>Weight: ${ data.weight } kg</div>
-                            <div>Shipping Status: ${ data.shippingStatus }</div>
-                            <div><strong>Origin:</strong> ${ data.origin.name }, ${ data.origin.address.addressLocality }, ${ data.origin.address.addressRegion }, ${ data.origin.address.addressCountry }</div>
-                            <div><strong>Destination:</strong> ${ data.destination.name }, ${ data.destination.address.addressLocality }, ${ data.destination.address.addressRegion }, ${ data.destination.address.addressCountry }</div>
-                            <div><strong>Sender:</strong> ${ data.sender.name } (${ data.sender.contact }), ${ data.sender.address.addressLocality }, ${ data.sender.address.addressRegion }, ${ data.sender.address.addressCountry }</div>
-                            <div><strong>Recipient:</strong> ${ data.recipient.name } (${ data.recipient.contact }), ${ data.recipient.address.addressLocality }, ${ data.recipient.address.addressRegion }, ${ data.recipient.address.addressCountry }</div>
-                            <div><strong>Courier Company:</strong> ${ data.courier.courierCompany } (${ data.courier.courierContact })</div>
-                            <div><strong>Special Handling Instructions:</strong> ${ data.handlingRequirements.specialHandlingInstructions }</div>
-                            <div><strong>Estimated Delivery:</strong> ${ new Date( data.estimatedDeliveryDate ).toLocaleString() }</div>
-                            <div><strong>Shipped Date:</strong> ${ new Date( data.shippedDate ).toLocaleString() }</div>
-                            <div>Speed: ${ coord.speed } km/h</div>
-                            <div>Fuel Consumption: ${ coord.fuelConsumption } L/100km</div>
-                            <div>Cumm. CO2 Emissions: ${ coord.CummCO2emissions } kg</div>
+                            <div class="nameContainer">
+                                <p>Package</p>
+                                <p>Tracking System</p>
+                            </div>
+                            <div class="own">
+                                <img src="${ STATIC_IMAGES.tracking }" alt="Tracking Image" />
+                            </div>
+                            <p>Tracking Number: <span>${ data.trackingNumber }</span></p>
+                            <p>Description: <span>${ data.description }</span></p>
+                            <p>Status: <span>${ data.shippingStatus }</span></p>
+                            <p>Weight: <span>${ data.weight } kg</span></p>
+                            <p>Dimensions: <span>${ data.dimensions.length } x 
+                                ${ data.dimensions.width } x 
+                                ${ data.dimensions.height } 
+                                ${ data.dimensions.unit }</span></p>
+                            <p>Origin: <span>${ data.origin.name }, 
+                                ${ data.origin.address.addressLocality }, 
+                                ${ data.origin.address.addressRegion }, 
+                                ${ data.origin.address.addressCountry }</span></p>
+                            <p>Destination: <span>${ data.destination.name }, 
+                                ${ data.destination.address.addressLocality }, 
+                                ${ data.destination.address.addressRegion }, 
+                                ${ data.destination.address.addressCountry }</span></p>
+                            <p>Sender: <span>${ data.sender.name } (${ data.sender.contact })</span></p>
+                            <p>Recipient: <span>${ data.recipient.name } (${ data.recipient.contact })</span></p>
+                            <p>Courier: <span>${ data.courier.courierCompany }</span></p>
+                            <p>Instructions: <span>${ data.handlingRequirements.specialHandlingInstructions }</span></p>
+                            <p>Speed: <span id="speedValue">0 km/h</span></p>
+                            <p>Fuel Consumption: <span id="fuelValue">0 L/100km</span></p>
+                            <p>CO2 Emissions: <span id="co2Value">0 kg</span></p>
                             <button id="cerrar-info-box-tracking">
-                                <img src="./assets/botonCerrar.svg" alt="Cerrar">
+                                <img src='./assets/botonCerrar.svg' alt="Cerrar" />
                             </button>
                         `;
-                                   document.getElementById( "cerrar-info-box-tracking" ).addEventListener( "click", function () {
+
+                                   document.getElementById( "cerrar-info-box-tracking" ).addEventListener( "click", () => {
                                         infoBox.style.display = "none";
                                    } );
                               }
 
-                              const intervaloId = iniciarMovimientoMarcador( trackingMarker, coordenadas, 500, actualizarInfoBox );
-                              marcadoresTracking[ trackingId ] = {
-                                   marker: trackingMarker,
-                                   intervaloId: intervaloId,
-                                   datosTracking: data
-                              };
+                              function actualizarDatosDinamicos( index ) {
+                                   const infoBox = document.querySelector( ".info-box-tracking" );
+                                   if ( !infoBox || infoBox.style.display !== "flex" ) return;
 
-                              trackingMarker.addListener( "click", function () {
+                                   const coord = coordenadas[ index ];
+                                   const speedElement = document.getElementById( "speedValue" );
+                                   const fuelElement = document.getElementById( "fuelValue" );
+                                   const co2Element = document.getElementById( "co2Value" );
+
+                                   if ( speedElement ) speedElement.textContent = coord.speed;
+                                   if ( fuelElement ) fuelElement.textContent = coord.fuelConsumption;
+                                   if ( co2Element ) co2Element.textContent = coord.CummCO2emissions;
+                              }
+
+                              // Iniciar el movimiento
+                              const intervaloId = iniciarMovimientoMarcador(
+                                   trackingMarker,
+                                   coordenadas,
+                                   500,
+                                   actualizarDatosDinamicos
+                              );
+
+                              marcadoresTracking[ trackingId ].intervaloId = intervaloId;
+
+                              // Configurar el click listener
+                              trackingMarker.addListener( "click", () => {
                                    const infoBox = document.querySelector( ".info-box-tracking" );
                                    infoBox.style.display = "flex";
-                                   actualizarInfoBox( 0 ); // Muestra los datos de la primera coordenada al hacer clic
+                                   actualizarInfoBoxInicial();
+                                   actualizarDatosDinamicos( 0 );
                               } );
-                         } else {
-                              console.error( 'Los datos del tracking no tienen el formato esperado:', data );
                          }
                     } )
-                    .catch( error => console.error( 'Error al obtener coordenadas del tracking:', error ) );
+                    .catch( error => console.error( 'Error:', error ) );
           }
 
           obtenerYmoverTracking();
      }
+
+     // Event listener para el botón de tracking
+     const eventTracking = document.getElementById( "tracking-sub-nav-item" );
+     eventTracking.addEventListener( "click", function () {
+          toggleKMZLayerTrayectoShips();
+          // Iniciar el barco
+          iniciarShipsEnMapa(
+               1,
+               './assets/shipsQubo.svg',
+               'Logistics Ship',
+               'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/ship.json?sp=r&st=2024-07-26T17:13:49Z&se=2090-01-01T02:13:49Z&sv=2022-11-02&sr=b&sig=B3GhjJFd%2FjJeGN46olFo9NWlu3Lu6le9eAycQhPO1s8%3D'
+          );
+          iniciarTrackingEnMapa(
+               1,
+               './assets/tracking_Qubo_Small.svg',
+               'Tracking Package',
+               'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Tracking/paquete_fiware_mod1.json?sp=r&st=2024-08-20T10:34:28Z&se=2090-01-01T19:34:28Z&sv=2022-11-02&sr=b&sig=nGoZVlF9Rs8qA87k7J5PK3Mf%2B6Kc16hsJflCyFMdRWg%3D'
+          );
+     } );
 
      //! Función para PACK LOCATION
 
      // Variables globales para los marcadores de los paquetes
      const marcadoresPacks = {};
 
-     // Función para mover el marcador del paquete (Store Package)
      function iniciarPackEnMapa( packId, iconUrl, title, apiUrl ) {
-          // Verificar si el marcador ya existe
           if ( marcadoresPacks[ packId ] ) {
-               // Si el marcador ya existe, detener el movimiento y eliminar el marcador
                clearInterval( marcadoresPacks[ packId ].intervaloId );
                marcadoresPacks[ packId ].marker.setMap( null );
-               delete marcadoresPacks[ packId ]; // Eliminar el marcador del objeto
-               return; // Salir de la función
+               delete marcadoresPacks[ packId ];
+               return;
           }
 
-          // Crear el marcador para el paquete
           const packMarker = new google.maps.Marker( {
                map: map,
                title: title,
                icon: iconUrl,
           } );
 
-          // Función para obtener las coordenadas del paquete de la API y mover el marcador
           function obtenerYmoverPack() {
                const proxyUrl = `/api/proxy?url=${ encodeURIComponent( apiUrl ) }`;
                fetch( proxyUrl )
-                    .then( response => {
-                         if ( !response.ok ) {
-                              throw new Error( `HTTP error! Status: ${ response.status }` );
-                         }
-                         return response.json();
-                    } )
+                    .then( response => response.json() )
                     .then( data => {
-                         // Asegurarse de que los datos están en el formato esperado
                          if ( data.currentLocation && Array.isArray( data.currentLocation.coordinates ) ) {
                               const coordenadas = data.currentLocation.coordinates;
 
-                              // Mover el marcador del paquete con las coordenadas obtenidas
-                              const intervaloId = iniciarMovimientoMarcadorStore( packMarker, coordenadas, 2000, actualizarDatosDinamicos );
+                              // Guardar los datos primero
                               marcadoresPacks[ packId ] = {
                                    marker: packMarker,
-                                   intervaloId: intervaloId,
-                                   datosPack: data // Almacenar los datos del paquete aquí
+                                   datosPack: data
                               };
 
-                              // Inicializar el InfoBox al hacer clic en el marcador
-                              packMarker.addListener( "click", function () {
-                                   const infoBox = document.querySelector( ".info-box-pack-location" );
-                                   infoBox.style.display = "flex";
-                                   actualizarInfoBoxInicial(); // Muestra la información inicial al hacer clic
-                                   actualizarDatosDinamicos( 0 ); // Muestra los datos dinámicos iniciales
-                              } );
-
-                              // Función para actualizar el contenido estático del InfoBox
+                              // Función para actualizar el InfoBox
                               function actualizarInfoBoxInicial() {
                                    const infoBox = document.querySelector( ".info-box-pack-location" );
                                    infoBox.innerHTML = `
-                             <div><strong>Store Package Information</strong></div>
-                             <img src="${ marcadoresPacks[ packId ].datosPack.ImagenURL }" alt="Imagen del Paquete"/>
-                             <div>Package ID: ${ marcadoresPacks[ packId ].datosPack.packageID }</div>
-                             <div>Type: ${ marcadoresPacks[ packId ].datosPack.type }</div>
-                             <div>Description: ${ marcadoresPacks[ packId ].datosPack.description }</div>
-                             <div>Dimensions: ${ marcadoresPacks[ packId ].datosPack.dimensions.length } x ${ marcadoresPacks[ packId ].datosPack.dimensions.width } x ${ marcadoresPacks[ packId ].datosPack.dimensions.height } ${ marcadoresPacks[ packId ].datosPack.dimensions.unit }</div>
-                             <div>Weight: ${ marcadoresPacks[ packId ].datosPack.weight } kg</div>
-                             <div>Shipping Status: ${ marcadoresPacks[ packId ].datosPack.shippingStatus }</div>
-                             <div><strong>Origin:</strong> ${ marcadoresPacks[ packId ].datosPack.origin.name }, ${ marcadoresPacks[ packId ].datosPack.origin.address.addressLocality }, ${ marcadoresPacks[ packId ].datosPack.origin.address.addressRegion }, ${ marcadoresPacks[ packId ].datosPack.origin.address.addressCountry }</div>
-                             <div><strong>Destination:</strong> ${ marcadoresPacks[ packId ].datosPack.destination.name }, ${ marcadoresPacks[ packId ].datosPack.destination.address.addressLocality }, ${ marcadoresPacks[ packId ].datosPack.destination.address.addressRegion }, ${ marcadoresPacks[ packId ].datosPack.destination.address.addressCountry }</div>
-                             <div><strong>Speed:</strong> <span id="speedValue"></span> km/h</div>
-                             <div><strong>Fuel Consumption:</strong> <span id="fuelValue"></span> L/100km</div>
-                             <div><strong>Cumm. CO2 Emissions:</strong> <span id="co2Value"></span> kg</div>
-                             <button id="cerrar-info-box-store"><img src="./assets/botonCerrar.svg" alt="Cerrar"></button>
-                         `;
-                                   document.getElementById( "cerrar-info-box-store" ).addEventListener( "click", function () {
+                                  <div class="nameContainer">
+                                      <p>Package</p>
+                                      <p>Store Location</p>
+                                  </div>
+                                      <img src="./assets/staticPackLocation.jpg" alt="Package Image" />
+                                  <p>Package ID: <span>${ data.id || 'N/A' }</span></p>
+                                  <p>Tracking Number: <span>${ data.trackingNumber || 'N/A' }</span></p>
+                                  <p>Type: <span>${ data.type || 'N/A' }</span></p>
+                                  <p>Description: <span>${ data.description || 'N/A' }</span></p>
+                                  <p>Weight: <span>${ data.weight || 0 } kg</span></p>
+                                  <p>Dimensions: <span>${ data.dimensions.length } x 
+                                      ${ data.dimensions.width } x 
+                                      ${ data.dimensions.height } 
+                                      ${ data.dimensions.unit }</span></p>
+                                  <p>Status: <span>${ data.shippingStatus || 'N/A' }</span></p>
+                                  <p>Origin: <span>${ data.origin.name }, 
+                                      ${ data.origin.address.addressLocality }, 
+                                      ${ data.origin.address.addressRegion }, 
+                                      ${ data.origin.address.addressCountry }</span></p>
+                                  <p>Destination: <span>${ data.destination.name }, 
+                                      ${ data.destination.address.addressLocality }, 
+                                      ${ data.destination.address.addressRegion }, 
+                                      ${ data.destination.address.addressCountry }</span></p>
+                                  <p>Speed: <span id="speedValue">0 km/h</span></p>
+                                  <p>Fuel Consumption: <span id="fuelValue">0 L/100km</span></p>
+                                  <p>CO2 Emissions: <span id="co2Value">0 kg</span></p>
+                                  <button id="cerrar-info-box-store">
+                                      <img src='./assets/botonCerrar.svg' alt="Cerrar" />
+                                  </button>
+                              `;
+
+                                   document.getElementById( "cerrar-info-box-store" ).addEventListener( "click", () => {
                                         infoBox.style.display = "none";
                                    } );
                               }
 
-                              // Función para actualizar solo los datos dinámicos
+                              // Función para actualizar datos dinámicos
                               function actualizarDatosDinamicos( index ) {
+                                   const infoBox = document.querySelector( ".info-box-pack-location" );
+                                   if ( !infoBox || infoBox.style.display !== "flex" ) return;
+
                                    const coord = coordenadas[ index ];
-                                   document.getElementById( "speedValue" ).textContent = coord.speed;
-                                   document.getElementById( "fuelValue" ).textContent = coord.fuelConsumption;
-                                   document.getElementById( "co2Value" ).textContent = coord.CummCO2emissions;
+                                   const speedElement = document.getElementById( "speedValue" );
+                                   const fuelElement = document.getElementById( "fuelValue" );
+                                   const co2Element = document.getElementById( "co2Value" );
+
+                                   if ( speedElement ) speedElement.textContent = coord.speed;
+                                   if ( fuelElement ) fuelElement.textContent = coord.fuelConsumption;
+                                   if ( co2Element ) co2Element.textContent = coord.CummCO2emissions;
                               }
-                         } else {
-                              console.error( 'Los datos del paquete no tienen el formato esperado:', data );
+
+                              // Iniciar el movimiento
+                              const intervaloId = iniciarMovimientoMarcadorStore(
+                                   packMarker,
+                                   coordenadas,
+                                   2000,
+                                   actualizarDatosDinamicos
+                              );
+
+                              marcadoresPacks[ packId ].intervaloId = intervaloId;
+
+                              // Configurar el click listener
+                              packMarker.addListener( "click", () => {
+                                   const infoBox = document.querySelector( ".info-box-pack-location" );
+                                   infoBox.style.display = "flex";
+                                   actualizarInfoBoxInicial();
+                                   actualizarDatosDinamicos( 0 );
+                              } );
                          }
                     } )
-                    .catch( error => console.error( 'Error al obtener coordenadas del paquete:', error ) );
+                    .catch( error => console.error( 'Error:', error ) );
           }
 
-          // Iniciar el proceso de mover el paquete
           obtenerYmoverPack();
      }
 
@@ -5309,6 +7300,7 @@ function cargarMarcadoresNewBuildings() {
                     const {
                          ubicacion,
                          name,
+                         id,
                          category,
                          description,
                          streetAddress,
@@ -5331,25 +7323,141 @@ function cargarMarcadoresNewBuildings() {
 
                          // Agrega un evento click a cada marcador para mostrar el infoBox
                          marker.addListener( "click", () => {
-                              const infoBox = document.querySelector( ".info-box" );
-                              infoBox.style.display = "flex";
-                              infoBox.innerHTML = `
-                              <div class='nameContainer'>
-                                   <p>${ category }</p>
-                                   <p>${ name }</p>
-                              </div>
-                              <img src='${ STATIC_IMAGES.otherBuildings }'>
-                              <p>Address: ${ streetAddress }, ${ postalCode }</p>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                              <p>District: ${ district }</p>
-                              <p>Neighborhood: ${ neighborhood }</p>
-                              <p>Country: ${ addressCountry }</p>
-                              <p>${ description }</p>
-                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                              <button class='share'><img src='./assets/shareIcon.svg'></button>
-                         `;
-                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                                   infoBox.style.display = "none";
+                              // Buscar si existe un infobox pinneado para este edificio
+                              const existingPinnedBox = document.querySelector( `.info-box.pinned[data-building-id="${ name }"]` );
+                              if ( existingPinnedBox ) {
+                                   existingPinnedBox.classList.add( 'highlight' );
+                                   setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                   return;
+                              }
+
+                              // Buscar un infobox no pinneado o crear uno nuevo
+                              let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                              if ( !currentInfoBox ) {
+                                   currentInfoBox = document.createElement( 'div' );
+                                   currentInfoBox.className = 'info-box';
+                                   document.body.appendChild( currentInfoBox );
+                              }
+
+                              currentInfoBox.setAttribute( 'data-building-id', name );
+                              currentInfoBox.style.display = "flex";
+                              currentInfoBox.innerHTML = `
+        <div class="info-header">
+            <img src="${ STATIC_IMAGES.otherBuildings }" alt="Property" class="property-image"/>
+            <div class="header-bar">
+                <div class="property-badges">
+                    <div class="badge-container">
+                        <span class="badge primary">${ category }</span>
+                        <div class="badge-location nameContainer">
+                            <span>${ name }</span>
+                            <button class="expand-btn" title="Ver más">⋯</button>
+                            <span>${ addressLocality }, ${ addressRegion }</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                <button class="action-btn pin-btn" title="Fijar ventana">
+                    <i class="action-icon">📌</i>
+                </button>
+                    <button class="action-btn share-btn" title="Compartir">
+                        <i class="action-icon">📤</i>
+                    </button>
+                    <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
+                        <i class="action-icon">✕</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-content">
+            <div class="info-section">
+                <div class="info-grid">
+                    <div class="info-row">
+                        <div class="info-item id-container">
+                            <label for="codigo">Código identificador</label>
+                            <div class="id-value-container">
+                                <span>${ id }</span>
+                                <button class="copy-btn" title="Copiar código">
+                                    <i class="copy-icon">📋</i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <label for="direccion">Dirección</label>
+                            <span>${ streetAddress }, ${ postalCode }</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-item">
+                            <label for="distrito">Distrito</label>
+                            <span>${ district }</span>
+                        </div>
+                        <div class="info-item">
+                            <label for="ubicacion">Localización</label>
+                            <span>${ addressLocality }, ${ addressRegion }</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="description">
+                <label>Descripción</label>
+                <p>${ description }</p>
+            </div>
+        </div>
+    `;
+
+                              // Event listeners
+                              const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                              pinBtn.addEventListener( "click", ( e ) => {
+                                   const infoBox = e.target.closest( '.info-box' );
+                                   if ( infoBox.classList.contains( 'pinned' ) ) {
+                                        // Desfijar
+                                        infoBox.classList.remove( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                        pinBtn.title = "Fijar ventana";
+                                   } else {
+                                        // Fijar
+                                        infoBox.classList.add( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                        pinBtn.title = "Desfijar ventana";
+                                   }
+                              } );
+
+                              currentInfoBox.querySelector( "#cerrar-info-box" ).addEventListener( "click", () => {
+                                   currentInfoBox.remove();
+                              } );
+
+                              currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                   try {
+                                        if ( navigator.share ) {
+                                             await navigator.share( {
+                                                  title: `${ category } - ${ name }`,
+                                                  text: `${ description }`,
+                                                  url: window.location.href
+                                             } );
+                                        } else {
+                                             await navigator.clipboard.writeText( window.location.href );
+                                             showNotification( '¡Enlace copiado!' );
+                                        }
+                                   } catch ( error ) {
+                                        console.error( 'Error al compartir:', error );
+                                   }
+                              } );
+
+                              currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                   try {
+                                        await navigator.clipboard.writeText( name );
+                                        showNotification( '¡Código copiado!' );
+                                   } catch ( error ) {
+                                        console.error( 'Error al copiar:', error );
+                                   }
+                              } );
+                              const expandBtn = currentInfoBox.querySelector( ".expand-btn" );
+                              expandBtn.addEventListener( "click", function () {
+                                   const badgeLocation = this.closest( '.badge-location' );
+                                   badgeLocation.classList.toggle( 'expanded' );
+                                   this.textContent = badgeLocation.classList.contains( 'expanded' ) ? '×' : '⋯';
                               } );
                          } );
 
@@ -5404,36 +7512,182 @@ const cargarYMostrarMarcadoresCasas = async () => {
                     } );
 
                     houseMarker.addListener( 'click', () => {
-                         const infoBox = document.querySelector( ".info-box" );
-                         infoBox.style.display = "flex";
                          const idWithoutPrefix = item.id.replace( /^building_ide_/, '' );
                          const capitalizedCategory = parsedData.category;
                          const parkingInfo = item.annexIdealista.value.parkingSpace.hasParkingSpace ? "Sí" : "No";
                          const parkingIncluded = item.annexIdealista.value.parkingSpace.isParkingSpaceIncludedInPrice ? "Sí" : "No";
 
-                         infoBox.innerHTML = `
-                         <div class='nameContainer'>
-                             <p>${ capitalizedCategory }</p>
-                             <p>${ parsedData.name }</p>
-                         </div>
-                         <img src='${ item.thumbnail.value }'>
-                         <p>Código identificador: ${ idWithoutPrefix }</p>
-                         <p>Localización: ${ parsedData.addressLocality }, ${ parsedData.addressRegion }</p>
-                         <p>Tipo de operación: ${ item.annexIdealista.value.operation.charAt( 0 ).toUpperCase() + item.annexIdealista.value.operation.slice( 1 ) }</p>
-                         <p>District: ${ parsedData.district }</p>
-                         <p>Precio total: ${ ( item.annexIdealista.value.price ).toLocaleString( 'es-ES' ) } €</p>
-                         <p>Size: ${ item.annexIdealista.value.size } m²</p>
-                         <p>Rooms: ${ item.annexIdealista.value.rooms }</p>
-                         <p>Bathrooms: ${ item.annexIdealista.value.bathrooms }</p>
-                         <p>Parking: ${ parkingInfo }</p>
-                         ${ parkingInfo === "Sí" ? `<p>Parking incluido en el precio: ${ parkingIncluded }</p>` : '' }
-                         <p>Source: <a class="links-propiedades" href="${ parsedData.source }" target="_blank">${ parsedData.source }</a></p>
-                         <p>${ parsedData.description }</p>
-                         <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                         <button class='share'><img src='./assets/shareIcon.svg'></button>
-                     `;
-                         document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                              infoBox.style.display = "none";
+                         // Buscar si existe un infobox pinneado para esta casa
+                         const existingPinnedBox = document.querySelector( `.info-box.pinned[data-house-id="${ idWithoutPrefix }"]` );
+                         if ( existingPinnedBox ) {
+                              existingPinnedBox.classList.add( 'highlight' );
+                              setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                              return;
+                         }
+
+                         // Buscar un infobox no pinneado o crear uno nuevo
+                         let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                         if ( !currentInfoBox ) {
+                              currentInfoBox = document.createElement( 'div' );
+                              currentInfoBox.className = 'info-box';
+                              document.body.appendChild( currentInfoBox );
+                         }
+
+                         currentInfoBox.setAttribute( 'data-house-id', idWithoutPrefix );
+                         currentInfoBox.style.display = "flex";
+
+
+                         currentInfoBox.innerHTML = `
+        <div class="info-header">
+            <img src="${ item.thumbnail.value }" alt="Property" class="property-image"/>
+            <div class="header-bar">
+                <div class="property-badges">
+                    <div class="badge-container">
+                        <span class="badge primary">${ capitalizedCategory }</span>
+                        <div class="badge-location nameContainer">
+                            <span>${ parsedData.name }</span>
+                            <span>${ parsedData.addressLocality }, ${ parsedData.addressRegion }</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                <button class="action-btn pin-btn" title="Fijar ventana">
+                        <i class="action-icon">📌</i>
+                    </button>
+                    <button class="action-btn share-btn" title="Compartir">
+                        <i class="action-icon">📤</i>
+                    </button>
+                    <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
+                        <i class="action-icon">✕</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-content">
+            <div class="info-grid">
+                <div class="info-row">
+                    <div class="info-item">
+                        <label for="codigo">Código identificador</label>
+                        <div class="id-value-container">
+                            <span>${ idWithoutPrefix }</span>
+                            <button class="copy-btn" title="Copiar código">
+                                <i class="copy-icon">📋</i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label for="distrito">Distrito</label>
+                        <span>${ parsedData.district }</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-item">
+                        <label for="operacion">Tipo de operación</label>
+                        <span>${ item.annexIdealista.value.operation.charAt( 0 ).toUpperCase() + item.annexIdealista.value.operation.slice( 1 ) }</span>
+                    </div>
+                    <div class="info-item">
+                        <label for="ubicacion">Localización</label>
+                        <span>${ parsedData.addressLocality }, ${ parsedData.addressRegion }</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features-grid">
+                <label>Características</label>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <span class="feature-icon">💰</span>
+                        <span class="feature-text">${ ( item.annexIdealista.value.price ).toLocaleString( 'es-ES' ) } €</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📏</span>
+                        <span class="feature-text">${ item.annexIdealista.value.size } m²</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🛏️</span>
+                        <span class="feature-text">${ item.annexIdealista.value.rooms } habitaciones</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🚿</span>
+                        <span class="feature-text">${ item.annexIdealista.value.bathrooms } baños</span>
+                    </div>
+                    ${ parkingInfo === "Sí" ? `
+                    <div class="feature-item">
+                        <span class="feature-icon">🚗</span>
+                        <span class="feature-text">Parking ${ parkingIncluded === "Sí" ? "incluido" : "no incluido" }</span>
+                    </div>
+                    ` : '' }
+                </div>
+            </div>
+
+            <div class="description">
+                <label>Descripción</label>
+                <p>${ parsedData.description }</p>
+            </div>
+
+            <div class="external-links">
+                <label>Enlaces</label>
+                <a href="${ parsedData.source }" target="_blank" class="external-link">
+                    <span>Ver en Idealista</span>
+                </a>
+            </div>
+        </div>
+    `;
+                         currentInfoBox.querySelector( "#cerrar-info-box" ).addEventListener( "click", () => {
+                              currentInfoBox.remove(); // Usar remove() en lugar de display none
+                         } );
+                         const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                         pinBtn.addEventListener( "click", ( e ) => {
+                              const infoBox = e.target.closest( '.info-box' );
+                              if ( infoBox.classList.contains( 'pinned' ) ) {
+                                   // Desfijar
+                                   infoBox.classList.remove( 'pinned' );
+                                   pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                   pinBtn.title = "Fijar ventana";
+                              } else {
+                                   // Fijar
+                                   infoBox.classList.add( 'pinned' );
+                                   pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                   pinBtn.title = "Desfijar ventana";
+
+                                   // Crear nuevo infobox para futuras propiedades y hacerlo arrastrable
+                                   const newInfoBox = document.createElement( 'div' );
+                                   newInfoBox.className = 'info-box';
+                                   newInfoBox.style.display = 'none';
+                                   document.body.appendChild( newInfoBox );
+
+                                   // Reinicializar el arrastre para el nuevo infobox
+                                   const nameContainer = newInfoBox.querySelector( '.nameContainer' );
+                                   if ( nameContainer ) {
+                                        hacerArrastrable( newInfoBox, nameContainer );
+                                   }
+                              }
+                         } );
+                         currentInfoBox.querySelector( ".share-btn" )?.addEventListener( "click", async () => {
+                              try {
+                                   if ( navigator.share ) {
+                                        await navigator.share( {
+                                             title: `${ capitalizedCategory } - ${ parsedData.name }`,
+                                             text: `${ parsedData.description }`,
+                                             url: parsedData.source
+                                        } );
+                                   } else {
+                                        await navigator.clipboard.writeText( parsedData.source );
+                                        showNotification( '¡Enlace copiado!' );
+                                   }
+                              } catch ( error ) {
+                                   console.error( 'Error al compartir:', error );
+                              }
+                         } );
+
+                         currentInfoBox.querySelector( ".copy-btn" )?.addEventListener( "click", async () => {
+                              try {
+                                   await navigator.clipboard.writeText( idWithoutPrefix );
+                                   showNotification( '¡Código copiado!' );
+                              } catch ( error ) {
+                                   console.error( 'Error al copiar:', error );
+                              }
                          } );
                     } );
 
@@ -5491,22 +7745,124 @@ const cargarYMostrarMarcadoresOficinas = async () => {
                     const idWithoutPrefix = item.id.replace( /^property_/, '' );
                     const capitalizedCategory = item.category.value[ 0 ].charAt( 0 ).toUpperCase() + item.category.value[ 0 ].slice( 1 );
                     infoBox.innerHTML = `
-                         <div class='nameContainer'>
-                              <p>${ capitalizedCategory }</p>
-                              <p>${ item.name.value }</p>
-                         </div>
-                         <img src='${ STATIC_IMAGES.offices }'>
-                         <p>Código identificador: ${ idWithoutPrefix }</p>
-                         <p>Address: ${ item.address.value.streetAddress }</p>
-                         <p>District: ${ item.address.value.district }</p>
-                         <p>Localización: ${ item.address.value.addressLocality }, ${ item.address.value.addressRegion }</p>
-                         <p>${ item.description.value }</p>
-                         <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                         <button class='share'><img src='./assets/shareIcon.svg'></button>
-                    `;
+        <div class="info-header">
+            <img src="${ STATIC_IMAGES.offices }" alt="Office" class="property-image"/>
+            <div class="header-bar">
+                <div class="property-badges">
+                    <div class="badge-container">
+                        <span class="badge primary">${ capitalizedCategory }</span>
+                        <div class="badge-location">
+                            <span>${ item.name.value }</span>
+                            <span>${ item.address.value.addressLocality }, ${ item.address.value.district }</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn share-btn" title="Compartir">
+                        <i class="action-icon">📤</i>
+                    </button>
+                    <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
+                        <i class="action-icon">✕</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="info-content">
+            <div class="info-grid">
+                <div class="info-row">
+                    <div class="info-item id-container">
+                        <label for="codigo">Código identificador</label>
+                        <div class="id-value-container">
+                            <span>${ idWithoutPrefix }</span>
+                            <button class="copy-btn" title="Copiar código">
+                                <i class="copy-icon">📋</i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label for="direccion">Address</label>
+                        <span>${ item.address.value.streetAddress }</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-item">
+                        <label for="distrito">District</label>
+                        <span>${ item.address.value.district }</span>
+                    </div>
+                    <div class="info-item">
+                        <label for="ubicacion">Localización</label>
+                        <span>${ item.address.value.addressLocality }, ${ item.address.value.addressRegion }</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="description">
+                <label>Description</label>
+                <p>${ item.description.value }</p>
+            </div>
+
+            <div class="features-grid">
+                <label>Características destacadas</label>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <span class="feature-icon">🚗</span>
+                        <span class="feature-text">2 plazas de garaje</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">❄️</span>
+                        <span class="feature-text">Aire acondicionado</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🛗</span>
+                        <span class="feature-text">Ascensor</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🏢</span>
+                        <span class="feature-text">Edificio comercial</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🚽</span>
+                        <span class="feature-text">Baño</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✨</span>
+                        <span class="feature-text">Seminuevo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
                     document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
                          infoBox.style.display = "none";
                     } );
+                    document.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                         try {
+                              await navigator.clipboard.writeText( idWithoutPrefix );
+                              showNotification( '¡Código copiado!' );
+                         } catch ( error ) {
+                              console.error( 'Error al copiar:', error );
+                         }
+                    } );
+                    // Event listener para compartir
+                    document.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+
+
+                         try {
+                              if ( navigator.share ) {
+                                   await navigator.share( {
+                                        title: `Office ${ item.name.value }`,
+                                        text: `Información sobre ${ item.name.value } en ${ item.address.value.addressRegion }`,
+                                        url: window.location.href
+                                   } );
+                              } else {
+                                   await navigator.clipboard.writeText( window.location.href );
+                                   showNotification( '¡Enlace copiado!' );
+                              }
+                         } catch ( error ) {
+                              console.error( 'Error al compartir:', error );
+                         }
+                    } );
+
                } );
 
                markersOffices.push( officeMarker ); // Añade el marcador al array de oficinas
@@ -5515,6 +7871,29 @@ const cargarYMostrarMarcadoresOficinas = async () => {
           console.error( "Error fetching offices:", error );
      }
 };
+// Función para mostrar notificaciones
+function showNotification( message ) {
+     const notification = document.createElement( 'div' );
+     notification.style.cssText = `
+         position: fixed;
+         top: 20px;
+         right: 20px;
+         background: rgba(8, 236, 196, 0.9);
+         color: black;
+         padding: 8px 16px;
+         border-radius: 4px;
+         font-size: 14px;
+         z-index: 1000000;
+         transition: opacity 0.3s ease;
+     `;
+     notification.textContent = message;
+     document.body.appendChild( notification );
+
+     setTimeout( () => {
+          notification.style.opacity = '0';
+          setTimeout( () => notification.remove(), 300 );
+     }, 2000 );
+}
 
 // Evento botón OFFICES
 const eventOffices = document.getElementById( "offices-sub-nav-item" );
@@ -5547,6 +7926,7 @@ function cargarMarcadoresCommercialOrIndustrial() {
                          name,
                          category,
                          description,
+                         id,
                          streetAddress,
                          postalCode,
                          addressLocality,
@@ -5567,24 +7947,132 @@ function cargarMarcadoresCommercialOrIndustrial() {
 
                          // Agrega un evento click a cada marcador para mostrar el infoBox
                          marker.addListener( "click", () => {
-                              const infoBox = document.querySelector( ".info-box" );
-                              infoBox.style.display = "flex";
-                              infoBox.innerHTML = `
-                              <div class='nameContainer'>
-                                   <p>${ category }</p>
-                                   <p>${ name }</p>
-                              </div>
-                              <img src='${ STATIC_IMAGES.commercialIndustrial }'>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                              <p>Neighborhood: ${ neighborhood }</p>
-                              <p>District: ${ district }</p>
-                              <p>Country: ${ addressCountry }</p>
-                              <p>${ description }</p>
-                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                              <button class='share'><img src='./assets/shareIcon.svg'></button>
-                         `;
-                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                                   infoBox.style.display = "none";
+                              // Buscar si existe un infobox pinneado para este edificio
+                              const existingPinnedBox = document.querySelector( `.info-box.pinned[data-building-id="${ name }"]` );
+                              if ( existingPinnedBox ) {
+                                   existingPinnedBox.classList.add( 'highlight' );
+                                   setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                   return;
+                              }
+
+                              // Buscar un infobox no pinneado o crear uno nuevo
+                              let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                              if ( !currentInfoBox ) {
+                                   currentInfoBox = document.createElement( 'div' );
+                                   currentInfoBox.className = 'info-box';
+                                   document.body.appendChild( currentInfoBox );
+                              }
+
+                              currentInfoBox.setAttribute( 'data-building-id', name );
+                              currentInfoBox.style.display = "flex";
+                              currentInfoBox.innerHTML = `
+        <div class="info-header">
+            <img src="${ STATIC_IMAGES.commercialIndustrial }" alt="Propiedad Comercial" class="property-image"/>
+            <div class="header-bar">
+                <div class="property-badges">
+                    <div class="badge-container">
+                        <span class="badge primary">${ category }</span>
+                        <div class="badge-location nameContainer">
+                            <span>${ name }</span>
+                            <span>${ addressLocality }, ${ addressRegion }</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn pin-btn" title="Fijar ventana">
+                        <i class="action-icon">📌</i>
+                    </button>
+                    <button class="action-btn share-btn" title="Compartir">
+                        <i class="action-icon">📤</i>
+                    </button>
+                    <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
+                        <i class="action-icon">✕</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-content">
+            <div class="info-section">
+                <div class="info-grid">
+                    <div class="info-row">
+                        <div class="info-item id-container">
+                            <label for="codigo">Código identificador</label>
+                            <div class="id-value-container">
+                                <span>${ id }</span>
+                                <button class="copy-btn" title="Copiar código">
+                                    <i class="copy-icon">📋</i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <label for="direccion">Dirección</label>
+                            <span>${ streetAddress }, ${ postalCode }</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-item">
+                            <label for="distrito">Distrito</label>
+                            <span>${ district }</span>
+                        </div>
+                        <div class="info-item">
+                            <label for="ubicacion">Localización</label>
+                            <span>${ addressLocality }, ${ addressRegion }</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="description">
+                <label>Descripción</label>
+                <p>${ description }</p>
+            </div>
+        </div>
+    `;
+
+                              // Event listeners
+                              const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                              pinBtn.addEventListener( "click", ( e ) => {
+                                   const infoBox = e.target.closest( '.info-box' );
+                                   if ( infoBox.classList.contains( 'pinned' ) ) {
+                                        // Desfijar
+                                        infoBox.classList.remove( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                        pinBtn.title = "Fijar ventana";
+                                   } else {
+                                        // Fijar
+                                        infoBox.classList.add( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                        pinBtn.title = "Desfijar ventana";
+                                   }
+                              } );
+                              currentInfoBox.querySelector( "#cerrar-info-box" ).addEventListener( "click", () => {
+                                   currentInfoBox.remove();
+                              } );
+
+                              currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                   try {
+                                        if ( navigator.share ) {
+                                             await navigator.share( {
+                                                  title: `${ category } - ${ name }`,
+                                                  text: `${ description }`,
+                                                  url: window.location.href
+                                             } );
+                                        } else {
+                                             await navigator.clipboard.writeText( window.location.href );
+                                             showNotification( '¡Enlace copiado!' );
+                                        }
+                                   } catch ( error ) {
+                                        console.error( 'Error al compartir:', error );
+                                   }
+                              } );
+                              currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                   try {
+                                        await navigator.clipboard.writeText( id );
+                                        showNotification( '¡Código copiado!' );
+                                   } catch ( error ) {
+                                        console.error( 'Error al copiar:', error );
+                                   }
                               } );
                          } );
 
@@ -5609,6 +8097,10 @@ eventCommercialOrIndustrial.addEventListener( "click", () => {
      }
 } );
 
+
+
+
+
 //! Función para mostrar GARAGES
 const cargarYMostrarMarcadoresGarages = async () => {
      try {
@@ -5619,13 +8111,14 @@ const cargarYMostrarMarcadoresGarages = async () => {
           const data = await response.json();
 
           data.buildings0006.forEach( item => {
-               const ubicacion = safeAccess( item, 'location', 'value', 'coordinates', 'Ubicación no disponible' );
-               const name = safeAccess( item, 'name', 'value', 'Nombre no disponible' );
-               const neighborhood = safeAccess( item, 'address', 'value', 'neighborhood', 'Barrio no disponible' );
-               const district = safeAccess( item, 'address', 'value', 'district', 'Distrito no disponible' );
-               const addressLocality = safeAccess( item, 'address', 'value', 'addressLocality', 'Localidad no disponible' );
-               const addressRegion = safeAccess( item, 'address', 'value', 'addressRegion', 'Región no disponible' );
-               const description = safeAccess( item, 'description', 'value', 'Descripción no disponible' );
+               const ubicacion = item.location.value.coordinates;
+               const name = item.name.value;
+               const neighborhood = item.address.value.neighborhood;
+               const district = item.address.value.district;
+               const addressLocality = item.address.value.addressLocality;
+               const addressRegion = item.address.value.addressRegion;
+               const description = item.description.value;
+               const id = item.id;
 
                if ( ubicacion && name ) {
                     const garageMarker = new google.maps.Marker( {
@@ -5636,32 +8129,152 @@ const cargarYMostrarMarcadoresGarages = async () => {
                     } );
 
                     garageMarker.addListener( 'click', () => {
-                         const infoBox = document.querySelector( ".info-box" );
-                         infoBox.style.display = "flex";
-                         infoBox.innerHTML = `
-                         <div class='nameContainer'>
-                             <p>Garaje</p>
-                             <p>${ name }</p>
-                         </div>
-                         <img src='${ STATIC_IMAGES.garages }'>
-                         <p>Address: ${ neighborhood }, ${ district }</p>
-                         <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                         <p>${ description }</p>
-                         <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                         <button class='share'><img src='./assets/shareIcon.svg'></button>
-                     `;
-                         document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                              infoBox.style.display = "none";
+                         // Buscar si existe un infobox pinneado para este garage
+                         const existingPinnedBox = document.querySelector( `.info-box.pinned[data-building-id="${ name }"]` );
+                         if ( existingPinnedBox ) {
+                              existingPinnedBox.classList.add( 'highlight' );
+                              setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                              return;
+                         }
+
+                         // Buscar un infobox no pinneado o crear uno nuevo
+                         let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                         if ( !currentInfoBox ) {
+                              currentInfoBox = document.createElement( 'div' );
+                              currentInfoBox.className = 'info-box';
+                              document.body.appendChild( currentInfoBox );
+                         }
+
+                         currentInfoBox.setAttribute( 'data-building-id', name );
+                         currentInfoBox.style.display = "flex";
+                         currentInfoBox.innerHTML = `
+                             <div class="info-header">
+                                 <img src="${ STATIC_IMAGES.garages }" alt="Garaje" class="property-image"/>
+                                 <div class="header-bar">
+                                     <div class="property-badges">
+                                         <div class="badge-container">
+                                             <span class="badge primary">Garaje</span>
+                                             <div class="badge-location nameContainer">
+                                                 <span>${ name }</span>
+                                                 <span>${ neighborhood ? `${ neighborhood }, ` : '' }${ district || '' }</span>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="action-buttons">
+                                         <button class="action-btn pin-btn" title="Fijar ventana">
+                                             <i class="action-icon">📌</i>
+                                         </button>
+                                         <button class="action-btn share-btn" title="Compartir">
+                                             <i class="action-icon">📤</i>
+                                         </button>
+                                         <button class="action-btn close-btn" title="Cerrar">
+                                             <i class="action-icon">✕</i>
+                                         </button>
+                                     </div>
+                                 </div>
+                             </div>
+                     
+                             <div class="info-content">
+                                 <div class="info-section">
+                                     <div class="info-grid">
+                                         <div class="info-row">
+                                             <div class="info-item id-container">
+                                                 <label for="codigo">Código identificador</label>
+                                                 <div class="id-value-container">
+                                                     <span>${ id }</span>
+                                                     <button class="copy-btn" title="Copiar código">
+                                                         <i class="copy-icon">📋</i>
+                                                     </button>
+                                                 </div>
+                                             </div>
+                                              ${ district ? `
+                                             <div class="info-item">
+                                                  <label for="distrito">Distrito</label>
+                                                  <span>${ district }</span>
+                                             </div>
+                                        ` : '' }
+                                         </div>
+                                         <div class="info-row">
+                                             ${ neighborhood ? `
+                                                 <div class="info-item">
+                                                     <label for="barrio">Barrio</label>
+                                                     <span>${ neighborhood }</span>
+                                                 </div>
+                                             ` : '' }
+                                             <div class="info-item">
+                                                 <label for="ubicacion">Localización</label>
+                                                 <span>${ addressLocality }, ${ addressRegion }</span>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                     
+                                 <div class="description">
+                                     <label>Descripción</label>
+                                     <p>${ description }</p>
+                                 </div>
+                             </div>
+                         `;
+
+                         // Event listeners
+                         const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                         pinBtn.addEventListener( "click", ( e ) => {
+                              const infoBox = e.target.closest( '.info-box' );
+                              if ( infoBox.classList.contains( 'pinned' ) ) {
+                                   infoBox.classList.remove( 'pinned' );
+                                   pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                   pinBtn.title = "Fijar ventana";
+                              } else {
+                                   infoBox.classList.add( 'pinned' );
+                                   pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                   pinBtn.title = "Desfijar ventana";
+                              }
+                         } );
+
+                         currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                              currentInfoBox.remove();
+                         } );
+
+                         currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                              try {
+                                   if ( navigator.share ) {
+                                        await navigator.share( {
+                                             title: `Garaje - ${ name }`,
+                                             text: description,
+                                             url: window.location.href
+                                        } );
+                                   } else {
+                                        await navigator.clipboard.writeText( window.location.href );
+                                        showNotification( '¡Enlace copiado!' );
+                                   }
+                              } catch ( error ) {
+                                   console.error( 'Error al compartir:', error );
+                              }
+                         } );
+
+                         currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                              try {
+                                   await navigator.clipboard.writeText( id );
+                                   showNotification( '¡Código copiado!' );
+                              } catch ( error ) {
+                                   console.error( 'Error al copiar:', error );
+                              }
                          } );
                     } );
 
-                    markersGarages.push( garageMarker ); // Añade el marcador al array de garajes
+                    markersGarages.push( garageMarker );
                }
           } );
      } catch ( error ) {
           console.error( "Error fetching garages:", error );
      }
 };
+
+
+
+
+
+
 
 // Evento botón GARAGES
 const eventGarages = document.getElementById( "garages-sub-nav-item" );
@@ -5695,52 +8308,168 @@ function cargarMarcadoresParcels() {
           .then( response => response.json() )
           .then( data => {
                data.buildings0003.forEach( item => {
-                    const ubicacion = safeAccess( item, 'location', 'value', 'coordinates', 'Ubicación no disponible' );
-                    const name = safeAccess( item, 'name', 'value', 'Nombre no disponible' );
-                    const description = safeAccess( item, 'description', 'value', 'Descripción no disponible' );
-                    const owner = safeAccess( item, 'owner', 'object', 0, 'Propietario no disponible' );
-                    const streetAddress = safeAccess( item, 'address', 'value', 'streetAddress', 'Dirección no disponible' );
-                    const postalCode = safeAccess( item, 'address', 'value', 'postalCode', 'Código postal no disponible' );
-                    const addressLocality = safeAccess( item, 'address', 'value', 'addressLocality', 'Localidad no disponible' );
-                    const addressRegion = safeAccess( item, 'address', 'value', 'addressRegion', 'Región no disponible' );
+                    const coordinates = item.location?.value?.coordinates;
+                    // Si no hay coordenadas válidas o son null, saltamos este item
+                    if ( !coordinates || coordinates[ 0 ] === null || coordinates[ 1 ] === null ) return;
 
-                    if ( ubicacion && name ) {
+                    const name = item.name?.value;
+                    const description = item.description?.value;
+                    const owner = item.owner?.object?.[ 0 ];
+                    const address = item.address?.value;
+                    const streetAddress = address?.streetAddress;
+                    const addressLocality = address?.addressLocality;
+                    const addressRegion = address?.addressRegion;
+
+                    if ( coordinates && name ) {
                          const marker = new google.maps.Marker( {
-                              position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+                              position: { lat: coordinates[ 1 ], lng: coordinates[ 0 ] },
                               map: map,
                               title: name,
                               icon: "./assets/quboParcels.svg"
                          } );
 
-                         // Agrega un evento click a cada marcador para mostrar el infoBox
                          marker.addListener( "click", () => {
-                              const infoBox = document.querySelector( ".info-box" );
-                              infoBox.style.display = "flex";
-                              infoBox.innerHTML = `
-                              <div class='nameContainer'>
-                                   <p>Terreno</p>
-                                   <p>${ name }</p>
-                              </div>
-                              <img src='${ STATIC_IMAGES.parcels }'>
-                              <p>Address: ${ streetAddress }, ${ postalCode }</p>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                              <p>Owner: ${ owner }</p>
-                              <p>${ description }</p>
-                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                              <button class='share'><img src='./assets/shareIcon.svg'></button>
+                              // Buscar si existe un infobox pinneado para esta parcela
+                              const existingPinnedBox = document.querySelector( `.info-box.pinned[data-building-id="${ name }"]` );
+                              if ( existingPinnedBox ) {
+                                   existingPinnedBox.classList.add( 'highlight' );
+                                   setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                   return;
+                              }
+
+                              // Buscar un infobox no pinneado o crear uno nuevo
+                              let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                              if ( !currentInfoBox ) {
+                                   currentInfoBox = document.createElement( 'div' );
+                                   currentInfoBox.className = 'info-box';
+                                   document.body.appendChild( currentInfoBox );
+                              }
+
+                              currentInfoBox.setAttribute( 'data-building-id', name );
+                              currentInfoBox.style.display = "flex";
+                              currentInfoBox.innerHTML = `
+                             <div class="info-header">
+                                 <img src="${ STATIC_IMAGES.parcels }" alt="Parcela" class="property-image"/>
+                                 <div class="header-bar">
+                                     <div class="property-badges">
+                                         <div class="badge-container">
+                                             <span class="badge primary">Terreno</span>
+                                             <div class="badge-location nameContainer">
+                                                 <span>${ name }</span>
+                                                 <span>${ addressLocality || '' }</span>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="action-buttons">
+                                         <button class="action-btn pin-btn" title="Fijar ventana">
+                                             <i class="action-icon">📌</i>
+                                         </button>
+                                         <button class="action-btn share-btn" title="Compartir">
+                                             <i class="action-icon">📤</i>
+                                         </button>
+                                         <button class="action-btn close-btn" title="Cerrar">
+                                             <i class="action-icon">✕</i>
+                                         </button>
+                                     </div>
+                                 </div>
+                             </div>
+ 
+                             <div class="info-content">
+                                 <div class="info-section">
+                                     <div class="info-grid">
+                                         <div class="info-row">
+                                             <div class="info-item id-container">
+                                                 <label for="codigo">Código identificador</label>
+                                                 <div class="id-value-container">
+                                                     <span>${ item.id || '' }</span>
+                                                     <button class="copy-btn" title="Copiar código">
+                                                         <i class="copy-icon">📋</i>
+                                                     </button>
+                                                 </div>
+                                             </div>
+                                             ${ streetAddress ? `
+                                                 <div class="info-item">
+                                                     <label for="direccion">Dirección</label>
+                                                     <span>${ streetAddress }</span>
+                                                 </div>
+                                             ` : '' }
+                                         </div>
+                                         <div class="info-row">
+                                             ${ owner ? `
+                                                 <div class="info-item">
+                                                     <label for="propietario">Propietario</label>
+                                                     <span>${ owner }</span>
+                                                 </div>
+                                             ` : '' }
+                                             <div class="info-item">
+                                                 <label for="ubicacion">Localización</label>
+                                                 <span>${ addressLocality }${ addressRegion ? `, ${ addressRegion }` : '' }</span>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+ 
+                                 ${ description ? `
+                                     <div class="description">
+                                         <label>Descripción</label>
+                                         <p>${ description }</p>
+                                     </div>
+                                 ` : '' }
+                             </div>
                          `;
-                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                                   infoBox.style.display = "none";
+
+                              // Event listeners
+                              const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                              pinBtn.addEventListener( "click", ( e ) => {
+                                   const infoBox = e.target.closest( '.info-box' );
+                                   if ( infoBox.classList.contains( 'pinned' ) ) {
+                                        infoBox.classList.remove( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                        pinBtn.title = "Fijar ventana";
+                                   } else {
+                                        infoBox.classList.add( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                        pinBtn.title = "Desfijar ventana";
+                                   }
+                              } );
+
+                              currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                   currentInfoBox.remove();
+                              } );
+
+                              currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                   try {
+                                        if ( navigator.share ) {
+                                             await navigator.share( {
+                                                  title: `Terreno - ${ name }`,
+                                                  text: description || '',
+                                                  url: window.location.href
+                                             } );
+                                        } else {
+                                             await navigator.clipboard.writeText( window.location.href );
+                                             showNotification( '¡Enlace copiado!' );
+                                        }
+                                   } catch ( error ) {
+                                        console.error( 'Error al compartir:', error );
+                                   }
+                              } );
+
+                              currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                   try {
+                                        await navigator.clipboard.writeText( item.id || '' );
+                                        showNotification( '¡Código copiado!' );
+                                   } catch ( error ) {
+                                        console.error( 'Error al copiar:', error );
+                                   }
                               } );
                          } );
 
-                         markersParcels.push( marker ); // Añade el marcador al array de parcelas
+                         markersParcels.push( marker );
                     }
                } );
           } )
           .catch( error => console.error( "Error al cargar los marcadores de parcelas:", error ) );
-};
-
+}
 const eventparcels = document.getElementById( "parcels-sub-nav-item" );
 let markersParcels = []; // Array para almacenar los marcadores de parcelas
 let parcelsVisible = false; // Bandera para el estado de visibilidad
@@ -5835,50 +8564,155 @@ function cargarMarcadoresIconic() {
           .then( response => response.json() )
           .then( data => {
                data.buildings0004.forEach( item => {
-                    const {
-                         ubicacion,
-                         name,
-                         category,
-                         description,
-                         streetAddress,
-                         postalCode,
-                         addressLocality,
-                         addressRegion,
-                         addressCountry,
-                         neighborhood,
-                         district,
-                         source
-                    } = parseFiwareData( item );
+                    const ubicacion = item.location?.value?.coordinates;
+                    const name = item.name?.value;
+                    const id = item.id;
+                    const category = item.category?.value?.[ 0 ];
+                    const description = item.description?.value;
+                    const address = item.address?.value;
+                    const streetAddress = address?.streetAddress;
+                    const postalCode = address?.postalCode;
+                    const addressLocality = address?.addressLocality;
+                    const addressRegion = address?.addressRegion;
 
-                    const marker = new google.maps.Marker( {
-                         position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
-                         map: map,
-                         title: item.name.value,
-                         icon: "./assets/quboIconic.svg"
-                    } );
-
-                    // Agrega un evento click a cada marcador para mostrar el infoBox
-                    marker.addListener( "click", () => {
-                         const infoBox = document.querySelector( ".info-box" );
-                         infoBox.style.display = "flex";
-                         infoBox.innerHTML = `
-                         <div class='nameContainer'>
-                             <p>${ category }</p>
-                             <p>${ name }</p>
-                         </div>
-                         <img src='${ STATIC_IMAGES.iconic }'>
-                         <p>${ description }</p>
-                         <p>Address: ${ streetAddress }, ${ postalCode }</p>
-                         <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                         <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                         <button class='share'><img src='./assets/shareIcon.svg'></button>
-                     `;
-                         document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                              infoBox.style.display = "none";
+                    if ( ubicacion && name ) {
+                         const marker = new google.maps.Marker( {
+                              position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+                              map: map,
+                              title: name,
+                              icon: "./assets/quboIconic.svg"
                          } );
-                    } );
 
-                    markersIconic.push( marker ); // Añade el marcador al array
+                         marker.addListener( "click", () => {
+                              const existingPinnedBox = document.querySelector( `.info-box.pinned[data-building-id="${ name }"]` );
+                              if ( existingPinnedBox ) {
+                                   existingPinnedBox.classList.add( 'highlight' );
+                                   setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                   return;
+                              }
+
+                              let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                              if ( !currentInfoBox ) {
+                                   currentInfoBox = document.createElement( 'div' );
+                                   currentInfoBox.className = 'info-box';
+                                   document.body.appendChild( currentInfoBox );
+                              }
+
+                              currentInfoBox.setAttribute( 'data-building-id', name );
+                              currentInfoBox.style.display = "flex";
+                              currentInfoBox.innerHTML = `
+                             <div class="info-header">
+                                 <img src="${ STATIC_IMAGES.iconic }" alt="Edificio Icónico" class="property-image"/>
+                                 <div class="header-bar">
+                                     <div class="property-badges">
+                                         <div class="badge-container">
+                                             <span class="badge primary">${ category }</span>
+                                             <div class="badge-location nameContainer">
+                                                 <span>${ name }</span>
+                                                 <span>${ addressLocality }</span>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="action-buttons">
+                                         <button class="action-btn pin-btn" title="Fijar ventana">
+                                             <i class="action-icon">📌</i>
+                                         </button>
+                                         <button class="action-btn share-btn" title="Compartir">
+                                             <i class="action-icon">📤</i>
+                                         </button>
+                                         <button class="action-btn close-btn" title="Cerrar">
+                                             <i class="action-icon">✕</i>
+                                         </button>
+                                     </div>
+                                 </div>
+                             </div>
+ 
+                             <div class="info-content">
+                                 <div class="info-section">
+                                     <div class="info-grid">
+                                         <div class="info-row">
+                                             <div class="info-item id-container">
+                                                 <label for="codigo">Código identificador</label>
+                                                 <div class="id-value-container">
+                                                     <span>${ id }</span>
+                                                     <button class="copy-btn" title="Copiar código">
+                                                         <i class="copy-icon">📋</i>
+                                                     </button>
+                                                 </div>
+                                             </div>
+                                             ${ streetAddress ? `
+                                                 <div class="info-item">
+                                                     <label for="direccion">Dirección</label>
+                                                     <span>${ streetAddress }${ postalCode ? `, ${ postalCode }` : '' }</span>
+                                                 </div>
+                                             ` : '' }
+                                         </div>
+                                         <div class="info-row">
+                                             <div class="info-item">
+                                                 <label for="ubicacion">Localización</label>
+                                                 <span>${ addressLocality }, ${ addressRegion }</span>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+ 
+                                 ${ description ? `
+                                     <div class="description">
+                                         <label>Descripción</label>
+                                         <p>${ description }</p>
+                                     </div>
+                                 ` : '' }
+                             </div>
+                         `;
+
+                              // Event listeners
+                              const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                              pinBtn.addEventListener( "click", ( e ) => {
+                                   const infoBox = e.target.closest( '.info-box' );
+                                   if ( infoBox.classList.contains( 'pinned' ) ) {
+                                        infoBox.classList.remove( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                        pinBtn.title = "Fijar ventana";
+                                   } else {
+                                        infoBox.classList.add( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                        pinBtn.title = "Desfijar ventana";
+                                   }
+                              } );
+
+                              currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                   currentInfoBox.remove();
+                              } );
+
+                              currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                   try {
+                                        if ( navigator.share ) {
+                                             await navigator.share( {
+                                                  title: `${ category } - ${ name }`,
+                                                  text: description || '',
+                                                  url: window.location.href
+                                             } );
+                                        } else {
+                                             await navigator.clipboard.writeText( window.location.href );
+                                             showNotification( '¡Enlace copiado!' );
+                                        }
+                                   } catch ( error ) {
+                                        console.error( 'Error al compartir:', error );
+                                   }
+                              } );
+
+                              currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                   try {
+                                        await navigator.clipboard.writeText( id );
+                                        showNotification( '¡Código copiado!' );
+                                   } catch ( error ) {
+                                        console.error( 'Error al copiar:', error );
+                                   }
+                              } );
+                         } );
+
+                         markersIconic.push( marker );
+                    }
                } );
           } )
           .catch( error => console.error( "Error al cargar los marcadores de Iconic:", error ) );
@@ -5978,12 +8812,12 @@ eventHospitals.addEventListener( "click", () => {
                                         <p>${ name }</p>
                                    </div>
                                    <img src='${ STATIC_IMAGES.hospital }'>
-                                   <p>Address: ${ streetAddress }, ${ postalCode }</p>
-                                   <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                                   <p>${ addressCountry }</p>
-                                   <p>Owner: ${ owner }</p>
-                                   <p>${ description }</p>
-                                   <p>ID: ${ id }</p>
+                                   <p>Address: <span>${ streetAddress }, ${ postalCode }</span></p>
+                                   <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
+                                   <p>Country: <span>${ addressCountry }</span> </p>
+                                   <p>Owner: <span>${ owner }</span> </p>
+                                   <p>Description: <span>${ description }</span> </p>
+                                   <p>ID: <span>${ id }</span> </p>
                                    <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                                    <button class='share'><img src='./assets/shareIcon.svg'></button>
                               `;
@@ -6171,11 +9005,11 @@ const cargarMarcadoresFarmacias = () => {
                               <p>${ name }</p>
                          </div>
                          <img src='${ STATIC_IMAGES.pharmacy }'>
-                         <p>Owner: ${ owner }</p>
-                         <p>Address: ${ streetAddress }</p>
-                         <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                         <p>Country: ${ addressCountry }</p>
-                         <p>ID: ${ item.id }</p>
+                         <p>Owner: <span>${ owner }</span> </p>
+                         <p>Address: <span>${ streetAddress }</span> </p>
+                         <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
+                         <p>Country: <span>${ addressCountry }</span> </p>
+                         <p>ID: <span>${ item.id }</span> </p>
                          <button id="cerrar-info-box">
                               <img src='./assets/botonCerrar.svg'>
                          </button>
@@ -6545,13 +9379,13 @@ function cargarMarcadoresFire() {
                                  <p>${ name }</p>
                              </div>
                              <img src='${ STATIC_IMAGES.fire }'/>
-                             <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                             <p>Address: ${ streetAddress }</p>
-                             <p>C.P: ${ postalCode }</p>
-                             <p>Neighborhood: ${ neighborhood }</p>
-                             <p>District: ${ district }</p>
-                             <p>Country: ${ addressCountry }</p>
-                             <p>${ description }</p>
+                             <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
+                             <p>Address: <span>${ streetAddress }</span> </p>
+                             <p>C.P: <span>${ postalCode }</span> </p>
+                             <p>Neighborhood: <span>${ neighborhood }</span> </p>
+                             <p>District: <span>${ district }</span> </p>
+                             <p>Country: <span>${ addressCountry }</span> </p>
+                             <p>Description: <span>${ description }</span> </p>
                              <p>Link: <a href="${ source }" target="_blank">Click Here</a></p>
                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                              <button class='share'><img src='./assets/shareIcon.svg'></button>
@@ -6630,26 +9464,340 @@ const cargarMarcadoresPuertos = async () => {
                     const infoBox = document.querySelector( ".info-box" );
                     infoBox.style.display = "flex";
                     infoBox.innerHTML = `
-                         <div class='nameContainer'>
-                              <p>${ name }</p>
-                         </div>
-                         <img src='${ ImagenURL }' alt='Port Image'/>
-                         <p><strong>Address:</strong> ${ address.streetAddress }, ${ address.addressLocality }, ${ address.addressRegion }, ${ address.postalCode }, ${ address.addressCountry }</p>
-                         <p><strong>Description:</strong> ${ description }</p>
-                         <p><strong>Infrastructure:</strong> ${ infrastructure.numberOfDocks } docks, ${ infrastructure.numberOfBerths } berths, Terminal Type: ${ infrastructure.terminalType }, Dock Status: ${ infrastructure.dockStatus }</p>
-                         <p><strong>Environmental Data:</strong> Air Temp: ${ environmentalData.airTemperature }°C, Water Temp: ${ environmentalData.waterTemperature }°C, Wind: ${ environmentalData.windSpeed } km/h ${ environmentalData.windDirection }, Humidity: ${ environmentalData.humidity }%, Visibility: ${ environmentalData.visibility } km</p>
-                         <p><strong>Operational Data:</strong> Cargo Capacity: ${ operationalData.cargoHandlingCapacity } tons, Current Load: ${ operationalData.currentCargoLoad } tons, Ships: ${ operationalData.numberOfShips }, Arrivals: ${ operationalData.arrivalRate }/hr, Departures: ${ operationalData.departureRate }/hr, Throughput: ${ operationalData.containerThroughput } containers</p>
-                         <p><strong>Safety & Security:</strong> Level: ${ safetyAndSecurity.securityLevel }, CCTV: ${ safetyAndSecurity.numberOfCCTV }, Guards: ${ safetyAndSecurity.numberOfGuards }, Emergency Contact: ${ safetyAndSecurity.emergencyContact }</p>
-                         <p><strong>Utilities:</strong> Power: ${ utilities.powerSupplyStatus }, Water: ${ utilities.waterSupplyStatus }, Fuel: ${ utilities.fuelAvailability }, Waste: ${ utilities.wasteManagementStatus }</p>
-                         <p><strong>Traffic Management:</strong> Road: ${ trafficManagement.roadTrafficStatus }, Sea: ${ trafficManagement.seaTrafficStatus }, Waiting Time: ${ trafficManagement.waitingTime } mins</p>
-                         <p><strong>Maintenance:</strong> Schedule: ${ maintenance.maintenanceSchedule }, Last Inspection: ${ maintenance.lastInspectionDate }, Next Inspection: ${ maintenance.nextInspectionDate }</p>
-                         <p><strong>Communication & Connectivity:</strong> Status: ${ communicationAndConnectivity.communicationSystemsStatus }, Internet: ${ communicationAndConnectivity.internetConnectivity }, Maritime Radio Channels: ${ communicationAndConnectivity.maritimeRadioChannels.join( ', ' ) }</p>
-                         <p><strong>ID:</strong> ${ id }</p>
-                         <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                         <button class='share'><img src='./assets/shareIcon.svg'></button>
-                    `;
+        <div class="info-header">
+            <img src="${ ImagenURL }" alt="Port" class="property-image"/>
+            <div class="header-bar">
+                <div class="property-badges">
+                    <div class="badge-container">
+                        <span class="badge primary">PORT</span>
+                        <div class="badge-location nameContainer">
+                            <span>${ name }</span>
+                            <span>${ address.addressLocality }, ${ address.addressRegion }</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn share-btn" title="Compartir">
+                        <i class="action-icon">📤</i>
+                    </button>
+                    <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
+                        <i class="action-icon">✕</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-content">
+            <div class="info-grid">
+                <div class="info-row">
+                    <div class="info-item id-container">
+                        <label>ID</label>
+                        <div class="id-value-container">
+                            <span>${ id }</span>
+                            <button class="copy-btn" title="Copiar ID">
+                                <i class="copy-icon">📋</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-item full-width">
+                        <label>Dirección</label>
+                        <span>${ address.streetAddress }, ${ address.addressLocality }, ${ address.addressRegion }, ${ address.postalCode }, ${ address.addressCountry }</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="description">
+                <label>Descripción</label>
+                <p>${ description }</p>
+            </div>
+
+            <div class="port-infrastructure">
+                <label>Infraestructura</label>
+                <div class="port-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">🚢</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ infrastructure.numberOfDocks }</span>
+                            <span class="stat-label">Muelles</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">⚓</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ infrastructure.numberOfBerths }</span>
+                            <span class="stat-label">Amarres</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="port-status-indicators">
+                    <div class="status-item">
+                        <label>Tipo terminal</label>
+                        <div class="status-badge">
+                            <span class="status-icon">📦</span>
+                            <span>${ infrastructure.terminalType }</span>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <label>Estado muelle</label>
+                        <div class="status-badge">
+                            <span class="status-icon">✅</span>
+                            <span>${ infrastructure.dockStatus }</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="environmental-data">
+                <label>Datos ambientales</label>
+                <div class="env-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">🌡️</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ environmentalData.airTemperature }°C</span>
+                            <span class="stat-label">Temperatura aire</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">💧</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ environmentalData.waterTemperature }°C</span>
+                            <span class="stat-label">Temperatura agua</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">💨</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ environmentalData.windSpeed } km/h ${ environmentalData.windDirection }</span>
+                            <span class="stat-label">Viento</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">💧</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ environmentalData.humidity }%</span>
+                            <span class="stat-label">Humedad</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">👁️</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ environmentalData.visibility } km</span>
+                            <span class="stat-label">Visibilidad</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="port-utilities">
+                <label>Estado de servicios</label>
+                <div class="utilities-grid">
+                    <div class="utility-item">
+                        <span class="utility-icon">⚡</span>
+                        <span class="utility-label">Energía</span>
+                        <span class="utility-status active">${ utilities.powerSupplyStatus }</span>
+                    </div>
+                    <div class="utility-item">
+                        <span class="utility-icon">💧</span>
+                        <span class="utility-label">Agua</span>
+                        <span class="utility-status active">${ utilities.waterSupplyStatus }</span>
+                    </div>
+                    <div class="utility-item">
+                        <span class="utility-icon">⛽</span>
+                        <span class="utility-label">Combustible</span>
+                        <span class="utility-status active">${ utilities.fuelAvailability }</span>
+                    </div>
+                    <div class="utility-item">
+                        <span class="utility-icon">🗑️</span>
+                        <span class="utility-label">Residuos</span>
+                        <span class="utility-status">${ utilities.wasteManagementStatus }</span>
+                    </div>
+                </div>
+            </div>
+            <div class="traffic-management">
+                <label>Gestión de tráfico</label>
+                <div class="traffic-stats">
+                    <div class="traffic-item">
+                        <label>Estado tráfico terrestre</label>
+                        <div class="status-badge">
+                            <span class="status-icon">🚗</span>
+                            <span>${ trafficManagement.roadTrafficStatus }</span>
+                        </div>
+                    </div>
+                    <div class="traffic-item">
+                        <label>Estado tráfico marítimo</label>
+                        <div class="status-badge">
+                            <span class="status-icon">🚢</span>
+                            <span>${ trafficManagement.seaTrafficStatus }</span>
+                        </div>
+                    </div>
+                    <div class="traffic-item">
+                        <label>Tiempo de espera</label>
+                        <div class="status-badge">
+                            <span class="status-icon">⏱️</span>
+                            <span>${ trafficManagement.waitingTime } mins</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="maintenance-info">
+                <label>Mantenimiento</label>
+                <div class="maintenance-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">🔄</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ maintenance.maintenanceSchedule }</span>
+                            <span class="stat-label">Frecuencia</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ maintenance.lastInspectionDate }</span>
+                            <span class="stat-label">Última inspección</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ maintenance.nextInspectionDate }</span>
+                            <span class="stat-label">Próxima inspección</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="communication-info">
+                <label>Comunicación y Conectividad</label>
+                <div class="communication-grid">
+                    <div class="comm-item">
+                        <span class="comm-icon">📡</span>
+                        <span class="comm-label">Sistema de comunicación</span>
+                        <span class="comm-status active">${ communicationAndConnectivity.communicationSystemsStatus }</span>
+                    </div>
+                    <div class="comm-item">
+                        <span class="comm-icon">🌐</span>
+                        <span class="comm-label">Internet</span>
+                        <span class="comm-status active">${ communicationAndConnectivity.internetConnectivity }</span>
+                    </div>
+                    <div class="comm-channels">
+                        <label>Canales de radio marítima</label>
+                        <div class="channel-tags">
+                            ${ communicationAndConnectivity.maritimeRadioChannels.map( channel =>
+                         `<span class="channel-tag">${ channel }</span>`
+                    ).join( '' ) }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="port-security">
+                <label>Seguridad</label>
+                <div class="security-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">🛡️</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ safetyAndSecurity.securityLevel }</span>
+                            <span class="stat-label">Nivel</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📹</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ safetyAndSecurity.numberOfCCTV }</span>
+                            <span class="stat-label">Cámaras CCTV</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">👮</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ safetyAndSecurity.numberOfGuards }</span>
+                            <span class="stat-label">Guardias</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📞</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ safetyAndSecurity.emergencyContact }</span>
+                            <span class="stat-label">Emergencias</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="operational-data">
+                <label>Datos operativos</label>
+                <div class="operational-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">⚖️</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ operationalData.cargoHandlingCapacity } tons</span>
+                            <span class="stat-label">Capacidad de carga</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ operationalData.currentCargoLoad } tons</span>
+                            <span class="stat-label">Carga actual</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">🚢</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ operationalData.numberOfShips }</span>
+                            <span class="stat-label">Barcos en puerto</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ operationalData.arrivalRate }/${ operationalData.departureRate }</span>
+                            <span class="stat-label">Llegadas/Salidas por hora</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-info">
+                            <span class="stat-value">${ operationalData.containerThroughput }</span>
+                            <span class="stat-label">Contenedores/hora</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
                     document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
                          infoBox.style.display = "none";
+                    } );
+                    document.querySelector( ".share-btn" )?.addEventListener( "click", async () => {
+                         try {
+                              if ( navigator.share ) {
+                                   await navigator.share( {
+                                        title: `Port ${ name }`,
+                                        text: `Información sobre ${ name }`,
+                                        url: window.location.href
+                                   } );
+                              } else {
+                                   await navigator.clipboard.writeText( window.location.href );
+                                   showNotification( '¡Enlace copiado!' );
+                              }
+                         } catch ( error ) {
+                              console.error( 'Error al compartir:', error );
+                         }
+                    } );
+
+                    // Copiar ID
+                    document.querySelector( ".copy-btn" )?.addEventListener( "click", async () => {
+                         try {
+                              await navigator.clipboard.writeText( id );
+                              showNotification( '¡ID copiado!' );
+                         } catch ( error ) {
+                              console.error( 'Error al copiar:', error );
+                         }
                     } );
                } );
 
@@ -6723,13 +9871,13 @@ function cargarMarcadoresEnventsConcerts() {
                                    <p>${ name }</p>
                               </div>
                               <img src='${ STATIC_IMAGES.concertsEvents }'>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                              <p>Address: ${ streetAddress }</p>
-                              <p>C.P: ${ postalCode }</p>
-                              <p>Neighborhood: ${ neighborhood }</p>
-                              <p>District: ${ district }</p>
-                              <p>Country: ${ addressCountry }</p>
-                              <p>${ description }</p>
+                              <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
+                              <p>Address: <span>${ streetAddress }</span> </p>
+                              <p>C.P: <span>${ postalCode }</span> </p>
+                              <p>Neighborhood: <span>${ neighborhood }</span> </p>
+                              <p>District: <span>${ district }</span> </p>
+                              <p>Country: <span>${ addressCountry }</span> </p>
+                              <p>Description: <span>${ description }</span> </p>
                               <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
                               <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                               <button class='share'><img src='./assets/shareIcon.svg'></button>
@@ -6807,13 +9955,13 @@ function cargarMarcadoresTheatres() {
                                    <p>${ name }</p>
                               </div>
                               <img src='${ STATIC_IMAGES.theatres }'>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                              <p>Address: ${ streetAddress }</p>
-                              <p>C.P: ${ postalCode }</p>
-                              <p>Neighborhood: ${ neighborhood }</p>
-                              <p>District: ${ district }</p>
-                              <p>Country: ${ addressCountry }</p>
-                              <p>${ description }</p>
+                              <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
+                              <p>Address: <span>${ streetAddress }</span> </p>
+                              <p>C.P: <span>${ postalCode }</span> </p>
+                              <p>Neighborhood: <span>${ neighborhood }</span> </p>
+                              <p>District: <span>${ district }</span> </p>
+                              <p>Country: <span>${ addressCountry }</span> </p>
+                              <p>Description: <span>${ description }</span> </p>
                               <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
                               <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                               <button class='share'><img src='./assets/shareIcon.svg'></button>
@@ -6889,28 +10037,140 @@ function cargarMarcadoresCinemas() {
                               const infoBox = document.querySelector( ".info-box" );
                               infoBox.style.display = "flex";
                               infoBox.innerHTML = `
-                    <div class='nameContainer'>
-                    <p>${ category }</p>
-                    <p>${ name }</p>
+          <div class="info-header">
+               <img src="${ STATIC_IMAGES.cinemas }" alt="Cinema" class="property-image"/>
+               <div class="header-bar">
+                    <div class="property-badges">
+                         <div class="badge-container">
+                              <span class="badge primary">${ category }</span>
+                              <div class="badge-location nameContainer">
+                              <span>${ name }</span>
+                              <span>${ addressLocality }, ${ district }</span>
+                              </div>
+                         </div>
                     </div>
-                    <img src='${ STATIC_IMAGES.cinemas }'>
-                    <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                    <p>Address: ${ streetAddress }</p>
-                    <p>C.P: ${ postalCode }</p>
-                    <p>Neighborhood: ${ neighborhood }</p>
-                    <p>District: ${ district }</p>
-                    <p>Country: ${ addressCountry }</p>
-                    <p>${ description }</p>
-                    <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
-                    <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                    <button class='share'><img src='./assets/shareIcon.svg'></button>
-               `;
-                              document
-                                   .getElementById( "cerrar-info-box" )
-                                   .addEventListener( "click", () => {
-                                        infoBox.style.display = "none";
-                                   } );
+                    <div class="action-buttons">
+                         <button class="action-btn share-btn" title="Compartir">
+                              <i class="action-icon">📤</i>
+                         </button>
+                         <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
+                              <i class="action-icon">✕</i>
+                         </button>
+                    </div>
+               </div>
+          </div>
+          
+          <div class="info-content">
+               <div class="info-grid">
+                    <div class="info-row">
+                         <div class="info-item">
+                              <label>Dirección</label>
+                              <span>${ streetAddress }</span>
+                         </div>
+                         <div class="info-item">
+                              <label>Código postal</label>
+                              <span>${ postalCode }</span>
+                         </div>
+                    </div>
+                    <div class="info-row">
+                         <div class="info-item">
+                              <label>Barrio</label>
+                              <span>${ neighborhood }</span>
+                         </div>
+                         <div class="info-item">
+                              <label>Distrito</label>
+                              <span>${ district }</span>
+                         </div>
+                    </div>
+                    <div class="info-row">
+                         <div class="info-item">
+                              <label>Localización</label>
+                              <span>${ addressLocality }, ${ addressRegion }</span>
+                         </div>
+                         <div class="info-item">
+                              <label>País</label>
+                              <span>${ addressCountry }</span>
+                         </div>
+                    </div>
+               </div>
+
+               ${ description
+                                        ? `
+                    <div class="description">
+                         <label>Descripción</label>
+                         <p>${ description }</p>
+                    </div>
+               `
+                                        : ""
+                                   }
+
+               <div class="transport-info">
+                    <label>Transporte</label>
+                    <div class="transport-grid">
+                         <div class="transport-item">
+                              <i class="transport-icon">🚌</i>
+                              <span>Bus: 118, N16</span>
+                         </div>
+                    </div>
+               </div>
+
+               <div class="external-links">
+                    <label>Enlaces</label>
+                    <a href="${ source }" target="_blank" class="external-link">
+                         Ver más información
+                    </a>
+               </div>
+          </div>
+          `;
+
+                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
+                                   infoBox.style.display = "none";
+                              } );
+                              // Event listener para compartir (AQUÍ DENTRO)
+                              document.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                   const shareData = {
+                                        title: `Cinema ${ name }`,
+                                        text: `Información sobre ${ name } en ${ addressRegion }`,
+                                        url: window.location.href
+                                   };
+
+                                   try {
+                                        if ( navigator.share ) {
+                                             await navigator.share( shareData );
+                                        } else {
+                                             await navigator.clipboard.writeText( shareData.url );
+
+                                             // Mostrar notificación de copiado
+                                             const notification = document.createElement( 'div' );
+                                             notification.style.cssText = `
+                 position: fixed;
+                 top: 20px;
+                 right: 20px;
+                 background: rgba(8, 236, 196, 0.9);
+                 color: black;
+                 padding: 8px 16px;
+                 border-radius: 4px;
+                 font-size: 14px;
+                 z-index: 1000000;
+                 transition: opacity 0.3s ease;
+             `;
+                                             notification.textContent = '¡Enlace copiado!';
+                                             document.body.appendChild( notification );
+
+                                             setTimeout( () => {
+                                                  notification.style.opacity = '0';
+                                                  setTimeout( () => notification.remove(), 300 );
+                                             }, 2000 );
+                                        }
+                                   } catch ( error ) {
+                                        console.error( 'Error al compartir:', error );
+                                   }
+                              } );
                          } );
+
+
+
+
 
                          markersCinemas.push( marker ); // Añade el marcador al array de cines
                     }
@@ -6984,13 +10244,13 @@ function cargarMarcadoresLandmarks() {
                                    <p>${ name }</p>
                               </div>
                               <img src='${ STATIC_IMAGES.landmarks }'>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                              <p>Address: ${ streetAddress }</p>
-                              <p>C.P: ${ postalCode }</p>
-                              <p>Neighborhood: ${ neighborhood }</p>
-                              <p>District: ${ district }</p>
-                              <p>Country: ${ addressCountry }</p>
-                              <p>${ description }</p>
+                              <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
+                              <p>Address: <span>${ streetAddress }</span> </p>
+                              <p>C.P: <span>${ postalCode }</span> </p>
+                              <p>Neighborhood: <span>${ neighborhood }</span> </p>
+                              <p>District: <span>${ district }</span> </p>
+                              <p>Country: <span>${ addressCountry }</span> </p>
+                              <p>Description: <span>${ description }</span> </p>
                               <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
                               <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                               <button class='share'><img src='./assets/shareIcon.svg'></button>
@@ -7051,21 +10311,95 @@ function cargarEstadios() {
                          const infoBox = document.querySelector( ".info-box" );
                          infoBox.style.display = "flex";
                          infoBox.innerHTML = `
-                         <h2>${ estadio.nombre }</h2>
-                         <img src="${ estadio.imgUrl }">
-                         <p>Capacidad: ${ estadio.capacidad }</p>
-                         <p>Inauguración: ${ estadio.inauguración }</p>
-                         <p>Equipo Local: ${ estadio.equipo_local }</p>
-                         <p>Uso: ${ estadio.uso }</p>
-                         <p>Dirección: ${ estadio.address }</p>
-                         <p>Teléfono: ${ estadio.telefono }</p>
-                         <p>Source: <a class="links-propiedades" href="${ estadio.url }" target="_blank">${ estadio.url }</a></p>
-                         <button id="cerrar-info-box">
-                              <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                         </button>
-                    `;
+        <div class="info-header">
+            <img src="${ estadio.imgUrl }" alt="Stadium" class="property-image"/>
+            <div class="header-bar">
+                <div class="property-badges">
+                    <div class="badge-container">
+                        <span class="badge primary">STADIUM</span>
+                        <div class="badge-location nameContainer">
+                            <span>${ estadio.nombre }</span>
+                            <span>${ estadio.address }</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn share-btn" title="Compartir">
+                        <i class="action-icon">📤</i>
+                    </button>
+                    <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
+                        <i class="action-icon">✕</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-content">
+            <div class="info-grid">
+                <div class="info-row">
+                    <div class="info-item">
+                        <label>Capacidad</label>
+                        <span>${ estadio.capacidad }</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Inauguración</label>
+                        <span>${ estadio.inauguración }</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-item">
+                        <label>Uso principal</label>
+                        <span>${ estadio.uso }</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Equipo Local</label>
+                        <span>${ estadio.equipo_local }</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stadium-location">
+                <label>Localización</label>
+                <div class="info-grid">
+                    <div class="info-row">
+                        <div class="info-item">
+                            <label>Dirección</label>
+                            <span>${ estadio.address }</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Teléfono</label>
+                            <span>${ estadio.telefono }</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="external-links">
+                <label>Enlaces</label>
+                <a href="${ estadio.url }" target="_blank" class="external-link">
+                    Más información
+                </a>
+            </div>
+        </div>
+    `;
                          document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
                               infoBox.style.display = "none";
+                         } );
+                         document.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                              try {
+                                   if ( navigator.share ) {
+                                        await navigator.share( {
+                                             title: `Stadium ${ estadio.nombre }`,
+                                             text: `Información sobre ${ estadio.nombre }`,
+                                             url: estadio.url
+                                        } );
+                                   } else {
+                                        await navigator.clipboard.writeText( estadio.url );
+                                        showNotification( '¡Enlace copiado!' );
+                                   }
+                              } catch ( error ) {
+                                   console.error( 'Error al compartir:', error );
+                              }
                          } );
                     } );
 
@@ -7127,10 +10461,10 @@ const cargarYMostrarMarcadoresClubesYVidaNocturna = async () => {
                               <p>${ name }</p>
                          </div>
                          <img src='${ STATIC_IMAGES.clubsNightlife }'>
-                         <p>Código identificador: ${ idWithoutPrefix }</p>
-                         <p>Address: ${ streetAddress } C.P ${ postalCode }</p>
-                         <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                         <p>Country: ${ addressCountry }</p>
+                         <p>Código identificador: <span>${ idWithoutPrefix }</span> </p>
+                         <p>Address: <span>${ streetAddress } C.P ${ postalCode }</span> </p>
+                         <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
+                         <p>Country: <span>${ addressCountry }</span> </p>
                          <p>Source: <a class="links-propiedades" href="${ source }" target="_blank">${ source }</a></p>
                          <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                          <button class='share'><img src='./assets/shareIcon.svg'></button>
@@ -7300,13 +10634,13 @@ function cargarMarcadoresSportsFacilities() {
                                    <p>${ name }</p>
                               </div>
                               <img src='${ STATIC_IMAGES.sportsFacilities }'>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                              <p>Address: ${ streetAddress }</p>
-                              <p>C.P: ${ postalCode }</p>
-                              <p>Neighborhood: ${ neighborhood }</p>
-                              <p>District: ${ district }</p>
-                              <p>Country: ${ addressCountry }</p>
-                              <p>${ description }</p>
+                              <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
+                              <p>Address: <span>${ streetAddress }</span> </p>
+                              <p>C.P: <span>${ postalCode }</span> </p>
+                              <p>Neighborhood: <span>${ neighborhood }</span> </p>
+                              <p>District: <span>${ district }</span> </p>
+                              <p>Country: <span>${ addressCountry }</span> </p>
+                              <p>Description: <span>${ description }</span> </p>
                               <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
                               <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                               <button class='share'><img src='./assets/shareIcon.svg'></button>
@@ -7414,9 +10748,9 @@ function cargarMarcadorEvento() {
                               <p>${ Fecha }</p>
                          </div>
                          <img src='${ ImagenURL }' alt='Evento' onerror="this.src='./assets/eventDefault.jpg'">
-                         <p>Participantes: ${ Participantes }</p>
-                         <p>Distancia: ${ Distancia }</p>
-                         <p>Récord: ${ Record } (${ Recordman })</p>
+                         <p>Participantes: <span>${ Participantes }</span> </p>
+                         <p>Distancia: <span>${ Distancia }</span> </p>
+                         <p>Récord: <span>${ Record } (${ Recordman })</span> </p>
                          <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                     `;
                     document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
@@ -7513,13 +10847,13 @@ function cargarMarcadoresMuseums() {
                                    <p>${ name }</p>
                               </div>
                               <img src='${ STATIC_IMAGES.museums }'>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
-                              <p>Address: ${ streetAddress }</p>
-                              <p>C.P: ${ postalCode }</p>
-                              <p>Neighborhood: ${ neighborhood }</p>
-                              <p>District: ${ district }</p>
-                              <p>Country: ${ addressCountry }</p>
-                              <p>${ description }</p>
+                              <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
+                              <p>Address: <span>${ streetAddress }</span> </p>
+                              <p>C.P: <span>${ postalCode }</span> </p>
+                              <p>Neighborhood: <span>${ neighborhood }</span> </p>
+                              <p>District: <span>${ district }</span> </p>
+                              <p>Country: <span>${ addressCountry }</span> </p>
+                              <p>Description: <span>${ description }</span> </p>
                               <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
                               <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
                               <button class='share'><img src='./assets/shareIcon.svg'></button>
@@ -7597,7 +10931,7 @@ function cargarMarcadoresSocialServices() {
                                    <p>${ name }</p>
                               </div>
                               <img src='${ STATIC_IMAGES.socialServices }'>
-                              <p>Localización: ${ addressLocality }, ${ addressRegion }</p>
+                              <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
                               <p>Address: ${ streetAddress }</p>
                               <p>C.P: ${ postalCode }</p>
                               <p>Neighborhood: ${ neighborhood }</p>
@@ -8205,7 +11539,7 @@ function hacerArrastrable( elemento, mango ) {
 
      nuevoMango.addEventListener( 'mousedown', function ( e ) {
           // Verifica si el evento se originó en un botón o select
-          if ( e.target.closest( 'button' ) || e.target.closest( 'select' ) ) {
+          if ( e.target.closest( 'button' ) || e.target.closest( 'select' ) || e.target.closest( 'input' ) ) {
                return;
           }
 
@@ -8225,6 +11559,20 @@ function hacerArrastrable( elemento, mango ) {
      document.addEventListener( 'mousemove', function ( e ) {
           if ( !isDown ) return;
 
+          // Obtener dimensiones de la ventana y el elemento
+          const windowWidth = window.innerWidth;
+          const windowHeight = window.innerHeight;
+          const elementWidth = elemento.offsetWidth;
+          const elementHeight = elemento.offsetHeight;
+
+          // Calcular nuevas posiciones
+          let newX = e.clientX - offsetX;
+          let newY = e.clientY - offsetY;
+
+          // Limitar las posiciones para que no se salgan de la ventana
+          newX = Math.max( 0, Math.min( newX, windowWidth - elementWidth ) );
+          newY = Math.max( 0, Math.min( newY, windowHeight - elementHeight ) );
+
           elemento.style.left = ( e.clientX - offsetX ) + 'px';
           elemento.style.top = ( e.clientY - offsetY ) + 'px';
      } );
@@ -8243,7 +11591,10 @@ const observer = new MutationObserver( function ( mutations ) {
      mutations.forEach( function ( mutation ) {
           mutation.addedNodes.forEach( function ( node ) {
                if ( node.nodeType === 1 ) { // Es un elemento
-                    if ( node.classList && ( node.classList.contains( 'info-box' ) || node.classList.contains( 'info-box-trucks' ) ) ) {
+                    if ( node.classList && (
+                         node.classList.contains( 'info-box' ) ||
+                         node.classList.contains( 'info-box-trucks' ) ||
+                         node.classList.contains( 'info-box-ships' ) ) ) {
                          inicializarArrastre( node );
                     }
                }
