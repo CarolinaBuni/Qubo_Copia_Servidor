@@ -1,3 +1,5 @@
+//* db.js en APP2
+
 const mongoose = require( 'mongoose' );
 
 const connectDB = async () => {
