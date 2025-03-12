@@ -50,34 +50,24 @@ function precargarImagenes() {
 
 function initMap() {
 
-      // Primero verificar si hay sessionId en la URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get('sessionId');
-    
-    if (sessionId) {
-        console.log("Encontrado sessionId, esperando procesamiento...");
-        // Hacer una petición al backend para procesar la sesión
-        fetch(`/auth/session?sessionId=${sessionId}`)
-            .then(response => {
-                if (response.ok) {
-                    // Recargar la página sin el sessionId
-                    window.location.href = '/';
-                } else {
-                    window.location.href = '/login';
-                }
-            })
-            .catch(error => {
-                console.error("Error procesando sesión:", error);
-                window.location.href = '/login';
-            });
-        return; // No hacer nada más por ahora
-    }
-     if ( localStorage.getItem( "googleMapsLoaded" ) ) {
-          console.log( "El mapa ya está cargado desde la caché" );
-          loadCachedMap();
-     } else {
-
+     // Primero verificar si hay sessionId en la URL
+     const urlParams = new URLSearchParams(window.location.search);
+     const sessionId = urlParams.get('sessionId');
+     
+     if (sessionId) {
+          console.log("🔍 Encontrado sessionId en URL, esperando redirección...");
+          return; // No hacer nada más, dejar que el backend maneje la redirección
      }
+
+     // El resto de tu código actual
+     if (localStorage.getItem("googleMapsLoaded")) {
+          console.log("El mapa ya está cargado desde la caché");
+          loadCachedMap();
+     }
+          if ( localStorage.getItem( "googleMapsLoaded" ) ) {
+               console.log( "El mapa ya está cargado desde la caché" );
+               loadCachedMap();
+          } 
      precargarImagenes();
      // Crear un objeto de opciones del mapa
      const mapOptions = {
@@ -92,11 +82,11 @@ function initMap() {
 
      // Recuperar el token de las cookies
      const token = getCookie( 'access_token' );
-     console.log( "Token en frontend:", token );
+     console.log( "Token en cookie:", token );
 
      // Verificar si el token existe
      if ( !token ) {
-          // Si no hay token, redirige a la página de error
+          console.log("❌ No hay token, redirigiendo a login");
           window.location.href = '/login';  // Redirigir a la página de error
           return;  // Detener la ejecución de la función si no hay token
      }
