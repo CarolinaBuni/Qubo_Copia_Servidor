@@ -160,6 +160,14 @@ app.get("/auth/session", async (req, res) => {
            return res.status(400).json({ error: 'No sessionId provided' });
        }
 
+       
+        // Añade esto para debug
+        console.log("🔍 Buscando en la base de datos:", {
+         dbName: mongoose.connection.db.databaseName,
+         collection: Session.collection.name,
+         sessionId: sessionId
+     });
+     
        console.log("🔍 Buscando sesión:", sessionId);
        const session = await Session.findById(sessionId);
        
