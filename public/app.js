@@ -48,26 +48,37 @@ function precargarImagenes() {
      }
 }
 
-function initMap() {
-
-     // Primero verificar si hay sessionId en la URL
+function procesarSesion() {
      const urlParams = new URLSearchParams(window.location.search);
      const sessionId = urlParams.get('sessionId');
      
-     if (sessionId) {
-          console.log("🔍 Encontrado sessionId en URL, esperando redirección...");
-          return; // No hacer nada más, dejar que el backend maneje la redirección
+     if (!sessionId) {
+         return false; // No hay sesión que procesar
      }
+ 
+     console.log("🔍 Encontrado sessionId en URL, procesando...");
+     fetch(`/auth/session?sessionId=${sessionId}`)
+         .then(response => {
+             if (!response.ok) throw new Error('Error procesando sesión');
+             return response.json();
+         })
+         .then(data => {
+             console.log("✅ Sesión procesada correctamente");
+             window.location.href = window.location.pathname;
+         })
+         .catch(error => {
+             console.error("❌ Error:", error);
+             initMap(); // Si hay error, intentamos cargar el mapa de todos modos
+         });
+     
+     return true; // Hay sesión siendo procesada
+ }
 
-     // El resto de tu código actual
-     if (localStorage.getItem("googleMapsLoaded")) {
-          console.log("El mapa ya está cargado desde la caché");
-          loadCachedMap();
-     }
-          if ( localStorage.getItem( "googleMapsLoaded" ) ) {
-               console.log( "El mapa ya está cargado desde la caché" );
-               loadCachedMap();
-          } 
+function initMap() {
+
+     if (procesarSesion()) {
+          return;
+      }
      precargarImagenes();
      // Crear un objeto de opciones del mapa
      const mapOptions = {
