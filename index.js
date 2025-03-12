@@ -148,33 +148,45 @@ cloudinary.config( {
    api_secret: process.env.API_SECRET,
 } );
 
-// Ruta principal que maneja el sessionId
-app.get( "/", async ( req, res, next ) => {
-   console.log("📍 Accediendo a ruta principal");
+// Ruta específica para manejar el sessionId
+app.get("/auth/session", async (req, res) => {
+   console.log("📍 Procesando sessionId");
    console.log("🔍 Query params recibidos:", req.query);
-   if ( req.query.sessionId ) {
-      try {
-         console.log( "Buscando sesión:", req.query.sessionId );
-         const session = await Session.findById( req.query.sessionId );
-         if ( session ) {
-            console.log( "Sesión encontrada, estableciendo cookie" );
-            res.cookie( 'access_token', session.token, {
+   
+   try {
+       const { sessionId } = req.query;
+       if (!sessionId) {
+           console.log("❌ No se proporcionó sessionId");
+           return res.status(400).json({ error: 'No sessionId provided' });
+       }
+
+       console.log("🔍 Buscando sesión:", sessionId);
+       const session = await Session.findById(sessionId);
+       
+       if (session && session.token) {
+           console.log("✅ Sesión encontrada para userId:", session.userId);
+           res.cookie('access_token', session.token, {
                httpOnly: true,
                secure: true,
                sameSite: 'Lax',
                maxAge: 3600000 // 1 hora
-            } );
-         } else {
-            console.log("🍪 Cookie establecida");
-         }
-      } catch ( error ) {
-         console.error( "Error al procesar sessionId:", error );
-      }
-      // Redirigir para limpiar la URL
-      return res.redirect( '/' );
+           });
+           return res.json({ 
+               success: true, 
+               userId: session.userId 
+           });
+       } else {
+           console.log("❌ Sesión no encontrada o token no válido");
+           return res.status(404).json({ error: 'Invalid session' });
+       }
+   } catch (error) {
+       console.error("❌ Error al procesar sessionId:", error);
+       if (error.name === 'CastError') {
+           return res.status(400).json({ error: 'Invalid session ID format' });
+       }
+       return res.status(500).json({ error: 'Error processing session' });
    }
-   next();
-} );
+});
 
 // Servir archivos estáticos y proteger rutas
 app.get( "/", ( req, res ) => {
