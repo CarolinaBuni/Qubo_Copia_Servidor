@@ -49,6 +49,29 @@ function precargarImagenes() {
 }
 
 function initMap() {
+
+      // Primero verificar si hay sessionId en la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('sessionId');
+    
+    if (sessionId) {
+        console.log("Encontrado sessionId, esperando procesamiento...");
+        // Hacer una petición al backend para procesar la sesión
+        fetch(`/auth/session?sessionId=${sessionId}`)
+            .then(response => {
+                if (response.ok) {
+                    // Recargar la página sin el sessionId
+                    window.location.href = '/';
+                } else {
+                    window.location.href = '/login';
+                }
+            })
+            .catch(error => {
+                console.error("Error procesando sesión:", error);
+                window.location.href = '/login';
+            });
+        return; // No hacer nada más por ahora
+    }
      if ( localStorage.getItem( "googleMapsLoaded" ) ) {
           console.log( "El mapa ya está cargado desde la caché" );
           loadCachedMap();
