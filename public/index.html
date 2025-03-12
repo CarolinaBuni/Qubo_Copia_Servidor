@@ -6,13 +6,11 @@
       <meta name="description" content="Qubo City es una aplicación web que permite a los usuarios agregar y compartir información sobre ubicaciones y eventos en tu ciudad. Con Qubo City, puedes agregar información sobre edificios, infraestructuras, servicios, eventos y más, y compartirla con otros usuarios. Además, puedes buscar información sobre ubicaciones y eventos en tu ciudad, y ver las ubicaciones y eventos de otras ciudades. ">
       <title>QUBO CITY</title>
       <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-    
-     
+      <!-- Script para Google Maps -->
       <script
          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCB-JwjJiauGErvF0S2_2ada4uVkShE7hE&callback=initMap&libraries=places&v=weekly"
          defer
       ></script>
-      
       <!-- Script para ChatGPT -->
       <script>
          window.__ow = window.__ow || {};
@@ -79,7 +77,7 @@
                   <img src="./assets/satellite1.svg" alt="button-satellite-details" />
                </div>
                <div class="button-title-container">
-                  <p>Detalles</p>
+                  <p>Details</p>
                </div>
             </li>
             <li id="button3d">
@@ -165,7 +163,7 @@
       </nav>
 
       <div class="form-container hidden" data-target="form">
-         <div class="drag-handle">Arrastra aquí para mover</div>
+         <div class="drag-handle">Drag here to move</div>
          <form id="categoryForm" action="/api/v1/qubo" method="post" enctype="multipart/form-data">
             <img class="cerrar" id="cerrar-form" data-target="form" src="./assets/botonCerrar.svg" alt="" />
 
@@ -252,7 +250,7 @@
             <div class="form-group"></div>
          </form>
       </div>
-      <div id="messageBox">Haz clic en el mapa para seleccionar la ubicación del Qubo.</div>
+      <div id="messageBox">Click on the map to select the Qubo location.</div>
 
       <!-- <div class="info-box"></div> -->
       <div class="info-box"></div>

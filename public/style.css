@@ -33,6 +33,7 @@ a {
 
 body {
      position: relative;
+     overflow: hidden;
 }
 
 :root {
@@ -251,26 +252,234 @@ span {
      transition: all 0.8s ease-in-out;
 }
 
-.info-box {
+.expand-btn {
+     position: absolute;
+     right: 8px;
+     top: 0;
+     background: none;
+     border: none;
+     color: var(--primary-color);
+     font-size: 16px;
+     cursor: pointer;
+     padding: 0 4px;
+     line-height: 20px;
+ }
+ 
+ .expand-btn:hover {
+     opacity: 0.8;
+ }
+ 
+ .badge-location.expanded span {
+     white-space: normal;
+     word-wrap: break-word;
+ }
+
+.info-box,
+.info-box-trucks,
+.info-box-ships {
      display: none;
      position: absolute;
-     background-color: rgba(0, 0, 0, 0.8);
+     background-color: var(--bg-color);
+     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
      width: 500px;
-     height: 700px;
+     
+     /* height: 700px; */
      z-index: 100000;
      color: #e5e5e5;
      left: 10%;
      top: 10%;
-     border-radius: 25px;
+     border-radius: 16px;
      padding: 20px;
-     overflow-x: hidden;
+     /* overflow-x: hidden;*/
+     overflow-y: auto; 
      cursor: move;
      user-select: none;
      /* pointer-events: none; */
+     transition: transform 0.3s ease, box-shadow 0.3s ease;
+     max-height: 80vh; /* Limita la altura máxima al 80% de la ventana */
+     overflow-y: auto;
 
 }
 
-/* PRUEBA CALENDARIO */
+/* ID Row styles */
+.id-row {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     margin-bottom: var(--spacing);
+     background: rgba(0, 0, 0, 0.4);
+     border-radius: 8px;
+     padding: 10px 12px;
+ }
+ 
+ .id-label {
+     color: var(--primary-color);
+     font-size: 13px;
+     font-weight: 500;
+     text-transform: uppercase;
+ }
+ 
+ .id-text {
+     flex: 1;
+     color: var(--text-color);
+     font-family: 'Courier New', monospace;
+     font-size: 14px;
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+ }
+
+ .copy-container {
+     background: rgba(8, 236, 196, 0.1);
+     border-radius: 6px;
+     width: 32px;
+     height: 32px;
+ }
+ 
+ .copy-btn {
+     width: 100%;
+     height: 100%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     background: none;
+     border: none;
+     color: var(--primary-color);
+     cursor: pointer;
+ }
+
+ .full-width {
+     grid-column: 1 / -1; /* Ocupa todo el ancho */
+ }
+
+ .port-infrastructure label,
+.port-status label,
+.environmental-data label {
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+
+ /* .copy-btn:hover {
+     background: rgba(8, 236, 196, 0.2);
+ }
+  */
+
+ .copy-icon {
+     right: unset !important;
+     position: sticky !important;
+ }
+ .description {
+     margin-top: var(--spacing);
+     padding-top: var(--spacing);
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.description label {
+     color: var(--primary-color);
+     font-size: 13px;
+     font-weight: 500;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     margin-bottom: 1rem;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+}
+
+.description label::before {
+     content: '📝';
+     font-size: 14px;
+}
+
+ .description p {
+     color: var(--text-color) !important;
+     font-size: 14px;
+     line-height: 1.6;
+     opacity: 0.9;
+     padding: 16px;
+     background: rgba(255, 255, 255, 0.03);
+     border-radius: 8px;
+}
+
+ /* Estilos para características */
+.features-grid {
+     display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+ }
+ 
+ .features-list {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: 12px;
+ }
+ 
+ .feature-item {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     padding: 12px;
+     background: rgba(255, 255, 255, 0.03);
+     border-radius: 8px;
+     transition: background-color 0.2s ease;
+ }
+ 
+ .feature-icon {
+     font-size: 16px;
+ }
+ 
+ .feature-text {
+     color: var(--text-color);
+     font-size: 14px;
+ }
+
+ /* Añadir estos estilos */
+.copy-notification {
+     position: absolute;
+     background: rgba(8, 236, 196, 0.9);
+     color: black;
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 12px;
+     pointer-events: none;
+     opacity: 0;
+     transform: translateY(0);
+     transition: all 0.3s ease;
+ }
+ 
+ .copy-notification.show {
+     opacity: 1;
+     transform: translateY(-10px);
+ }
+
+.info-content {
+     overflow-y: auto;
+     max-height: 300px;
+     padding-right: 10px;
+     scrollbar-width: thin;
+     scrollbar-color: var(--primary-color) rgba(0, 0, 0, 0.2);
+     
+}
+
+
+
+
+
+.info-box p > span {
+     font-size: 17px;
+     font-weight: 700;
+     line-height: 24px;
+     /* 120% */
+     letter-spacing: -0.3px;
+     font-family: "Montserrat", sans-serif;margin-left: 15px;
+
+}
 
 
 .info-box p {
@@ -280,38 +489,47 @@ span {
      /* 120% */
      letter-spacing: -0.3px;
      font-family: "Montserrat", sans-serif;
+     color: #08ecc4;
+}
+
+.info-box > p:last-of-type {
+     /* color: white; */
 }
 
 .info-box::-webkit-scrollbar {
-     height: 10px;
-     width: 10px;
-}
-
-*::-webkit-scrollbar-track {
-     border-radius: 5px;
-     background-color: #dfe9eb;
-}
-
-*::-webkit-scrollbar-track:hover {
-     background-color: #b8c0c2;
-}
-
-*::-webkit-scrollbar-track:active {
-     background-color: #b8c0c2;
-}
-
-*::-webkit-scrollbar-thumb {
-     border-radius: 5px;
+     width: 6px; /* Más delgado */
+     height: 6px;
+ }
+ 
+ .info-box::-webkit-scrollbar-track {
+     background: transparent; /* Fondo transparente */
+     margin: 4px; /* Espacio alrededor del scroll */
+ }
+ 
+ .info-box::-webkit-scrollbar-thumb {
+     background-color: rgba(75, 163, 163, 0.5); /* Color semi-transparente */
+     border-radius: 10px;
+     border: 2px solid transparent; /* Borde transparente */
+     background-clip: padding-box; /* Hace que el borde sea parte del thumb */
+ }
+ 
+ .info-box::-webkit-scrollbar-thumb:hover {
+     background-color: rgba(75, 163, 163, 0.8); /* Más opaco al hover */
+ }
+ 
+ .info-box::-webkit-scrollbar-thumb:active {
      background-color: var(--color-verde-qubo);
-}
-
-*::-webkit-scrollbar-thumb:hover {
-     background-color: #4ba3a3;
-}
-
-*::-webkit-scrollbar-thumb:active {
-     background-color: #4ba3a3;
-}
+ }
+ 
+ /* Ocultar los botones de scroll */
+ .info-box::-webkit-scrollbar-button {
+     display: none;
+ }
+ 
+ /* Esquinas del scrollbar */
+ .info-box::-webkit-scrollbar-corner {
+     background: transparent;
+ }
 
 /* Barra de ocupación de parking */
 /* .parking-bar-container {
@@ -332,35 +550,47 @@ span {
 /* Barra de ocupación de parking */
 .parking-bar-container {
      width: 100%;
-     height: 20px;
-     background-color: #ddd;
-     border-radius: 10px;
-     margin: 10px 0;
-     border: 1px solid #333;
+     height: 8px;
+     background: rgba(255, 255, 255, 0.1);
+     border-radius: 4px;
+     margin-bottom: 1.5rem;
      position: relative;
-     /* Añadir position relative para usar positioning en el texto */
-}
+     overflow: hidden;
+ }
 
-.parking-bar {
+ .parking-bar {
      height: 100%;
-     background-color: var(--color-verde-qubo);
-     border-radius: 10px;
-     position: relative;
-}
+     background-color: #08ecc4;
+     border-radius: 4px;
+     transition: width 0.3s ease;
+ }
 
-.parking-bar-text {
+ .parking-bar-text {
      position: absolute;
-     top: 50%;
-     left: 50%;
-     transform: translate(-50%, -50%);
-     /* Centra el texto dentro del contenedor */
-     font-weight: bold;
-     color: black;
-     /* text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);  */
-     white-space: nowrap;
-     /* Evita que el texto se divida en varias líneas */
-}
+     top: -20px;
+     right: 0;
+     font-size: 12px;
+     color: #08ecc4;
+     font-weight: 500;
+ }
 
+ /* Vehículos permitidos */
+.vehicles-grid {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 0.5rem;
+     margin-top: 1rem;
+ }
+
+ .vehicle-tag {
+     padding: 0.5rem 1rem;
+     background: rgba(8, 236, 196, 0.1);
+     border-radius: 20px;
+     font-size: 0.875rem;
+     color: #08ecc4;
+     font-weight: 500;
+ }
+ 
 
 .incidence {
      width: 100%;
@@ -388,6 +618,7 @@ span {
      font-weight: 700;
      line-height: 24px;
      letter-spacing: -0.225px;
+     color: white!important;
 }
 
 #cerrar-info-box,
@@ -396,13 +627,27 @@ span {
 #cerrar-info-box-trucks,
 #cerrar-info-box-store {
      cursor: pointer;
-     background: transparent;
-     border: none;
-     position: absolute;
+     /* background: transparent;
+     border: none; */
+     /* position: absolute; */
      /* border: 2px solid white; */
      left: 93%;
      top: 14px;
 }
+
+.status-badge.libre {
+     background: rgba(39, 174, 96, 0.2);
+     color: #2ecc71;
+ }
+ .status-badge::before {
+     content: '●';
+     margin-right: 6px;
+ }
+
+ .status-badge.ocupado {
+     background: rgba(231, 76, 60, 0.2);
+     color: #e74c3c;
+ }
 
 #delete-qubo {
      cursor: pointer;
@@ -617,12 +862,12 @@ body>div.info-box, .info-box {
      top: 50%;
 }
 
-.progress-bar {
+#progress-bar {
      position: relative;
      /* Posición relativa para alinear el porcentaje */
      width: 300px;
      /* Ancho de la barra de progreso */
-     height: 30px;
+     height: 11px;
      /* Altura de la barra de progreso */
      border: 1px solid #0fd7b4;
      /* Borde de la barra de progreso */
@@ -662,6 +907,151 @@ body>div.info-box, .info-box {
      color: #0fd7b4;
      /* Color del texto */
 }
+
+/* Barra de capacidad */
+.capacity-bar-container {
+     margin-top: 1rem;
+     padding: 16px;
+     background: rgba(0, 0, 0, 0.4);
+     border-radius: 8px;
+ }
+ 
+ .capacity-bar {
+     height: 4px;
+     background: rgba(255, 255, 255, 0.1);
+     border-radius: 2px;
+     margin: 8px 0;
+ }
+ 
+ .capacity-progress {
+     height: 100%;
+     background: var(--primary-color);
+     border-radius: 4px;
+ }
+ /* Utilidades y estados */
+.utility-item,
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+}
+
+.status-badge {
+     display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.battery-badge {
+     background: rgba(8, 236, 196, 0.1);
+     color: var(--primary-color);
+     padding: 4px 12px;
+     border-radius: 12px;
+     font-weight: 600;
+     font-size: 14px;
+ }
+
+.status-badge.activo {
+     background: rgba(39, 174, 96, 0.2);
+     color: #2ecc71;
+ }
+
+ /* Estilos específicos para moto */
+.status-indicator {
+     display: flex;
+     flex-direction: column;
+     gap: 8px;
+ }
+
+ /* Estilos específicos para tren */
+.type-badge {
+     background: rgba(8, 236, 196, 0.1);
+     color: var(--primary-color);
+     padding: 4px 12px;
+     border-radius: 12px;
+     font-weight: 500;
+ }
+ 
+ .speed-badge {
+     display: inline-flex;
+     align-items: center;
+     gap: 6px;
+     color: var(--primary-color);
+     font-weight: 600;
+ }
+ 
+ .speed-badge::before {
+     content: '🚄';
+     font-size: 16px;
+ }
+
+.utilities-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+     gap: 1rem;
+     margin-top: 1rem;
+     width: 100%;
+ }
+ 
+ .utility-status {
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 12px;
+     margin-left: auto;
+ }
+ 
+ .utility-status.active {
+     background: rgba(8, 236, 196, 0.1);
+     color: var(--primary-color);
+ }
+ 
+ .utility-status.warning {
+     background: rgba(255, 193, 7, 0.1);
+     color: #ffc107;
+ }
+ 
+/* Estilos para comunicaciones */
+.communication-grid {
+     margin-top: 1rem;
+ }
+ 
+ .comm-item {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     padding: 12px;
+     background: rgba(255, 255, 255, 0.03);
+     border-radius: 8px;
+     margin-bottom: 8px;
+     min-width: 0;
+     width: 100%;
+ }
+ 
+ .channel-tags {
+     display: flex;
+     gap: 8px;
+     margin-top: 8px;
+ }
+ 
+ .channel-tag {
+     background: rgba(8, 236, 196, 0.1);
+     color: var(--primary-color);
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 12px;
+ }
+ 
+ .utility-label,
+ .comm-label,
+ .status-badge span {
+     overflow: hidden;
+     text-overflow: ellipsis;
+     white-space: nowrap;
+ }
 
 
 /*********************************************************/
@@ -1241,3 +1631,913 @@ strong {
 
 
  
+
+
+
+ :root {
+     --primary-color: #08ecc4;
+     --secondary-color: #ffffff;
+     --bg-color: rgba(0, 0, 0, 0.85);
+     --text-color: #ffffff;
+     --label-color: var(--primary-color);
+     --border-radius: 16px;
+     --spacing: 1.5rem;
+ }
+ 
+ .info-box-trucks {
+     background-color: var(--bg-color);
+     width: 500px;
+     border-radius: var(--border-radius);
+     overflow: hidden;
+     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+     position: absolute;
+     z-index: 100000;
+     left: 10%;
+     top: 10%;
+     display: none;
+     height: unset;
+ }
+
+ /* Detalles del parking */
+.parking-details {
+     margin-top: 1.5rem;
+     padding-top: 1.5rem;
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+ }
+ 
+ .parking-details label {
+     color: #08ecc4;
+     font-size: 13px;
+     font-weight: 500;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     margin-bottom: 1rem;
+     display: block;
+ }
+
+ /* Facilities (Servicios disponibles) */
+.facilities {
+     margin-top: 1.5rem;
+     padding-top: 1.5rem;
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+ }
+ 
+ .facilities label {
+     color: #08ecc4;
+     font-size: 13px;
+     font-weight: 500;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     margin-bottom: 1rem;
+     display: block;
+ }
+ 
+ .facilities-grid {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: 1rem;
+     margin-top: 1rem;
+ }
+ 
+ .facility-item {
+     display: flex;
+     align-items: center;
+     gap: 0.75rem;
+     padding: 0.75rem;
+     background: rgba(255, 255, 255, 0.05);
+     border-radius: 8px;
+ }
+ 
+ .facility-icon {
+     font-size: 1.25rem;
+ }
+ 
+ .facility-item span {
+     color: #ffffff;
+     font-size: 14px;
+     font-weight: 500;
+ }
+ /* Content Header */
+.content-header {
+     margin-bottom: 1.5rem;
+ }
+ 
+ .content-header h2 {
+     color: #ffffff;
+     font-size: 24px;
+     font-weight: 600;
+ }
+ 
+ 
+ .info-header {
+     position: relative;
+     width: 100%;
+ }
+ 
+ .header-bar {
+     position: absolute;
+     top: 0;
+     left: 0;
+     right: 0;
+     padding: 20px;
+     display: flex;
+     justify-content: space-between;
+     align-items: flex-start;
+     background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+     z-index: 10;
+ }
+
+ /* Ajustes adicionales para secciones */
+.info-grid + .info-grid {
+     margin-top: 1.5rem;
+     padding-top: 1.5rem;
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+ }
+ 
+ /* Vehicles allowed (ajustes adicionales) */
+ .vehicles-allowed {
+     margin-top: 1.5rem;
+     padding-top: 1.5rem;
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+ }
+ 
+ .vehicles-allowed label {
+     color: #08ecc4;
+     font-size: 13px;
+     font-weight: 500;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     margin-bottom: 1rem;
+     display: block;
+ }
+ 
+ 
+ .property-image {
+     width: 100%;
+     height: 220px;
+     object-fit: cover;
+     display: block;
+ }
+ 
+ .property-badges {
+     flex: 1;
+     margin-right: 20px;
+ }
+ 
+ .badge-container {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     background-color: rgba(0, 0, 0, 0.7);
+     padding: 8px;
+     border-radius: 12px;
+     backdrop-filter: blur(8px);
+ }
+ 
+ .badge {
+     padding: 6px 12px;
+     border-radius: 8px;
+     font-size: 13px;
+     font-weight: 600;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+ }
+ 
+ .badge.primary {
+     background-color: var(--primary-color);
+     color: #000000;
+ }
+ 
+ .badge-location {
+     display: flex;
+     flex-direction: column;
+     gap: 2px;
+     padding-top: unset;
+ }
+ 
+ .badge-location span {
+     color: white;
+     font-size: 13px;
+     line-height: 1.2;
+     margin-bottom: auto;
+     text-align: inherit;
+ }
+ 
+ .badge-location span:last-child {
+     opacity: 0.7;
+     font-size: 12px;
+ }
+ 
+ .info-content {
+     padding: var(--spacing);
+     display: flex;
+     flex-direction: column;
+     gap: 2rem;
+     max-height: 600px;
+     overflow-y: auto;
+ }
+ 
+ .info-grid {
+     display: flex;
+     flex-direction: column;
+     gap: 1.5rem;
+ }
+ 
+ .info-row {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 1.5rem;
+ }
+ 
+ .info-item {
+     display: flex;
+     flex-direction: column;
+     gap: 0.5rem;
+     justify-content: space-between;
+ }
+ 
+ .info-item label {
+     color: var(--primary-color);
+     font-size: 13px;
+     font-weight: 500;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+ }
+
+ /* Iconos sutiles para cada label */
+.info-item label::before {
+     font-size: 14px;
+}
+
+.info-item label[for="codigo"]::before { content: '🔢'; }
+.info-item label[for="direccion"]::before { content: '📍'; }
+.info-item label[for="distrito"]::before { content: '🏢'; }
+.info-item label[for="ubicacion"]::before { content: '📌'; }
+
+ .info-item span {
+     color: #ffffff;
+     font-size: 15px;
+     font-weight: 500;
+ }
+ .highlight-value {
+     color: white;
+     font-weight: 600;
+     font-size: 16px;
+ }
+
+ /* Logística */
+.logistics-grid {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: 12px;
+ }
+ 
+ .logistics-card {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     padding: 16px;
+     background: rgba(255, 255, 255, 0.05);
+     border-radius: 12px;
+ }
+ 
+ .logistics-details {
+     display: flex;
+     flex-direction: column;
+     gap: 4px;
+ }
+ 
+ .logistics-details .secondary {
+     font-size: 12px;
+     opacity: 0.7;
+ }
+ 
+ /* Demografía */
+ .demographics-container {
+     background: rgba(255, 255, 255, 0.05);
+     padding: 16px;
+     border-radius: 12px;
+ }
+ 
+ .demographics-chart {
+     display: flex;
+     height: 24px;
+     background: rgba(255, 255, 255, 0.1);
+     border-radius: 12px;
+     overflow: hidden;
+     margin-bottom: 8px;
+ }
+ 
+ .chart-bar {
+     height: 100%;
+     display: flex;
+     align-items: center;
+     padding: 0 12px;
+     color: white;
+     font-size: 13px;
+ }
+ 
+ .chart-bar.female {
+     background: #e84393;
+ }
+ 
+ .chart-bar.male {
+     background: #0984e3;
+ }
+
+ /* Seguridad y Personal */
+.security-grid {
+     display: flex;
+     flex-direction: column;
+     gap: 12px;
+     background: rgba(255, 255, 255, 0.05);
+     padding: 16px;
+     border-radius: 12px;
+ }
+ 
+ .measure-item {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+ }
+ 
+ .measure-icon {
+     font-size: 20px;
+     min-width: 32px;
+     height: 32px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+ }
+ 
+ .measure-item span {
+     font-size: 14px;
+     line-height: 1.4;
+ }
+ 
+ /* Impacto ambiental */
+ .environmental-impact {
+     background: rgba(255, 255, 255, 0.05);
+     padding: 16px;
+     border-radius: 12px;
+ }
+ 
+ .impact-metric {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+ }
+ 
+ .impact-value {
+     color: #00b894;
+     font-weight: 600;
+ }
+ 
+ .impact-label {
+     font-size: 13px;
+     opacity: 0.7;
+ }
+
+ /* Estilos para el source */
+.source-container {
+     display: flex;
+     align-items: center;
+ }
+ 
+ .source-link {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     color: var(--primary-color);
+     text-decoration: none;
+     font-size: 14px;
+     padding: 6px 12px;
+     background: rgba(8, 236, 196, 0.1);
+     border-radius: 8px;
+     transition: all 0.2s ease;
+ }
+ 
+ .source-link:hover {
+     background: rgba(8, 236, 196, 0.2);
+     transform: translateY(-1px);
+ }
+ 
+ .source-icon {
+     font-size: 16px;
+ }
+
+ /* Estilos específicos para puertos */
+.port-infrastructure,
+.port-status,
+.environmental-data,
+.port-security,
+.port-utilities,
+.traffic-management,
+.maintenance-info,
+.communication-info {
+    margin-top: var(--spacing);
+    padding-top: var(--spacing);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.port-status-indicators {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: 1rem;
+     margin-top: 1rem;
+ }
+/* Estadísticas del puerto */
+.port-stats,
+.security-stats,
+.env-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+}
+
+.stat-icon {
+    font-size: 20px;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-value {
+    color: var(--text-color);
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.stat-label {
+    color: var(--primary-color);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+ 
+ .plate-number {
+     background: rgba(8, 236, 196, 0.1);
+     padding: 4px 12px;
+     border-radius: 4px;
+     border: 1px solid var(--primary-color);
+     font-family: 'Courier New', monospace;
+     letter-spacing: 1px;
+ }
+ 
+ .company-badge {
+     background: var(--primary-color);
+     color: black;
+     padding: 4px 12px;
+     border-radius: 12px;
+     font-weight: 600;
+     font-size: 14px;
+ }
+
+ /* Barra de ocupación */
+.occupancy-status {
+     margin-bottom: 1.5rem;
+     padding-bottom: 1.5rem;
+     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+ }
+
+ .occupancy-status label {
+     color: var(--label-color);
+     font-size: 13px;
+     font-weight: 500;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     margin-bottom: 1rem;
+     /* display: block; */
+ }
+
+
+ #cerrar-info-box-trucks {
+     top: auto;
+     left: auto;
+     position: unset;
+     border: unset;
+ }
+ 
+ /* Estilos para los botones de acción */
+ .action-buttons {
+     display: flex;
+     gap: 8px;
+ }
+ 
+ .action-btn {
+     width: 32px;
+     height: 32px;
+     border-radius: 8px;
+     background: rgba(0, 0, 0, 0.7) !important;
+     backdrop-filter: blur(4px);
+     border: 1px solid rgba(255, 255, 255, 0.1);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     cursor: pointer;
+     transition: all 0.2s ease;
+ }
+ 
+ .action-btn:hover {
+     background: rgba(0, 0, 0, 0.9);
+     border-color: var(--primary-color);
+ }
+ 
+ .action-icon {
+     /* width: 16px;
+     height: 16px; */
+     color: white;
+ }
+
+ .info-box.pinned {
+     border: 2px solid var(--primary-color);
+ }
+ 
+ .info-box.pinned .pin-btn {
+     background: rgba(8, 236, 196, 0.1);
+     color: var(--primary-color);
+ }
+ 
+ .info-box.highlight {
+     transform: scale(1.02);
+     box-shadow: 0 0 20px rgba(8, 236, 196, 0.3);
+ }
+ 
+ /* Estilos para el estado del vehículo */
+ .vehicle-status,
+ .route-info {
+     margin-top: var(--spacing);
+     padding-top: var(--spacing);
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+ }
+ 
+ .vehicle-status label,
+ .route-info label {
+     color: var(--label-color);
+     font-size: 13px;
+     font-weight: 500;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     margin-bottom: 0.75rem;
+     display: block;
+ }
+ 
+ .status-indicators {
+     display: flex;
+     flex-direction: column;
+     gap: 1rem;
+ }
+ 
+ .status-item {
+     display: flex;
+     align-items: center;
+     gap: 1rem;
+     padding: 1rem;
+     background: rgba(255, 255, 255, 0.05);
+     border-radius: 12px;
+     transition: all 0.3s ease;
+ }
+ 
+ .status-icon {
+     font-size: 24px;
+     min-width: 40px;
+     height: 40px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     background: rgba(8, 236, 196, 0.1);
+     border-radius: 8px;
+ }
+
+ /* Estilos para métricas */
+.metrics-grid {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: 12px;
+     margin: 1rem 0;
+ }
+ 
+ .metric-card {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     padding: 16px;
+     background: rgba(255, 255, 255, 0.05);
+     border-radius: 12px;
+     transition: all 0.3s ease;
+ }
+ 
+ .metric-card:hover {
+     background: rgba(255, 255, 255, 0.1);
+     transform: translateY(-2px);
+ }
+ 
+ .metric-icon {
+     font-size: 24px;
+     min-width: 40px;
+     height: 40px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     background: rgba(8, 236, 196, 0.1);
+     border-radius: 8px;
+ }
+ 
+ .metric-details {
+     display: flex;
+     flex-direction: column;
+ }
+ 
+ .metric-value {
+     font-size: 18px;
+     font-weight: 600;
+     color: var(--primary-color);
+ }
+ 
+ .metric-details label {
+     font-size: 12px;
+     opacity: 0.7;
+     text-transform: uppercase;
+     margin-top: 2px;
+ }
+
+ /* Estilos para el contenedor del propietario */
+.owner-badge {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+ }
+
+ /* Métricas destacadas */
+.metric-card.highlight {
+     background: rgba(8, 236, 196, 0.1);
+ }
+ 
+ .metric-value.positive {
+     color: #2ecc71;
+ }
+ 
+ .metric-value.negative {
+     color: #e74c3c;
+ }
+
+ .tags-container {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 8px;
+ }
+ 
+ .tag {
+     background: rgba(8, 236, 196, 0.1);
+     color: var(--primary-color);
+     padding: 4px 12px;
+     border-radius: 12px;
+     font-size: 13px;
+ }
+
+ .sustainability-badges {
+     display: flex;
+     flex-direction: column;
+     gap: 8px;
+ }
+ 
+ .eco-badge {
+     display: inline-flex;
+     align-items: center;
+     gap: 6px;
+     background: rgba(39, 174, 96, 0.1);
+     /* color: #2ecc71; */
+     padding: 6px 12px;
+     border-radius: 12px;
+     /* font-size: 13px; */
+ }
+
+ /* Sección divisora */
+.section-divider {
+     margin: 1.5rem 0 1rem;
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+     padding-top: 1rem;
+ }
+ 
+ .section-divider label {
+     color: var(--primary-color);
+     font-size: 14px;
+     font-weight: 600;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+ }
+
+ /* Estilos para las tarjetas de estado */
+.status-cards {
+     display: flex;
+     flex-direction: column;
+     gap: 12px;
+     margin: 1rem 0;
+ }
+ 
+ .status-card {
+     display: flex;
+     align-items: flex-start;
+     gap: 12px;
+     padding: 12px;
+     background: rgba(255, 255, 255, 0.05);
+     border-radius: 12px;
+     transition: all 0.3s ease;
+ }
+ 
+ .status-card:hover {
+     background: rgba(255, 255, 255, 0.1);
+     transform: translateX(5px);
+ }
+ .status-details {
+     flex: 1;
+ }
+ 
+ .status-details label {
+     display: block;
+     margin-bottom: 4px;
+ }
+ 
+ .status-details span {
+     font-size: 15px;
+     line-height: 1.4;
+ }
+ 
+ .progress-bar {
+     width: 100%;
+     height: 8px;
+     background: rgba(255, 255, 255, 0.1);
+     border-radius: 4px;
+     overflow: hidden;
+     margin-top: 0.5rem;
+ }
+ 
+ .progress {
+     height: 100%;
+     background: var(--primary-color);
+     border-radius: 4px;
+     transition: width 0.3s ease;
+     position: relative;
+ }
+ 
+ .progress span {
+     position: absolute;
+     right: -20px;
+     top: -18px;
+     font-size: 12px;
+     color: var(--primary-color);
+ }
+ 
+ .emissions-badge {
+     display: inline-block;
+     padding: 4px 12px;
+     background: rgba(8, 236, 196, 0.1);
+     border-radius: 12px;
+     color: var(--primary-color);
+     font-size: 14px;
+     font-weight: 500;
+     margin-top: 0.5rem;
+ }
+ 
+ .route-card {
+     display: flex;
+     align-items: center;
+     gap: 1.5rem;
+     padding: 1.5rem;
+     background: rgba(255, 255, 255, 0.05);
+     border-radius: 12px;
+     margin-top: 1rem;
+ }
+ 
+ .route-icon {
+     font-size: 32px;
+ }
+ 
+ .distance-info {
+     display: flex;
+     align-items: baseline;
+     gap: 8px;
+ }
+ 
+ .distance-value {
+     font-size: 24px;
+     font-weight: 600;
+     color: var(--primary-color);
+ }
+ 
+ .distance-label {
+     font-size: 14px;
+     opacity: 0.7;
+ }
+ 
+ /* Scrollbar styles */
+ .info-content::-webkit-scrollbar {
+     width: 4px;
+ }
+ 
+ .info-content::-webkit-scrollbar-track {
+     background: transparent;
+ }
+ 
+ .info-content::-webkit-scrollbar-thumb {
+     background-color: var(--primary-color);
+     border-radius: 20px;
+ }
+
+ /* Estilos para el contenedor del ID y botón de copiar */
+.id-container {
+     flex: 1;
+ }
+ 
+/* Estilos para el ID y botón de copiar */
+.id-value-container {
+     background: rgba(255, 255, 255, 0.05);
+     border-radius: 8px;
+     padding: 8px 12px;
+ }
+
+ .id-wrapper {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+ }
+ 
+ .id-wrapper span {
+     flex: 1;
+     font-family: 'Courier New', monospace;
+     font-size: 14px;
+     color: var(--primary-color);
+     /* overflow: hidden; */
+     text-overflow: ellipsis;
+     white-space: nowrap;
+ }
+
+ /* Estilos específicos para cines */
+.transport-info {
+     margin-top: var(--spacing);
+     padding-top: var(--spacing);
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+ }
+ .external-links {
+     margin-top: var(--spacing);
+     padding-top: var(--spacing);
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+ }
+ 
+ .external-link {
+     display: inline-flex;
+     align-items: center;
+     gap: 0.5rem;
+     color: var(--primary-color);
+     text-decoration: none;
+     font-size: 14px;
+     margin-top: 0.75rem;
+     transition: opacity 0.2s ease;
+ }
+ 
+ .external-link:hover {
+     opacity: 0.8;
+ }
+ 
+ .transport-info label,
+ .external-links label {
+     color: var(--label-color);
+     font-size: 13px;
+     font-weight: 500;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     margin-bottom: 0.75rem;
+     display: block;
+ }
+ 
+ .transport-grid {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 1rem;
+     margin-top: 0.75rem;
+ }
+ 
+ .transport-item {
+     display: flex;
+     align-items: center;
+     gap: 0.75rem;
+     padding: 0.75rem;
+     background: rgba(255, 255, 255, 0.05);
+     border-radius: 8px;
+ }
+ 
+ .transport-icon {
+     font-size: 1.25rem;
+ }
