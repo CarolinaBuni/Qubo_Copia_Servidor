@@ -118,12 +118,14 @@ const path = require( "path" );
 const cookieParser = require( "cookie-parser" );
 const app = express();
 const cors = require( "cors" );
+const mongoose = require( "mongoose" );
 const { connectDB } = require( "./src/config/db" );
 const router = require( "./src/utils/apiRpoutes" );
 const { isAuth } = require( "./src/middlewares/auth" );
 const cloudinary = require( "cloudinary" ).v2;
 const QUBO_ICONS = require( "./src/constants/cloudinaryUrls" );
 const Session = require( "./src/api/models/session" );
+
 
 // Conectar a la base de datos
 connectDB();
@@ -161,13 +163,9 @@ app.get("/auth/session", async (req, res) => {
        }
 
        
-        // Añade esto para debug
-        console.log("🔍 Buscando en la base de datos:", {
-         dbName: mongoose.connection.db.databaseName,
-         collection: Session.collection.name,
-         sessionId: sessionId
-     });
-     
+        // Modificamos esta parte para no usar mongoose directamente
+        console.log("🔍 Buscando sesión con ID:", sessionId);
+
        console.log("🔍 Buscando sesión:", sessionId);
        const session = await Session.findById(sessionId);
        
