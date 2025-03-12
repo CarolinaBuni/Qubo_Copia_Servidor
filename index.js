@@ -115,6 +115,8 @@ app.use(express.json());
 app.use(cors({
    origin: "https://sign-in-qubo-git-verceldeployment-inesljs-projects.vercel.app",
    credentials: true,
+   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
 }));
 
 // Configuración de Cloudinary
@@ -166,11 +168,6 @@ app.get("/", (req, res) => {
 
 // 🔥 Verificar `JWT_SECRET` en `app2`
 console.log("🔑 JWT_SECRET en app2:", process.env.JWT_SECRET);
-
-// // Ruta protegida para el mapa
-// app.get("/",  (req, res) => {
-//    res.sendFile(path.join(__dirname, "public", "index.html"));
-// });
 
 // Rutas de la API
 app.get("/api/qubo-icons", (req, res) => {
