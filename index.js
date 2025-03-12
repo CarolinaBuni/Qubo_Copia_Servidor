@@ -160,17 +160,17 @@ next();
 app.use(express.static(path.join(__dirname, "public")));
 
 // 🔥 Ruta protegida para el mapa
-app.get("/", isAuth, (req, res) => {
+app.get("/", (req, res) => {
    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // 🔥 Verificar `JWT_SECRET` en `app2`
 console.log("🔑 JWT_SECRET en app2:", process.env.JWT_SECRET);
 
-// Ruta protegida para el mapa
-app.get("/",  (req, res) => {
-   res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+// // Ruta protegida para el mapa
+// app.get("/",  (req, res) => {
+//    res.sendFile(path.join(__dirname, "public", "index.html"));
+// });
 
 // Rutas de la API
 app.get("/api/qubo-icons", (req, res) => {
