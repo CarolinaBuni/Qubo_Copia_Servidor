@@ -57,26 +57,32 @@ function procesarSesion() {
      }
  
      console.log("🔍 Encontrado sessionId en URL, procesando...");
-     fetch(`/auth/session?sessionId=${sessionId}`)
-         .then(response => {
-             if (!response.ok) throw new Error('Error procesando sesión');
-             return response.json();
-         })
-         .then(data => {
-             console.log("✅ Sesión procesada correctamente");
-             window.location.href = window.location.pathname;
-         })
-         .catch(error => {
-             console.error("❌ Error:", error);
-             initMap(); // Si hay error, intentamos cargar el mapa de todos modos
-         });
+     fetch(`/auth/session?sessionId=${sessionId}`, {
+         credentials: 'include' // Importante para que se envíen/reciban cookies
+     })
+     .then(response => {
+         if (!response.ok) throw new Error('Error procesando sesión');
+         return response.json();
+     })
+     .then(data => {
+         console.log("✅ Sesión procesada correctamente");
+         // Limpiamos la URL sin recargar la página
+         window.history.replaceState({}, document.title, window.location.pathname);
+         // Continuamos con la carga del mapa
+         initMap();
+     })
+     .catch(error => {
+         console.error("❌ Error:", error);
+         window.location.href = '/login';
+     });
      
-     return true; // Hay sesión siendo procesada
+     return true;
  }
 
 function initMap() {
 
      if (procesarSesion()) {
+          console.log("⏳ Procesando sesión, esperando...");
           return;
       }
      precargarImagenes();
