@@ -118,13 +118,14 @@ const path = require( "path" );
 const cookieParser = require( "cookie-parser" );
 const app = express();
 const cors = require( "cors" );
-const mongoose = require( "mongoose" );
+// const mongoose = require( "mongoose" );
+const { MongoClient, ObjectId } = require('mongodb'); 
 const { connectDB } = require( "./src/config/db" );
 const router = require( "./src/utils/apiRpoutes" );
 const { isAuth } = require( "./src/middlewares/auth" );
 const cloudinary = require( "cloudinary" ).v2;
 const QUBO_ICONS = require( "./src/constants/cloudinaryUrls" );
-const Session = require( "./src/api/models/session" );
+// const Session = require( "./src/api/models/session" );
 
 
 // Conectar a la base de datos
@@ -151,10 +152,12 @@ cloudinary.config( {
 } );
 
 // Ruta específica para manejar el sessionId
+// Solo modificamos este endpoint
 app.get("/auth/session", async (req, res) => {
    console.log("📍 Procesando sessionId");
    console.log("🔍 Query params recibidos:", req.query);
    
+   let client;
    try {
        const { sessionId } = req.query;
        if (!sessionId) {
@@ -162,44 +165,32 @@ app.get("/auth/session", async (req, res) => {
            return res.status(400).json({ error: 'No sessionId provided' });
        }
 
-       // Verificar el estado de la conexión
-       if (mongoose.connection.readyState !== 1) {
-           console.log("🔄 Reconectando a MongoDB...");
-           await connectDB();
-       }
-
-       console.log("🔍 Buscando sesión en la colección 'Sessions'");
-       console.log("🔑 SessionId a buscar:", sessionId);
+       client = new MongoClient(process.env.AUTH_MONGODB_URL);
+       await client.connect();
        
-       const objectId = new mongoose.Types.ObjectId(sessionId);
-       console.log("🔑 ObjectId creado:", objectId);
-
-       const session = await mongoose.connection.useDb('QuboUsers')
-           .collection('Sessions')
-           .findOne({ _id: objectId });
+       const db = client.db('QuboUsers');
+       const session = await db.collection('Sessions')
+           .findOne({ _id: new ObjectId(sessionId) });
 
        console.log("📝 Sesión encontrada:", session ? "Sí" : "No");
-       if (session) {
-           console.log("📄 Datos de la sesión:", JSON.stringify(session, null, 2));
-       }
 
        if (session && session.token) {
-           console.log("✅ Sesión válida encontrada");
            return res.json({ 
                success: true,
                userId: session.userId,
                authenticated: true
            });
        } else {
-           console.log("❌ Sesión no encontrada o sin token");
            return res.status(401).json({ 
                error: 'Invalid session',
                authenticated: false 
            });
        }
    } catch (error) {
-       console.error("❌ Error completo:", error);
+       console.error("❌ Error:", error);
        return res.status(500).json({ error: 'Error processing session' });
+   } finally {
+       if (client) await client.close();
    }
 });
 
