@@ -7542,7 +7542,7 @@ const cargarYMostrarMarcadoresCasas = async () => {
                          position: { lat: parsedData.ubicacion[ 1 ], lng: parsedData.ubicacion[ 0 ] },
                          map: map,
                          title: parsedData.name,
-                         icon: "./assets/housesQubo.svg"
+                         icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186034/qubo/qubos/Houses.svg"
                     } );
 
                     houseMarker.addListener( 'click', () => {
