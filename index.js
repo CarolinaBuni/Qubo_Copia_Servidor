@@ -152,42 +152,45 @@ cloudinary.config( {
 
 // Ruta específica para manejar el sessionId
 app.get("/auth/session", async (req, res) => {
+   console.log("📍 Procesando sessionId");
+   console.log("🔍 Query params recibidos:", req.query);
+   
    try {
-       console.log("=== INICIO PROCESAMIENTO SESIÓN ===");
        const { sessionId } = req.query;
-       console.log("SessionId recibido:", sessionId);
-
        if (!sessionId) {
-           console.log("No hay sessionId");
+           console.log("❌ No se proporcionó sessionId");
            return res.status(400).json({ error: 'No sessionId provided' });
        }
 
-       // Asegurarnos de que la conexión está activa
-       if (!mongoose.connection.readyState) {
-           console.log("Reconectando a MongoDB...");
-           await connectDB();
-       }
+       console.log("🔍 Buscando sesión en la colección 'sessions'");
+       
+       const session = await mongoose.connection.useDb('QuboUsers')
+           .collection('sessions')  // Cambiado a minúscula
+           .findOne({ _id: sessionId });
 
-       // Buscar la sesión
-       const session = await mongoose.connection
-           .useDb('QuboUsers')
-           .collection('Sessions')
-           .findOne({ 
-               _id: new mongoose.Types.ObjectId(sessionId) 
+       console.log("📝 Sesión encontrada:", session ? "Sí" : "No");
+
+       if (session && session.session && session.session.user) {
+           const userData = session.session.user;  // Los datos están aquí directamente
+           console.log("✅ Datos de usuario encontrados:", userData);
+
+           return res.json({ 
+               success: true,
+               userId: userData.sub,
+               email: userData.email,
+               nickname: userData.nickname,
+               authenticated: true
            });
-
-       console.log("Sesión encontrada:", session ? "Sí" : "No");
-
-       // Respuesta simple
-       if (session) {
-           return res.json({ authenticated: true });
        } else {
-           return res.json({ authenticated: false });
+           console.log("❌ Sesión no encontrada o sin datos de usuario");
+           return res.status(401).json({ 
+               error: 'Invalid session',
+               authenticated: false 
+           });
        }
-
    } catch (error) {
-       console.log("Error:", error.message);
-       return res.status(500).json({ error: 'Server error' });
+       console.error("❌ Error detallado:", error);
+       return res.status(500).json({ error: 'Error processing session' });
    }
 });
 
