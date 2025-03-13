@@ -56,26 +56,18 @@ function procesarSesion() {
          return false;
      }
  
-     console.log("🔍 Encontrado sessionId en URL, procesando...");
-     fetch(`/auth/session?sessionId=${sessionId}`, {
-         credentials: 'include'
-     })
-     .then(response => {
-         if (!response.ok) throw new Error('Error procesando sesión');
-         return response.json();
-     })
+     fetch(`/auth/session?sessionId=${sessionId}`)
+     .then(response => response.json())
      .then(data => {
-         console.log("✅ Datos recibidos:", data);
          if (data.authenticated) {
-             console.log("👤 Usuario autenticado:", data.email);
+             // Usuario autenticado, mostrar mapa
              window.history.replaceState({}, document.title, window.location.pathname);
              initMap();
          } else {
-             throw new Error('No autenticado');
+             window.location.href = '/login';
          }
      })
-     .catch(error => {
-         console.error("❌ Error:", error);
+     .catch(() => {
          window.location.href = '/login';
      });
      
