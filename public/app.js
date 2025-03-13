@@ -49,49 +49,49 @@ function precargarImagenes() {
 }
 
 function procesarSesion() {
-     const urlParams = new URLSearchParams(window.location.search);
-     const sessionId = urlParams.get('sessionId');
-     
-     if (!sessionId) {
-         console.log("❌ No hay sessionId en la URL");
-         return false;
+     const urlParams = new URLSearchParams( window.location.search );
+     const sessionId = urlParams.get( 'sessionId' );
+
+     if ( !sessionId ) {
+          console.log( "❌ No hay sessionId en la URL" );
+          return false;
      }
- 
-     console.log("🔍 SessionId encontrado:", sessionId);
-     fetch(`/auth/session?sessionId=${sessionId}`, {
-         credentials: 'include'
-     })
-     .then(response => {
-         console.log("📝 Status de la respuesta:", response.status);
-         return response.json();
-     })
-     .then(data => {
-         console.log("✅ Datos recibidos:", data);
-         if (data.authenticated) {
-             console.log("👤 Usuario autenticado, iniciando mapa");
-             window.history.replaceState({}, document.title, window.location.pathname);
-             initMap(true);
-         } else {
-             console.log("❌ Error: Usuario no autenticado");
-         }
-     })
-     .catch(error => {
-         console.error("❌ Error en fetch:", error);
-     });
-     
+
+     console.log( "🔍 SessionId encontrado:", sessionId );
+     fetch( `/auth/session?sessionId=${ sessionId }`, {
+          credentials: 'include'
+     } )
+          .then( response => {
+               console.log( "📝 Status de la respuesta:", response.status );
+               return response.json();
+          } )
+          .then( data => {
+               console.log( "✅ Datos recibidos:", data );
+               if ( data.authenticated ) {
+                    console.log( "👤 Usuario autenticado, iniciando mapa" );
+                    window.history.replaceState( {}, document.title, window.location.pathname );
+                    initMap( true );
+               } else {
+                    console.log( "❌ Error: Usuario no autenticado" );
+               }
+          } )
+          .catch( error => {
+               console.error( "❌ Error en fetch:", error );
+          } );
+
      return true;
 }
 
 
-function initMap(fromSession = false) {
+function initMap( fromSession = false ) {
 
-     if (!fromSession && procesarSesion()) {
-          console.log("⏳ Procesando sesión, esperando...");
+     if ( !fromSession && procesarSesion() ) {
+          console.log( "⏳ Procesando sesión, esperando..." );
           return;
-      }
- 
-      // Resto del código de initMap...
-      console.log("🗺️ Iniciando mapa...");
+     }
+
+     // Resto del código de initMap...
+     console.log( "🗺️ Iniciando mapa..." );
      precargarImagenes();
      // Crear un objeto de opciones del mapa
      const mapOptions = {
@@ -109,10 +109,10 @@ function initMap(fromSession = false) {
      console.log( "Token en cookie:", token );
 
      // Verificar si el token existe
-if (!token) {
-     console.log("❌ No hay token disponible");
-     return;  // Solo detenemos la ejecución
-}
+     if ( !token ) {
+          console.log( "❌ No hay token disponible" );
+          return;  // Solo detenemos la ejecución
+     }
 
      // Crear el mapa y establecerlo en el div con el id "gmp-map"
      map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
@@ -177,18 +177,19 @@ if (!token) {
 
      document.addEventListener( 'DOMContentLoaded', function () {
           const token = getCookie( 'access_token' );
-          if (!token) {
-               console.log("❌ No hay token disponible");
+          if ( !token ) {
+               console.log( "❌ No hay token disponible" );
                return;  // Solo detenemos la ejecución
           }
           fetch( '/api/v1/qubo', {
                headers: {
-                    'Authorization': `Bearer ${ token }`
+                    'Authorization': `Bearer ${ token }`,
+                    'Content-Type': 'application/json'
                },
                credentials: 'include'  // Importante para enviar cookies en solicitudes
           } )
                .then( response => {
-                    // Quitar la verificación de token aquí también
+                    console.log("📝 Respuesta de Qubos:", response.status);
                     if ( !response.ok ) {
                          return response.json();
                     }
@@ -196,6 +197,7 @@ if (!token) {
                } )
                .then( qubos => {
                     qubos.forEach( qubo => {
+                         console.log("✅ Qubos recibidos:", qubos.length);
                          const position = { lat: qubo.latitude, lng: qubo.longitude };
                          const marker = new google.maps.Marker( {
                               position: position,
@@ -253,7 +255,7 @@ if (!token) {
                          } );
                     } );
                } )
-               .catch( error => console.error( 'Error al cargar los Qubos:', error ) );
+               .catch( error => console.error( '❌  Error al cargar los Qubos:', error ) );
      } );
 
 
@@ -4564,34 +4566,34 @@ if (!token) {
 
           // Añadir un evento click al marcador del scooter sharing para mostrar información
           // Añadir un evento click al marcador del scooter sharing para mostrar información
-scooterMarker.addListener("click", function() {
-     const datosPatinete = marcadoresScooter[title].datosPatinete;
- 
-     const existingPinnedBox = document.querySelector(`.info-box.pinned[data-scooter-id="${title}"]`);
-     if (existingPinnedBox) {
-         existingPinnedBox.classList.add('highlight');
-         setTimeout(() => existingPinnedBox.classList.remove('highlight'), 1000);
-         return;
-     }
- 
-     let currentInfoBox = document.querySelector(".info-box:not(.pinned)");
-     if (!currentInfoBox) {
-         currentInfoBox = document.createElement('div');
-         currentInfoBox.className = 'info-box';
-         document.body.appendChild(currentInfoBox);
-     }
- 
-     currentInfoBox.setAttribute('data-scooter-id', title);
-     currentInfoBox.style.display = "flex";
-     currentInfoBox.innerHTML = `
+          scooterMarker.addListener( "click", function () {
+               const datosPatinete = marcadoresScooter[ title ].datosPatinete;
+
+               const existingPinnedBox = document.querySelector( `.info-box.pinned[data-scooter-id="${ title }"]` );
+               if ( existingPinnedBox ) {
+                    existingPinnedBox.classList.add( 'highlight' );
+                    setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                    return;
+               }
+
+               let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+               if ( !currentInfoBox ) {
+                    currentInfoBox = document.createElement( 'div' );
+                    currentInfoBox.className = 'info-box';
+                    document.body.appendChild( currentInfoBox );
+               }
+
+               currentInfoBox.setAttribute( 'data-scooter-id', title );
+               currentInfoBox.style.display = "flex";
+               currentInfoBox.innerHTML = `
          <div class="info-header">
-             <img src="${datosPatinete.ImagenURL}" alt="Scooter" class="property-image"/>
+             <img src="${ datosPatinete.ImagenURL }" alt="Scooter" class="property-image"/>
              <div class="header-bar">
                  <div class="property-badges">
                      <div class="badge-container">
                          <span class="badge primary">SCOOTER</span>
                          <div class="badge-location nameContainer">
-                             <span>${datosPatinete.Empresa || title}</span>
+                             <span>${ datosPatinete.Empresa || title }</span>
                              <span>Madrid, España</span>
                          </div>
                      </div>
@@ -4618,7 +4620,7 @@ scooterMarker.addListener("click", function() {
                              <label>ID</label>
                              <div class="id-value-container">
                                  <div class="id-wrapper">
-                                     <span title="${datosPatinete.Matricula || datosPatinete.Identificador}">${datosPatinete.Matricula || datosPatinete.Identificador}</span>
+                                     <span title="${ datosPatinete.Matricula || datosPatinete.Identificador }">${ datosPatinete.Matricula || datosPatinete.Identificador }</span>
                                      <button class="copy-btn" title="Copiar ID">
                                          <i class="copy-icon">📋</i>
                                      </button>
@@ -4630,96 +4632,96 @@ scooterMarker.addListener("click", function() {
                      <div class="info-row">
                          <div class="info-item">
                              <label>Estado</label>
-                             <div class="status-badge ${datosPatinete.Estado?.toLowerCase() || 'activo'}">
-                                 ${datosPatinete.Estado || 'Activo'}
+                             <div class="status-badge ${ datosPatinete.Estado?.toLowerCase() || 'activo' }">
+                                 ${ datosPatinete.Estado || 'Activo' }
                              </div>
                          </div>
-                         ${datosPatinete.Velocidad ? `
+                         ${ datosPatinete.Velocidad ? `
                          <div class="info-item">
                              <label>Velocidad</label>
-                             <span class="speed-badge">${datosPatinete.Velocidad} km/h</span>
+                             <span class="speed-badge">${ datosPatinete.Velocidad } km/h</span>
                          </div>
-                         ` : ''}
+                         ` : '' }
                      </div>
  
-                     ${datosPatinete.Bateria ? `
+                     ${ datosPatinete.Bateria ? `
                      <div class="info-row">
                          <div class="info-item">
                              <label>Batería</label>
                              <div class="status-indicator">
-                                 <span class="battery-badge">${datosPatinete.Bateria}%</span>
+                                 <span class="battery-badge">${ datosPatinete.Bateria }%</span>
                              </div>
                          </div>
                      </div>
-                     ` : ''}
+                     ` : '' }
                  </div>
              </div>
          </div>
      `;
- 
-     // Event listeners
-     const pinBtn = currentInfoBox.querySelector(".pin-btn");
-     pinBtn.addEventListener("click", (e) => {
-         const infoBox = e.target.closest(".info-box");
-         if (infoBox.classList.contains("pinned")) {
-             infoBox.classList.remove("pinned");
-             pinBtn.innerHTML = '<i class="action-icon">📌</i>';
-             pinBtn.title = "Fijar ventana";
-         } else {
-             infoBox.classList.add("pinned");
-             pinBtn.innerHTML = '<i class="action-icon">📍</i>';
-             pinBtn.title = "Desfijar ventana";
- 
-             // Crear nuevo infobox para futuras propiedades
-             const newInfoBox = document.createElement("div");
-             newInfoBox.className = "info-box";
-             newInfoBox.style.display = "none";
-             document.body.appendChild(newInfoBox);
-         }
-     });
- 
-     currentInfoBox.querySelector(".share-btn").addEventListener("click", async () => {
-         try {
-             const baseUrl = window.location.origin + window.location.pathname;
-             const shareUrl = `${baseUrl}?view=scooter&id=${datosPatinete.Matricula || datosPatinete.Identificador}`;
- 
-             const shareData = {
-                 title: `${datosPatinete.Empresa || title} - Scooter`,
-                 text: `🛴 ID: ${datosPatinete.Matricula || datosPatinete.Identificador}\n` +
-                       `📍 Madrid, España\n` +
-                       `🔋 Batería: ${datosPatinete.Bateria}%\n` +
-                       `⚡ Velocidad: ${datosPatinete.Velocidad || 0} km/h`,
-                 url: shareUrl
-             };
- 
-             if (navigator.share && navigator.canShare(shareData)) {
-                 await navigator.share(shareData);
-             } else {
-                 const shareText = `${shareData.title}\n\n${shareData.text}\n\n🔗 Ver detalles: ${shareUrl}`;
-                 await navigator.clipboard.writeText(shareText);
-                 showNotification('¡Información copiada al portapapeles!');
-             }
-         } catch (error) {
-             console.error('Error al compartir:', error);
-         }
-     });
- 
-     currentInfoBox.querySelector(".close-btn").addEventListener("click", () => {
-         currentInfoBox.remove();
-     });
- 
-     currentInfoBox.querySelector(".copy-btn").addEventListener("click", async () => {
-         try {
-             await navigator.clipboard.writeText(datosPatinete.Matricula || datosPatinete.Identificador);
-             showNotification("¡ID copiado!");
-         } catch (error) {
-             console.error("Error al copiar:", error);
-         }
-     });
- 
-     inicializarArrastre(currentInfoBox);
-     currentInfoBox.style.display = "flex";
- });
+
+               // Event listeners
+               const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+               pinBtn.addEventListener( "click", ( e ) => {
+                    const infoBox = e.target.closest( ".info-box" );
+                    if ( infoBox.classList.contains( "pinned" ) ) {
+                         infoBox.classList.remove( "pinned" );
+                         pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                         pinBtn.title = "Fijar ventana";
+                    } else {
+                         infoBox.classList.add( "pinned" );
+                         pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                         pinBtn.title = "Desfijar ventana";
+
+                         // Crear nuevo infobox para futuras propiedades
+                         const newInfoBox = document.createElement( "div" );
+                         newInfoBox.className = "info-box";
+                         newInfoBox.style.display = "none";
+                         document.body.appendChild( newInfoBox );
+                    }
+               } );
+
+               currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                    try {
+                         const baseUrl = window.location.origin + window.location.pathname;
+                         const shareUrl = `${ baseUrl }?view=scooter&id=${ datosPatinete.Matricula || datosPatinete.Identificador }`;
+
+                         const shareData = {
+                              title: `${ datosPatinete.Empresa || title } - Scooter`,
+                              text: `🛴 ID: ${ datosPatinete.Matricula || datosPatinete.Identificador }\n` +
+                                   `📍 Madrid, España\n` +
+                                   `🔋 Batería: ${ datosPatinete.Bateria }%\n` +
+                                   `⚡ Velocidad: ${ datosPatinete.Velocidad || 0 } km/h`,
+                              url: shareUrl
+                         };
+
+                         if ( navigator.share && navigator.canShare( shareData ) ) {
+                              await navigator.share( shareData );
+                         } else {
+                              const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+                              await navigator.clipboard.writeText( shareText );
+                              showNotification( '¡Información copiada al portapapeles!' );
+                         }
+                    } catch ( error ) {
+                         console.error( 'Error al compartir:', error );
+                    }
+               } );
+
+               currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                    currentInfoBox.remove();
+               } );
+
+               currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                    try {
+                         await navigator.clipboard.writeText( datosPatinete.Matricula || datosPatinete.Identificador );
+                         showNotification( "¡ID copiado!" );
+                    } catch ( error ) {
+                         console.error( "Error al copiar:", error );
+                    }
+               } );
+
+               inicializarArrastre( currentInfoBox );
+               currentInfoBox.style.display = "flex";
+          } );
      }
 
      // Modificar el evento del botón para manejar todos los marcadores de scooter sharing
@@ -5207,62 +5209,62 @@ scooterMarker.addListener("click", function() {
 
 
                          // Objeto para mapear características a iconos
-const caracteristicasIconos = {
-     // Conectividad
-    'Conexión WiFi 5G': '📶',
-    'WiFi gratuito': '📶',
-    
-    // Carga y energía
-    'Puertos de carga rápida USB-C': '🔌',
-    'Puertos USB': '🔌',
-    
-    // Aire y climatización
-    'Sistema de purificación de aire': '🌬️',
-    'Aire acondicionado': '❄️',
-    
-    // Seguridad y monitoreo
-    'Monitoreo con cámaras HD': '📹',
-    'Vigilancia por CCTV': '📹',
-    
-    // Sistemas de información
-    'Sistema de billete electrónico': '🎫',
-    'Pantallas informativas internas': '📺',
-    
-    // Espacio y accesibilidad
-    'Espacio ampliado para bicicletas': '🚲',
-    
-    // Por defecto para cualquier característica nueva
-    'default': '🚌'
- };
- 
- // Evento click para mostrar información detallada
- marker.addListener("click", function() {
-     const existingPinnedBox = document.querySelector(`.info-box.pinned[data-bus-id="${data.matricula_autobus}"]`);
-     if (existingPinnedBox) {
-         existingPinnedBox.classList.add('highlight');
-         setTimeout(() => existingPinnedBox.classList.remove('highlight'), 1000);
-         return;
-     }
- 
-     let currentInfoBox = document.querySelector(".info-box:not(.pinned)");
-     if (!currentInfoBox) {
-         currentInfoBox = document.createElement('div');
-         currentInfoBox.className = 'info-box';
-         document.body.appendChild(currentInfoBox);
-     }
- 
-     currentInfoBox.setAttribute('data-bus-id', data.matricula_autobus);
-     currentInfoBox.style.display = "flex";
-     currentInfoBox.innerHTML = `
+                         const caracteristicasIconos = {
+                              // Conectividad
+                              'Conexión WiFi 5G': '📶',
+                              'WiFi gratuito': '📶',
+
+                              // Carga y energía
+                              'Puertos de carga rápida USB-C': '🔌',
+                              'Puertos USB': '🔌',
+
+                              // Aire y climatización
+                              'Sistema de purificación de aire': '🌬️',
+                              'Aire acondicionado': '❄️',
+
+                              // Seguridad y monitoreo
+                              'Monitoreo con cámaras HD': '📹',
+                              'Vigilancia por CCTV': '📹',
+
+                              // Sistemas de información
+                              'Sistema de billete electrónico': '🎫',
+                              'Pantallas informativas internas': '📺',
+
+                              // Espacio y accesibilidad
+                              'Espacio ampliado para bicicletas': '🚲',
+
+                              // Por defecto para cualquier característica nueva
+                              'default': '🚌'
+                         };
+
+                         // Evento click para mostrar información detallada
+                         marker.addListener( "click", function () {
+                              const existingPinnedBox = document.querySelector( `.info-box.pinned[data-bus-id="${ data.matricula_autobus }"]` );
+                              if ( existingPinnedBox ) {
+                                   existingPinnedBox.classList.add( 'highlight' );
+                                   setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                   return;
+                              }
+
+                              let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                              if ( !currentInfoBox ) {
+                                   currentInfoBox = document.createElement( 'div' );
+                                   currentInfoBox.className = 'info-box';
+                                   document.body.appendChild( currentInfoBox );
+                              }
+
+                              currentInfoBox.setAttribute( 'data-bus-id', data.matricula_autobus );
+                              currentInfoBox.style.display = "flex";
+                              currentInfoBox.innerHTML = `
          <div class="info-header">
-             <img src="${data.imagen_autobus}" alt="Bus" class="property-image"/>
+             <img src="${ data.imagen_autobus }" alt="Bus" class="property-image"/>
              <div class="header-bar">
                  <div class="property-badges">
                      <div class="badge-container">
-                         <span class="badge primary">LÍNEA ${data.nombre_ruta}</span>
+                         <span class="badge primary">LÍNEA ${ data.nombre_ruta }</span>
                          <div class="badge-location nameContainer">
                             
-                             <span>${data.operador}</span>
+                             <span>${ data.operador }</span>
                          </div>
                      </div>
                  </div>
@@ -5286,27 +5288,27 @@ const caracteristicasIconos = {
                      <div class="info-row">
                          <div class="info-item">
                              <label>Matrícula</label>
-                             <span>${data.matricula_autobus}</span>
+                             <span>${ data.matricula_autobus }</span>
                          </div>
                          <div class="info-item">
                              <label>Año</label>
-                             <span>${data.año_fabricacion}</span>
+                             <span>${ data.año_fabricacion }</span>
                          </div>
                      </div>
                      <div class="info-row">
                          <div class="info-item">
                              <label>Capacidad</label>
-                             <span>${data.capacidad} pasajeros</span>
+                             <span>${ data.capacidad } pasajeros</span>
                          </div>
                          <div class="info-item">
                              <label>Frecuencia</label>
-                             <span>${data.frecuencia_servicio}</span>
+                             <span>${ data.frecuencia_servicio }</span>
                          </div>
                      </div>
                      <div class="info-row">
                          <div class="info-item">
                              <label>Accesibilidad</label>
-                             <span>${data.accesibilidad}</span>
+                             <span>${ data.accesibilidad }</span>
                          </div>
                      </div>
                  </div>
@@ -5315,75 +5317,75 @@ const caracteristicasIconos = {
              <div class="info-section">
                  <label class="section-label">Características</label>
                  <div class="features-grid">
-                     ${data.caracteristicas.map(caracteristica => {
-                         const icono = caracteristicasIconos[caracteristica] || caracteristicasIconos['default'];
-    return `
+                     ${ data.caracteristicas.map( caracteristica => {
+                                   const icono = caracteristicasIconos[ caracteristica ] || caracteristicasIconos[ 'default' ];
+                                   return `
         <div class="feature-item">
-            <i class="feature-icon">${icono}</i>
-            <span>${caracteristica}</span>
+            <i class="feature-icon">${ icono }</i>
+            <span>${ caracteristica }</span>
         </div>
     `;
-                     }).join('')}
+                              } ).join( '' ) }
                  </div>
              </div>
          </div>
      `;
- 
-     // Event listeners
-     const pinBtn = currentInfoBox.querySelector(".pin-btn");
-     pinBtn.addEventListener("click", (e) => {
-         const infoBox = e.target.closest(".info-box");
-         if (infoBox.classList.contains("pinned")) {
-             infoBox.classList.remove("pinned");
-             pinBtn.innerHTML = '<i class="action-icon">📌</i>';
-             pinBtn.title = "Fijar ventana";
-         } else {
-             infoBox.classList.add("pinned");
-             pinBtn.innerHTML = '<i class="action-icon">📍</i>';
-             pinBtn.title = "Desfijar ventana";
- 
-             // Crear nuevo infobox para futuras propiedades
-             const newInfoBox = document.createElement("div");
-             newInfoBox.className = "info-box";
-             newInfoBox.style.display = "none";
-             document.body.appendChild(newInfoBox);
-         }
-     });
- 
-     currentInfoBox.querySelector(".share-btn").addEventListener("click", async () => {
-         try {
-             const baseUrl = window.location.origin + window.location.pathname;
-             const shareUrl = `${baseUrl}?view=bus&id=${data.matricula_autobus}`;
- 
-             const shareData = {
-                 title: `${data.nombre_ruta} - ${data.operador}`,
-                 text: `🚌 Línea: ${data.nombre_ruta}\n` +
-                       `📍 ${data.operador}\n` +
-                       `🔢 Matrícula: ${data.matricula_autobus}\n` +
-                       `👥 Capacidad: ${data.capacidad} pasajeros\n` +
-                       `⏱️ Frecuencia: ${data.frecuencia_servicio}`,
-                 url: shareUrl
-             };
- 
-             if (navigator.share && navigator.canShare(shareData)) {
-                 await navigator.share(shareData);
-             } else {
-                 const shareText = `${shareData.title}\n\n${shareData.text}\n\n🔗 Ver detalles: ${shareUrl}`;
-                 await navigator.clipboard.writeText(shareText);
-                 showNotification('¡Información copiada al portapapeles!');
-             }
-         } catch (error) {
-             console.error('Error al compartir:', error);
-         }
-     });
- 
-     currentInfoBox.querySelector(".close-btn").addEventListener("click", () => {
-         currentInfoBox.remove();
-     });
- 
-     inicializarArrastre(currentInfoBox);
-     currentInfoBox.style.display = "flex";
- });
+
+                              // Event listeners
+                              const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                              pinBtn.addEventListener( "click", ( e ) => {
+                                   const infoBox = e.target.closest( ".info-box" );
+                                   if ( infoBox.classList.contains( "pinned" ) ) {
+                                        infoBox.classList.remove( "pinned" );
+                                        pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                        pinBtn.title = "Fijar ventana";
+                                   } else {
+                                        infoBox.classList.add( "pinned" );
+                                        pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                        pinBtn.title = "Desfijar ventana";
+
+                                        // Crear nuevo infobox para futuras propiedades
+                                        const newInfoBox = document.createElement( "div" );
+                                        newInfoBox.className = "info-box";
+                                        newInfoBox.style.display = "none";
+                                        document.body.appendChild( newInfoBox );
+                                   }
+                              } );
+
+                              currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                   try {
+                                        const baseUrl = window.location.origin + window.location.pathname;
+                                        const shareUrl = `${ baseUrl }?view=bus&id=${ data.matricula_autobus }`;
+
+                                        const shareData = {
+                                             title: `${ data.nombre_ruta } - ${ data.operador }`,
+                                             text: `🚌 Línea: ${ data.nombre_ruta }\n` +
+                                                  `📍 ${ data.operador }\n` +
+                                                  `🔢 Matrícula: ${ data.matricula_autobus }\n` +
+                                                  `👥 Capacidad: ${ data.capacidad } pasajeros\n` +
+                                                  `⏱️ Frecuencia: ${ data.frecuencia_servicio }`,
+                                             url: shareUrl
+                                        };
+
+                                        if ( navigator.share && navigator.canShare( shareData ) ) {
+                                             await navigator.share( shareData );
+                                        } else {
+                                             const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+                                             await navigator.clipboard.writeText( shareText );
+                                             showNotification( '¡Información copiada al portapapeles!' );
+                                        }
+                                   } catch ( error ) {
+                                        console.error( 'Error al compartir:', error );
+                                   }
+                              } );
+
+                              currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                   currentInfoBox.remove();
+                              } );
+
+                              inicializarArrastre( currentInfoBox );
+                              currentInfoBox.style.display = "flex";
+                         } );
                     } )
                     .catch( error => console.error( 'Error al cargar datos del autobús:', error ) );
           }

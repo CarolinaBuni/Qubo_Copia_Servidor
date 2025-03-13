@@ -1,4 +1,4 @@
-
+//* controllers qubo.js
 const Qubo = require( "../models/qubo" );
 const cloudinary = require( 'cloudinary' ).v2;
 const QUBO_ICONS = require( "../../constants/cloudinaryUrls" );
@@ -7,22 +7,29 @@ const { verifyToken } = require( "../../utils/jwt" );
 
 const getQubo = async (req, res, next) => {
     try {
-        // Comentar temporalmente la verificación del token
-        // const token = req.headers.authorization?.split(' ')[1];
+        console.log("📍 Iniciando getQubo");
+        console.log("🔍 Headers recibidos:", req.headers);
+        console.log("🍪 Cookies recibidas:", req.cookies);
         const token = req.cookies.access_token;
-        console.log("Token recibido por getQubo:", token);
+        console.log("🔑 Token desde cookies:", token ? "Presente" : "No encontrado");
 
         if (!token) {
+            console.log("❌ No se encontró token");
             return res.status(401).json({ message: 'Token no encontrado' });
         }
 
         const result = verifyToken(token);
+        console.log("🔒 Resultado verificación:", result.success ? "Token válido" : "Token inválido");
+
         if (!result.success) {
+            console.log("❌ Token inválido");
             return res.status(401).json({ message: 'Token inválido' });
         }
 
         // Simplemente devolver todos los Qubos
+        console.log("🔍 Buscando Qubos en la base de datos");
         const allQubos = await Qubo.find();
+        console.log("✅ Qubos encontrados:", allQubos.length);
         return res.status(200).json(allQubos);
     } catch (error) {
         console.error("Error en getQubo:", error);
@@ -32,30 +39,6 @@ const getQubo = async (req, res, next) => {
         });
     }
 };
-// const getQubo = async (req, res, next) => {
-//     try {
-//         // Verificar el token
-//         const token = req.headers.authorization?.split(' ')[1]; // Obtiene el token del header
-//         console.log("Token recibido por getQubo:", token);
-
-//         if (!token) {
-//             return res.status(401).json({ message: 'Token no encontrado, no estás autenticado' });
-//         }
-
-//         const result = verifyToken(token);
-//         if (!result.success) {
-//             return res.status(401).json({ message: 'Token inválido', error: result.error });
-//         }
-
-//         const allQubos = await Qubo.find();
-//         return res.status(200).json(allQubos);
-//     } catch (error) {
-//         console.error("Error en getQubo:", error);
-//         return res.status(500).json({ message: 'Error al obtener los qubos', error: error.message });
-//     }
-// };
-
-
 
 const postQubo = async ( req, res, next ) => {
     try {
