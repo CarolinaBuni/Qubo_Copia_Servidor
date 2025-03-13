@@ -964,7 +964,7 @@ function initMap( fromSession = false ) {
                                    position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                                    map: map,
                                    title: name,
-                                   icon: "./assets/waste_Qubo.svg"
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740260176/qubo/qubos/waste_cc7nea.svg"
                               } );
 
                               marker.addListener( "click", () => {
@@ -1059,7 +1059,7 @@ function initMap( fromSession = false ) {
                                    position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                                    map: map,
                                    title: name,
-                                   icon: "./assets/waterQubo.svg"
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740260237/qubo/qubos/water_gljpb0.svg"
                               } );
 
                               marker.addListener( "click", () => {
@@ -1245,7 +1245,7 @@ function initMap( fromSession = false ) {
                                    position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                                    map: map,
                                    title: name,
-                                   icon: "./assets/sewageQubo.svg"
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740260354/qubo/qubos/sewage_btunla.svg"
                               } );
 
                               marker.addListener( "click", () => {
@@ -1425,7 +1425,7 @@ function initMap( fromSession = false ) {
                                    position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                                    map: map,
                                    title: name,
-                                   icon: "./assets/internetQubo.svg",
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740260437/qubo/qubos/internet_nfdbns.svg",
                               } );
 
                               marker.addListener( "click", () => {
@@ -1581,7 +1581,7 @@ function initMap( fromSession = false ) {
                                    position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                                    map: map,
                                    title: name,
-                                   icon: "./assets/bicycleSharingQubo.svg"
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186036/qubo/qubos/quboBicycle_beyrut.svg"
                               } );
 
                               marker.addListener( "click", () => {
@@ -2487,7 +2487,7 @@ function initMap( fromSession = false ) {
                                    position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                                    map: map,
                                    title: name,
-                                   icon: "./assets/parksGardensQubo.svg",
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740260651/qubo/qubos/parksandgardens_o3ihp5.svg",
                               } );
 
                               marker.addListener( "click", () => {
@@ -2601,7 +2601,7 @@ function initMap( fromSession = false ) {
                          position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                          map: map, // Asegúrate de que 'map' sea una referencia válida a tu instancia de Google Maps
                          title: nombre, // Utilizar el nombre extraído
-                         icon: "./assets/environment_Qubo.svg" // Asegúrate de tener un ícono adecuado para las estaciones de calidad del aire
+                         icon: "'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/environment_Qubo_qqip5m.svg" // Asegúrate de tener un ícono adecuado para las estaciones de calidad del aire
                     } );
 
                     airQualityMarker.addListener( 'click', () => {
@@ -2754,7 +2754,7 @@ function initMap( fromSession = false ) {
                basuraMarker = new google.maps.Marker( {
                     map: map,
                     title: "Camión de Residuos",
-                    icon: "./assets/recyclingQubo.svg",
+                    icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740261201/qubo/qubos/recycling_rmx7jr.svg",
                     position: basuraCoordinates[ 0 ]  // Iniciar el marcador en la primera posición
                } );
 
@@ -2800,7 +2800,7 @@ function initMap( fromSession = false ) {
                                    position: { lat: parsedData.ubicacion[ 1 ], lng: parsedData.ubicacion[ 0 ] },
                                    map: map,
                                    title: parsedData.name,
-                                   icon: "./assets/recyclingQubo.svg"
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740261201/qubo/qubos/recycling_rmx7jr.svg"
                               } );
 
                               marker.addListener( "click", () => {
@@ -2846,7 +2846,7 @@ function initMap( fromSession = false ) {
                                    position: { lat: parsedData.ubicacion[ 1 ], lng: parsedData.ubicacion[ 0 ] },
                                    map: map,
                                    title: parsedData.name,
-                                   icon: "./assets/recyclingQubo.svg"
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740261201/qubo/qubos/recycling_rmx7jr.svg"
                               } );
 
                               marker.addListener( "click", () => {
@@ -2915,7 +2915,7 @@ function initMap( fromSession = false ) {
                                    position: { lat: parsedData.ubicacion[ 1 ], lng: parsedData.ubicacion[ 0 ] },
                                    map: map,
                                    title: parsedData.name,
-                                   icon: "./assets/recyclingQubo.svg"
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740261201/qubo/qubos/recycling_rmx7jr.svg"
                               } );
 
                               marker.addListener( "click", () => {
@@ -3210,7 +3210,7 @@ function initMap( fromSession = false ) {
                                    position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                                    map: map,
                                    title: name,
-                                   icon: "./assets/streetlightsQubo.svg"
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740777716/qubo/qubos/streetlights_2_qo7psg.svg"
                               } );
 
                               marker.addListener( "click", () => {
@@ -3280,7 +3280,7 @@ function initMap( fromSession = false ) {
                          position: { lat: lat, lng: lng },
                          map: map,
                          title: item.name.value,
-                         icon: "./assets/energyAndEfficiency_Qubo.svg"
+                         icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740777930/qubo/qubos/energyefficiency_2_bxqjew.svg"
                     } );
 
                     energyEfficiencyMarker.addListener( 'click', () => {
@@ -3349,7 +3349,7 @@ function initMap( fromSession = false ) {
                                    position: { lat: parseFloat( camara.Latitud ), lng: parseFloat( camara.Longitud ) },
                                    map: null, // No añadir al mapa de inmediato
                                    title: `Marcador Cámara`,
-                                   icon: "./assets/quboCamaras.svg",
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186036/qubo/qubos/quboCamaras_cggy7p.svg",
                               } );
 
                               // Almacenar el marcador en el arreglo global
@@ -3396,7 +3396,7 @@ function initMap( fromSession = false ) {
                                    position: { lat: parseFloat( camara.geo_point_2d.lat ), lng: parseFloat( camara.geo_point_2d.lon ) },
                                    map: null, // No añadir al mapa de inmediato
                                    title: `Marcador Cámara`,
-                                   icon: "./assets/quboCamaras.svg",
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186036/qubo/qubos/quboCamaras_cggy7p.svg",
                               } );
 
                               // Agrega el evento click para mostrar el contenido en un infoBox
@@ -3526,49 +3526,49 @@ function initMap( fromSession = false ) {
      const eventBoats = document.getElementById( "boats-sub-nav-item" );
      const proxyUrlBoats = '/api/proxy?url=';
      eventBoats.addEventListener( 'click', function () {
-          iniciarBarcoEnMapa( 1, './assets/boats_Qubo.svg', 'Barco 1', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Mobility_Boats.json?sp=r&st=2024-04-01T11:12:53Z&se=2090-01-01T20:12:53Z&sv=2022-11-02&sr=b&sig=sfxwYCe7JJ0ZeuDv6bloxXNQdCpVAs28Qw22HdpJGxk%3D' ) }` );
+          iniciarBarcoEnMapa( 1, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 1', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Mobility_Boats.json?sp=r&st=2024-04-01T11:12:53Z&se=2090-01-01T20:12:53Z&sv=2022-11-02&sr=b&sig=sfxwYCe7JJ0ZeuDv6bloxXNQdCpVAs28Qw22HdpJGxk%3D' ) }` );
 
-          iniciarBarcoEnMapa( 2, './assets/boats_Qubo.svg', 'Barco 2', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_2.json?sp=r&st=2024-04-01T20:16:42Z&se=2090-01-01T05:16:42Z&sv=2022-11-02&sr=b&sig=qcjPW89tElqDN59MnZ1ywua3aopyrBhVHzt7OlTeEbk%3D' ) }` );
+          iniciarBarcoEnMapa( 2, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 2', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_2.json?sp=r&st=2024-04-01T20:16:42Z&se=2090-01-01T05:16:42Z&sv=2022-11-02&sr=b&sig=qcjPW89tElqDN59MnZ1ywua3aopyrBhVHzt7OlTeEbk%3D' ) }` );
 
-          iniciarBarcoEnMapa( 4, './assets/boats_Qubo.svg', 'Barco 4', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_4.json?sp=r&st=2024-04-01T20:17:48Z&se=2090-01-01T05:17:48Z&sv=2022-11-02&sr=b&sig=EcsDdDpqTcPAq32J0VTlr9zGc20NspvzOqh0iBCzdAE%3D' ) }` );
+          iniciarBarcoEnMapa( 4, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 4', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_4.json?sp=r&st=2024-04-01T20:17:48Z&se=2090-01-01T05:17:48Z&sv=2022-11-02&sr=b&sig=EcsDdDpqTcPAq32J0VTlr9zGc20NspvzOqh0iBCzdAE%3D' ) }` );
 
-          iniciarBarcoEnMapa( 5, './assets/boats_Qubo.svg', 'Barco 5', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_5.json?sp=r&st=2024-04-01T20:18:09Z&se=2090-01-01T05:18:09Z&sv=2022-11-02&sr=b&sig=agT3rXaXP1ZXMO0Sf8OKeuzxTbLx%2FVcrt5fSOvcWMUE%3D' ) }` );
+          iniciarBarcoEnMapa( 5, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 5', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_5.json?sp=r&st=2024-04-01T20:18:09Z&se=2090-01-01T05:18:09Z&sv=2022-11-02&sr=b&sig=agT3rXaXP1ZXMO0Sf8OKeuzxTbLx%2FVcrt5fSOvcWMUE%3D' ) }` );
 
-          iniciarBarcoEnMapa( 6, './assets/boats_Qubo.svg', 'Barco 6', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_6.json?sp=r&st=2024-04-01T20:18:35Z&se=2090-01-01T05:18:35Z&sv=2022-11-02&sr=b&sig=bO%2FRFK8iOg0y2lRLe8uBf9ojTTCcODoZ7VSs0RfEHyY%3D' ) }` );
+          iniciarBarcoEnMapa( 6, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 6', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_6.json?sp=r&st=2024-04-01T20:18:35Z&se=2090-01-01T05:18:35Z&sv=2022-11-02&sr=b&sig=bO%2FRFK8iOg0y2lRLe8uBf9ojTTCcODoZ7VSs0RfEHyY%3D' ) }` );
 
-          iniciarBarcoEnMapa( 7, './assets/boats_Qubo.svg', 'Barco 7', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_7.json?sp=r&st=2024-04-01T20:18:56Z&se=2090-01-01T05:18:56Z&sv=2022-11-02&sr=b&sig=xR2BcP2a3W8SDjKjn84aOjwWwv4lEyeaLdIotZ4RZig%3D' ) }` );
+          iniciarBarcoEnMapa( 7, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 7', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_7.json?sp=r&st=2024-04-01T20:18:56Z&se=2090-01-01T05:18:56Z&sv=2022-11-02&sr=b&sig=xR2BcP2a3W8SDjKjn84aOjwWwv4lEyeaLdIotZ4RZig%3D' ) }` );
 
-          iniciarBarcoEnMapa( 8, './assets/boats_Qubo.svg', 'Barco 8', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_8.json?sp=r&st=2024-04-01T20:19:18Z&se=2090-01-01T05:19:18Z&sv=2022-11-02&sr=b&sig=kUij3HyVFdPMeoH5TkNXlQoeqnNVII%2BsUMmJUUtjMkA%3D' ) }` );
+          iniciarBarcoEnMapa( 8, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 8', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_8.json?sp=r&st=2024-04-01T20:19:18Z&se=2090-01-01T05:19:18Z&sv=2022-11-02&sr=b&sig=kUij3HyVFdPMeoH5TkNXlQoeqnNVII%2BsUMmJUUtjMkA%3D' ) }` );
 
-          iniciarBarcoEnMapa( 10, './assets/boats_Qubo.svg', 'Barco 10', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_10.json?sp=r&st=2024-04-01T20:19:55Z&se=2090-01-01T05:19:55Z&sv=2022-11-02&sr=b&sig=QTCF9TFz9LyP574FpI2ZqxtfizuSl%2FixsaEpNcpwbXY%3D' ) }` );
+          iniciarBarcoEnMapa( 10, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 10', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_10.json?sp=r&st=2024-04-01T20:19:55Z&se=2090-01-01T05:19:55Z&sv=2022-11-02&sr=b&sig=QTCF9TFz9LyP574FpI2ZqxtfizuSl%2FixsaEpNcpwbXY%3D' ) }` );
 
-          iniciarBarcoEnMapa( 12, './assets/boats_Qubo.svg', 'Barco 12', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_12.json?sp=r&st=2024-04-01T20:22:27Z&se=2090-01-01T05:22:27Z&sv=2022-11-02&sr=b&sig=bK3BbuLhYxSVKNIjW4GvAP%2BiiWTjNK90%2Blte%2F%2Fa0iyQ%3D' ) }` );
+          iniciarBarcoEnMapa( 12, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 12', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_12.json?sp=r&st=2024-04-01T20:22:27Z&se=2090-01-01T05:22:27Z&sv=2022-11-02&sr=b&sig=bK3BbuLhYxSVKNIjW4GvAP%2BiiWTjNK90%2Blte%2F%2Fa0iyQ%3D' ) }` );
 
-          iniciarBarcoEnMapa( 13, './assets/boats_Qubo.svg', 'Barco 13', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_13.json?sp=r&st=2024-04-01T20:22:50Z&se=2090-01-01T05:22:50Z&sv=2022-11-02&sr=b&sig=gaVzoTsoeHYl9SL1Dzxu1er7zsdabVTUf%2FoP%2B2UvDfE%3D' ) }` );
+          iniciarBarcoEnMapa( 13, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 13', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_13.json?sp=r&st=2024-04-01T20:22:50Z&se=2090-01-01T05:22:50Z&sv=2022-11-02&sr=b&sig=gaVzoTsoeHYl9SL1Dzxu1er7zsdabVTUf%2FoP%2B2UvDfE%3D' ) }` );
 
-          iniciarBarcoEnMapa( 14, './assets/boats_Qubo.svg', 'Barco 14', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_14.json?sp=r&st=2024-04-01T20:23:09Z&se=2090-01-01T05:23:09Z&sv=2022-11-02&sr=b&sig=8QD6qBWVvZb1WBvftoVDhFKhUek%2FdU2h1ObYAya8rkw%3D' ) }` );
+          iniciarBarcoEnMapa( 14, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 14', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_14.json?sp=r&st=2024-04-01T20:23:09Z&se=2090-01-01T05:23:09Z&sv=2022-11-02&sr=b&sig=8QD6qBWVvZb1WBvftoVDhFKhUek%2FdU2h1ObYAya8rkw%3D' ) }` );
 
-          iniciarBarcoEnMapa( 15, './assets/boats_Qubo.svg', 'Barco 15', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_15.json?sp=r&st=2024-04-01T20:23:28Z&se=2090-01-01T05:23:28Z&sv=2022-11-02&sr=b&sig=E4hgKifHPCKlUxIOQkecZG5Z%2FbQb7rWYoAM6EO0%2F9ZQ%3D' ) }` );
+          iniciarBarcoEnMapa( 15, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 15', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_15.json?sp=r&st=2024-04-01T20:23:28Z&se=2090-01-01T05:23:28Z&sv=2022-11-02&sr=b&sig=E4hgKifHPCKlUxIOQkecZG5Z%2FbQb7rWYoAM6EO0%2F9ZQ%3D' ) }` );
 
-          iniciarBarcoEnMapa( 16, './assets/boats_Qubo.svg', 'Barco 16', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_16.json?sp=r&st=2024-04-01T20:23:45Z&se=2090-01-01T05:23:45Z&sv=2022-11-02&sr=b&sig=XRHHu9bc59wLdLXODmgxYKWHc%2FMHxBNegepX7DQMK5M%3D' ) }` );
+          iniciarBarcoEnMapa( 16, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 16', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_16.json?sp=r&st=2024-04-01T20:23:45Z&se=2090-01-01T05:23:45Z&sv=2022-11-02&sr=b&sig=XRHHu9bc59wLdLXODmgxYKWHc%2FMHxBNegepX7DQMK5M%3D' ) }` );
 
-          iniciarBarcoEnMapa( 17, './assets/boats_Qubo.svg', 'Barco 17', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_17.json?sp=r&st=2024-04-01T20:24:03Z&se=2024-04-02T04:24:03Z&sv=2022-11-02&sr=b&sig=PXYhpSa%2BmKl6zH4oG7cdu3MmmHO4RQYA54Wy%2F%2F2r%2BJU%3D' ) }` );
+          iniciarBarcoEnMapa( 17, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 17', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_17.json?sp=r&st=2024-04-01T20:24:03Z&se=2024-04-02T04:24:03Z&sv=2022-11-02&sr=b&sig=PXYhpSa%2BmKl6zH4oG7cdu3MmmHO4RQYA54Wy%2F%2F2r%2BJU%3D' ) }` );
 
-          iniciarBarcoEnMapa( 18, './assets/boats_Qubo.svg', 'Barco 18', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_18.json?sp=r&st=2024-04-01T20:24:18Z&se=2090-01-01T05:24:18Z&sv=2022-11-02&sr=b&sig=KcB1r84uAdX9kHjmoR6QcvrzPZGfy9KLcpW20Rcf62I%3D' ) }` );
+          iniciarBarcoEnMapa( 18, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 18', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_18.json?sp=r&st=2024-04-01T20:24:18Z&se=2090-01-01T05:24:18Z&sv=2022-11-02&sr=b&sig=KcB1r84uAdX9kHjmoR6QcvrzPZGfy9KLcpW20Rcf62I%3D' ) }` );
 
-          iniciarBarcoEnMapa( 19, './assets/boats_Qubo.svg', 'Barco 19', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_19.json?sp=r&st=2024-04-01T20:24:41Z&se=2090-01-01T05:24:41Z&sv=2022-11-02&sr=b&sig=amlh5UkJrvl41biDJveOesGDXNxcr2nFvjtQ3%2BE22Ew%3D' ) }` );
+          iniciarBarcoEnMapa( 19, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 19', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_19.json?sp=r&st=2024-04-01T20:24:41Z&se=2090-01-01T05:24:41Z&sv=2022-11-02&sr=b&sig=amlh5UkJrvl41biDJveOesGDXNxcr2nFvjtQ3%2BE22Ew%3D' ) }` );
 
-          iniciarBarcoEnMapa( 20, './assets/boats_Qubo.svg', 'Barco 20', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_20.json?sp=r&st=2024-04-01T20:25:06Z&se=2090-01-01T05:25:06Z&sv=2022-11-02&sr=b&sig=KSXgObS5DJuLM0%2Fs9o9VfpU7fMRmlu3pzneg6FsnZ0w%3D' ) }` );
+          iniciarBarcoEnMapa( 20, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 20', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barco_20.json?sp=r&st=2024-04-01T20:25:06Z&se=2090-01-01T05:25:06Z&sv=2022-11-02&sr=b&sig=KSXgObS5DJuLM0%2Fs9o9VfpU7fMRmlu3pzneg6FsnZ0w%3D' ) }` );
 
-          iniciarBarcoEnMapa( 21, './assets/boats_Qubo.svg', 'Barco 21', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barcaza_Manzanares.json?sp=r&st=2024-04-01T20:34:02Z&se=2090-01-01T05:34:02Z&sv=2022-11-02&sr=b&sig=mQrWa7j7rsyNISoeMjLQ51ux9DYURP%2BP%2B4GVGMhFYRc%3D' ) }` );
+          iniciarBarcoEnMapa( 21, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 21', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Barcaza_Manzanares.json?sp=r&st=2024-04-01T20:34:02Z&se=2090-01-01T05:34:02Z&sv=2022-11-02&sr=b&sig=mQrWa7j7rsyNISoeMjLQ51ux9DYURP%2BP%2B4GVGMhFYRc%3D' ) }` );
 
-          iniciarBarcoEnMapa( 22, './assets/boats_Qubo.svg', 'Barco 22', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Bote_de_Remos_Manzanares.json?sp=r&st=2024-04-01T20:34:19Z&se=2090-01-01T05:34:19Z&sv=2022-11-02&sr=b&sig=h5zhYZzpd4yyAL%2FlgMxkPW4NPDr7GqAeJGeS%2FCgdUG8%3D' ) }` );
+          iniciarBarcoEnMapa( 22, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 22', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Bote_de_Remos_Manzanares.json?sp=r&st=2024-04-01T20:34:19Z&se=2090-01-01T05:34:19Z&sv=2022-11-02&sr=b&sig=h5zhYZzpd4yyAL%2FlgMxkPW4NPDr7GqAeJGeS%2FCgdUG8%3D' ) }` );
 
-          iniciarBarcoEnMapa( 23, './assets/boats_Qubo.svg', 'Barco 23', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Canoa_Manzanares.json?sp=r&st=2024-04-01T20:34:36Z&se=2090-01-01T05:34:36Z&sv=2022-11-02&sr=b&sig=fV7CQweEt%2FC%2FGXcVqq2daBHe4CEqW3OyNmMxmhYtr5k%3D' ) }` );
+          iniciarBarcoEnMapa( 23, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 23', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Canoa_Manzanares.json?sp=r&st=2024-04-01T20:34:36Z&se=2090-01-01T05:34:36Z&sv=2022-11-02&sr=b&sig=fV7CQweEt%2FC%2FGXcVqq2daBHe4CEqW3OyNmMxmhYtr5k%3D' ) }` );
 
-          iniciarBarcoEnMapa( 24, './assets/boats_Qubo.svg', 'Barco 24', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Go%CC%81ndola_Manzanares.json?sp=r&st=2024-04-01T20:34:55Z&se=2090-01-01T05:34:55Z&sv=2022-11-02&sr=b&sig=XfRnKoTEnJrhiJ7IytSs5Fd5X%2ByY9T%2B68%2B8%2FD67UAXk%3D' ) }` );
+          iniciarBarcoEnMapa( 24, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 24', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Go%CC%81ndola_Manzanares.json?sp=r&st=2024-04-01T20:34:55Z&se=2090-01-01T05:34:55Z&sv=2022-11-02&sr=b&sig=XfRnKoTEnJrhiJ7IytSs5Fd5X%2ByY9T%2B68%2B8%2FD67UAXk%3D' ) }` );
 
-          iniciarBarcoEnMapa( 25, './assets/boats_Qubo.svg', 'Barco 25', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Kayak_Manzanares.json?sp=r&st=2024-04-01T20:35:11Z&se=2090-01-01T05:35:11Z&sv=2022-11-02&sr=b&sig=XiOKYdZXVtxDGp2YR8k00SmcAH29M307J47jRf39uTI%3D' ) }` );
+          iniciarBarcoEnMapa( 25, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg', 'Barco 25', `${ proxyUrlBoats }${ encodeURIComponent( 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Boats/Kayak_Manzanares.json?sp=r&st=2024-04-01T20:35:11Z&se=2090-01-01T05:35:11Z&sv=2022-11-02&sr=b&sig=XiOKYdZXVtxDGp2YR8k00SmcAH29M307J47jRf39uTI%3D' ) }` );
      } );
 
      //! Función para Marcadores de TAXIS
@@ -3743,20 +3743,20 @@ function initMap( fromSession = false ) {
      }
      const eventTaxis = document.getElementById( "taxi-sub-nav-item" );
      eventTaxis.addEventListener( 'click', function () {
-          iniciarTaxiEnMapa( 1, './assets/taxi_Qubo.svg', 'Taxi 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_1.json?sp=r&st=2024-05-05T12:59:09Z&se=2090-01-01T21:59:09Z&sv=2022-11-02&sr=b&sig=LrrbsIQ9IX%2FT3acpNYWvCsqOWGH8I%2BFQZG12GDwb%2FOI%3D' );
-          iniciarTaxiEnMapa( 2, './assets/taxi_Qubo.svg', 'Taxi 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_2.json?sp=r&st=2024-05-05T12:59:33Z&se=2090-01-01T21:59:33Z&sv=2022-11-02&sr=b&sig=EStTUjjcdxuxdGK4DkjlZ0xlp5jzWHXIOK3lbkh9vyc%3D' );
-          iniciarTaxiEnMapa( 3, './assets/taxi_Qubo.svg', 'Taxi 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_11.json?sp=r&st=2024-05-05T13:02:13Z&se=2090-01-01T22:02:13Z&sv=2022-11-02&sr=b&sig=ji2pBfCEDhrrhDh7cfregbvzp165AEmOc371FZQhm2Q%3D' );
-          iniciarTaxiEnMapa( 4, './assets/taxi_Qubo.svg', 'Taxi 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_12.json?sp=r&st=2024-05-05T13:02:29Z&se=2090-01-01T22:02:29Z&sv=2022-11-02&sr=b&sig=3WX9L1e8V9jp7XGnuQLCjT1q7728sjtUGEB1S%2Bz9d0I%3D' );
-          iniciarTaxiEnMapa( 5, './assets/taxi_Qubo.svg', 'Taxi 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_13.json?sp=r&st=2024-05-05T13:02:44Z&se=2090-01-01T22:02:44Z&sv=2022-11-02&sr=b&sig=nd7FmMn1m1LC0FDlY43tVZMIpAFZmUso%2Fu%2FwJXggQsE%3D' );
-          iniciarTaxiEnMapa( 6, './assets/taxi_Qubo.svg', 'Taxi 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_16.json?sp=r&st=2024-05-15T13:32:48Z&se=2090-01-01T22:32:48Z&sv=2022-11-02&sr=b&sig=G9OSU8m1LdqEpqAUqHGQ82AbuN4fKMxJu6G4y%2FexYWs%3D' );
-          iniciarTaxiEnMapa( 7, './assets/taxi_Qubo.svg', 'Taxi 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_17.json?sp=r&st=2024-05-15T13:33:23Z&se=2090-01-01T22:33:23Z&sv=2022-11-02&sr=b&sig=7QbScLbxDpVcfEvQUXhBXrN0qvGnsvACClq1wX8LHc8%3D' );
-          iniciarTaxiEnMapa( 8, './assets/taxi_Qubo.svg', 'Taxi 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_18.json?sp=r&st=2024-05-15T13:33:43Z&se=2090-01-01T22:33:43Z&sv=2022-11-02&sr=b&sig=CyyWzzHKY75jXR2Rq1NHuexqyFs5rqnirru0PwOVtCU%3D' );
-          iniciarTaxiEnMapa( 9, './assets/taxi_Qubo.svg', 'Taxi 9', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_19.json?sp=r&st=2024-05-15T13:34:01Z&se=2090-01-01T22:34:01Z&sv=2022-11-02&sr=b&sig=J2v6GEvfn4OSVg9QXm8IvRISXZ%2FwDVihtzLG6szeig4%3D' );
-          iniciarTaxiEnMapa( 10, './assets/taxi_Qubo.svg', 'Taxi 10', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_20.json?sp=r&st=2024-05-15T13:34:20Z&se=2090-01-01T22:34:20Z&sv=2022-11-02&sr=b&sig=jJsbMNgmqLYPAsvrRbjjUnP9Ri8C%2BFA0jXy7yc9GQo4%3D' );
-          iniciarTaxiEnMapa( 11, './assets/taxi_Qubo.svg', 'Taxi 11', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_21.json?sp=r&st=2024-05-15T13:34:39Z&se=2090-01-01T22:34:39Z&sv=2022-11-02&sr=b&sig=e3StfQUOWfpgLMG5ATgeupZBFDtWqoANfrQxVrcqRjM%3D' );
-          iniciarTaxiEnMapa( 12, './assets/taxi_Qubo.svg', 'Taxi 12', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_22.json?sp=r&st=2024-05-15T13:34:57Z&se=2090-01-01T22:34:57Z&sv=2022-11-02&sr=b&sig=lKKeD5irdWvgQiWTyH%2FKiqbB8%2BjUjT2DWRl3YCsHqns%3D' );
-          iniciarTaxiEnMapa( 13, './assets/taxi_Qubo.svg', 'Taxi 13', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_23.json?sp=r&st=2024-05-15T13:35:17Z&se=2090-01-01T22:35:17Z&sv=2022-11-02&sr=b&sig=kFe1qCr%2Fw%2F4oihwBQB%2B1GNHvgKFkozDfzWxxXBS4yvI%3D' );
-          iniciarTaxiEnMapa( 14, './assets/taxi_Qubo.svg', 'Taxi 14', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_24.json?sp=r&st=2024-05-15T13:35:34Z&se=2090-01-01T22:35:34Z&sv=2022-11-02&sr=b&sig=mXSP7BflqkYkIPNPR5tijhSoZ8bCm5wkXVbk0SzW3DA%3D' );
+          iniciarTaxiEnMapa( 1, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_1.json?sp=r&st=2024-05-05T12:59:09Z&se=2090-01-01T21:59:09Z&sv=2022-11-02&sr=b&sig=LrrbsIQ9IX%2FT3acpNYWvCsqOWGH8I%2BFQZG12GDwb%2FOI%3D' );
+          iniciarTaxiEnMapa( 2, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_2.json?sp=r&st=2024-05-05T12:59:33Z&se=2090-01-01T21:59:33Z&sv=2022-11-02&sr=b&sig=EStTUjjcdxuxdGK4DkjlZ0xlp5jzWHXIOK3lbkh9vyc%3D' );
+          iniciarTaxiEnMapa( 3, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_11.json?sp=r&st=2024-05-05T13:02:13Z&se=2090-01-01T22:02:13Z&sv=2022-11-02&sr=b&sig=ji2pBfCEDhrrhDh7cfregbvzp165AEmOc371FZQhm2Q%3D' );
+          iniciarTaxiEnMapa( 4, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_12.json?sp=r&st=2024-05-05T13:02:29Z&se=2090-01-01T22:02:29Z&sv=2022-11-02&sr=b&sig=3WX9L1e8V9jp7XGnuQLCjT1q7728sjtUGEB1S%2Bz9d0I%3D' );
+          iniciarTaxiEnMapa( 5, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_13.json?sp=r&st=2024-05-05T13:02:44Z&se=2090-01-01T22:02:44Z&sv=2022-11-02&sr=b&sig=nd7FmMn1m1LC0FDlY43tVZMIpAFZmUso%2Fu%2FwJXggQsE%3D' );
+          iniciarTaxiEnMapa( 6, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_16.json?sp=r&st=2024-05-15T13:32:48Z&se=2090-01-01T22:32:48Z&sv=2022-11-02&sr=b&sig=G9OSU8m1LdqEpqAUqHGQ82AbuN4fKMxJu6G4y%2FexYWs%3D' );
+          iniciarTaxiEnMapa( 7, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_17.json?sp=r&st=2024-05-15T13:33:23Z&se=2090-01-01T22:33:23Z&sv=2022-11-02&sr=b&sig=7QbScLbxDpVcfEvQUXhBXrN0qvGnsvACClq1wX8LHc8%3D' );
+          iniciarTaxiEnMapa( 8, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_18.json?sp=r&st=2024-05-15T13:33:43Z&se=2090-01-01T22:33:43Z&sv=2022-11-02&sr=b&sig=CyyWzzHKY75jXR2Rq1NHuexqyFs5rqnirru0PwOVtCU%3D' );
+          iniciarTaxiEnMapa( 9, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 9', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_19.json?sp=r&st=2024-05-15T13:34:01Z&se=2090-01-01T22:34:01Z&sv=2022-11-02&sr=b&sig=J2v6GEvfn4OSVg9QXm8IvRISXZ%2FwDVihtzLG6szeig4%3D' );
+          iniciarTaxiEnMapa( 10, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 10', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_20.json?sp=r&st=2024-05-15T13:34:20Z&se=2090-01-01T22:34:20Z&sv=2022-11-02&sr=b&sig=jJsbMNgmqLYPAsvrRbjjUnP9Ri8C%2BFA0jXy7yc9GQo4%3D' );
+          iniciarTaxiEnMapa( 11, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 11', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_21.json?sp=r&st=2024-05-15T13:34:39Z&se=2090-01-01T22:34:39Z&sv=2022-11-02&sr=b&sig=e3StfQUOWfpgLMG5ATgeupZBFDtWqoANfrQxVrcqRjM%3D' );
+          iniciarTaxiEnMapa( 12, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 12', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_22.json?sp=r&st=2024-05-15T13:34:57Z&se=2090-01-01T22:34:57Z&sv=2022-11-02&sr=b&sig=lKKeD5irdWvgQiWTyH%2FKiqbB8%2BjUjT2DWRl3YCsHqns%3D' );
+          iniciarTaxiEnMapa( 13, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 13', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_23.json?sp=r&st=2024-05-15T13:35:17Z&se=2090-01-01T22:35:17Z&sv=2022-11-02&sr=b&sig=kFe1qCr%2Fw%2F4oihwBQB%2B1GNHvgKFkozDfzWxxXBS4yvI%3D' );
+          iniciarTaxiEnMapa( 14, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/taxi_Qubo_x6ekeo.svg', 'Taxi 14', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Taxi/Taxi_24.json?sp=r&st=2024-05-15T13:35:34Z&se=2090-01-01T22:35:34Z&sv=2022-11-02&sr=b&sig=mXSP7BflqkYkIPNPR5tijhSoZ8bCm5wkXVbk0SzW3DA%3D' );
 
      } );
 
@@ -3974,30 +3974,30 @@ function initMap( fromSession = false ) {
      const eventVTC = document.getElementById( "vtc-sub-nav-item" );
      eventVTC.addEventListener( 'click', function () {
 
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC MockApi 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%201.geojson?sp=r&st=2024-04-01T16:22:01Z&se=2090-01-01T01:22:01Z&sv=2022-11-02&sr=b&sig=8i9smCqqzKHcPPwhxMn%2FpLB0xts8%2B1qJi6yBASFzwlY%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC MockApi 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%202.geojson?sp=r&st=2024-04-01T16:34:25Z&se=2090-01-01T01:34:25Z&sv=2022-11-02&sr=b&sig=5u9j0ygTWCeU6SCuyHRvbBCcH8bE2%2ByrTTCoPPCgBQ8%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%203.geojson?sp=r&st=2024-04-01T16:36:07Z&se=2090-01-01T01:36:07Z&sv=2022-11-02&sr=b&sig=eN6tTU8vWB%2F%2BC7E2DqfiG87cqwGXPLgBJ5zWg9X6plE%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC MockApi 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%201.geojson?sp=r&st=2024-04-01T16:22:01Z&se=2090-01-01T01:22:01Z&sv=2022-11-02&sr=b&sig=8i9smCqqzKHcPPwhxMn%2FpLB0xts8%2B1qJi6yBASFzwlY%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC MockApi 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%202.geojson?sp=r&st=2024-04-01T16:34:25Z&se=2090-01-01T01:34:25Z&sv=2022-11-02&sr=b&sig=5u9j0ygTWCeU6SCuyHRvbBCcH8bE2%2ByrTTCoPPCgBQ8%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC%203.geojson?sp=r&st=2024-04-01T16:36:07Z&se=2090-01-01T01:36:07Z&sv=2022-11-02&sr=b&sig=eN6tTU8vWB%2F%2BC7E2DqfiG87cqwGXPLgBJ5zWg9X6plE%3D' );
 
 
           // VTCs con el nuevo formato
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 11', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_11.json?sp=r&st=2024-05-05T13:12:33Z&se=2090-01-01T22:12:33Z&sv=2022-11-02&sr=b&sig=w%2FYVsXhiwaQtg1Be9yZ%2F3HVrXcywSst4NcuM6c6P9Fc%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 12', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_12.json?sp=r&st=2024-05-05T13:13:14Z&se=2090-01-01T22:13:14Z&sv=2022-11-02&sr=b&sig=GKR2K8XPg5CLgJbNFp3fXrK1myqdALzu1%2FoONe4LUbc%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 13', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_13.json?sp=r&st=2024-05-05T13:13:31Z&se=2090-01-01T22:13:31Z&sv=2022-11-02&sr=b&sig=VSkwowOd6%2Fi5SDoVYrATfMIHHRAf1Yvi6iqgg12zhM8%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 14', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_14.json?sp=r&st=2024-05-05T13:13:46Z&se=2090-01-01T22:13:46Z&sv=2022-11-02&sr=b&sig=4X4SajK%2FiUDLr7OzIWxL9VJ%2FaqE57N0riS9E9trD%2FMs%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 15', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_15.json?sp=r&st=2024-05-05T13:14:01Z&se=2090-01-01T22:14:01Z&sv=2022-11-02&sr=b&sig=8EOBHT419vcluh%2BYj8OhlpzR%2BrSeF5mKlHuzXowwC8U%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 16', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_16.json?sp=r&st=2024-05-05T13:14:17Z&se=2090-01-01T22:14:17Z&sv=2022-11-02&sr=b&sig=RZWTLUfgUFcONifaFNpVgk4yFcRtj0semoCEvWhiiNE%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 17', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_17.json?sp=r&st=2024-05-05T13:14:34Z&se=2090-01-01T22:14:34Z&sv=2022-11-02&sr=b&sig=0OGg5qCHOQ7wpJnr%2FLKDWr9MpFlnSjV%2Fq1ynPwwIyNs%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 18', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_18.json?sp=r&st=2024-05-05T13:14:48Z&se=2090-01-01T22:14:48Z&sv=2022-11-02&sr=b&sig=d4aNlpmXBYYjM5SjXzcxq5eqHoMv5KwPUlbavKp8NQs%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 19', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_19.json?sp=r&st=2024-05-05T13:15:04Z&se=2090-01-01T22:15:04Z&sv=2022-11-02&sr=b&sig=%2FelIJMkM9c%2F5hxEUePDvF2xnB%2B%2B6TTOPnPjFv1XreiY%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 20', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_20.json?sp=r&st=2024-05-05T13:15:19Z&se=2090-01-01T22:15:19Z&sv=2022-11-02&sr=b&sig=MoU91DtxmF%2FZsRILq5XQ43FlGB%2FJRpQshsTz7%2FbWhdg%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 21', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_21.json?sp=r&st=2024-05-05T13:15:35Z&se=2090-01-01T22:15:35Z&sv=2022-11-02&sr=b&sig=2gNq4Kr812ev1xFnYTckHVcn%2BUroyrmBItyoKz9h6MQ%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 22', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_22.json?sp=r&st=2024-05-05T13:15:54Z&se=2090-01-01T22:15:54Z&sv=2022-11-02&sr=b&sig=mW62af88nIVk%2FpSy3xdMwOpr4copLXBM%2FZCo4S3ezrU%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 23', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_23.json?sp=r&st=2024-05-05T13:16:09Z&se=2090-01-01T22:16:09Z&sv=2022-11-02&sr=b&sig=qAz4epH5kHVGKa6vBuOyuqdq6DfN7lcBaB5ZaViikPc%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 24', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_24.json?sp=r&st=2024-05-05T13:16:26Z&se=2090-01-01T22:16:26Z&sv=2022-11-02&sr=b&sig=uW5xgdEaGnYywvIUSkMWw0WycSMOqQjNU%2FCR%2FyQ2fOk%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 25', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_25.json?sp=r&st=2024-05-05T13:16:43Z&se=2090-01-01T22:16:43Z&sv=2022-11-02&sr=b&sig=%2F6eFUu5FvaCNsWDDxZbDPyijoNfG6Urr8s4BK5HXC7E%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 26', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_26.json?sp=r&st=2024-05-05T13:16:57Z&se=2090-01-01T22:16:57Z&sv=2022-11-02&sr=b&sig=IHhxq1zeMRyGhAeZwQOhItLHh0I%2FqJCqSzpCSHGI0sw%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 27', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_27.json?sp=r&st=2024-05-05T13:17:12Z&se=2090-01-01T22:17:12Z&sv=2022-11-02&sr=b&sig=nt24LXOsDSgmy7z098Ob2M6jVJjBgTtROundB6xx6HA%3D' );
-          iniciarMarcadorVTC( './assets/vtc_Qubo.svg', 'VTC 28', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_28.json?sp=r&st=2024-05-05T13:17:28Z&se=2090-01-01T22:17:28Z&sv=2022-11-02&sr=b&sig=bzFt3CAgETIuFjvHUwVAYhN9Krw4eAvwGkHWlWzvWCU%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 11', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_11.json?sp=r&st=2024-05-05T13:12:33Z&se=2090-01-01T22:12:33Z&sv=2022-11-02&sr=b&sig=w%2FYVsXhiwaQtg1Be9yZ%2F3HVrXcywSst4NcuM6c6P9Fc%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 12', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_12.json?sp=r&st=2024-05-05T13:13:14Z&se=2090-01-01T22:13:14Z&sv=2022-11-02&sr=b&sig=GKR2K8XPg5CLgJbNFp3fXrK1myqdALzu1%2FoONe4LUbc%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 13', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_13.json?sp=r&st=2024-05-05T13:13:31Z&se=2090-01-01T22:13:31Z&sv=2022-11-02&sr=b&sig=VSkwowOd6%2Fi5SDoVYrATfMIHHRAf1Yvi6iqgg12zhM8%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 14', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_14.json?sp=r&st=2024-05-05T13:13:46Z&se=2090-01-01T22:13:46Z&sv=2022-11-02&sr=b&sig=4X4SajK%2FiUDLr7OzIWxL9VJ%2FaqE57N0riS9E9trD%2FMs%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 15', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_15.json?sp=r&st=2024-05-05T13:14:01Z&se=2090-01-01T22:14:01Z&sv=2022-11-02&sr=b&sig=8EOBHT419vcluh%2BYj8OhlpzR%2BrSeF5mKlHuzXowwC8U%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 16', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_16.json?sp=r&st=2024-05-05T13:14:17Z&se=2090-01-01T22:14:17Z&sv=2022-11-02&sr=b&sig=RZWTLUfgUFcONifaFNpVgk4yFcRtj0semoCEvWhiiNE%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 17', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_17.json?sp=r&st=2024-05-05T13:14:34Z&se=2090-01-01T22:14:34Z&sv=2022-11-02&sr=b&sig=0OGg5qCHOQ7wpJnr%2FLKDWr9MpFlnSjV%2Fq1ynPwwIyNs%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 18', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_18.json?sp=r&st=2024-05-05T13:14:48Z&se=2090-01-01T22:14:48Z&sv=2022-11-02&sr=b&sig=d4aNlpmXBYYjM5SjXzcxq5eqHoMv5KwPUlbavKp8NQs%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 19', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_19.json?sp=r&st=2024-05-05T13:15:04Z&se=2090-01-01T22:15:04Z&sv=2022-11-02&sr=b&sig=%2FelIJMkM9c%2F5hxEUePDvF2xnB%2B%2B6TTOPnPjFv1XreiY%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 20', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_20.json?sp=r&st=2024-05-05T13:15:19Z&se=2090-01-01T22:15:19Z&sv=2022-11-02&sr=b&sig=MoU91DtxmF%2FZsRILq5XQ43FlGB%2FJRpQshsTz7%2FbWhdg%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 21', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_21.json?sp=r&st=2024-05-05T13:15:35Z&se=2090-01-01T22:15:35Z&sv=2022-11-02&sr=b&sig=2gNq4Kr812ev1xFnYTckHVcn%2BUroyrmBItyoKz9h6MQ%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 22', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_22.json?sp=r&st=2024-05-05T13:15:54Z&se=2090-01-01T22:15:54Z&sv=2022-11-02&sr=b&sig=mW62af88nIVk%2FpSy3xdMwOpr4copLXBM%2FZCo4S3ezrU%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 23', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_23.json?sp=r&st=2024-05-05T13:16:09Z&se=2090-01-01T22:16:09Z&sv=2022-11-02&sr=b&sig=qAz4epH5kHVGKa6vBuOyuqdq6DfN7lcBaB5ZaViikPc%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 24', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_24.json?sp=r&st=2024-05-05T13:16:26Z&se=2090-01-01T22:16:26Z&sv=2022-11-02&sr=b&sig=uW5xgdEaGnYywvIUSkMWw0WycSMOqQjNU%2FCR%2FyQ2fOk%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 25', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_25.json?sp=r&st=2024-05-05T13:16:43Z&se=2090-01-01T22:16:43Z&sv=2022-11-02&sr=b&sig=%2F6eFUu5FvaCNsWDDxZbDPyijoNfG6Urr8s4BK5HXC7E%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 26', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_26.json?sp=r&st=2024-05-05T13:16:57Z&se=2090-01-01T22:16:57Z&sv=2022-11-02&sr=b&sig=IHhxq1zeMRyGhAeZwQOhItLHh0I%2FqJCqSzpCSHGI0sw%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 27', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_27.json?sp=r&st=2024-05-05T13:17:12Z&se=2090-01-01T22:17:12Z&sv=2022-11-02&sr=b&sig=nt24LXOsDSgmy7z098Ob2M6jVJjBgTtROundB6xx6HA%3D' );
+          iniciarMarcadorVTC( 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186039/qubo/qubos/vtc_Qubo_lzgdox.svg', 'VTC 28', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/VTC/VTC_28.json?sp=r&st=2024-05-05T13:17:28Z&se=2090-01-01T22:17:28Z&sv=2022-11-02&sr=b&sig=bzFt3CAgETIuFjvHUwVAYhN9Krw4eAvwGkHWlWzvWCU%3D' );
      } );
 
 
@@ -4038,7 +4038,7 @@ function initMap( fromSession = false ) {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/parkingsQubo.svg"
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740155107/qubo/qubos/parkingsQubo_w1gvgb.svg"
                          } );
 
                          marker.addListener( "click", () => {
@@ -4454,27 +4454,27 @@ function initMap( fromSession = false ) {
      eventMoto.addEventListener( "click", function () {
           const motos = [
                {
-                    iconUrl: "./assets/moto_Qubo.svg",
+                    iconUrl: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/moto_Qubo_f2jvqo.svg",
                     title: "Moto 1",
                     apiUrl: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_1.json?sp=r&st=2024-04-12T10:12:42Z&se=2090-01-01T19:12:42Z&sv=2022-11-02&sr=b&sig=DLKdONio%2FiFtsOuh%2FNbNzmfj0CV8y8fiGTAJTIXrOAo%3D",
                },
                {
-                    iconUrl: "./assets/moto_Qubo.svg",
+                    iconUrl: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/moto_Qubo_f2jvqo.svg",
                     title: "Moto 2",
                     apiUrl: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_2.json?sp=r&st=2024-04-12T10:13:00Z&se=2090-01-01T19:13:00Z&sv=2022-11-02&sr=b&sig=nPwp4TFqZQHiC%2BSUC%2BoKZvlAsQoWzUKWLP8dfRfWPXA%3D",
                },
                {
-                    iconUrl: "./assets/moto_Qubo.svg",
+                    iconUrl: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/moto_Qubo_f2jvqo.svg",
                     title: "Moto 3",
                     apiUrl: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_3.json?sp=r&st=2024-04-12T10:13:18Z&se=2090-01-01T19:13:18Z&sv=2022-11-02&sr=b&sig=5fcKh4PGkoHUk2RtokH1%2F%2B4Vu1OZ5%2Bp8z2NKoteltp8%3D",
                },
                {
-                    iconUrl: "./assets/moto_Qubo.svg",
+                    iconUrl: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/moto_Qubo_f2jvqo.svg",
                     title: "Moto 4",
                     apiUrl: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_4.json?sp=r&st=2024-04-12T10:13:35Z&se=2090-01-01T19:13:35Z&sv=2022-11-02&sr=b&sig=9d4Eui4QaFMOAOiUYCILkxcBscJJezgzLbPvGw5TWbo%3D",
                },
                {
-                    iconUrl: "./assets/moto_Qubo.svg",
+                    iconUrl: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/moto_Qubo_f2jvqo.svg",
                     title: "Moto 5",
                     apiUrl: "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Moto%20Sharing/MOTOSHARING_5.json?sp=r&st=2024-04-12T10:13:58Z&se=2090-01-01T19:13:58Z&sv=2022-11-02&sr=b&sig=0cu4ny5jnAbgK5LzSiRam7fDVx%2F797qf%2FCGlNQlDK54%3D",
                },
@@ -4726,102 +4726,102 @@ function initMap( fromSession = false ) {
      const eventScooter = document.getElementById( "scooter-sub-nav-item" );
      eventScooter.addEventListener( 'click', function () {
           // Ejemplo de cómo llamar a la función genérica para cada scooter sharing
-          const scooter1IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter1IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter1Title = "Scooter 1";
           const scooter1ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete%201.json?sp=r&st=2024-04-02T18:46:13Z&se=2090-01-01T03:46:13Z&sv=2022-11-02&sr=b&sig=iJYpyJ7YRjKj6tO%2ByPKPnVBcU5Gx8tMsRf2quj%2Bb65c%3D";
           iniciarMarcadorScooter( scooter1IconUrl, scooter1Title, scooter1ApiUrl );
 
-          const scooter2IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter2IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter2Title = "Scooter 2";
           const scooter2ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete%202.json?sp=r&st=2024-04-02T18:44:39Z&se=2090-03-04T03:44:39Z&sv=2022-11-02&sr=b&sig=OhEK47pToAk%2BtSb7amjpp29pgTBCggASO0jlXaGqCBw%3D";
           iniciarMarcadorScooter( scooter2IconUrl, scooter2Title, scooter2ApiUrl );
 
-          const scooter3IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter3IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter3Title = "Scooter 3";
           const scooter3ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_3.json?sp=r&st=2024-05-05T13:21:01Z&se=2090-01-01T22:21:01Z&sv=2022-11-02&sr=b&sig=alL60BQer3B8YdID5t4N1dP0h6om96NNgmGR5%2BsCRyY%3D";
           iniciarMarcadorScooter( scooter3IconUrl, scooter3Title, scooter3ApiUrl );
 
-          const scooter4IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter4IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter4Title = "Scooter 4";
           const scooter4ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_4.json?sp=r&st=2024-05-05T13:21:31Z&se=2090-01-01T22:21:31Z&sv=2022-11-02&sr=b&sig=6h5LeGguXBgp8ypVNZiQbZRuAhMSN3eP%2Bm6PSKk8zVA%3D";
           iniciarMarcadorScooter( scooter4IconUrl, scooter4Title, scooter4ApiUrl );
 
-          const scooter5IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter5IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter5Title = "Scooter 5";
           const scooter5ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_5.json?sp=r&st=2024-05-05T13:21:46Z&se=2090-01-01T22:21:46Z&sv=2022-11-02&sr=b&sig=mGEu9tVGmfZR87fsK6U3sjgUF2LAYi6Ubg2IyFcgnic%3D";
           iniciarMarcadorScooter( scooter5IconUrl, scooter5Title, scooter5ApiUrl );
 
-          const scooter6IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter6IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter6Title = "Scooter 6";
           const scooter6ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_6.json?sp=r&st=2024-05-05T13:22:50Z&se=2090-01-01T22:22:50Z&sv=2022-11-02&sr=b&sig=6%2BK%2Bv39ZAtcv0vpzwRdbpw6xxvQuc4kAg50j8%2F%2F3Fdg%3D";
           iniciarMarcadorScooter( scooter6IconUrl, scooter6Title, scooter6ApiUrl );
 
-          const scooter7IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter7IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter7Title = "Scooter 7";
           const scooter7ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_7.json?sp=r&st=2024-05-05T13:23:04Z&se=2090-01-01T22:23:04Z&sv=2022-11-02&sr=b&sig=4y4FEY5OAyAcz08kKFCgcHiv2de9JvyCi2fs7S%2FcoQw%3D";
           iniciarMarcadorScooter( scooter7IconUrl, scooter7Title, scooter7ApiUrl );
 
-          const scooter8IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter8IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter8Title = "Scooter 8";
           const scooter8ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_8.json?sp=r&st=2024-05-05T13:23:20Z&se=2090-01-01T22:23:20Z&sv=2022-11-02&sr=b&sig=YZfNemn44pc6R%2FVdivzGWkmbfOz921HsG9RT5TpS1Ys%3D";
           iniciarMarcadorScooter( scooter8IconUrl, scooter8Title, scooter8ApiUrl );
 
-          const scooter9IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter9IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter9Title = "Scooter 9";
           const scooter9ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_9.json?sp=r&st=2024-05-05T13:23:39Z&se=2090-01-01T22:23:39Z&sv=2022-11-02&sr=b&sig=VREUYjbRrv2fxQVEIGAdiCyyJ1QUvfzBblQ2Qw7FQkY%3D";
           iniciarMarcadorScooter( scooter9IconUrl, scooter9Title, scooter9ApiUrl );
 
-          const scooter10IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter10IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter10Title = "Scooter 10";
           const scooter10ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_10.json?sp=r&st=2024-05-05T13:23:56Z&se=2090-01-01T22:23:56Z&sv=2022-11-02&sr=b&sig=nheovrlc6DLi6idxYddVvrHUmaAbEuf6knC4tOzA0hw%3D";
           iniciarMarcadorScooter( scooter10IconUrl, scooter10Title, scooter10ApiUrl );
 
-          const scooter11IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter11IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter11Title = "Scooter 11";
           const scooter11ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_11.json?sp=r&st=2024-05-05T13:24:11Z&se=2090-01-01T22:24:11Z&sv=2022-11-02&sr=b&sig=RV%2F1Uz%2FWkvR7hXBxHsynoyoGMK6XUDkdPnZHyD5515Y%3D";
           iniciarMarcadorScooter( scooter11IconUrl, scooter11Title, scooter11ApiUrl );
 
-          const scooter12IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter12IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter12Title = "Scooter 12";
           const scooter12ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_12.json?sp=r&st=2024-05-05T13:24:26Z&se=2090-01-01T22:24:26Z&sv=2022-11-02&sr=b&sig=ROVYZd%2BW%2B74757kuOGCnX8Ql4IurRqLwjJCwYBUyfLs%3D";
           iniciarMarcadorScooter( scooter12IconUrl, scooter12Title, scooter12ApiUrl );
 
-          const scooter13IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter13IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter13Title = "Scooter 13";
           const scooter13ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_13.json?sp=r&st=2024-05-05T13:24:44Z&se=2090-01-01T22:24:44Z&sv=2022-11-02&sr=b&sig=UypbKG7FEtovLgdU8Hpm6rgi%2Bu4h8%2B2t%2B6VvYMUe2ZI%3D";
           iniciarMarcadorScooter( scooter13IconUrl, scooter13Title, scooter13ApiUrl );
 
-          const scooter14IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter14IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter14Title = "Scooter 14";
           const scooter14ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_14.json?sp=r&st=2024-05-05T13:25:00Z&se=2090-01-01T22:25:00Z&sv=2022-11-02&sr=b&sig=kNh4ET8M3DxkJD6UD2bqrcz4T0Snme%2B1e8u7tsUZNAs%3D";
           iniciarMarcadorScooter( scooter14IconUrl, scooter14Title, scooter14ApiUrl );
 
-          const scooter15IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter15IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter15Title = "Scooter 15";
           const scooter15ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_15.json?sp=r&st=2024-05-05T13:25:17Z&se=2090-01-01T22:25:17Z&sv=2022-11-02&sr=b&sig=ljAZRBwNLEPI6jaSof%2BpVK02qKmqVHwRLAZUicWZWVE%3D";
           iniciarMarcadorScooter( scooter15IconUrl, scooter15Title, scooter15ApiUrl );
 
-          const scooter16IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter16IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter16Title = "Scooter 16";
           const scooter16ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_16.json?sp=r&st=2024-05-05T13:25:35Z&se=2090-01-01T22:25:35Z&sv=2022-11-02&sr=b&sig=ZRQbVPnMl2VDV9TJkM02Xi5lbL48Mq78Eb7h44YSviQ%3D";
           iniciarMarcadorScooter( scooter16IconUrl, scooter16Title, scooter16ApiUrl );
 
-          const scooter17IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter17IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter17Title = "Scooter 17";
           const scooter17ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_17.json?sp=r&st=2024-05-05T13:25:50Z&se=2090-01-01T22:25:50Z&sv=2022-11-02&sr=b&sig=ZPGP3i%2F3Lf9MgMiomojCoLo0yKJg%2FWUJw7Z9IF1GgsM%3D";
           iniciarMarcadorScooter( scooter17IconUrl, scooter17Title, scooter17ApiUrl );
 
-          const scooter18IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter18IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter18Title = "Scooter 18";
           const scooter18ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_18.json?sp=r&st=2024-05-05T13:26:04Z&se=2090-01-01T22:26:04Z&sv=2022-11-02&sr=b&sig=njC1UyUC9RXBTgpVSWCsIP8ao%2BUYbs%2F7inw5dku2t3k%3D";
           iniciarMarcadorScooter( scooter18IconUrl, scooter18Title, scooter18ApiUrl );
 
-          const scooter19IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter19IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter19Title = "Scooter 19";
           const scooter19ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_19.json?sp=r&st=2024-05-05T13:26:18Z&se=2090-01-01T22:26:18Z&sv=2022-11-02&sr=b&sig=TM6qndkOSnvQLOjY4mMgLCR2TSyKn7g0NWhQ%2BtDb7q4%3D";
           iniciarMarcadorScooter( scooter19IconUrl, scooter19Title, scooter19ApiUrl );
 
-          const scooter20IconUrl = "./assets/scooter_Qubo.svg";
+          const scooter20IconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/scooter_Qubo_gmlifj.svg";
           const scooter20Title = "Scooter 20";
           const scooter20ApiUrl = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Scooter%20Sharing/Patinete_20.json?sp=r&st=2024-05-05T13:26:32Z&se=2090-01-01T22:26:32Z&sv=2022-11-02&sr=b&sig=cpoUSAjRDUxR7PdRyNlbqYyznpvhU%2BGlRwBiz1X1N2I%3D";
           iniciarMarcadorScooter( scooter20IconUrl, scooter20Title, scooter20ApiUrl );
@@ -5135,7 +5135,7 @@ function initMap( fromSession = false ) {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: './assets/stopBusQubo.svg' // Asegúrate de tener un icono para las paradas de autobús
+                              icon: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740247958/qubo/qubos/bus_lgobts.svg' // Asegúrate de tener un icono para las paradas de autobús
                          } );
 
                          marcadoresParadasBus.push( paradaMarker );
@@ -5525,7 +5525,7 @@ function initMap( fromSession = false ) {
      eventAirplane.addEventListener( 'click', function () {
           iniciarAvionEnMapa(
                'ryanair001',
-               './assets/airplaneQubo.svg',
+               'https://res.cloudinary.com/dafjggs2p/image/upload/v1740248382/qubo/qubos/airplane_bkkzrg.svg',
                'Ryanair Boeing 737',
                'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Airplanes/fiware_ryanair_boeing_737_corrected.json?sp=r&st=2024-10-23T18:12:42Z&se=2099-10-24T02:12:42Z&sv=2022-11-02&sr=b&sig=yVq5tGcz0c8YXoFu%2FvwtFHtgL%2FFBUt2t%2B6Jt6yUm0kw%3D'
           );
@@ -5636,14 +5636,14 @@ function initMap( fromSession = false ) {
      eventHelicopter.addEventListener( 'click', function () {
           iniciarHelicopteroEnMapa(
                'samur001',
-               './assets/helicopterQubo.svg',
+               'https://res.cloudinary.com/dafjggs2p/image/upload/v1740776005/qubo/qubos/helicopterQubo_sgwyep.svg',
                'Helicóptero SAMUR',
                'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Helicopters/fiware_helicopter_samur.json?sp=r&st=2024-10-27T11:24:57Z&se=2099-10-27T19:24:57Z&sv=2022-11-02&sr=b&sig=8lA%2FgwiHeqDNh8ICAeaaWyokcuwxAp2GmWzXeBNmr%2F0%3D'
           );
 
           iniciarHelicopteroEnMapa(
                'dgt001',
-               './assets/helicopterQubo.svg',
+               'https://res.cloudinary.com/dafjggs2p/image/upload/v1740776005/qubo/qubos/helicopterQubo_sgwyep.svg',
                'Helicóptero DGT Pegasus',
                'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Helicopters/fiware_helicopter_dgt_pegasus.json?sp=r&st=2024-10-27T11:46:04Z&se=2099-10-27T19:46:04Z&sv=2022-11-02&sr=b&sig=gUeO0XYrB4Mz%2F4CDzEzKQJwtQkMpg%2FtNp0Dxbq%2B4vk4%3D'
           );
@@ -5742,18 +5742,18 @@ function initMap( fromSession = false ) {
      const eventPolicia = document.getElementById( "police-sub-nav-item" );
      eventPolicia.addEventListener( 'click', function () {
           // iniciarPoliciaEnMapa();
-          iniciarMarcadorPolicia( 1, './assets/digitalTwinPolice.svg', 'Policía Municipal', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/POLICIA%20MUNICIPAL.json?sp=r&st=2024-04-12T10:18:27Z&se=2090-01-01T19:18:27Z&sv=2022-11-02&sr=b&sig=bjiUeiUu6249e2GARkN5s5px2Wnb53AdJrQbKiicVBs%3D' );
+          iniciarMarcadorPolicia( 1, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Policía Municipal', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/POLICIA%20MUNICIPAL.json?sp=r&st=2024-04-12T10:18:27Z&se=2090-01-01T19:18:27Z&sv=2022-11-02&sr=b&sig=bjiUeiUu6249e2GARkN5s5px2Wnb53AdJrQbKiicVBs%3D' );
 
-          iniciarMarcadorPolicia( 2, './assets/digitalTwinPolice.svg', 'Policía Nacional', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/POLICIA%20NACIONAL.json?sp=r&st=2024-04-12T10:18:55Z&se=2090-01-01T19:18:55Z&sv=2022-11-02&sr=b&sig=QUuR3BqwWc8PlqyosuDQAL8k6k%2Bh5mhqEPt7ME7ephI%3D' );
-          iniciarMarcadorPolicia( 3, './assets/digitalTwinPolice.svg', 'Vehículo Policía Municipal 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%202.json?sp=r&st=2024-04-13T10:38:40Z&se=2090-01-01T19:38:40Z&sv=2022-11-02&sr=b&sig=Ljgo16hG8iUtiHBJqHBpYHTDDUZZv9RF9i04ztjaVfs%3D' );
-          iniciarMarcadorPolicia( 4, './assets/digitalTwinPolice.svg', 'Vehículo Policía Municipal 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%203.json?sp=r&st=2024-04-13T10:38:57Z&se=2090-01-01T19:38:57Z&sv=2022-11-02&sr=b&sig=IP3pcipwSvq1cMNLpjr1W%2FBZjCPd5glP7H874%2FfhPWE%3D' );
-          iniciarMarcadorPolicia( 5, './assets/digitalTwinPolice.svg', 'Vehículo Policía Municipal 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%204.json?sp=r&st=2024-04-13T10:39:21Z&se=2090-01-01T19:39:21Z&sv=2022-11-02&sr=b&sig=jcbi9boBRMtPhMAocaQJfUYnuaVl9Gh4IQRKIS3rMWc%3D' );
-          iniciarMarcadorPolicia( 6, './assets/digitalTwinPolice.svg', 'Vehículo Policía Municipal 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%205.json?sp=r&st=2024-04-13T10:39:38Z&se=2090-01-01T19:39:38Z&sv=2022-11-02&sr=b&sig=DIL5gs%2FZSxUVi3HkT9cgmcrufxNu6iispaF07JrYYAw%3D' );
-          iniciarMarcadorPolicia( 7, './assets/digitalTwinPolice.svg', 'Vehículo Policía Municipal 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%206.json?sp=r&st=2024-04-13T11:58:01Z&se=2090-01-01T20:58:01Z&sv=2022-11-02&sr=b&sig=F%2BxKmZOci%2BQ5Q6QQoXUqp9snuyAH0XCZ8RlzQxyEVbM%3D' );
-          iniciarMarcadorPolicia( 8, './assets/digitalTwinPolice.svg', 'Vehículo Policía Municipal 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%207.json?sp=r&st=2024-04-13T11:57:25Z&se=2090-01-01T20:57:25Z&sv=2022-11-02&sr=b&sig=M4VdMbgUpm9SWnkZcKU4Qjg1wRwQRh5jW21pLvnysMM%3D' );
-          iniciarMarcadorPolicia( 9, './assets/digitalTwinPolice.svg', 'Vehículo Policía Municipal 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%208.json?sp=r&st=2024-04-13T11:58:27Z&se=2090-01-01T20:58:27Z&sv=2022-11-02&sr=b&sig=wl0B5fWxbJLJJejTWsNXXivpjecPXAzJw%2BhvnOjIFDk%3D' );
-          iniciarMarcadorPolicia( 10, './assets/digitalTwinPolice.svg', 'Vehículo Policía Municipal 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%209.json?sp=r&st=2024-04-13T12:02:51Z&se=2090-01-01T21:02:51Z&sv=2022-11-02&sr=b&sig=CiaYAd3FyHedPAx9WB3C6f8beIllF%2FJNSpbFeQetKXw%3D' );
-          iniciarMarcadorPolicia( 11, './assets/digitalTwinPolice.svg', 'Vehículo Policía Municipal 9', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%2010.json?sp=r&st=2024-04-13T12:03:55Z&se=2090-01-01T21:03:55Z&sv=2022-11-02&sr=b&sig=Ycfix07DscFJARyiPtY0NJCTzVFSe3TZXwjWpV7fh5g%3D' );
+          iniciarMarcadorPolicia( 2, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Policía Nacional', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/POLICIA%20NACIONAL.json?sp=r&st=2024-04-12T10:18:55Z&se=2090-01-01T19:18:55Z&sv=2022-11-02&sr=b&sig=QUuR3BqwWc8PlqyosuDQAL8k6k%2Bh5mhqEPt7ME7ephI%3D' );
+          iniciarMarcadorPolicia( 3, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%202.json?sp=r&st=2024-04-13T10:38:40Z&se=2090-01-01T19:38:40Z&sv=2022-11-02&sr=b&sig=Ljgo16hG8iUtiHBJqHBpYHTDDUZZv9RF9i04ztjaVfs%3D' );
+          iniciarMarcadorPolicia( 4, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%203.json?sp=r&st=2024-04-13T10:38:57Z&se=2090-01-01T19:38:57Z&sv=2022-11-02&sr=b&sig=IP3pcipwSvq1cMNLpjr1W%2FBZjCPd5glP7H874%2FfhPWE%3D' );
+          iniciarMarcadorPolicia( 5, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%204.json?sp=r&st=2024-04-13T10:39:21Z&se=2090-01-01T19:39:21Z&sv=2022-11-02&sr=b&sig=jcbi9boBRMtPhMAocaQJfUYnuaVl9Gh4IQRKIS3rMWc%3D' );
+          iniciarMarcadorPolicia( 6, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%205.json?sp=r&st=2024-04-13T10:39:38Z&se=2090-01-01T19:39:38Z&sv=2022-11-02&sr=b&sig=DIL5gs%2FZSxUVi3HkT9cgmcrufxNu6iispaF07JrYYAw%3D' );
+          iniciarMarcadorPolicia( 7, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%206.json?sp=r&st=2024-04-13T11:58:01Z&se=2090-01-01T20:58:01Z&sv=2022-11-02&sr=b&sig=F%2BxKmZOci%2BQ5Q6QQoXUqp9snuyAH0XCZ8RlzQxyEVbM%3D' );
+          iniciarMarcadorPolicia( 8, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%207.json?sp=r&st=2024-04-13T11:57:25Z&se=2090-01-01T20:57:25Z&sv=2022-11-02&sr=b&sig=M4VdMbgUpm9SWnkZcKU4Qjg1wRwQRh5jW21pLvnysMM%3D' );
+          iniciarMarcadorPolicia( 9, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%208.json?sp=r&st=2024-04-13T11:58:27Z&se=2090-01-01T20:58:27Z&sv=2022-11-02&sr=b&sig=wl0B5fWxbJLJJejTWsNXXivpjecPXAzJw%2BhvnOjIFDk%3D' );
+          iniciarMarcadorPolicia( 10, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%209.json?sp=r&st=2024-04-13T12:02:51Z&se=2090-01-01T21:02:51Z&sv=2022-11-02&sr=b&sig=CiaYAd3FyHedPAx9WB3C6f8beIllF%2FJNSpbFeQetKXw%3D' );
+          iniciarMarcadorPolicia( 11, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 9', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%2010.json?sp=r&st=2024-04-13T12:03:55Z&se=2090-01-01T21:03:55Z&sv=2022-11-02&sr=b&sig=Ycfix07DscFJARyiPtY0NJCTzVFSe3TZXwjWpV7fh5g%3D' );
 
      } );
 
@@ -5837,14 +5837,14 @@ function initMap( fromSession = false ) {
 
      const eventAmbulances = document.getElementById( "ambulances-nav-item" );
      eventAmbulances.addEventListener( 'click', function () {
-          iniciarAmbulanciaEnMapa( 1, './assets/iconAmbulance.svg', 'Ambulancia 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_1.json?sp=r&st=2024-05-15T13:38:11Z&se=2090-01-01T22:38:11Z&sv=2022-11-02&sr=b&sig=6lwanxDEAwY9wVUSWjlw8ak72ars%2BchxPwfDA1vS5dg%3D' );
-          iniciarAmbulanciaEnMapa( 2, './assets/iconAmbulance.svg', 'Ambulancia 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_2.json?sp=r&st=2024-05-15T13:38:28Z&se=2090-01-01T22:38:28Z&sv=2022-11-02&sr=b&sig=ojIS0334XGUHTtHjMIM27sT297AK9%2BViEO65kx4qt3w%3D' );
-          iniciarAmbulanciaEnMapa( 3, './assets/iconAmbulance.svg', 'Ambulancia 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_4.json?sp=r&st=2024-05-15T13:38:47Z&se=2090-01-01T22:38:47Z&sv=2022-11-02&sr=b&sig=dCd1xrw2TDJVDat2jZ12VxpFCmbbJScmtOFJb7ABVyU%3D' );
-          iniciarAmbulanciaEnMapa( 4, './assets/iconAmbulance.svg', 'Ambulancia 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_5.json?sp=r&st=2024-05-15T13:39:08Z&se=2090-01-01T22:39:08Z&sv=2022-11-02&sr=b&sig=E9Z6B2ivjf4iHIMEUeq5xtGktoC9sHca05AaFMdguNI%3D' );
-          iniciarAmbulanciaEnMapa( 5, './assets/iconAmbulance.svg', 'Ambulancia 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_6.json?sp=r&st=2024-05-15T13:39:24Z&se=2090-01-01T22:39:24Z&sv=2022-11-02&sr=b&sig=rAMAQiJy4eL9W3oY7GtZz8DXu6mmxCk9b9q07SgehbI%3D' );
-          iniciarAmbulanciaEnMapa( 6, './assets/iconAmbulance.svg', 'Ambulancia 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_7.json?sp=r&st=2024-05-15T13:39:41Z&se=2090-01-01T22:39:41Z&sv=2022-11-02&sr=b&sig=YB8e5ljNo2iHxWTp6I04cFuQDWTQJUfg30wk7KmrJ7Y%3D' );
-          iniciarAmbulanciaEnMapa( 7, './assets/iconAmbulance.svg', 'Ambulancia 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_8.json?sp=r&st=2024-05-15T13:40:02Z&se=2090-01-01T22:40:02Z&sv=2022-11-02&sr=b&sig=iAzH99oYloWOtEgbpsy%2BN21W%2BAtiG4fOZmR1baVwm%2Fo%3D' );
-          iniciarAmbulanciaEnMapa( 8, './assets/iconAmbulance.svg', 'Ambulancia 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_9.json?sp=r&st=2024-05-15T13:40:30Z&se=2090-01-01T22:40:30Z&sv=2022-11-02&sr=b&sig=hwj%2BYpXvwghLay9BqfB6bEuK4DyJ4Ivt8XFoHAIPvJ4%3D' );
+          iniciarAmbulanciaEnMapa( 1, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/iconAmbulance_vn0bse.svg', 'Ambulancia 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_1.json?sp=r&st=2024-05-15T13:38:11Z&se=2090-01-01T22:38:11Z&sv=2022-11-02&sr=b&sig=6lwanxDEAwY9wVUSWjlw8ak72ars%2BchxPwfDA1vS5dg%3D' );
+          iniciarAmbulanciaEnMapa( 2, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/iconAmbulance_vn0bse.svg', 'Ambulancia 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_2.json?sp=r&st=2024-05-15T13:38:28Z&se=2090-01-01T22:38:28Z&sv=2022-11-02&sr=b&sig=ojIS0334XGUHTtHjMIM27sT297AK9%2BViEO65kx4qt3w%3D' );
+          iniciarAmbulanciaEnMapa( 3, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/iconAmbulance_vn0bse.svg', 'Ambulancia 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_4.json?sp=r&st=2024-05-15T13:38:47Z&se=2090-01-01T22:38:47Z&sv=2022-11-02&sr=b&sig=dCd1xrw2TDJVDat2jZ12VxpFCmbbJScmtOFJb7ABVyU%3D' );
+          iniciarAmbulanciaEnMapa( 4, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/iconAmbulance_vn0bse.svg', 'Ambulancia 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_5.json?sp=r&st=2024-05-15T13:39:08Z&se=2090-01-01T22:39:08Z&sv=2022-11-02&sr=b&sig=E9Z6B2ivjf4iHIMEUeq5xtGktoC9sHca05AaFMdguNI%3D' );
+          iniciarAmbulanciaEnMapa( 5, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/iconAmbulance_vn0bse.svg', 'Ambulancia 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_6.json?sp=r&st=2024-05-15T13:39:24Z&se=2090-01-01T22:39:24Z&sv=2022-11-02&sr=b&sig=rAMAQiJy4eL9W3oY7GtZz8DXu6mmxCk9b9q07SgehbI%3D' );
+          iniciarAmbulanciaEnMapa( 6, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/iconAmbulance_vn0bse.svg', 'Ambulancia 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_7.json?sp=r&st=2024-05-15T13:39:41Z&se=2090-01-01T22:39:41Z&sv=2022-11-02&sr=b&sig=YB8e5ljNo2iHxWTp6I04cFuQDWTQJUfg30wk7KmrJ7Y%3D' );
+          iniciarAmbulanciaEnMapa( 7, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/iconAmbulance_vn0bse.svg', 'Ambulancia 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_8.json?sp=r&st=2024-05-15T13:40:02Z&se=2090-01-01T22:40:02Z&sv=2022-11-02&sr=b&sig=iAzH99oYloWOtEgbpsy%2BN21W%2BAtiG4fOZmR1baVwm%2Fo%3D' );
+          iniciarAmbulanciaEnMapa( 8, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/iconAmbulance_vn0bse.svg', 'Ambulancia 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Ambulances/Ambulacia_9.json?sp=r&st=2024-05-15T13:40:30Z&se=2090-01-01T22:40:30Z&sv=2022-11-02&sr=b&sig=hwj%2BYpXvwghLay9BqfB6bEuK4DyJ4Ivt8XFoHAIPvJ4%3D' );
      } );
 
      //? ------------------------------------------------------------- //?
@@ -6001,7 +6001,7 @@ function initMap( fromSession = false ) {
      const eventShips = document.getElementById( "ships-sub-nav-item" );
      eventShips.addEventListener( "click", function () {
           toggleKMZLayerTrayectoShips();
-          iniciarShipsEnMapa( 1, './assets/shipsQubo.svg', 'Logistics Ship', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/ship.json?sp=r&st=2024-07-26T17:13:49Z&se=2090-01-01T02:13:49Z&sv=2022-11-02&sr=b&sig=B3GhjJFd%2FjJeGN46olFo9NWlu3Lu6le9eAycQhPO1s8%3D' );
+          iniciarShipsEnMapa( 1, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774384/qubo/qubos/ships_ed5qqb.svg', 'Logistics Ship', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/ship.json?sp=r&st=2024-07-26T17:13:49Z&se=2090-01-01T02:13:49Z&sv=2022-11-02&sr=b&sig=B3GhjJFd%2FjJeGN46olFo9NWlu3Lu6le9eAycQhPO1s8%3D' );
      } );
 
 
@@ -6504,24 +6504,24 @@ function initMap( fromSession = false ) {
                     map.fitBounds( bounds, { padding: 50 } );
 
                     // Iniciar todos los vehículos
-                    iniciarVehiculoEnMapa( 1, './assets/truckQubo.svg', 'Truck 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck_data_final_updated.json?sp=r&st=2025-02-10T19:02:46Z&se=2099-02-11T03:02:46Z&sv=2022-11-02&sr=b&sig=%2BYAtmguCffqiUlLNILe60nYEiXtYtU1bCE5Rsqywz%2FU%3D' );
-                    iniciarVehiculoEnMapa( 2, './assets/truckQubo.svg', 'Truck 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck2_data_final_updated.json?sp=r&st=2025-02-10T19:03:13Z&se=2099-02-11T03:03:13Z&sv=2022-11-02&sr=b&sig=uFSo%2B7rpy1GBaCjpTWwvkJ1pd3rmkCglH9ZsEfn4vYg%3D' );
-                    iniciarVehiculoEnMapa( 3, './assets/truckQubo.svg', 'Truck 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck3_data_final.json?sp=r&st=2025-02-10T19:03:40Z&se=2099-02-11T03:03:40Z&sv=2022-11-02&sr=b&sig=E9Md4DIMtRIV%2FwUjCs0y57MMMr1pS3%2BnMq4DCkr%2FogE%3D' );
-                    iniciarVehiculoEnMapa( 4, './assets/truckQubo.svg', 'Van Miami', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_miami_data.json?sp=r&st=2025-02-09T22:40:50Z&se=2099-02-10T06:40:50Z&sv=2022-11-02&sr=b&sig=3mt25X3t7dbbt8fcEWiI%2BCjrBny6EN%2FkNOvMMcZ9T%2FY%3D', true );
-                    iniciarVehiculoEnMapa( 5, './assets/truckQubo.svg', 'Van New York', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_new_york_data.json?sp=r&st=2025-02-09T22:41:40Z&se=2099-02-10T06:41:40Z&sv=2022-11-02&sr=b&sig=teiu0TH1VHhOUVdsDHH9VAXM16R11M%2FSc2mbznyKq5Q%3D', true );
-                    iniciarVehiculoEnMapa( 6, './assets/truckQubo.svg', 'Van San Luis', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_san_luis_data.json?sp=r&st=2025-02-09T22:41:58Z&se=2099-02-10T06:41:58Z&sv=2022-11-02&sr=b&sig=2hyY5AtQQ210htuWhxIfPce8QrSuAs1ED1V6grcj%2FQc%3D', true );
-                    iniciarVehiculoEnMapa( 7, './assets/truckQubo.svg', 'Truck 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_4.json?sp=r&st=2025-03-01T10:39:21Z&se=2099-03-01T18:39:21Z&sv=2022-11-02&sr=b&sig=ESDZjQckX%2FrG%2F5IGCuHWmgsP3L28q0fH9sSPDyJafNk%3D' );
-                    iniciarVehiculoEnMapa( 8, './assets/truckQubo.svg', 'Truck 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_7.json?sp=r&st=2025-03-01T12:23:49Z&se=2099-03-01T20:23:49Z&sv=2022-11-02&sr=b&sig=qFY5KeqL1n4GUQIq%2F2xNx4TJy%2BZLmWKNgMWwdmb740U%3D' );
-                    iniciarVehiculoEnMapa( 9, './assets/truckQubo.svg', 'Truck 10', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_10.json?sp=r&st=2025-03-01T12:36:55Z&se=2099-03-01T20:36:55Z&sv=2022-11-02&sr=b&sig=GcKRb8Bj6j9R0DFocHmLzauhPpJJhxwcTX9HHgIrHcU%3D' );
-                    iniciarVehiculoEnMapa( 10, './assets/truckQubo.svg', 'Truck 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_5.json?sp=r&st=2025-03-01T12:38:00Z&se=2099-03-01T20:38:00Z&sv=2022-11-02&sr=b&sig=plN2yP%2BblzdbYGefmvC%2FaOwO9Soz9GOfL%2FA0OUoHdZQ%3D' );
-                    iniciarVehiculoEnMapa( 11, './assets/truckQubo.svg', 'Truck 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_8.json?sp=r&st=2025-03-01T12:39:05Z&se=2099-03-01T20:39:05Z&sv=2022-11-02&sr=b&sig=swaoAkdKQ7mU8mBdqQ7BhwDX%2Bk%2FWzCdBkvqsN84a7s0%3D' );
-                    iniciarVehiculoEnMapa( 12, './assets/truckQubo.svg', 'Truck 12', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_12.json?sp=r&st=2025-03-01T12:40:23Z&se=2099-03-01T20:40:23Z&sv=2022-11-02&sr=b&sig=hYgKj7v5NWSs5GK6LKEBEuNDl3mCky8qBCzto1eg1iI%3D' );
-                    iniciarVehiculoEnMapa( 13, './assets/truckQubo.svg', 'Truck 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_6.json?sp=r&st=2025-03-01T12:41:22Z&se=2099-03-01T20:41:22Z&sv=2022-11-02&sr=b&sig=WA9lAB7Or%2BWd4L5f2r5ZjYxdo5RcrfM1Z84Y6U2Clk4%3D' );
-                    iniciarVehiculoEnMapa( 14, './assets/truckQubo.svg', 'Truck 9', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_9.json?sp=r&st=2025-03-01T12:42:24Z&se=2099-03-01T20:42:24Z&sv=2022-11-02&sr=b&sig=uuEuEoTNWkfoWtb5pKBDnx00i1tcF49TqCSNFgtU9ko%3D' );
-                    iniciarVehiculoEnMapa( 15, './assets/truckQubo.svg', 'Truck 11', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_11.json?sp=r&st=2025-03-01T12:43:17Z&se=2099-03-01T20:43:17Z&sv=2022-11-02&sr=b&sig=jpdoDeEluNz2pcI8VCR1lDB0EgU7qoFWnZfcgkaqUlE%3D' );
-                    iniciarVehiculoEnMapa( 16, './assets/truckQubo.svg', 'Truck Arabia 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_Arabia_1.json?sp=r&st=2025-03-01T12:52:15Z&se=2099-03-01T20:52:15Z&sv=2022-11-02&sr=b&sig=Av%2F0%2F%2BZ6DC3IGW1u7jjhzxGyVD7udP4Oq5uLM6KWs0k%3D', false, true );
-                    iniciarVehiculoEnMapa( 17, './assets/truckQubo.svg', 'Truck Arabia 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_Arabia_2.json?sp=r&st=2025-03-02T11:50:40Z&se=2099-03-02T19:50:40Z&sv=2022-11-02&sr=b&sig=yvr7fnCy8VVS1Q2DROn36O9M5MYxgSZkbYCBXQrKNA4%3D', false, true );
-                    iniciarVehiculoEnMapa( 18, './assets/truckQubo.svg', 'Truck Arabia 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_Arabia_3.json?sp=r&st=2025-03-02T11:52:14Z&se=2099-03-02T19:52:14Z&sv=2022-11-02&sr=b&sig=eV%2BTe1qIQv06aU9sJ%2B2OJvEHq57qUykc96Qkh9PS3Xw%3D', false, true );
+                    iniciarVehiculoEnMapa( 1, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck_data_final_updated.json?sp=r&st=2025-02-10T19:02:46Z&se=2099-02-11T03:02:46Z&sv=2022-11-02&sr=b&sig=%2BYAtmguCffqiUlLNILe60nYEiXtYtU1bCE5Rsqywz%2FU%3D' );
+                    iniciarVehiculoEnMapa( 2, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck2_data_final_updated.json?sp=r&st=2025-02-10T19:03:13Z&se=2099-02-11T03:03:13Z&sv=2022-11-02&sr=b&sig=uFSo%2B7rpy1GBaCjpTWwvkJ1pd3rmkCglH9ZsEfn4vYg%3D' );
+                    iniciarVehiculoEnMapa( 3, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/truck3_data_final.json?sp=r&st=2025-02-10T19:03:40Z&se=2099-02-11T03:03:40Z&sv=2022-11-02&sr=b&sig=E9Md4DIMtRIV%2FwUjCs0y57MMMr1pS3%2BnMq4DCkr%2FogE%3D' );
+                    iniciarVehiculoEnMapa( 4, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Van Miami', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_miami_data.json?sp=r&st=2025-02-09T22:40:50Z&se=2099-02-10T06:40:50Z&sv=2022-11-02&sr=b&sig=3mt25X3t7dbbt8fcEWiI%2BCjrBny6EN%2FkNOvMMcZ9T%2FY%3D', true );
+                    iniciarVehiculoEnMapa( 5, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Van New York', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_new_york_data.json?sp=r&st=2025-02-09T22:41:40Z&se=2099-02-10T06:41:40Z&sv=2022-11-02&sr=b&sig=teiu0TH1VHhOUVdsDHH9VAXM16R11M%2FSc2mbznyKq5Q%3D', true );
+                    iniciarVehiculoEnMapa( 6, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Van San Luis', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/van_san_luis_data.json?sp=r&st=2025-02-09T22:41:58Z&se=2099-02-10T06:41:58Z&sv=2022-11-02&sr=b&sig=2hyY5AtQQ210htuWhxIfPce8QrSuAs1ED1V6grcj%2FQc%3D', true );
+                    iniciarVehiculoEnMapa( 7, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_4.json?sp=r&st=2025-03-01T10:39:21Z&se=2099-03-01T18:39:21Z&sv=2022-11-02&sr=b&sig=ESDZjQckX%2FrG%2F5IGCuHWmgsP3L28q0fH9sSPDyJafNk%3D' );
+                    iniciarVehiculoEnMapa( 8, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_7.json?sp=r&st=2025-03-01T12:23:49Z&se=2099-03-01T20:23:49Z&sv=2022-11-02&sr=b&sig=qFY5KeqL1n4GUQIq%2F2xNx4TJy%2BZLmWKNgMWwdmb740U%3D' );
+                    iniciarVehiculoEnMapa( 9, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck 10', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_10.json?sp=r&st=2025-03-01T12:36:55Z&se=2099-03-01T20:36:55Z&sv=2022-11-02&sr=b&sig=GcKRb8Bj6j9R0DFocHmLzauhPpJJhxwcTX9HHgIrHcU%3D' );
+                    iniciarVehiculoEnMapa( 10, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_5.json?sp=r&st=2025-03-01T12:38:00Z&se=2099-03-01T20:38:00Z&sv=2022-11-02&sr=b&sig=plN2yP%2BblzdbYGefmvC%2FaOwO9Soz9GOfL%2FA0OUoHdZQ%3D' );
+                    iniciarVehiculoEnMapa( 11, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_8.json?sp=r&st=2025-03-01T12:39:05Z&se=2099-03-01T20:39:05Z&sv=2022-11-02&sr=b&sig=swaoAkdKQ7mU8mBdqQ7BhwDX%2Bk%2FWzCdBkvqsN84a7s0%3D' );
+                    iniciarVehiculoEnMapa( 12, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck 12', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_12.json?sp=r&st=2025-03-01T12:40:23Z&se=2099-03-01T20:40:23Z&sv=2022-11-02&sr=b&sig=hYgKj7v5NWSs5GK6LKEBEuNDl3mCky8qBCzto1eg1iI%3D' );
+                    iniciarVehiculoEnMapa( 13, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_6.json?sp=r&st=2025-03-01T12:41:22Z&se=2099-03-01T20:41:22Z&sv=2022-11-02&sr=b&sig=WA9lAB7Or%2BWd4L5f2r5ZjYxdo5RcrfM1Z84Y6U2Clk4%3D' );
+                    iniciarVehiculoEnMapa( 14, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck 9', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_9.json?sp=r&st=2025-03-01T12:42:24Z&se=2099-03-01T20:42:24Z&sv=2022-11-02&sr=b&sig=uuEuEoTNWkfoWtb5pKBDnx00i1tcF49TqCSNFgtU9ko%3D' );
+                    iniciarVehiculoEnMapa( 15, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck 11', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_11.json?sp=r&st=2025-03-01T12:43:17Z&se=2099-03-01T20:43:17Z&sv=2022-11-02&sr=b&sig=jpdoDeEluNz2pcI8VCR1lDB0EgU7qoFWnZfcgkaqUlE%3D' );
+                    iniciarVehiculoEnMapa( 16, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck Arabia 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_Arabia_1.json?sp=r&st=2025-03-01T12:52:15Z&se=2099-03-01T20:52:15Z&sv=2022-11-02&sr=b&sig=Av%2F0%2F%2BZ6DC3IGW1u7jjhzxGyVD7udP4Oq5uLM6KWs0k%3D', false, true );
+                    iniciarVehiculoEnMapa( 17, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck Arabia 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_Arabia_2.json?sp=r&st=2025-03-02T11:50:40Z&se=2099-03-02T19:50:40Z&sv=2022-11-02&sr=b&sig=yvr7fnCy8VVS1Q2DROn36O9M5MYxgSZkbYCBXQrKNA4%3D', false, true );
+                    iniciarVehiculoEnMapa( 18, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774505/qubo/qubos/trucks_jr4v6o.svg', 'Truck Arabia 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Trucks/Truck_Arabia_3.json?sp=r&st=2025-03-02T11:52:14Z&se=2099-03-02T19:52:14Z&sv=2022-11-02&sr=b&sig=eV%2BTe1qIQv06aU9sJ%2B2OJvEHq57qUykc96Qkh9PS3Xw%3D', false, true );
                } )
                .catch( error => console.error( "Error al cargar los datos:", error ) );
      } );
@@ -6563,7 +6563,7 @@ function initMap( fromSession = false ) {
                               map: map,
                               title: tienda.name.value,
                               icon: {
-                                   url: "./assets/stores_Qubo.svg",
+                                   url: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740778145/qubo/qubos/stores_2_zjgfc1.svg",
                               },
                          } );
 
@@ -7062,13 +7062,13 @@ function initMap( fromSession = false ) {
           // Iniciar el barco
           iniciarShipsEnMapa(
                1,
-               './assets/shipsQubo.svg',
+               'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774384/qubo/qubos/ships_ed5qqb.svg',
                'Logistics Ship',
                'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Ships/ship.json?sp=r&st=2024-07-26T17:13:49Z&se=2090-01-01T02:13:49Z&sv=2022-11-02&sr=b&sig=B3GhjJFd%2FjJeGN46olFo9NWlu3Lu6le9eAycQhPO1s8%3D'
           );
           iniciarTrackingEnMapa(
                1,
-               './assets/tracking_Qubo_Small.svg',
+               'https://res.cloudinary.com/dafjggs2p/image/upload/v1740774231/qubo/qubos/tracking_a94oi3.svg',
                'Tracking Package',
                'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Tracking/paquete_fiware_mod1.json?sp=r&st=2024-08-20T10:34:28Z&se=2090-01-01T19:34:28Z&sv=2022-11-02&sr=b&sig=nGoZVlF9Rs8qA87k7J5PK3Mf%2B6Kc16hsJflCyFMdRWg%3D'
           );
@@ -7190,7 +7190,7 @@ function initMap( fromSession = false ) {
      // Evento para manejar el movimiento del paquete desde la tienda
      const eventPackLocation = document.getElementById( "pack-location-sub-nav-item" );
      eventPackLocation.addEventListener( "click", function () {
-          iniciarPackEnMapa( 1, './assets/pack-locationQubo.svg', 'Store Package', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Pack%20Location/packLocation.json?sp=r&st=2024-09-01T19:27:05Z&se=2090-09-02T03:27:05Z&sv=2022-11-02&sr=b&sig=pbpMlfNpXqkt%2Ff3%2BLzHXr%2B6ckIktYRKcGVN2nsSSIMg%3D' );
+          iniciarPackEnMapa( 1, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740775068/qubo/qubos/packlocation_t0nesu.svg', 'Store Package', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Logistics/Pack%20Location/packLocation.json?sp=r&st=2024-09-01T19:27:05Z&se=2090-09-02T03:27:05Z&sv=2022-11-02&sr=b&sig=pbpMlfNpXqkt%2Ff3%2BLzHXr%2B6ckIktYRKcGVN2nsSSIMg%3D' );
      } );
 
      // Función para iniciar el movimiento del marcador del paquete de la tienda
@@ -7352,7 +7352,7 @@ function cargarMarcadoresNewBuildings() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/newBuildingsQubo.svg"
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740163211/qubo/qubos/newBuildings_eqkwj5.svg"
                          } );
 
                          // Agrega un evento click a cada marcador para mostrar el infoBox
@@ -7770,7 +7770,7 @@ const cargarYMostrarMarcadoresOficinas = async () => {
                     position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                     map: map,
                     title: item.name.value,
-                    icon: "./assets/officesQubo.svg"
+                    icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186035/qubo/qubos/officesQubo_bxwelw.svg"
                } );
 
                officeMarker.addListener( 'click', () => {
@@ -7976,7 +7976,7 @@ function cargarMarcadoresCommercialOrIndustrial() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/commercialOrIndustrialQubo.svg"
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/commercialOrIndustrialQubo_nb1ksg.svg"
                          } );
 
                          // Agrega un evento click a cada marcador para mostrar el infoBox
@@ -8159,7 +8159,7 @@ const cargarYMostrarMarcadoresGarages = async () => {
                          position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                          map: map,
                          title: name,
-                         icon: "./assets/garagesQubo.svg"
+                         icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186034/qubo/qubos/garagesQubo_vjlyzj.svg"
                     } );
 
                     garageMarker.addListener( 'click', () => {
@@ -8359,7 +8359,7 @@ function cargarMarcadoresParcels() {
                               position: { lat: coordinates[ 1 ], lng: coordinates[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/quboParcels.svg"
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/quboParcels_cbp7cu.svg"
                          } );
 
                          marker.addListener( "click", () => {
@@ -8614,7 +8614,7 @@ function cargarMarcadoresIconic() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/quboIconic.svg"
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186037/qubo/qubos/quboIconic_osq4i3.svg"
                          } );
 
                          marker.addListener( "click", () => {
@@ -8831,7 +8831,7 @@ eventHospitals.addEventListener( "click", () => {
                                    position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                                    map: map,
                                    title: item.name.value,
-                                   icon: "./assets/quboHospitals.svg"
+                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186037/qubo/qubos/quboHospitals_rqrldc.svg"
 
                               } );
 
@@ -9199,7 +9199,7 @@ function cargarMarcadoresPolice() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/policeStationQubo.svg"
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg"
                          } );
                          // Dentro del evento click del marcador
                          marker.addListener( "click", () => {
@@ -9400,7 +9400,7 @@ function cargarMarcadoresFire() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/fireStationQubo.svg"
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740258305/qubo/qubos/fire_flmkfu.svg"
                          } );
 
                          // Evento de click para mostrar información
@@ -9491,7 +9491,7 @@ const cargarMarcadoresPuertos = async () => {
                     position: { lat: location.coordinates[ 0 ].lat, lng: location.coordinates[ 0 ].lng },
                     map: map,
                     title: name,
-                    icon: "./assets/portsQubo.svg"
+                    icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740774317/qubo/qubos/ports_i9tccw.svg"
                } );
 
                marker.addListener( "click", () => {
@@ -9892,7 +9892,7 @@ function cargarMarcadoresEnventsConcerts() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/ConcertsEventsQubo.svg",
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740304509/qubo/qubos/eventsandconcerts_t4bsoh.svg",
                          } );
 
                          // Agrega un evento click a cada marcador para mostrar el infoBox
@@ -9976,7 +9976,7 @@ function cargarMarcadoresTheatres() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/TheatresQubo.svg",
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740305049/qubo/qubos/TheatresQubo_skjppc.svg",
                          } );
 
                          // Evento para mostrar infoBox al hacer clic en el marcador
@@ -10063,7 +10063,7 @@ function cargarMarcadoresCinemas() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/CinemasQubo.svg",
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740305252/qubo/qubos/cinemas_ztaigf.svg",
                          } );
 
                          // Agrega un evento click a cada marcador para mostrar el infoBox
@@ -10265,7 +10265,7 @@ function cargarMarcadoresLandmarks() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/LandmarksQubo.svg",
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740305418/qubo/qubos/landmarks_mdrbao.svg",
                          } );
 
                          // Agrega un evento click a cada marcador para mostrar el infoBox
@@ -10338,7 +10338,7 @@ function cargarEstadios() {
                          map: map,
                          position: { lat, lng },
                          title: estadio.nombre,
-                         icon: "./assets/stadiums_Qubo.svg"
+                         icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186038/qubo/qubos/stadiums_Qubo_edwamz.svg"
                     } );
 
                     marker.addListener( "click", function () {
@@ -10481,7 +10481,7 @@ const cargarYMostrarMarcadoresClubesYVidaNocturna = async () => {
                     position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                     map: map,
                     title: item.name.value,
-                    icon: "./assets/clubsAndnightlife_Qubo.svg" // Asegúrate de tener un ícono adecuado para los clubes y la vida nocturna
+                    icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/clubsAndnightlife_Qubo_cgliaf.svg" // Asegúrate de tener un ícono adecuado para los clubes y la vida nocturna
                } );
 
                clubMarker.addListener( 'click', () => {
@@ -10656,7 +10656,7 @@ function cargarMarcadoresSportsFacilities() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/SportsFacilitiesQubo.svg"
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740305632/qubo/qubos/entertainmentandsports_gkck5r.svg"
                          } );
 
                          marker.addListener( "click", () => {
@@ -10770,7 +10770,7 @@ function cargarMarcadorEvento() {
                     map: map,
                     position: { lat: 40.45178, lng: -3.68445 }, // Cambiar por la primera coordenada del KML si es diferente
                     title: Nombre,
-                    icon: './assets/SportsFacilitiesQubo.svg',
+                    icon: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740305632/qubo/qubos/entertainmentandsports_gkck5r.svg',
                } );
 
                eventoMarker.addListener( "click", () => {
@@ -10869,7 +10869,7 @@ function cargarMarcadoresMuseums() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/MuseumsQubo.svg"
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740305822/qubo/qubos/museums_ydt8og.svg"
                          } );
 
                          marker.addListener( "click", () => {
@@ -10953,7 +10953,7 @@ function cargarMarcadoresSocialServices() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/SocialServicesQubo.svg"
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740306078/qubo/qubos/socialservices_t112gh.svg"
                          } );
 
                          marker.addListener( "click", () => {
@@ -11034,7 +11034,7 @@ function cargarMarcadoresAdministration() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/AdministrationQubo.svg"
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740306179/qubo/qubos/administration_lwul7f.svg"
                          } );
 
                          marker.addListener( "click", () => {
@@ -11115,7 +11115,7 @@ function cargarMarcadoresEducation() {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: "./assets/EducationQubo.svg"
+                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740306322/qubo/qubos/Education_burfna.svg"
                          } );
 
                          marker.addListener( "click", () => {
