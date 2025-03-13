@@ -1,61 +1,116 @@
 //* auth.js en APP2
 
+// const { verifyToken } = require('../utils/jwt');
+// const User = require('../api/models/user');
+// const Session = require('../api/models/session');
+
+// const isAuth = async (req, res, next) => {
+//     try {
+//         console.log("🔒 Middleware isAuth ejecutado");
+
+//         // 1. Si hay sessionId en la URL, buscar la sesión y establecer cookie
+//         if (req.query.sessionId) {
+//             console.log("🔍 Buscando sesión:", req.query.sessionId);
+//             const session = await Session.findById(req.query.sessionId);
+            
+//             if (session) {
+//                 console.log("✅ Sesión encontrada, estableciendo cookie");
+//                 res.cookie('access_token', session.token, {
+//                     httpOnly: true,
+//                     secure: true,
+//                     sameSite: 'Strict',
+//                     maxAge: 3600000 // 1 hora
+//                 });
+//                 return res.redirect('/'); // Redirigir para limpiar URL
+//             }
+//         }
+
+//         // 2. Verificar token en cookie
+//         const token = req.cookies.access_token;
+//         console.log("🎟️ Token desde la cookie:", token);
+
+//         if (!token) {
+//             console.log("❌ No se encontró el token");
+//             return res.redirect("/login?error=no_token");
+//         }
+
+//         // 3. Verificar el token
+//         const result = verifyToken(token);
+//         if (!result.success) {
+//             console.error("❌ Token inválido:", result.error);
+//             return res.redirect("/login?error=token_invalido");
+//         }
+
+//         // 4. Guardar datos del token en el request
+//         req.user = result.data;
+//         console.log("👤 Usuario del token:", req.user);
+
+//         // 5. Buscar el usuario en la base de datos
+//         const dbUser = await User.findOne({ 
+//             user_id: req.user.sub
+//         });
+
+//         if (!dbUser) {
+//             console.log('❌ Usuario no encontrado en la base de datos');
+//             return res.redirect("/login?error=usuario_no_encontrado");
+//         }
+
+//         // 6. Añadir información de la base de datos al request
+//         req.dbUser = dbUser;
+//         console.log('✅ Usuario autenticado:', {
+//             email: dbUser.email,
+//             roles: dbUser.rol,
+//             modules: dbUser.modules
+//         });
+
+//         next();
+
+//     } catch (error) {
+//         console.error('❌ Error en autenticación:', error);
+//         return res.redirect(`/login?error=${encodeURIComponent(error.message)}`);
+//     }
+// };
+
+// module.exports = { isAuth };
+
 const { verifyToken } = require('../utils/jwt');
 const User = require('../api/models/user');
-const Session = require('../api/models/session');
 
 const isAuth = async (req, res, next) => {
     try {
         console.log("🔒 Middleware isAuth ejecutado");
 
-        // 1. Si hay sessionId en la URL, buscar la sesión y establecer cookie
-        if (req.query.sessionId) {
-            console.log("🔍 Buscando sesión:", req.query.sessionId);
-            const session = await Session.findById(req.query.sessionId);
-            
-            if (session) {
-                console.log("✅ Sesión encontrada, estableciendo cookie");
-                res.cookie('access_token', session.token, {
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: 'Strict',
-                    maxAge: 3600000 // 1 hora
-                });
-                return res.redirect('/'); // Redirigir para limpiar URL
-            }
-        }
-
-        // 2. Verificar token en cookie
+        // 1. Verificar token en cookie
         const token = req.cookies.access_token;
         console.log("🎟️ Token desde la cookie:", token);
 
         if (!token) {
             console.log("❌ No se encontró el token");
-            return res.redirect("/login?error=no_token");
+            return res.status(401).json({ error: 'No token provided' });
         }
 
-        // 3. Verificar el token
+        // 2. Verificar el token
         const result = verifyToken(token);
         if (!result.success) {
             console.error("❌ Token inválido:", result.error);
-            return res.redirect("/login?error=token_invalido");
+            return res.status(401).json({ error: 'Invalid token' });
         }
 
-        // 4. Guardar datos del token en el request
+        // 3. Guardar datos del token en el request
         req.user = result.data;
         console.log("👤 Usuario del token:", req.user);
 
-        // 5. Buscar el usuario en la base de datos
+        // 4. Buscar el usuario en la base de datos
         const dbUser = await User.findOne({ 
             user_id: req.user.sub
         });
 
         if (!dbUser) {
             console.log('❌ Usuario no encontrado en la base de datos');
-            return res.redirect("/login?error=usuario_no_encontrado");
+            return res.status(401).json({ error: 'User not found' });
         }
 
-        // 6. Añadir información de la base de datos al request
+        // 5. Añadir información de la base de datos al request
         req.dbUser = dbUser;
         console.log('✅ Usuario autenticado:', {
             email: dbUser.email,
@@ -67,12 +122,12 @@ const isAuth = async (req, res, next) => {
 
     } catch (error) {
         console.error('❌ Error en autenticación:', error);
-        return res.redirect(`/login?error=${encodeURIComponent(error.message)}`);
+        return res.status(500).json({ error: 'Authentication error' });
     }
 };
 
 module.exports = { isAuth };
-
+//*
 // const { verifyToken } = require('../utils/jwt');
 // const User = require('../api/models/user');
 

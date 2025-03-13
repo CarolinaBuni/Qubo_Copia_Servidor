@@ -59,7 +59,7 @@ function procesarSesion() {
  
      console.log("🔍 SessionId encontrado:", sessionId);
      fetch(`/auth/session?sessionId=${sessionId}`, {
-         credentials: 'include'  // Importante para las cookies
+         credentials: 'include'
      })
      .then(response => {
          console.log("📝 Status de la respuesta:", response.status);
@@ -70,15 +70,13 @@ function procesarSesion() {
          if (data.authenticated) {
              console.log("👤 Usuario autenticado, iniciando mapa");
              window.history.replaceState({}, document.title, window.location.pathname);
-             initMap(true);  // Pasamos true para indicar que viene de procesarSesion
+             initMap(true);
          } else {
-             console.log("❌ Usuario no autenticado");
-             window.location.href = '/login';
+             console.log("❌ Error: Usuario no autenticado");
          }
      })
      .catch(error => {
-         console.error("❌ Error:", error);
-         window.location.href = '/login';
+         console.error("❌ Error en fetch:", error);
      });
      
      return true;
