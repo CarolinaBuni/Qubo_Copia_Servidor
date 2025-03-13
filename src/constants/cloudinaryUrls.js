@@ -81,7 +81,8 @@ const QUBO_ICONS = {
      "environment&sustainability": "https://res.cloudinary.com/dafjggs2p/image/upload/v1740780002/qubo/qubos/environments_sustainability_ellmaf.svg",
      services: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740780080/qubo/qubos/services_yr07vl.svg",
      infraestructure: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740780139/qubo/qubos/infraestructure_zulsti.svg",
-     "entertainment&sports": "https://res.cloudinary.com/dafjggs2p/image/upload/v1740780210/qubo/qubos/entertainment_sports_uf74an.svg"
+     "entertainment&sports": "https://res.cloudinary.com/dafjggs2p/image/upload/v1740780210/qubo/qubos/entertainment_sports_uf74an.svg",
+     quboNeutro: "https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg"
 }
 
 module.exports = { QUBO_ICONS };
