@@ -152,9 +152,6 @@ cloudinary.config( {
 
 // Ruta específica para manejar el sessionId
 app.get("/auth/session", async (req, res) => {
-   console.log("📍 Procesando sessionId");
-   console.log("🔍 Query params recibidos:", req.query);
-   
    try {
        const { sessionId } = req.query;
        if (!sessionId) {
@@ -162,24 +159,30 @@ app.get("/auth/session", async (req, res) => {
            return res.status(400).json({ error: 'No sessionId provided' });
        }
 
+       // Primero verificamos la conexión
+       if (!mongoose.connection.readyState) {
+           console.log("🔄 Reconectando a MongoDB...");
+           await connectDB();
+       }
+
        console.log("🔍 Buscando sesión en la colección 'Sessions'");
-       
        const session = await mongoose.connection.useDb('QuboUsers')
            .collection('Sessions')
            .findOne({
                _id: new mongoose.Types.ObjectId(sessionId)
            });
 
+       console.log("📝 Sesión encontrada:", session ? "Sí" : "No");
+
        if (session && session.token) {
-           // Decodificar el token JWT para obtener los datos del usuario
            const userData = jwt.decode(session.token);
            console.log("✅ Token decodificado:", userData);
 
-           // El token ya contiene toda la información necesaria
            return res.json({ 
+               success: true,
+               userId: userData.sub,
                email: userData.email,
                nickname: userData.name,
-               sub: userData.sub,
                authenticated: true
            });
        } else {
@@ -190,7 +193,7 @@ app.get("/auth/session", async (req, res) => {
            });
        }
    } catch (error) {
-       console.error("❌ Error al procesar sessionId:", error);
+       console.error("❌ Error detallado:", error);
        return res.status(500).json({ error: 'Error processing session' });
    }
 });
