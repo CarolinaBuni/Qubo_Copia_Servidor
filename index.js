@@ -250,17 +250,13 @@ app.get( "/", ( req, res ) => {
    res.sendFile( path.join( __dirname, "public", "index.html" ) );
 } );
 
-app.get( "/login", ( req, res ) => {
-   res.sendFile( path.join( __dirname, "public", "login.html" ) );
-} );
 
 // Middleware de autenticación para rutas protegidas
 app.use( ( req, res, next ) => {
    if ( req.path.includes( '.css' ) ||
       req.path.includes( '.js' ) ||
       req.path.includes( '.svg' ) ||
-      req.path.includes( '.ico' ) ||
-      req.path === '/login' ) {
+      req.path.includes( '.ico' ) ) {
       return next();
    }
    isAuth( req, res, next );
