@@ -201,7 +201,7 @@ function initMap( fromSession = false ) {
                               position: position,
                               map: map,
                               title: qubo.title,
-                              icon: subcategoryIcons.QUBO_ICONS[ qubo.subcategory ] || './assets/quboNeutro.svg'
+                              icon: subcategoryIcons.QUBO_ICONS[ qubo.subcategory ] || 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg'
                          } );
 
                          // Guardar el marcador en activeMarkers (añade esta línea)
@@ -390,7 +390,7 @@ function initMap( fromSession = false ) {
                     // Buscar el icono comparando valores normalizados
                     const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
                          .find( key => normalizeString( key ) === normalizedSubcategory );  // Comparar normalizados
-                    const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : './assets/quboNeutro.svg';
+                    const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
                     console.log( 'Changing icon to:', iconUrl );
 
                     currentMarker = new google.maps.Marker( {
@@ -421,7 +421,7 @@ function initMap( fromSession = false ) {
                     const subcategory = document.getElementById( 'subcategory' ).value;
                     const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
                          .find( key => normalizeString( key ) === subcategory );
-                    const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : './assets/quboNeutro.svg';
+                    const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
                     console.log( 'Subcategory:', subcategory );
                     console.log( 'Icon URL:', iconUrl );
 
@@ -697,7 +697,7 @@ function initMap( fromSession = false ) {
                     currentMarker = new google.maps.Marker( {
                          position: event.latLng,
                          map: map,
-                         icon: './assets/quboNeutro.svg'
+                         icon: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg'
                     } );
 
                     document.getElementById( 'clickedLat' ).value = event.latLng.lat();
@@ -750,7 +750,7 @@ function initMap( fromSession = false ) {
                               },
                               map: map,
                               title: data.title, // Usar el título del servidor
-                              icon: subcategoryIcons.QUBO_ICONS[ data.subcategory ] || './assets/quboNeutro.svg'
+                              icon: subcategoryIcons.QUBO_ICONS[ data.subcategory ] || 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg'
                          } );
 
                          // Guardar el marcador en nuestro registro
