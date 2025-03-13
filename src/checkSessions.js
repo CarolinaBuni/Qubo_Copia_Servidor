@@ -42,38 +42,79 @@
 
 //* checkSessions.js en APP2
 require('dotenv').config({ path: '../.env' });
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');  // Añadimos ObjectId aquí
 
 async function checkSessions() {
     let client;
     try {
-        // Conectar a MongoDB
+        console.log("🔌 Conectando a MongoDB...");
         client = new MongoClient(process.env.AUTH_MONGODB_URL);
         await client.connect();
-        const db = client.db('QuboUsers');
         
-        // Este es el ID que viene en la URL
-        const sessionId = '67d2ac1bc6731f2d1799d31d';
-        console.log("\n🔍 Buscando sessionId:", sessionId);
+        const db = client.db('QuboUsers');
+        console.log("✅ Conexión exitosa!");
 
-        // Buscar en la colección Sessions
-        const session = await db.collection('Sessions').findOne({
-            _id: new MongoClient.ObjectId(sessionId)
-        });
+        // El sessionId que estamos buscando
+        const searchSessionId = '67d2cbc4aee86886fd230e7c';
+        console.log("\n🔍 Buscando sessionId específico:", searchSessionId);
 
-        if (session) {
-            console.log("\n✅ Sesión encontrada:");
-            console.log("- ID:", session._id);
-            console.log("- Tiene token:", session.token ? "Sí" : "No");
-            console.log("\nDatos completos:", JSON.stringify(session, null, 2));
+        // 1. Buscar en Sessions (mayúscula)
+        console.log("\n📁 Colección 'Sessions':");
+        const sessionUpper = await db.collection('Sessions')
+            .findOne({ _id: new ObjectId(searchSessionId) });
+        
+        if (sessionUpper) {
+            console.log("✅ ENCONTRADA en Sessions:", sessionUpper);
         } else {
-            console.log("\n❌ Sesión NO encontrada");
+            console.log("❌ No encontrada en Sessions");
+            
+            // Mostrar las últimas 3 sesiones de Sessions
+            console.log("\n📋 Últimas 3 sesiones en Sessions:");
+            const recentSessionsUpper = await db.collection('Sessions')
+                .find({})
+                .sort({ _id: -1 })
+                .limit(3)
+                .toArray();
+            
+            recentSessionsUpper.forEach((s, i) => {
+                console.log(`\nSesión ${i + 1}:`);
+                console.log('ID:', s._id.toString());
+                console.log('Datos:', s);
+            });
+        }
+
+        // 2. Buscar en sessions (minúscula)
+        console.log("\n📁 Colección 'sessions':");
+        const sessionLower = await db.collection('sessions')
+            .findOne({ _id: searchSessionId });
+        
+        if (sessionLower) {
+            console.log("✅ ENCONTRADA en sessions:", sessionLower);
+        } else {
+            console.log("❌ No encontrada en sessions");
+            
+            // Mostrar las últimas 3 sesiones de sessions
+            console.log("\n📋 Últimas 3 sesiones en sessions:");
+            const recentSessionsLower = await db.collection('sessions')
+                .find({})
+                .sort({ _id: -1 })
+                .limit(3)
+                .toArray();
+            
+            recentSessionsLower.forEach((s, i) => {
+                console.log(`\nSesión ${i + 1}:`);
+                console.log('ID:', s._id);
+                console.log('Datos:', s);
+            });
         }
 
     } catch (error) {
-        console.error("Error:", error.message);
+        console.error("❌ Error:", error.message);
     } finally {
-        if (client) await client.close();
+        if (client) {
+            await client.close();
+            console.log("\n👋 Conexión cerrada");
+        }
     }
 }
 
