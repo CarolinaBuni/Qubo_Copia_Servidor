@@ -109,11 +109,10 @@ function initMap(fromSession = false) {
      console.log( "Token en cookie:", token );
 
      // Verificar si el token existe
-     if ( !token ) {
-          console.log("❌ No hay token, redirigiendo a login");
-          window.location.href = '/login';  // Redirigir a la página de error
-          return;  // Detener la ejecución de la función si no hay token
-     }
+if (!token) {
+     console.log("❌ No hay token disponible");
+     return;  // Solo detenemos la ejecución
+}
 
      // Crear el mapa y establecerlo en el div con el id "gmp-map"
      map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
@@ -178,12 +177,10 @@ function initMap(fromSession = false) {
 
      document.addEventListener( 'DOMContentLoaded', function () {
           const token = getCookie( 'access_token' );
-          if ( !token ) {
-
-               window.location.href = '/login';
-               return;
+          if (!token) {
+               console.log("❌ No hay token disponible");
+               return;  // Solo detenemos la ejecución
           }
-
           fetch( '/api/v1/qubo', {
                headers: {
                     'Authorization': `Bearer ${ token }`
