@@ -55,7 +55,7 @@ async function checkSessions() {
         console.log("✅ Conexión exitosa!");
 
         // El sessionId que estamos buscando
-        const searchSessionId = '67d2cef6df5822583cf2dc4e';
+        const searchSessionId = '67d2d879a56fe3ad0b28186c';
         console.log("\n🔍 Buscando sessionId específico:", searchSessionId);
 
         // 1. Buscar en Sessions (mayúscula)
