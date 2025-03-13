@@ -152,59 +152,42 @@ cloudinary.config( {
 
 // Ruta específica para manejar el sessionId
 app.get("/auth/session", async (req, res) => {
-   console.log("\n=== INICIO PROCESAMIENTO SESIÓN ===");
-   console.log("📍 SessionId recibido:", req.query.sessionId);
-   
    try {
+       console.log("=== INICIO PROCESAMIENTO SESIÓN ===");
        const { sessionId } = req.query;
+       console.log("SessionId recibido:", sessionId);
+
        if (!sessionId) {
-           console.log("❌ No hay sessionId");
+           console.log("No hay sessionId");
            return res.status(400).json({ error: 'No sessionId provided' });
        }
 
-       // Intentar convertir el sessionId a ObjectId
-       let objectId;
-       try {
-           objectId = new mongoose.Types.ObjectId(sessionId);
-           console.log("✅ SessionId convertido a ObjectId:", objectId);
-       } catch (e) {
-           console.log("❌ Error al convertir sessionId a ObjectId:", e.message);
-           return res.status(400).json({ error: 'Invalid sessionId format' });
+       // Asegurarnos de que la conexión está activa
+       if (!mongoose.connection.readyState) {
+           console.log("Reconectando a MongoDB...");
+           await connectDB();
        }
 
-       // Buscar en Sessions
-       console.log("🔍 Buscando en Sessions...");
-       const sessionUpper = await mongoose.connection.useDb('QuboUsers')
+       // Buscar la sesión
+       const session = await mongoose.connection
+           .useDb('QuboUsers')
            .collection('Sessions')
-           .findOne({ _id: objectId });
-
-       console.log("📝 Resultado búsqueda Sessions:", sessionUpper ? "Encontrada" : "No encontrada");
-
-       // Buscar en sessions (minúscula por si acaso)
-       console.log("🔍 Buscando en sessions...");
-       const sessionLower = await mongoose.connection.useDb('QuboUsers')
-           .collection('sessions')
-           .findOne({ _id: sessionId });
-
-       console.log("📝 Resultado búsqueda sessions:", sessionLower ? "Encontrada" : "No encontrada");
-
-       if (sessionUpper || sessionLower) {
-           const session = sessionUpper || sessionLower;
-           console.log("✅ Sesión encontrada, devolviendo respuesta exitosa");
-           return res.json({ 
-               success: true,
-               authenticated: true
+           .findOne({ 
+               _id: new mongoose.Types.ObjectId(sessionId) 
            });
+
+       console.log("Sesión encontrada:", session ? "Sí" : "No");
+
+       // Respuesta simple
+       if (session) {
+           return res.json({ authenticated: true });
        } else {
-           console.log("❌ No se encontró la sesión en ninguna colección");
-           return res.status(401).json({ 
-               error: 'Invalid session',
-               authenticated: false 
-           });
+           return res.json({ authenticated: false });
        }
+
    } catch (error) {
-       console.error("❌ Error completo:", error);
-       return res.status(500).json({ error: 'Error processing session' });
+       console.log("Error:", error.message);
+       return res.status(500).json({ error: 'Server error' });
    }
 });
 
