@@ -53,27 +53,34 @@ function procesarSesion() {
      const sessionId = urlParams.get('sessionId');
      
      if (!sessionId) {
+         console.log("❌ No hay sessionId en la URL");
          return false;
      }
  
+     console.log("🔍 SessionId encontrado:", sessionId);
      fetch(`/auth/session?sessionId=${sessionId}`)
-     .then(response => response.json())
+     .then(response => {
+         console.log("📝 Status de la respuesta:", response.status);
+         return response.json();
+     })
      .then(data => {
+         console.log("✅ Datos recibidos:", data);
          if (data.authenticated) {
-             // Usuario autenticado, mostrar mapa
+             console.log("👤 Usuario autenticado, iniciando mapa");
              window.history.replaceState({}, document.title, window.location.pathname);
              initMap();
          } else {
+             console.log("❌ Usuario no autenticado");
              window.location.href = '/login';
          }
      })
-     .catch(() => {
+     .catch(error => {
+         console.error("❌ Error:", error);
          window.location.href = '/login';
      });
      
      return true;
 }
-
 
 
 function initMap() {

@@ -152,35 +152,58 @@ cloudinary.config( {
 
 // Ruta específica para manejar el sessionId
 app.get("/auth/session", async (req, res) => {
-   console.log("📍 Procesando sessionId");
-   console.log("🔍 Query params recibidos:", req.query);
+   console.log("\n=== INICIO PROCESAMIENTO SESIÓN ===");
+   console.log("📍 SessionId recibido:", req.query.sessionId);
    
    try {
        const { sessionId } = req.query;
        if (!sessionId) {
+           console.log("❌ No hay sessionId");
            return res.status(400).json({ error: 'No sessionId provided' });
        }
 
-       const session = await mongoose.connection.useDb('QuboUsers')
-           .collection('Sessions')
-           .findOne({
-               _id: new mongoose.Types.ObjectId(sessionId)
-           });
+       // Intentar convertir el sessionId a ObjectId
+       let objectId;
+       try {
+           objectId = new mongoose.Types.ObjectId(sessionId);
+           console.log("✅ SessionId convertido a ObjectId:", objectId);
+       } catch (e) {
+           console.log("❌ Error al convertir sessionId a ObjectId:", e.message);
+           return res.status(400).json({ error: 'Invalid sessionId format' });
+       }
 
-       if (session && session.token) {
-           // Si encontramos la sesión y tiene token, el usuario está autenticado
+       // Buscar en Sessions
+       console.log("🔍 Buscando en Sessions...");
+       const sessionUpper = await mongoose.connection.useDb('QuboUsers')
+           .collection('Sessions')
+           .findOne({ _id: objectId });
+
+       console.log("📝 Resultado búsqueda Sessions:", sessionUpper ? "Encontrada" : "No encontrada");
+
+       // Buscar en sessions (minúscula por si acaso)
+       console.log("🔍 Buscando en sessions...");
+       const sessionLower = await mongoose.connection.useDb('QuboUsers')
+           .collection('sessions')
+           .findOne({ _id: sessionId });
+
+       console.log("📝 Resultado búsqueda sessions:", sessionLower ? "Encontrada" : "No encontrada");
+
+       if (sessionUpper || sessionLower) {
+           const session = sessionUpper || sessionLower;
+           console.log("✅ Sesión encontrada, devolviendo respuesta exitosa");
            return res.json({ 
                success: true,
                authenticated: true
            });
        } else {
+           console.log("❌ No se encontró la sesión en ninguna colección");
            return res.status(401).json({ 
                error: 'Invalid session',
                authenticated: false 
            });
        }
    } catch (error) {
-       console.error("❌ Error:", error);
+       console.error("❌ Error completo:", error);
        return res.status(500).json({ error: 'Error processing session' });
    }
 });
