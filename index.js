@@ -171,18 +171,23 @@ app.get("/auth/session", async (req, res) => {
            });
 
        if (session && session.token) {
-           // Decodificar el token para obtener los datos del usuario
+           // Decodificar el token JWT para obtener los datos del usuario
            const userData = jwt.decode(session.token);
-           console.log("✅ Sesión válida encontrada para usuario:", userData.email);
-           
+           console.log("✅ Token decodificado:", userData);
+
+           // El token ya contiene toda la información necesaria
            return res.json({ 
                email: userData.email,
                nickname: userData.name,
-               sub: userData.sub
+               sub: userData.sub,
+               authenticated: true
            });
        } else {
-           console.log("❌ Sesión no encontrada o expirada");
-           return res.status(404).json({ error: 'Invalid session' });
+           console.log("❌ Sesión no encontrada o sin token");
+           return res.status(401).json({ 
+               error: 'Invalid session',
+               authenticated: false 
+           });
        }
    } catch (error) {
        console.error("❌ Error al procesar sessionId:", error);
