@@ -90,6 +90,16 @@ function initMap( fromSession = false ) {
           return;
      }
 
+     // Recuperar el token de las cookies
+     const token = getCookie( 'access_token' );
+     console.log( "Token en cookie:", token );
+
+     // Verificar si el token existe
+     if ( !token ) {
+          console.log( "❌ No hay token disponible" );
+          return;  // Solo detenemos la ejecución
+     }
+
      // Resto del código de initMap...
      console.log( "🗺️ Iniciando mapa..." );
      precargarImagenes();
@@ -104,15 +114,7 @@ function initMap( fromSession = false ) {
           mapTypeId: "satellite",
      };
 
-     // Recuperar el token de las cookies
-     const token = getCookie( 'access_token' );
-     console.log( "Token en cookie:", token );
-
-     // Verificar si el token existe
-     if ( !token ) {
-          console.log( "❌ No hay token disponible" );
-          return;  // Solo detenemos la ejecución
-     }
+     
 
      // Crear el mapa y establecerlo en el div con el id "gmp-map"
      map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
@@ -175,12 +177,8 @@ function initMap( fromSession = false ) {
      }
 
 
-     document.addEventListener( 'DOMContentLoaded', function () {
-          const token = getCookie( 'access_token' );
-          if ( !token ) {
-               console.log( "❌ No hay token disponible" );
-               return;  // Solo detenemos la ejecución
-          }
+     
+          
           fetch( '/api/v1/qubo', {
                headers: {
                     'Authorization': `Bearer ${ token }`,
@@ -256,7 +254,6 @@ function initMap( fromSession = false ) {
                     } );
                } )
                .catch( error => console.error( '❌  Error al cargar los Qubos:', error ) );
-     } );
 
 
      // Define la URL de la imagen del icono personalizado
