@@ -189,22 +189,30 @@ function initMap( fromSession = false ) {
                .then( response => {
                     console.log("📝 Respuesta de Qubos:", response.status);
                     if ( !response.ok ) {
-                         return response.json();
+                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     return response.json();
                } )
                .then( qubos => {
+                    console.log("✅ Total de Qubos recibidos:", qubos.length);
+                    console.log("🗺️ Estado del mapa:", !!map);
                     qubos.forEach( qubo => {
-                         console.log("✅ Qubos recibidos:", qubos.length);
+                         console.log(`🎯 Creando marcador para: ${qubo.title} en [${qubo.latitude}, ${qubo.longitude}]`);
                          const position = { lat: qubo.latitude, lng: qubo.longitude };
+                         console.log("📍 Posición del marcador:", position);
+
+                          // Verificar que tenemos el icono correcto
+                         const icon = subcategoryIcons.QUBO_ICONS[qubo.subcategory] || 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
+                         console.log(`🎨 Usando icono para ${qubo.subcategory}:`, icon);
                          const marker = new google.maps.Marker( {
                               position: position,
                               map: map,
                               title: qubo.title,
-                              icon: subcategoryIcons.QUBO_ICONS[ qubo.subcategory ] || 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg'
+                              icon: icon
                          } );
 
                          // Guardar el marcador en activeMarkers (añade esta línea)
+                         console.log(`✅ Marcador creado para: ${qubo.title}`);
                          activeMarkers.set( qubo._id, marker );
 
                          marker.addListener( 'click', () => {
@@ -258,7 +266,7 @@ function initMap( fromSession = false ) {
 
 
      // Define la URL de la imagen del icono personalizado
-     const customIconUrl = "./assets/qubonegro.svg"; // Reemplaza con la URL de tu imagen
+     const customIconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg"; // Reemplaza con la URL de tu imagen
 
      // Crear un marcador para tu ubicación inicial con el icono personalizado
      myLocationMarker = new google.maps.Marker( {
@@ -348,6 +356,7 @@ function initMap( fromSession = false ) {
      }
 
      let subcategoryIcons = {};
+     console.log("🎨 Estado de subcategoryIcons:", subcategoryIcons);
 
      document.addEventListener( 'DOMContentLoaded', function () {
           // Cargar los iconos de las subcategorías desde el servidor
