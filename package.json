@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build": "terser public/app.js -o public/app.min.js -c -m",
+    "vercel-build": "npm run build" 
   },
   "keywords": [],
   "author": "",
