@@ -53,30 +53,25 @@ function procesarSesion() {
      const sessionId = urlParams.get('sessionId');
      
      if (!sessionId) {
-         return false; // No hay sesión que procesar
+         return false;
      }
  
      console.log("🔍 Encontrado sessionId en URL, procesando...");
      fetch(`/auth/session?sessionId=${sessionId}`, {
-         credentials: 'include' // Importante para que se envíen/reciban cookies
+         credentials: 'include'
      })
      .then(response => {
-         if (!response.ok) {
-             console.log("❌ Error en la respuesta:", response.status);
-             throw new Error('Error procesando sesión');
-         }
+         if (!response.ok) throw new Error('Error procesando sesión');
          return response.json();
      })
      .then(data => {
-         console.log("✅ Sesión procesada correctamente:", data);
-         if (data.success && data.userId) {
-             console.log("👤 Usuario autenticado:", data.userId);
-             // Limpiamos la URL sin recargar la página
+         console.log("✅ Datos recibidos:", data);
+         if (data.authenticated) {
+             console.log("👤 Usuario autenticado:", data.email);
              window.history.replaceState({}, document.title, window.location.pathname);
-             // Continuamos con la carga del mapa
              initMap();
          } else {
-             throw new Error('Datos de sesión inválidos');
+             throw new Error('No autenticado');
          }
      })
      .catch(error => {
