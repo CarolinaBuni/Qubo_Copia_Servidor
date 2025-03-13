@@ -162,15 +162,26 @@ app.get("/auth/session", async (req, res) => {
            return res.status(400).json({ error: 'No sessionId provided' });
        }
 
+       // Verificar el estado de la conexión
+       if (mongoose.connection.readyState !== 1) {
+           console.log("🔄 Reconectando a MongoDB...");
+           await connectDB();
+       }
+
        console.log("🔍 Buscando sesión en la colección 'Sessions'");
+       console.log("🔑 SessionId a buscar:", sessionId);
        
+       const objectId = new mongoose.Types.ObjectId(sessionId);
+       console.log("🔑 ObjectId creado:", objectId);
+
        const session = await mongoose.connection.useDb('QuboUsers')
-           .collection('Sessions')  // Mayúscula
-           .findOne({
-               _id: new mongoose.Types.ObjectId(sessionId)  // Convertir a ObjectId
-           });
+           .collection('Sessions')
+           .findOne({ _id: objectId });
 
        console.log("📝 Sesión encontrada:", session ? "Sí" : "No");
+       if (session) {
+           console.log("📄 Datos de la sesión:", JSON.stringify(session, null, 2));
+       }
 
        if (session && session.token) {
            console.log("✅ Sesión válida encontrada");
@@ -187,7 +198,7 @@ app.get("/auth/session", async (req, res) => {
            });
        }
    } catch (error) {
-       console.error("❌ Error:", error);
+       console.error("❌ Error completo:", error);
        return res.status(500).json({ error: 'Error processing session' });
    }
 });
