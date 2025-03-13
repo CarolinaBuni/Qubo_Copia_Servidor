@@ -162,34 +162,32 @@ app.get("/auth/session", async (req, res) => {
            return res.status(400).json({ error: 'No sessionId provided' });
        }
 
-       console.log("🔍 Buscando sesión en la colección 'sessions'");
+       console.log("🔍 Buscando sesión en la colección 'Sessions'");
        
        const session = await mongoose.connection.useDb('QuboUsers')
-           .collection('sessions')  // Cambiado a minúscula
-           .findOne({ _id: sessionId });
+           .collection('Sessions')  // Mayúscula
+           .findOne({
+               _id: new mongoose.Types.ObjectId(sessionId)  // Convertir a ObjectId
+           });
 
        console.log("📝 Sesión encontrada:", session ? "Sí" : "No");
 
-       if (session && session.session && session.session.user) {
-           const userData = session.session.user;  // Los datos están aquí directamente
-           console.log("✅ Datos de usuario encontrados:", userData);
-
+       if (session && session.token) {
+           console.log("✅ Sesión válida encontrada");
            return res.json({ 
                success: true,
-               userId: userData.sub,
-               email: userData.email,
-               nickname: userData.nickname,
+               userId: session.userId,
                authenticated: true
            });
        } else {
-           console.log("❌ Sesión no encontrada o sin datos de usuario");
+           console.log("❌ Sesión no encontrada o sin token");
            return res.status(401).json({ 
                error: 'Invalid session',
                authenticated: false 
            });
        }
    } catch (error) {
-       console.error("❌ Error detallado:", error);
+       console.error("❌ Error:", error);
        return res.status(500).json({ error: 'Error processing session' });
    }
 });
