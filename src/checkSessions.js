@@ -40,50 +40,45 @@
 
 // checkDatabase();
 
-
+//* checkSessions.js en APP2
 require('dotenv').config({ path: '../.env' });
-const mongoose = require('mongoose');
+const { MongoClient } = require('mongodb');
+const jwt = require('jsonwebtoken');
 
 async function checkSessions() {
+    let client;
     try {
         console.log("🔌 Intentando conectar a MongoDB...");
-        await mongoose.connect(process.env.AUTH_MONGODB_URL);
+        client = new MongoClient(process.env.AUTH_MONGODB_URL);
+        await client.connect();
         
-        const db = mongoose.connection.useDb('QuboUsers');
+        const db = client.db('QuboUsers');
         console.log("✅ Conexión exitosa a QuboUsers!");
 
-        const sessionsCollection = db.collection('sessions'); // Nota: en minúsculas
-
-        // Contar total de sesiones
-        const totalSessions = await sessionsCollection.countDocuments();
-        console.log(`\n📊 Total de sesiones en la base de datos: ${totalSessions}`);
-
-        // Buscar todas las sesiones y ordenarlas por fecha de expiración
-        const allSessions = await sessionsCollection.find({}).sort({ expires: -1 }).toArray();
-
+        // Buscar en Sessions
         console.log("\n🔍 Sesiones encontradas:");
-        allSessions.forEach(session => {
-            const isExpired = new Date(session.expires) < new Date();
-            console.log('\n📝 Sesión:', {
-                id: session._id,
-                expira: session.expires,
-                estado: isExpired ? '❌ Expirada' : '✅ Activa',
-                tiempoRestante: isExpired ? 
-                    'Expirada hace ' + Math.round((Date.now() - new Date(session.expires)) / 1000 / 60) + ' minutos' :
-                    'Expira en ' + Math.round((new Date(session.expires) - Date.now()) / 1000 / 60) + ' minutos',
-                usuario: {
-                    email: session.session?.user?.email,
-                    nickname: session.session?.user?.nickname,
-                    sub: session.session?.user?.sub
-                }
-            });
+        const sessions = await db.collection('Sessions').find({}).limit(2).toArray();
+        
+        sessions.forEach((session, index) => {
+            console.log(`\n📝 Session ${index + 1}:`);
+            console.log('- Session ID:', session._id);
+            console.log('- User ID:', session.userId);
+            
+            // Decodificar el token JWT
+            const tokenData = jwt.decode(session.token);
+            console.log('\n🔑 Datos del usuario en el token:');
+            console.log('- Email:', tokenData.email);
+            console.log('- Name:', tokenData.name);
+            console.log('- Sub:', tokenData.sub);
         });
 
     } catch (error) {
         console.error("❌ Error:", error.message);
     } finally {
-        await mongoose.disconnect();
-        console.log("\n👋 Conexión cerrada");
+        if (client) {
+            await client.close();
+            console.log("\n👋 Conexión cerrada");
+        }
     }
 }
 
