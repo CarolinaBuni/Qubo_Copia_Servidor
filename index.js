@@ -151,8 +151,6 @@ cloudinary.config( {
    api_secret: process.env.API_SECRET,
 } );
 
-// Ruta específica para manejar el sessionId
-// Solo modificamos este endpoint
 app.get("/auth/session", async (req, res) => {
    console.log("📍 Procesando sessionId");
    console.log("🔍 Query params recibidos:", req.query);
@@ -175,12 +173,22 @@ app.get("/auth/session", async (req, res) => {
        console.log("📝 Sesión encontrada:", session ? "Sí" : "No");
 
        if (session && session.token) {
+           // Establecer la cookie con el token
+           res.cookie('access_token', session.token, {
+               httpOnly: true,
+               secure: process.env.NODE_ENV === 'production',
+               sameSite: 'lax',
+               maxAge: 3600000 // 1 hora
+           });
+
+           console.log("🍪 Cookie establecida con el token");
            return res.json({ 
                success: true,
                userId: session.userId,
                authenticated: true
            });
        } else {
+           console.log("❌ Sesión no encontrada o sin token");
            return res.status(401).json({ 
                error: 'Invalid session',
                authenticated: false 
@@ -193,6 +201,49 @@ app.get("/auth/session", async (req, res) => {
        if (client) await client.close();
    }
 });
+
+// Ruta específica para manejar el sessionId
+// Solo modificamos este endpoint
+// app.get("/auth/session", async (req, res) => {
+//    console.log("📍 Procesando sessionId");
+//    console.log("🔍 Query params recibidos:", req.query);
+   
+//    let client;
+//    try {
+//        const { sessionId } = req.query;
+//        if (!sessionId) {
+//            console.log("❌ No se proporcionó sessionId");
+//            return res.status(400).json({ error: 'No sessionId provided' });
+//        }
+
+//        client = new MongoClient(process.env.AUTH_MONGODB_URL);
+//        await client.connect();
+       
+//        const db = client.db('QuboUsers');
+//        const session = await db.collection('Sessions')
+//            .findOne({ _id: new ObjectId(sessionId) });
+
+//        console.log("📝 Sesión encontrada:", session ? "Sí" : "No");
+
+//        if (session && session.token) {
+//            return res.json({ 
+//                success: true,
+//                userId: session.userId,
+//                authenticated: true
+//            });
+//        } else {
+//            return res.status(401).json({ 
+//                error: 'Invalid session',
+//                authenticated: false 
+//            });
+//        }
+//    } catch (error) {
+//        console.error("❌ Error:", error);
+//        return res.status(500).json({ error: 'Error processing session' });
+//    } finally {
+//        if (client) await client.close();
+//    }
+// });
 
 // Servir archivos estáticos y proteger rutas
 app.get( "/", ( req, res ) => {

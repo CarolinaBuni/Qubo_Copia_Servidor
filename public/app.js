@@ -58,7 +58,9 @@ function procesarSesion() {
      }
  
      console.log("🔍 SessionId encontrado:", sessionId);
-     fetch(`/auth/session?sessionId=${sessionId}`)
+     fetch(`/auth/session?sessionId=${sessionId}`, {
+         credentials: 'include'  // Importante para las cookies
+     })
      .then(response => {
          console.log("📝 Status de la respuesta:", response.status);
          return response.json();
@@ -68,7 +70,7 @@ function procesarSesion() {
          if (data.authenticated) {
              console.log("👤 Usuario autenticado, iniciando mapa");
              window.history.replaceState({}, document.title, window.location.pathname);
-             initMap();
+             initMap(true);  // Pasamos true para indicar que viene de procesarSesion
          } else {
              console.log("❌ Usuario no autenticado");
              window.location.href = '/login';
@@ -83,12 +85,15 @@ function procesarSesion() {
 }
 
 
-function initMap() {
+function initMap(fromSession = false) {
 
-     if (procesarSesion()) {
+     if (!fromSession && procesarSesion()) {
           console.log("⏳ Procesando sesión, esperando...");
           return;
       }
+ 
+      // Resto del código de initMap...
+      console.log("🗺️ Iniciando mapa...");
      precargarImagenes();
      // Crear un objeto de opciones del mapa
      const mapOptions = {
