@@ -6,7 +6,7 @@ let storesActivos = false;
 let map;
 let myLocationMarker;
 let autocomplete;
-let QUBO_ICONS = require( "./src/constants/cloudinaryUrls" );
+
 // Añadir al inicio del archivo, después de las declaraciones de variables
 function handleSharedUrl() {
      const urlParams = new URLSearchParams( window.location.search );
@@ -254,6 +254,7 @@ function initMap( fromSession = false ) {
                     } );
                } )
                .catch( error => console.error( '❌  Error al cargar los Qubos:', error ) );
+
 
 
      // Define la URL de la imagen del icono personalizado
