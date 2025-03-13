@@ -173,15 +173,26 @@ app.get("/auth/session", async (req, res) => {
        console.log("📝 Sesión encontrada:", session ? "Sí" : "No");
 
        if (session && session.token) {
-           // Establecer la cookie con el token
+           // Modificamos cómo establecemos la cookie
            res.cookie('access_token', session.token, {
-               httpOnly: true,
-               secure: process.env.NODE_ENV === 'production',
-               sameSite: 'lax',
-               maxAge: 3600000 // 1 hora
+               httpOnly: false,  // Cambiado a false para poder acceder desde JS
+               secure: true,
+               sameSite: 'none',  // Importante para CORS
+               path: '/',         // Aseguramos que la cookie está disponible en toda la app
+               maxAge: 3600000    // 1 hora
            });
 
-           console.log("🍪 Cookie establecida con el token");
+           console.log("🍪 Cookie establecida:", {
+               token: session.token.substring(0, 20) + '...',  // Log parcial del token
+               options: {
+                   httpOnly: false,
+                   secure: true,
+                   sameSite: 'none',
+                   path: '/',
+                   maxAge: 3600000
+               }
+           });
+
            return res.json({ 
                success: true,
                userId: session.userId,
