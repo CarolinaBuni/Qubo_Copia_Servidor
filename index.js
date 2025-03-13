@@ -164,32 +164,21 @@ app.get("/auth/session", async (req, res) => {
 
        console.log("🔍 Buscando sesión en la colección 'Sessions'");
        
-       // Buscar en la colección Sessions con la estructura correcta
        const session = await mongoose.connection.useDb('QuboUsers')
-           .collection('Sessions')  // Con S mayúscula
+           .collection('Sessions')
            .findOne({
-               _id: new mongoose.Types.ObjectId(sessionId), // Ahora sí convertimos a ObjectId
-               createdAt: { 
-                   $gt: new Date(Date.now() - 3600000) // Sesiones no expiradas (menos de 1 hora)
-               }
+               _id: new mongoose.Types.ObjectId(sessionId)
            });
 
-       console.log("🔍 Resultado de búsqueda:", session ? "Sesión encontrada" : "Sesión no encontrada");
-       
        if (session && session.token) {
-           console.log("✅ Sesión válida encontrada para userId:", session.userId);
-           
-           // Usar el token JWT que viene en la sesión
-           res.cookie('access_token', session.token, {
-               httpOnly: true,
-               secure: true,
-               sameSite: 'Lax',
-               maxAge: 3600000 // 1 hora
-           });
+           // Decodificar el token para obtener los datos del usuario
+           const userData = jwt.decode(session.token);
+           console.log("✅ Sesión válida encontrada para usuario:", userData.email);
            
            return res.json({ 
-               success: true, 
-               userId: session.userId
+               email: userData.email,
+               nickname: userData.name,
+               sub: userData.sub
            });
        } else {
            console.log("❌ Sesión no encontrada o expirada");
@@ -197,9 +186,6 @@ app.get("/auth/session", async (req, res) => {
        }
    } catch (error) {
        console.error("❌ Error al procesar sessionId:", error);
-       if (error.name === 'CastError' || error.name === 'BSONError') {
-           return res.status(400).json({ error: 'Invalid session ID format' });
-       }
        return res.status(500).json({ error: 'Error processing session' });
    }
 });
