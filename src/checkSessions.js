@@ -43,61 +43,37 @@
 //* checkSessions.js en APP2
 require('dotenv').config({ path: '../.env' });
 const { MongoClient } = require('mongodb');
-const jwt = require('jsonwebtoken');
 
 async function checkSessions() {
     let client;
     try {
-        console.log("🔌 Intentando conectar a MongoDB...");
+        // Conectar a MongoDB
         client = new MongoClient(process.env.AUTH_MONGODB_URL);
         await client.connect();
-        
         const db = client.db('QuboUsers');
-        console.log("✅ Conexión exitosa a QuboUsers!");
-
-        // Buscar la sesión por connect.sid
-        const connectSid = "nFnbPtlOk7ZIxgxdIeFf4wYdSCEBxpvd"; // El valor sin el s: y la codificación
-        console.log("\n🔍 Buscando sesión por connect.sid:", connectSid);
         
-        // Buscar en sessions (minúscula)
-        const sessionLower = await db.collection('sessions').findOne({ 
-            _id: connectSid 
-        });
-        console.log("\n📝 Sesión en 'sessions':", sessionLower ? "Encontrada" : "No encontrada");
-        if (sessionLower) {
-            console.log(JSON.stringify(sessionLower, null, 2));
-        }
+        // Este es el ID que viene en la URL
+        const sessionId = '67d2ac1bc6731f2d1799d31d';
+        console.log("\n🔍 Buscando sessionId:", sessionId);
 
-        // Buscar en Sessions (mayúscula)
-        const sessionUpper = await db.collection('Sessions').findOne({ 
-            _id: connectSid 
+        // Buscar en la colección Sessions
+        const session = await db.collection('Sessions').findOne({
+            _id: new MongoClient.ObjectId(sessionId)
         });
-        console.log("\n📝 Sesión en 'Sessions':", sessionUpper ? "Encontrada" : "No encontrada");
-        if (sessionUpper) {
-            console.log(JSON.stringify(sessionUpper, null, 2));
-        }
 
-        // Mostrar todas las sesiones recientes
-        console.log("\n📋 Últimas sesiones en 'sessions':");
-        const recentSessions = await db.collection('sessions')
-            .find({})
-            .sort({ _id: -1 })
-            .limit(5)
-            .toArray();
-        
-        recentSessions.forEach((session, i) => {
-            console.log(`\nSesión ${i + 1}:`);
-            console.log('ID:', session._id);
-            console.log('Datos:', JSON.stringify(session.session?.user || {}, null, 2));
-        });
+        if (session) {
+            console.log("\n✅ Sesión encontrada:");
+            console.log("- ID:", session._id);
+            console.log("- Tiene token:", session.token ? "Sí" : "No");
+            console.log("\nDatos completos:", JSON.stringify(session, null, 2));
+        } else {
+            console.log("\n❌ Sesión NO encontrada");
+        }
 
     } catch (error) {
-        console.error("❌ Error:", error.message);
+        console.error("Error:", error.message);
     } finally {
-        if (client) {
-            await client.close();
-            console.log("\n👋 Conexión cerrada");
-        }
+        if (client) await client.close();
     }
 }
 

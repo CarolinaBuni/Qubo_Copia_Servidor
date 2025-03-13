@@ -29,6 +29,7 @@
     "path": "^0.12.7",
     "slick-carousel": "^1.8.1",
     "swiper": "^11.1.14",
-    "vanilla-calendar-pro": "^3.0.3"
+    "vanilla-calendar-pro": "^3.0.3",
+    "yallist": "^5.0.0"
   }
 }
