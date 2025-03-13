@@ -55,21 +55,40 @@ async function checkSessions() {
         const db = client.db('QuboUsers');
         console.log("✅ Conexión exitosa a QuboUsers!");
 
-        // Buscar en Sessions
-        console.log("\n🔍 Sesiones encontradas:");
-        const sessions = await db.collection('Sessions').find({}).limit(2).toArray();
+        // Buscar la sesión por connect.sid
+        const connectSid = "nFnbPtlOk7ZIxgxdIeFf4wYdSCEBxpvd"; // El valor sin el s: y la codificación
+        console.log("\n🔍 Buscando sesión por connect.sid:", connectSid);
         
-        sessions.forEach((session, index) => {
-            console.log(`\n📝 Session ${index + 1}:`);
-            console.log('- Session ID:', session._id);
-            console.log('- User ID:', session.userId);
-            
-            // Decodificar el token JWT
-            const tokenData = jwt.decode(session.token);
-            console.log('\n🔑 Datos del usuario en el token:');
-            console.log('- Email:', tokenData.email);
-            console.log('- Name:', tokenData.name);
-            console.log('- Sub:', tokenData.sub);
+        // Buscar en sessions (minúscula)
+        const sessionLower = await db.collection('sessions').findOne({ 
+            _id: connectSid 
+        });
+        console.log("\n📝 Sesión en 'sessions':", sessionLower ? "Encontrada" : "No encontrada");
+        if (sessionLower) {
+            console.log(JSON.stringify(sessionLower, null, 2));
+        }
+
+        // Buscar en Sessions (mayúscula)
+        const sessionUpper = await db.collection('Sessions').findOne({ 
+            _id: connectSid 
+        });
+        console.log("\n📝 Sesión en 'Sessions':", sessionUpper ? "Encontrada" : "No encontrada");
+        if (sessionUpper) {
+            console.log(JSON.stringify(sessionUpper, null, 2));
+        }
+
+        // Mostrar todas las sesiones recientes
+        console.log("\n📋 Últimas sesiones en 'sessions':");
+        const recentSessions = await db.collection('sessions')
+            .find({})
+            .sort({ _id: -1 })
+            .limit(5)
+            .toArray();
+        
+        recentSessions.forEach((session, i) => {
+            console.log(`\nSesión ${i + 1}:`);
+            console.log('ID:', session._id);
+            console.log('Datos:', JSON.stringify(session.session?.user || {}, null, 2));
         });
 
     } catch (error) {

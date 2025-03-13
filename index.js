@@ -152,6 +152,9 @@ cloudinary.config( {
 
 // Ruta específica para manejar el sessionId
 app.get("/auth/session", async (req, res) => {
+   console.log("📍 Procesando sessionId");
+   console.log("🔍 Query params recibidos:", req.query);
+   
    try {
        const { sessionId } = req.query;
        if (!sessionId) {
@@ -159,34 +162,27 @@ app.get("/auth/session", async (req, res) => {
            return res.status(400).json({ error: 'No sessionId provided' });
        }
 
-       // Primero verificamos la conexión
-       if (!mongoose.connection.readyState) {
-           console.log("🔄 Reconectando a MongoDB...");
-           await connectDB();
-       }
-
-       console.log("🔍 Buscando sesión en la colección 'Sessions'");
+       console.log("🔍 Buscando sesión en la colección 'sessions'");
+       
        const session = await mongoose.connection.useDb('QuboUsers')
-           .collection('Sessions')
-           .findOne({
-               _id: new mongoose.Types.ObjectId(sessionId)
-           });
+           .collection('sessions')  // Cambiado a minúscula
+           .findOne({ _id: sessionId });
 
        console.log("📝 Sesión encontrada:", session ? "Sí" : "No");
 
-       if (session && session.token) {
-           const userData = jwt.decode(session.token);
-           console.log("✅ Token decodificado:", userData);
+       if (session && session.session && session.session.user) {
+           const userData = session.session.user;  // Los datos están aquí directamente
+           console.log("✅ Datos de usuario encontrados:", userData);
 
            return res.json({ 
                success: true,
                userId: userData.sub,
                email: userData.email,
-               nickname: userData.name,
+               nickname: userData.nickname,
                authenticated: true
            });
        } else {
-           console.log("❌ Sesión no encontrada o sin token");
+           console.log("❌ Sesión no encontrada o sin datos de usuario");
            return res.status(401).json({ 
                error: 'Invalid session',
                authenticated: false 
