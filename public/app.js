@@ -254,10 +254,16 @@ function initMap( fromSession = false ) {
 
                          // Intentar obtener el icono específico de la subcategoría
                          if ( subcategoryIcons && subcategoryIcons.QUBO_ICONS && qubo.subcategory ) {
-                              const icon = subcategoryIcons.QUBO_ICONS[ qubo.subcategory ];
-                              if ( icon ) {
-                                   iconUrl = icon;
-                              } else {
+                              const normalizedSubcategory = normalizeString(qubo.subcategory);
+                              let found = false;
+                              for ( const key in subcategoryIcons.QUBO_ICONS ) {
+                                   if ( normalizeString(key) === normalizedSubcategory ) {
+                                        iconUrl = subcategoryIcons.QUBO_ICONS[key];
+                                        found = true;
+                                        break;
+                                   }
+                              }
+                              if ( !found ) {
                                    console.warn( `⚠️ No se encontró icono para subcategoría: ${ qubo.subcategory }` );
                               }
                          }
@@ -416,6 +422,13 @@ function initMap( fromSession = false ) {
      }
 
      let subcategoryIcons = {};
+     function normalizeString( str ) {
+          const normalized = str.toLowerCase()
+               .replace( /&/g, 'and' )
+               .replace( /[\s-_]+/g, '' )
+               .trim();
+          return normalized;
+     }
 
      document.addEventListener( 'DOMContentLoaded', function () {
           // Cargar los iconos de las subcategorías desde el servidor
@@ -429,13 +442,7 @@ function initMap( fromSession = false ) {
           let isAddingQubo = false;
           let currentMarker = null;
 
-          function normalizeString( str ) {
-               const normalized = str.toLowerCase()
-                    .replace( /&/g, 'and' )
-                    .replace( /[\s-_]+/g, '' )
-                    .trim();
-               return normalized;
-          }
+          
 
 
           // En el event listener de 'change'
