@@ -62,13 +62,13 @@ function procesarSesion() {
           credentials: 'include'
      } )
           .then( response => {
-               console.log( "📝 Status de la respuesta:", response.status );
+               // console.log( "📝 Status de la respuesta:", response.status );
                return response.json();
           } )
           .then( data => {
                console.log( "✅ Datos recibidos:", data );
                if ( data.authenticated ) {
-                    console.log( "👤 Usuario autenticado, iniciando mapa" );
+                    // console.log( "👤 Usuario autenticado, iniciando mapa" );
                     window.history.replaceState( {}, document.title, window.location.pathname );
                     initMap( true );
                } else {
@@ -92,7 +92,7 @@ function initMap( fromSession = false ) {
 
      // Recuperar el token de las cookies
      const token = getCookie( 'access_token' );
-     console.log( "Token en cookie:", token );
+     // console.log( "Token en cookie:", token );
 
      // Verificar si el token existe
      if ( !token ) {
@@ -114,25 +114,63 @@ function initMap( fromSession = false ) {
           mapTypeId: "satellite",
      };
 
-     
+
 
      // Crear el mapa y establecerlo en el div con el id "gmp-map"
      map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
+
+
+     fetch( '/api/v1/qubo/icons', {
+          headers: {
+               'Authorization': `Bearer ${ getCookie( 'access_token' ) }`,  // Añadir token
+               'Content-Type': 'application/json'
+          },
+          credentials: 'include'  // Importante para incluir cookies
+     } )
+
+          .then( response => {
+               if ( !response.ok ) {
+                    throw new Error( `Error cargando iconos: ${ response.status }` );
+               }
+               return response.json();
+          } )
+
+          .then( data => {
+               subcategoryIcons = data;
+               // console.log( '✅ Iconos cargados:', subcategoryIcons );
+
+               // AHORA cargamos los qubos, después de tener los iconos
+               console.log( "🔄 Ahora cargando qubos..." );
+
+               // Usar la función existente o el código para cargar qubos aquí
+               cargarQubos();
+          } )
+          .catch( error => {
+               console.error( '❌ Error cargando iconos:', error );
+               // Cargar qubos de todas formas con icono por defecto
+               cargarQubos();
+          } );
 
      // Función para manejar la eliminación de Qubos
      function handleQuboDelete( quboId, marker, infoBox, messageBox ) {
           return async () => {
                if ( confirm( "¿Estás seguro de que deseas eliminar este Qubo?" ) ) {
                     try {
-                         console.log( 'Intentando eliminar Qubo:', quboId );
-                         console.log( 'Marker antes de eliminar:', marker );
-                         console.log( 'ActiveMarkers antes de eliminar:', activeMarkers );
+                         // console.log( 'Intentando eliminar Qubo:', quboId );
+                         // console.log( 'Marker antes de eliminar:', marker );
+                         // console.log( 'ActiveMarkers antes de eliminar:', activeMarkers );
+
+
+                         const token = getCookie( 'access_token' );
+                         // console.log( 'Token usado para eliminación:', token ? 'Presente' : 'No encontrado' );
 
                          const response = await fetch( `/api/v1/qubo/${ quboId }`, {
                               method: 'DELETE',
                               headers: {
-                                   'Authorization': `Bearer ${ getCookie( 'access_token' ) }`,
-                              }
+                                   'Authorization': `Bearer ${ token }`,
+                                   'Content-Type': 'application/json'
+                              },
+                              credentials: 'include'
                          } );
 
                          if ( response.ok ) {
@@ -155,11 +193,19 @@ function initMap( fromSession = false ) {
                                    messageBox.style.display = 'none';
                               }, 3000 );
                          } else {
-                              throw new Error( "Error deleting Qubo" );
+                              // Código nuevo para manejar error de permiso
+                              const errorData = await response.json();
+                              throw new Error( errorData.message || 'Error al eliminar el Qubo' );
                          }
                     } catch ( error ) {
                          console.error( "Error:", error );
-                         alert( "Error deleting Qubo" );
+
+                         // Mostrar mensaje de error en messageBox en lugar de alert
+                         messageBox.innerHTML = `<div class="error-message">${ error.message }</div>`;
+                         messageBox.style.display = 'flex';
+                         setTimeout(() => {
+                              messageBox.style.display = 'none';
+                          }, 5000);
                     }
                }
           };
@@ -170,15 +216,17 @@ function initMap( fromSession = false ) {
           const parts = value.split( `; ${ name }=` );
           if ( parts.length === 2 ) {
                const token = parts.pop().split( ';' ).shift();
-               console.log( "Token recuperado:", token );  // Verifica aquí que el token es correcto
+               // console.log( "Token recuperado:", token );  // Verifica aquí que el token es correcto
                return token;
           }
           return null;  // Si no encuentra la cookie, devuelve null
      }
 
 
-     
-          
+
+     function cargarQubos() {
+          const token = getCookie( 'access_token' );
+          // console.log( "🔑 Token para qubos:", token ? "Presente" : "No encontrado" );
           fetch( '/api/v1/qubo', {
                headers: {
                     'Authorization': `Bearer ${ token }`,
@@ -187,32 +235,44 @@ function initMap( fromSession = false ) {
                credentials: 'include'  // Importante para enviar cookies en solicitudes
           } )
                .then( response => {
-                    console.log("📝 Respuesta de Qubos:", response.status);
+                    console.log( "📝 Respuesta de Qubos:", response.status );
                     if ( !response.ok ) {
-                         throw new Error(`HTTP error! status: ${response.status}`);
+                         throw new Error( `HTTP error! status: ${ response.status }` );
                     }
                     return response.json();
                } )
                .then( qubos => {
-                    console.log("✅ Total de Qubos recibidos:", qubos.length);
-                    console.log("🗺️ Estado del mapa:", !!map);
+                         console.log( "✅ Total de Qubos recibidos:", qubos.length );
+                         console.log( "🗺️ Estado del mapa:", !!map );
                     qubos.forEach( qubo => {
-                         console.log(`🎯 Creando marcador para: ${qubo.title} en [${qubo.latitude}, ${qubo.longitude}]`);
+                         // console.log( `🎯 Creando marcador para: ${ qubo.title } en [${ qubo.latitude }, ${ qubo.longitude }]` );
                          const position = { lat: qubo.latitude, lng: qubo.longitude };
-                         console.log("📍 Posición del marcador:", position);
+                         // console.log( "📍 Posición del marcador:", position );
 
-                          // Verificar que tenemos el icono correcto
-                         const icon = subcategoryIcons.QUBO_ICONS[qubo.subcategory] || 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
-                         console.log(`🎨 Usando icono para ${qubo.subcategory}:`, icon);
+                         // Verificar que la subcategoría existe y tiene un icono
+                         let iconUrl = 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg'; // Icono por defecto
+
+                         // Intentar obtener el icono específico de la subcategoría
+                         if ( subcategoryIcons && subcategoryIcons.QUBO_ICONS && qubo.subcategory ) {
+                              const icon = subcategoryIcons.QUBO_ICONS[ qubo.subcategory ];
+                              if ( icon ) {
+                                   iconUrl = icon;
+                              } else {
+                                   console.warn( `⚠️ No se encontró icono para subcategoría: ${ qubo.subcategory }` );
+                              }
+                         }
+
+
+                         // console.log( `🎨 Usando icono para ${ qubo.subcategory }:`, iconUrl );
                          const marker = new google.maps.Marker( {
                               position: position,
                               map: map,
                               title: qubo.title,
-                              icon: icon
+                              icon: iconUrl
                          } );
 
                          // Guardar el marcador en activeMarkers (añade esta línea)
-                         console.log(`✅ Marcador creado para: ${qubo.title}`);
+                         // console.log( `✅ Marcador creado para: ${ qubo.title }` );
                          activeMarkers.set( qubo._id, marker );
 
                          marker.addListener( 'click', () => {
@@ -262,7 +322,7 @@ function initMap( fromSession = false ) {
                     } );
                } )
                .catch( error => console.error( '❌  Error al cargar los Qubos:', error ) );
-
+     }
 
 
      // Define la URL de la imagen del icono personalizado
@@ -356,17 +416,10 @@ function initMap( fromSession = false ) {
      }
 
      let subcategoryIcons = {};
-     console.log("🎨 Estado de subcategoryIcons:", subcategoryIcons);
 
      document.addEventListener( 'DOMContentLoaded', function () {
           // Cargar los iconos de las subcategorías desde el servidor
-          fetch( '/api/qubo-icons' )
-               .then( response => response.json() )
-               .then( data => {
-                    subcategoryIcons = data;
-                    console.log( 'Subcategory Icons:', subcategoryIcons );
-               } )
-               .catch( error => console.error( 'Error loading subcategory icons:', error ) );
+
 
           const addQuboButton = document.getElementById( 'addQubo' );
           const formContainer = document.querySelector( '.form-container' );
@@ -390,8 +443,8 @@ function initMap( fromSession = false ) {
                if ( currentMarker ) {
                     const subcategory = this.value;
                     const normalizedSubcategory = normalizeString( subcategory );  // Normalizar el valor
-                    console.log( 'Subcategoría seleccionada:', subcategory );
-                    console.log( 'Subcategoría normalizada:', normalizedSubcategory );
+                    // console.log( 'Subcategoría seleccionada:', subcategory );
+                    // console.log( 'Subcategoría normalizada:', normalizedSubcategory );
 
                     const position = currentMarker.getPosition();
                     currentMarker.setMap( null );
@@ -400,7 +453,7 @@ function initMap( fromSession = false ) {
                     const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
                          .find( key => normalizeString( key ) === normalizedSubcategory );  // Comparar normalizados
                     const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
-                    console.log( 'Changing icon to:', iconUrl );
+                    // console.log( 'Changing icon to:', iconUrl );
 
                     currentMarker = new google.maps.Marker( {
                          position: position,
@@ -431,8 +484,8 @@ function initMap( fromSession = false ) {
                     const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
                          .find( key => normalizeString( key ) === subcategory );
                     const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
-                    console.log( 'Subcategory:', subcategory );
-                    console.log( 'Icon URL:', iconUrl );
+                    // console.log( 'Subcategory:', subcategory );
+                    // console.log( 'Icon URL:', iconUrl );
 
                     currentMarker = new google.maps.Marker( {
                          position: event.latLng,
@@ -464,6 +517,10 @@ function initMap( fromSession = false ) {
                console.log( 'Formulario cerrado, marcador eliminado.' );
           } );
      } );
+
+
+
+
 
 
 
@@ -597,27 +654,7 @@ function initMap( fromSession = false ) {
           // Añade más categorías y subcategorías aquí
      };
 
-     // // Función para actualizar las subcategorías cuando se selecciona una categoría
-     // function updateSubcategories() {
-     //      const categorySelect = document.getElementById( "category" );
-     //      const subcategorySelect = document.getElementById( "subcategory" );
-     //      const selectedCategory = categorySelect.value;
 
-     //      // Limpiar subcategorías existentes
-     //      subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
-
-     //      // Añadir nuevas subcategorías en función de la categoría seleccionada
-     //      if ( selectedCategory && categoryMappings[ selectedCategory ] ) {
-     //           categoryMappings[ selectedCategory ].forEach( ( subcategory ) => {
-     //                const option = document.createElement( "option" );
-     //                // Cambiar la transformación para que coincida con el formato camelCase
-     //                const value = subcategory.replace( /\s+/g, '' ).charAt( 0 ).toLowerCase() + subcategory.replace( /\s+/g, '' ).slice( 1 );
-     //                option.value = value;
-     //                option.textContent = subcategory;
-     //                subcategorySelect.appendChild( option );
-     //           } );
-     //      }
-     // }
      function updateSubcategories() {
           const categorySelect = document.getElementById( "category" );
           const subcategorySelect = document.getElementById( "subcategory" );
@@ -733,12 +770,14 @@ function initMap( fromSession = false ) {
 
                const formData = new FormData( form );
 
+               // Agregar el token a formData para que el servidor lo procese
+               const token = getCookie( 'access_token' );
+               formData.append( 'token', token );
+
                fetch( form.action, {
                     method: 'POST',
-                    headers: {
-                         'Authorization': 'Bearer test123'  // Añadimos el token aquí
-                    },
-                    body: formData
+                    body: formData,
+                    credentials: 'include'
                } )
                     .then( response => {
                          if ( !response.ok ) {
@@ -749,7 +788,7 @@ function initMap( fromSession = false ) {
                          return response.json();
                     } )
                     .then( data => {
-                         console.log( 'Datos recibidos del servidor:', data );
+                         // console.log( 'Datos recibidos del servidor:', data );
 
                          // Crear nuevo marcador con los datos recibidos
                          const marker = new google.maps.Marker( {
