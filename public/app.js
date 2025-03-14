@@ -7,6 +7,16 @@ let map;
 let myLocationMarker;
 let autocomplete;
 
+document.addEventListener('DOMContentLoaded', function() {
+     const dashboardButton = document.getElementById('dashboard-button');
+     if (dashboardButton) {
+         dashboardButton.addEventListener('click', function() {
+             // Redirigir a App1 (dashboard)
+             window.location.href = 'https://sign-in-qubo-git-verceldeployment-inesljs-projects.vercel.app/';
+         });
+     }
+ });
+
 // Añadir al inicio del archivo, después de las declaraciones de variables
 function handleSharedUrl() {
      const urlParams = new URLSearchParams( window.location.search );
