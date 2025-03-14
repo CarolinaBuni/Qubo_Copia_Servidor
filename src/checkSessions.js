@@ -42,79 +42,83 @@
 
 //* checkSessions.js en APP2
 require('dotenv').config({ path: '../.env' });
-const { MongoClient, ObjectId } = require('mongodb');  // Añadimos ObjectId aquí
+const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
+const { authDB } = require('./config/db');
+const User = require('./api/models/user');
 
 async function checkSessions() {
     let client;
     try {
-        console.log("🔌 Conectando a MongoDB...");
+        console.log("🔌 Conectando a MongoDB directamente con MongoClient...");
         client = new MongoClient(process.env.AUTH_MONGODB_URL);
         await client.connect();
         
         const db = client.db('QuboUsers');
-        console.log("✅ Conexión exitosa!");
+        console.log("✅ Conexión exitosa con MongoClient!");
 
-        // El sessionId que estamos buscando
-        const searchSessionId = '67d2d879a56fe3ad0b28186c';
-        console.log("\n🔍 Buscando sessionId específico:", searchSessionId);
+        // Buscar el usuario por su auth0 ID
+        const userId = "auth0|67c9bf6f17475005eefe5e76";
+        console.log("\n🔍 Buscando usuario con ID:", userId);
 
-        // 1. Buscar en Sessions (mayúscula)
-        console.log("\n📁 Colección 'Sessions':");
-        const sessionUpper = await db.collection('Sessions')
-            .findOne({ _id: new ObjectId(searchSessionId) });
-        
-        if (sessionUpper) {
-            console.log("✅ ENCONTRADA en Sessions:", sessionUpper);
-        } else {
-            console.log("❌ No encontrada en Sessions");
+        // Método 1: Usar MongoClient (directo)
+        console.log("\n🔍 MÉTODO 1: Buscar con MongoClient:");
+        const userMongoClient = await db.collection('Users')
+            .findOne({ user_id: userId });
+
+        if (userMongoClient) {
+            console.log("✅ Usuario ENCONTRADO con MongoClient");
+            console.log("📋 Estructura completa del documento:");
+            console.log(JSON.stringify(userMongoClient, null, 2));
             
-            // Mostrar las últimas 3 sesiones de Sessions
-            console.log("\n📋 Últimas 3 sesiones en Sessions:");
-            const recentSessionsUpper = await db.collection('Sessions')
-                .find({})
-                .sort({ _id: -1 })
-                .limit(3)
-                .toArray();
-            
-            recentSessionsUpper.forEach((s, i) => {
-                console.log(`\nSesión ${i + 1}:`);
-                console.log('ID:', s._id.toString());
-                console.log('Datos:', s);
+            console.log("\n🔑 Lista de campos y tipos:");
+            Object.entries(userMongoClient).forEach(([key, value]) => {
+                console.log(`   - ${key}: ${typeof value} => ${JSON.stringify(value)}`);
             });
+        } else {
+            console.log("❌ Usuario NO encontrado con MongoClient");
         }
-
-        // 2. Buscar en sessions (minúscula)
-        console.log("\n📁 Colección 'sessions':");
-        const sessionLower = await db.collection('sessions')
-            .findOne({ _id: searchSessionId });
         
-        if (sessionLower) {
-            console.log("✅ ENCONTRADA en sessions:", sessionLower);
-        } else {
-            console.log("❌ No encontrada en sessions");
-            
-            // Mostrar las últimas 3 sesiones de sessions
-            console.log("\n📋 Últimas 3 sesiones en sessions:");
-            const recentSessionsLower = await db.collection('sessions')
-                .find({})
-                .sort({ _id: -1 })
-                .limit(3)
-                .toArray();
-            
-            recentSessionsLower.forEach((s, i) => {
-                console.log(`\nSesión ${i + 1}:`);
-                console.log('ID:', s._id);
-                console.log('Datos:', s);
-            });
+        // Método 2: Usar Mongoose
+        console.log("\n🔍 MÉTODO 2: Buscar con Mongoose:");
+        
+        // Verificar estado de conexión de authDB
+        console.log(`   - Estado de authDB: ${authDB.readyState}`);
+        // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+        
+        // Verificar el modelo User
+        console.log(`   - Modelo User definido: ${!!User}`);
+        console.log(`   - Colección del modelo User: ${User.collection.name}`);
+        
+        try {
+            const userMongoose = await User.findOne({ user_id: userId });
+            if (userMongoose) {
+                console.log("✅ Usuario ENCONTRADO con Mongoose");
+                console.log(JSON.stringify(userMongoose.toObject(), null, 2));
+            } else {
+                console.log("❌ Usuario NO encontrado con Mongoose");
+                
+                // Hacer una consulta de todos los usuarios para ver qué hay
+                console.log("\n📋 Intentando listar usuarios con Mongoose:");
+                const allUsersMongo = await User.find({}).limit(5);
+                if (allUsersMongo.length > 0) {
+                    console.log(`   - Encontrados ${allUsersMongo.length} usuarios`);
+                    console.log(`   - Primer usuario: ${JSON.stringify(allUsersMongo[0].toObject(), null, 2)}`);
+                } else {
+                    console.log("   - No se encontraron usuarios con Mongoose");
+                }
+            }
+        } catch (mongooseError) {
+            console.error("❌ Error al buscar con Mongoose:", mongooseError);
         }
 
     } catch (error) {
-        console.error("❌ Error:", error.message);
+        console.error("❌ Error general:", error);
     } finally {
-        if (client) {
-            await client.close();
-            console.log("\n👋 Conexión cerrada");
-        }
+        if (client) await client.close();
+        console.log("\n👋 Conexión MongoClient cerrada");
+        
+        // No cerramos authDB porque es una conexión persistente
     }
 }
 

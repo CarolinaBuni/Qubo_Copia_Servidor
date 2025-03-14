@@ -1,44 +1,36 @@
 //* controllers qubo.js
 const Qubo = require( "../models/qubo" );
 const cloudinary = require( 'cloudinary' ).v2;
-const QUBO_ICONS = require( "../../constants/cloudinaryUrls" );
+const {QUBO_ICONS} = require( "../../constants/cloudinaryUrls" );
 const { verifyToken } = require( "../../utils/jwt" );
 
-
-const getQubo = async (req, res, next) => {
+const getQuboIcons = (req, res) => {
     try {
-        console.log("📍 Iniciando getQubo");
-        console.log("🔍 Headers recibidos:", req.headers);
-        console.log("🍪 Cookies recibidas:", req.cookies);
-        const token = req.cookies.access_token;
-        console.log("🔑 Token desde cookies:", token ? "Presente" : "No encontrado");
-
-        if (!token) {
-            console.log("❌ No se encontró token");
-            return res.status(401).json({ message: 'Token no encontrado' });
-        }
-
-        const result = verifyToken(token);
-        console.log("🔒 Resultado verificación:", result.success ? "Token válido" : "Token inválido");
-
-        if (!result.success) {
-            console.log("❌ Token inválido");
-            return res.status(401).json({ message: 'Token inválido' });
-        }
-
-        // Simplemente devolver todos los Qubos
-        console.log("🔍 Buscando Qubos en la base de datos");
-        const allQubos = await Qubo.find();
-        console.log("✅ Qubos encontrados:", allQubos.length);
-        return res.status(200).json(allQubos);
+        res.status(200).json({ QUBO_ICONS });
     } catch (error) {
-        console.error("Error en getQubo:", error);
-        return res.status(500).json({ 
-            message: 'Error al obtener los qubos', 
-            error: error.message 
-        });
+        console.error('❌ Error al obtener iconos:', error);
+        res.status(500).json({ error: error.message });
     }
 };
+
+const getQubo = async (req, res) => {
+    try {
+        console.log("📊 Controlador getQubo ejecutándose");
+        console.log("👤 Usuario en req:", req.user?.sub);
+        
+        // Quita cualquier verificación de usuario aquí
+        
+        const qubos = await Qubo.find({});
+        console.log(`✅ ${qubos.length} qubos encontrados`);
+        
+        res.status(200).json(qubos);
+    } catch (error) {
+        console.error("❌ Error en getQubo:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
 
 const postQubo = async ( req, res, next ) => {
     try {
@@ -177,4 +169,4 @@ const deleteQubo = async (req, res, next) => {
 };
 
 
-module.exports = { postQubo, getQubo, deleteQubo };
+module.exports = { postQubo, getQubo, deleteQubo, getQuboIcons };

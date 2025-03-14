@@ -43,7 +43,7 @@ cloudinary.config( {
 app.get( "/api/proxy", async ( req, res ) => {
    try {
       const url = req.query.url;
-      console.log( "🔄 Proxy recibiendo petición para:", url );
+      // console.log( "🔄 Proxy recibiendo petición para:", url );
 
       const response = await fetch( url, {
          headers: {
@@ -53,7 +53,7 @@ app.get( "/api/proxy", async ( req, res ) => {
       } );
 
       if ( !response.ok ) {
-         console.error( "❌ Error en proxy:", response.status );
+         // console.error( "❌ Error en proxy:", response.status );
          throw new Error( `HTTP error! status: ${ response.status }` );
       }
 
@@ -68,7 +68,7 @@ app.get( "/api/proxy", async ( req, res ) => {
 
 app.get( "/auth/session", async ( req, res ) => {
    console.log( "📍 Procesando sessionId" );
-   console.log( "🔍 Query params recibidos:", req.query );
+   // console.log( "🔍 Query params recibidos:", req.query );
 
    let client;
    try {
@@ -97,16 +97,16 @@ app.get( "/auth/session", async ( req, res ) => {
             maxAge: 3600000    // 1 hora
          } );
 
-         console.log( "🍪 Cookie establecida:", {
-            token: session.token.substring( 0, 20 ) + '...',  // Log parcial del token
-            options: {
-               httpOnly: false,
-               secure: true,
-               sameSite: 'none',
-               path: '/',
-               maxAge: 3600000
-            }
-         } );
+         // console.log( "🍪 Cookie establecida:", {
+         //    token: session.token.substring( 0, 20 ) + '...',  // Log parcial del token
+         //    options: {
+         //       httpOnly: false,
+         //       secure: true,
+         //       sameSite: 'none',
+         //       path: '/',
+         //       maxAge: 3600000
+         //    }
+         // } );
 
          return res.json( {
             success: true,

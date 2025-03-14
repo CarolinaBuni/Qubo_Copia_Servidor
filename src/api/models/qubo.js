@@ -34,7 +34,10 @@ const quboSchema = new Schema(
      }
 );
 
-
+// Logs para debug
+quboSchema.post('find', function(result) {
+     console.log(`🔍 Qubo find result: ${result.length} qubos encontrados`);
+ });
 const Qubo = mongoose.model( "qubo", quboSchema, "qubo");
 
 module.exports = Qubo;
