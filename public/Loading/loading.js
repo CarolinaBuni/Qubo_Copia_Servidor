@@ -30,7 +30,6 @@ function initLoading() {
           { type: 'image', src: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1742076755/qubo/loading_images/loading1_nprixm.jpg', id: 'img1' },
           { type: 'image', src: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1742076754/qubo/loading_images/loading2_t6jf5w.jpg', id: 'img2' }
       ];
-     
 
      // Función para seleccionar el próximo fondo de manera justa
      function selectNextBackground() {
