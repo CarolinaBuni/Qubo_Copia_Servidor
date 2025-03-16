@@ -6,16 +6,48 @@ let storesActivos = false;
 let map;
 let myLocationMarker;
 let autocomplete;
+let loadingController;
 
-document.addEventListener('DOMContentLoaded', function() {
-     const dashboardButton = document.getElementById('dashboard-button');
-     if (dashboardButton) {
-         dashboardButton.addEventListener('click', function() {
-             // Redirigir a App1 (dashboard)
-             window.location.href = 'https://sign-in-qubo-git-verceldeployment-inesljs-projects.vercel.app/';
-         });
+
+document.addEventListener( 'DOMContentLoaded', function () {
+     loadingController = window.initLoading();
+     const dashboardButton = document.getElementById( 'dashboard-button' );
+     if ( dashboardButton ) {
+          dashboardButton.addEventListener( 'click', function () {
+               // Redirigir a App1 (dashboard)
+               window.location.href = 'https://sign-in-qubo-git-verceldeployment-inesljs-projects.vercel.app/';
+          } );
      }
- });
+     // Iniciar el mapa después de cargar el DOM
+    setTimeout(() => {
+     initMap();
+ }, 100);
+} );
+
+// Función para mostrar notificaciones
+function showNotification( message ) {
+     const notification = document.createElement( 'div' );
+     notification.style.cssText = `
+         position: fixed;
+         top: 20px;
+         right: 20px;
+         background: rgba(8, 236, 196, 0.9);
+         color: black;
+         padding: 8px 16px;
+         border-radius: 4px;
+         font-size: 14px;
+         z-index: 1000000;
+         transition: opacity 0.3s ease;
+     `;
+     notification.textContent = message;
+     document.body.appendChild( notification );
+
+     // Eliminar después de 2 segundos
+     setTimeout( () => {
+          notification.style.opacity = '0';
+          setTimeout( () => notification.remove(), 300 );
+     }, 2000 );
+}
 
 // Añadir al inicio del archivo, después de las declaraciones de variables
 function handleSharedUrl() {
@@ -94,6 +126,7 @@ function procesarSesion() {
 
 
 function initMap( fromSession = false ) {
+
 
      if ( !fromSession && procesarSesion() ) {
           console.log( "⏳ Procesando sesión, esperando..." );
@@ -213,9 +246,9 @@ function initMap( fromSession = false ) {
                          // Mostrar mensaje de error en messageBox en lugar de alert
                          messageBox.innerHTML = `<div class="error-message">${ error.message }</div>`;
                          messageBox.style.display = 'flex';
-                         setTimeout(() => {
+                         setTimeout( () => {
                               messageBox.style.display = 'none';
-                          }, 5000);
+                         }, 5000 );
                     }
                }
           };
@@ -252,10 +285,10 @@ function initMap( fromSession = false ) {
                     return response.json();
                } )
                .then( qubos => {
-                         console.log( "✅ Total de Qubos recibidos:", qubos.length );
-                         console.log( "🗺️ Estado del mapa:", !!map );
+                    console.log( "✅ Total de Qubos recibidos:", qubos.length );
+                    console.log( "🗺️ Estado del mapa:", !!map );
                     qubos.forEach( qubo => {
-                         // console.log( `🎯 Creando marcador para: ${ qubo.title } en [${ qubo.latitude }, ${ qubo.longitude }]` );
+
                          const position = { lat: qubo.latitude, lng: qubo.longitude };
                          // console.log( "📍 Posición del marcador:", position );
 
@@ -264,11 +297,11 @@ function initMap( fromSession = false ) {
 
                          // Intentar obtener el icono específico de la subcategoría
                          if ( subcategoryIcons && subcategoryIcons.QUBO_ICONS && qubo.subcategory ) {
-                              const normalizedSubcategory = normalizeString(qubo.subcategory);
+                              const normalizedSubcategory = normalizeString( qubo.subcategory );
                               let found = false;
                               for ( const key in subcategoryIcons.QUBO_ICONS ) {
-                                   if ( normalizeString(key) === normalizedSubcategory ) {
-                                        iconUrl = subcategoryIcons.QUBO_ICONS[key];
+                                   if ( normalizeString( key ) === normalizedSubcategory ) {
+                                        iconUrl = subcategoryIcons.QUBO_ICONS[ key ];
                                         found = true;
                                         break;
                                    }
@@ -335,9 +368,19 @@ function initMap( fromSession = false ) {
 
 
                          } );
+
                     } );
+                    console.log( "🏁 Todos los qubos procesados, finalizando carga..." );
+                    if ( loadingController ) {
+                         loadingController.finishLoading();
+                    }
                } )
-               .catch( error => console.error( '❌  Error al cargar los Qubos:', error ) );
+               .catch( error => {
+                    console.error( '❌  Error al cargar los Qubos:', error );
+                    if ( loadingController ) {
+                         loadingController.finishLoading();
+                    }
+               } );
      }
 
 
@@ -452,7 +495,7 @@ function initMap( fromSession = false ) {
           let isAddingQubo = false;
           let currentMarker = null;
 
-          
+
 
 
           // En el event listener de 'change'
@@ -4107,7 +4150,23 @@ function initMap( fromSession = false ) {
                          } );
 
                          marker.addListener( "click", () => {
-                              const infoBox = document.querySelector( ".info-box" );
+                              // Buscar si existe un infobox pinneado para este parking
+                              const existingPinnedBox = document.querySelector( `.info-box.pinned[data-parking-id="${ id }"]` );
+                              if ( existingPinnedBox ) {
+                                   existingPinnedBox.classList.add( 'highlight' );
+                                   setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                   return;
+                              }
+
+                              // Buscar un infobox no pinneado o crear uno nuevo
+                              let infoBox = document.querySelector( ".info-box:not(.pinned)" );
+                              if ( !infoBox ) {
+                                   infoBox = document.createElement( 'div' );
+                                   infoBox.className = 'info-box';
+                                   document.body.appendChild( infoBox );
+                              }
+
+                              infoBox.setAttribute( 'data-parking-id', id );
                               infoBox.style.display = "flex";
 
                               const totalPlazas = Math.floor( Math.random() * ( 200 - 50 + 1 ) ) + 50;
@@ -4132,6 +4191,9 @@ function initMap( fromSession = false ) {
                 </div>
             </div>
             <div class="action-buttons">
+            <button class="action-btn pin-btn" title="Fijar ventana">
+                    <i class="action-icon">📌</i>
+                </button>
                 <button class="action-btn share-btn" title="Compartir">
                     <i class="action-icon">📤</i>
                 </button>
@@ -4259,11 +4321,42 @@ function initMap( fromSession = false ) {
     </div>
 `;
                               // Y después añadimos el event listener
-                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                                   infoBox.style.display = "none";
-                              }, { once: true } );
+                              // Event listener para el botón de cerrar
+                              infoBox.querySelector( "#cerrar-info-box" ).addEventListener( "click", () => {
+                                   infoBox.remove(); // Usar remove() en lugar de style.display = "none"
+                              } );
+
+                              // Event listener para el botón de pin
+                              const pinBtn = infoBox.querySelector( ".pin-btn" );
+                              pinBtn.addEventListener( "click", ( e ) => {
+                                   const infoBoxElement = e.target.closest( '.info-box' );
+                                   if ( infoBoxElement.classList.contains( 'pinned' ) ) {
+                                        // Desfijar
+                                        infoBoxElement.classList.remove( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                        pinBtn.title = "Fijar ventana";
+                                   } else {
+                                        // Fijar
+                                        infoBoxElement.classList.add( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                        pinBtn.title = "Desfijar ventana";
+
+                                        // Crear nuevo infobox para futuras propiedades
+                                        const newInfoBox = document.createElement( 'div' );
+                                        newInfoBox.className = 'info-box';
+                                        newInfoBox.style.display = 'none';
+                                        document.body.appendChild( newInfoBox );
+
+                                        // Reinicializar el arrastre para el nuevo infobox si es necesario
+                                        const nameContainer = infoBoxElement.querySelector( '.nameContainer' );
+                                        if ( nameContainer && typeof hacerArrastrable === 'function' ) {
+                                             hacerArrastrable( infoBoxElement, nameContainer );
+                                        }
+                                   }
+                              } );
                               // Añadir el event listener para el botón de compartir
-                              document.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                              // Event listener para el botón de compartir
+                              infoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
                                    const shareData = {
                                         title: `Parking ${ name }`,
                                         text: `Información sobre ${ name } en ${ addressRegion }`,
@@ -4277,61 +4370,17 @@ function initMap( fromSession = false ) {
                                         } else {
                                              // Si Web Share API no está disponible, mostrar un tooltip con el enlace copiado
                                              await navigator.clipboard.writeText( window.location.href );
-
-                                             // Crear notificación
-                                             const notification = document.createElement( 'div' );
-                                             notification.style.cssText = `
-                 position: fixed;
-                 top: 20px;
-                 right: 20px;
-                 background: rgba(8, 236, 196, 0.9);
-                 color: black;
-                 padding: 8px 16px;
-                 border-radius: 4px;
-                 font-size: 14px;
-                 z-index: 1000000;
-                 transition: opacity 0.3s ease;
-             `;
-                                             notification.textContent = '¡Enlace copiado!';
-                                             document.body.appendChild( notification );
-
-                                             // Eliminar después de 2 segundos
-                                             setTimeout( () => {
-                                                  notification.style.opacity = '0';
-                                                  setTimeout( () => notification.remove(), 300 );
-                                             }, 2000 );
+                                             showNotification( '¡Enlace copiado!' );
                                         }
                                    } catch ( error ) {
                                         console.error( 'Error al compartir:', error );
                                    }
                               } );
-                              // Añadir event listener para el botón de copiar
-                              document.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
-                                   const idText = document.querySelector( ".id-text" ).textContent;
+                              // Event listener para el botón de copiar
+                              infoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                   const idText = infoBox.querySelector( ".id-text" ).textContent;
                                    await navigator.clipboard.writeText( idText );
-
-                                   // Crear notificación
-                                   const notification = document.createElement( 'div' );
-                                   notification.style.cssText = `
-         position: fixed;
-         top: 20px;
-         right: 20px;
-         background: rgba(8, 236, 196, 0.9);
-         color: black;
-         padding: 8px 16px;
-         border-radius: 4px;
-         font-size: 14px;
-         z-index: 1000000;
-         transition: opacity 0.3s ease;
-     `;
-                                   notification.textContent = '¡ID copiado!';
-                                   document.body.appendChild( notification );
-
-                                   // Eliminar después de 2 segundos
-                                   setTimeout( () => {
-                                        notification.style.opacity = '0';
-                                        setTimeout( () => notification.remove(), 300 );
-                                   }, 2000 );
+                                   showNotification( '¡ID copiado!' );
                               } );
                          } );
 
@@ -5995,58 +6044,341 @@ function initMap( fromSession = false ) {
 
                               // PRIMER PASO: Crear el HTML inicial una sola vez
                               shipsMarker.addListener( "click", () => {
-                                   const infoBox = document.querySelector( ".info-box-ships" );
-                                   if ( infoBox ) {
-                                        // Solo creamos el HTML si no existe
-                                        if ( !infoBox.querySelector( '.nameContainer' ) ) {
-                                             infoBox.innerHTML = `
-                                           <div class='nameContainer'>
-                                               <p>Ship Information</p>
-                                           </div>
-                                           <img src="${ data.ImagenURL }" alt="Imagen del Ship"/>
-                                           <p>Tipo: <span>${ data.type }</span></p>
-                                           <p>Name: <span>${ data.name }</span></p>
-                                           <p>Model: <span>${ data.model }</span></p>
-                                           <p>Manufacturer: <span>${ data.manufacturer }</span></p>
-                                           <p>Owner: <span>${ data.owner.name } (${ data.owner.contact })</span></p>
-                                           <p>Speed: <span id="speedValue">0 knots</span></p>
-                                           <p>Fuel Consumption: <span id="fuelValue">0 L/100km</span></p>
-                                           <p>Cumm. CO2 Emissions: <span id="co2Value">0 kg</span></p>
-                                           <p><strong>Destination:</strong> <span>${ data.destination }</span></p>
-                                           <p><strong>Heading:</strong> <span>${ data.heading }</span></p>
-                                           <button id="cerrar-info-box-ships">
-                                               <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                                           </button>
-                                       `;
-
-                                             // Configurar el botón de cerrar
-                                             document.getElementById( "cerrar-info-box-ships" ).addEventListener( "click", () => {
-                                                  infoBox.style.display = "none";
-                                             } );
-
-                                             // Inicializar el arrastre
-                                             inicializarArrastre( infoBox );
-                                        }
-                                        infoBox.style.display = "flex";
+                                   // Buscar si existe un infobox pinneado para este barco
+                                   const existingPinnedBox = document.querySelector( `.info-box.pinned[data-ship-id="${ data.id }"]` );
+                                   if ( existingPinnedBox ) {
+                                        existingPinnedBox.classList.add( 'highlight' );
+                                        setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                        return;
                                    }
-                              } );
+
+                                   // Buscar un infobox no pinneado o crear uno nuevo
+                                   let infoBox = document.querySelector( ".info-box:not(.pinned)" );
+                                   if ( !infoBox ) {
+                                        infoBox = document.createElement( 'div' );
+                                        infoBox.className = 'info-box';
+                                        document.body.appendChild( infoBox );
+                                   }
+
+                                   infoBox.setAttribute( 'data-ship-id', data.id );
+                                   infoBox.style.display = "flex";
+
+                                    // Calcular el porcentaje de combustible
+                        const fuelPercentage = data.fuelLevel || 78; // Valor por defecto si no existe
+                        
+                        // Obtener la primera coordenada para los valores iniciales
+                        const initialCoord = data.location.coordinates[0];
+                                  
+                                             infoBox.innerHTML = `
+                            <div class="info-header">
+                                <img src="${data.ImagenURL}" alt="Ship" class="property-image"/>
+                                <div class="header-bar">
+                                    <div class="property-badges">
+                                        <div class="badge-container">
+                                            <span class="badge primary">SHIP</span>
+                                            <div class="badge-location nameContainer">
+                                                <span>${data.name}</span>
+                                                <span>${data.model}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="action-btn pin-btn" title="Fijar ventana">
+                                            <i class="action-icon">📌</i>
+                                        </button>
+                                        <button class="action-btn share-btn" title="Compartir">
+                                            <i class="action-icon">📤</i>
+                                        </button>
+                                        <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
+                                            <i class="action-icon">✕</i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-content">
+                                <div class="id-row">
+                                    <span class="id-label">ID BARCO</span>
+                                    <span class="id-text">${data.id}</span>
+                                    <div class="copy-container">
+                                        <button class="copy-btn" title="Copiar ID">
+                                            <i class="copy-icon">📋</i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="info-grid">
+                                    <div class="info-row">
+                                        <div class="info-item">
+                                            <label>Tipo</label>
+                                            <span>${data.type}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Modelo</label>
+                                            <span>${data.model}</span>
+                                        </div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="info-item">
+                                            <label>Fabricante</label>
+                                            <span>${data.manufacturer}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Propietario</label>
+                                            <span>${data.owner.name}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="ship-status">
+                                    <label>Estado actual</label>
+                                    <div class="status-indicators">
+                                        <div class="status-badge active">
+                                            <span class="status-icon">⚓</span>
+                                            <span>En navegación</span>
+                                        </div>
+                                        <div class="status-badge">
+                                            <span class="status-icon">🔋</span>
+                                            <span>Combustible: ${fuelPercentage}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="info-grid">
+                                        <div class="info-row">
+                                            <div class="info-item">
+                                                <label>Velocidad</label>
+                                                <span id="speedValue">${initialCoord.speed || '0'} knots</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Rumbo</label>
+                                                <span>${data.heading || '85°'}</span>
+                                            </div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="info-item">
+                                                <label>Consumo combustible</label>
+                                                <span id="fuelValue">${initialCoord.fuelConsumption || '0'} L/100km</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Emisiones CO2</label>
+                                                <span id="co2Value">${initialCoord.CummCO2emissions || '0'} kg</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="navigation-info">
+                                    <label>Información de navegación</label>
+                                    <div class="route-info">
+                                        <div class="route-points">
+                                            <div class="route-point">
+                                                <div class="point-icon origin">A</div>
+                                                <div class="point-details">
+                                                    <span class="point-name">${data.origin || 'Puerto de Valencia'}</span>
+                                                    <span class="point-time">Salida: ${data.departureTime || '10:30 AM'}</span>
+                                                </div>
+                                            </div>
+                                            <div class="route-line"></div>
+                                            <div class="route-point">
+                                                <div class="point-icon destination">B</div>
+                                                <div class="point-details">
+                                                    <span class="point-name">${data.destination}</span>
+                                                    <span class="point-time">Llegada est.: ${data.arrivalTime || '18:45 PM'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="info-grid">
+                                        <div class="info-row">
+                                            <div class="info-item">
+                                                <label>Distancia total</label>
+                                                <span>${data.totalDistance || '450 km'}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Tiempo estimado</label>
+                                                <span>${data.estimatedTime || '8h 15m'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="environmental-data">
+                                    <label>Condiciones ambientales</label>
+                                    <div class="env-stats">
+                                        <div class="env-item">
+                                            <span class="env-icon">🌡️</span>
+                                            <span class="env-label">Temperatura aire</span>
+                                            <span class="env-value">${data.environmentalData?.airTemperature || '23.5°C'}</span>
+                                        </div>
+                                        <div class="env-item">
+                                            <span class="env-icon">💧</span>
+                                            <span class="env-label">Temperatura agua</span>
+                                            <span class="env-value">${data.environmentalData?.waterTemperature || '18.3°C'}</span>
+                                        </div>
+                                        <div class="env-item">
+                                            <span class="env-icon">💨</span>
+                                            <span class="env-label">Viento</span>
+                                            <span class="env-value">${data.environmentalData?.wind || '15 km/h NE'}</span>
+                                        </div>
+                                        <div class="env-item">
+                                            <span class="env-icon">🌊</span>
+                                            <span class="env-label">Estado del mar</span>
+                                            <span class="env-value">${data.environmentalData?.seaState || 'Moderado'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="ship-specs">
+                                    <label>Especificaciones técnicas</label>
+                                    <div class="specs-grid">
+                                        <div class="spec-item">
+                                            <span class="spec-icon">📏</span>
+                                            <span class="spec-label">Eslora</span>
+                                            <span class="spec-value">${data.specifications?.length || '120m'}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-icon">↔️</span>
+                                            <span class="spec-label">Manga</span>
+                                            <span class="spec-value">${data.specifications?.width || '22m'}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-icon">↕️</span>
+                                            <span class="spec-label">Calado</span>
+                                            <span class="spec-value">${data.specifications?.draft || '8.5m'}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-icon">⚓</span>
+                                            <span class="spec-label">Peso muerto</span>
+                                            <span class="spec-value">${data.specifications?.deadweight || '15,000 tons'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="safety-equipment">
+                                    <label>Equipamiento de seguridad</label>
+                                    <div class="facilities-grid">
+                                        <div class="facility-item">
+                                            <i class="facility-icon">🧯</i>
+                                            <span>Sistemas contraincendios</span>
+                                        </div>
+                                        <div class="facility-item">
+                                            <i class="facility-icon">🚣</i>
+                                            <span>Botes salvavidas (6)</span>
+                                        </div>
+                                        <div class="facility-item">
+                                            <i class="facility-icon">🦺</i>
+                                            <span>Chalecos salvavidas</span>
+                                        </div>
+                                        <div class="facility-item">
+                                            <i class="facility-icon">📡</i>
+                                            <span>Sistema de comunicación</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="communication-info">
+                                    <label>Comunicación</label>
+                                    <div class="channel-tags">
+                                        <span class="channel-tag">CH 16</span>
+                                        <span class="channel-tag">CH 13</span>
+                                        <span class="channel-tag">CH 12</span>
+                                    </div>
+                                    <div class="info-grid">
+                                        <div class="info-row">
+                                            <div class="info-item">
+                                                <label>Contacto</label>
+                                                <span>${data.owner?.contact || '+34 123 456 789'}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Email</label>
+                                                <span>${data.owner?.email || 'captain@seavoyager.com'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                                             /// Event listener para el botón de cerrar
+                        infoBox.querySelector("#cerrar-info-box").addEventListener("click", () => {
+                         infoBox.remove(); // Usar remove() en lugar de style.display = "none"
+                     });
+
+                     // Event listener para el botón de pin
+                     const pinBtn = infoBox.querySelector(".pin-btn");
+                     pinBtn.addEventListener("click", (e) => {
+                         const infoBoxElement = e.target.closest('.info-box');
+                         if (infoBoxElement.classList.contains('pinned')) {
+                             // Desfijar
+                             infoBoxElement.classList.remove('pinned');
+                             pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                             pinBtn.title = "Fijar ventana";
+                         } else {
+                             // Fijar
+                             infoBoxElement.classList.add('pinned');
+                             pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                             pinBtn.title = "Desfijar ventana";
+
+                             // Crear nuevo infobox para futuras propiedades
+                             const newInfoBox = document.createElement('div');
+                             newInfoBox.className = 'info-box';
+                             newInfoBox.style.display = 'none';
+                             document.body.appendChild(newInfoBox);
+
+                             // Reinicializar el arrastre para el nuevo infobox si es necesario
+                             const nameContainer = infoBoxElement.querySelector('.nameContainer');
+                             if (nameContainer && typeof hacerArrastrable === 'function') {
+                                 hacerArrastrable(infoBoxElement, nameContainer);
+                             }
+                         }
+                     });
+                     // Event listener para el botón de compartir
+                     infoBox.querySelector(".share-btn").addEventListener("click", async () => {
+                         try {
+                             if (navigator.share) {
+                                 await navigator.share({
+                                     title: `Ship ${data.name}`,
+                                     text: `Información sobre ${data.name}`,
+                                     url: window.location.href
+                                 });
+                             } else {
+                                 await navigator.clipboard.writeText(window.location.href);
+                                 showNotification('¡Enlace copiado!');
+                             }
+                         } catch (error) {
+                             console.error('Error al compartir:', error);
+                         }
+                     });
+
+                     // Copiar ID
+                     infoBox.querySelector(".copy-btn").addEventListener("click", async () => {
+                         try {
+                             await navigator.clipboard.writeText(data.id);
+                             showNotification('¡ID copiado!');
+                         } catch (error) {
+                             console.error('Error al copiar:', error);
+                         }
+                     });
+                 });
 
                               // SEGUNDO PASO: Función que solo actualiza los valores dinámicos
-                              function actualizarInfoBox( index ) {
-                                   const infoBox = document.querySelector( ".info-box-ships" );
-                                   if ( !infoBox || infoBox.style.display !== "flex" ) return;
-
-                                   const coord = data.location.coordinates[ index ];
-
-                                   // Solo actualizar los valores que cambian
-                                   const speedElement = document.getElementById( "speedValue" );
-                                   const fuelElement = document.getElementById( "fuelValue" );
-                                   const co2Element = document.getElementById( "co2Value" );
-
-                                   if ( speedElement ) speedElement.textContent = `${ coord.speed } knots`;
-                                   if ( fuelElement ) fuelElement.textContent = `${ coord.fuelConsumption } L/100km`;
-                                   if ( co2Element ) co2Element.textContent = `${ coord.CummCO2emissions } kg`;
-                              }
+                              // Función para actualizar los valores dinámicos del infoBox
+                    function actualizarInfoBox(index) {
+                         const infoBoxes = document.querySelectorAll(`.info-box[data-ship-id="${data.id}"]`);
+                         if (!infoBoxes.length) return;
+ 
+                         const coord = data.location.coordinates[index];
+ 
+                         infoBoxes.forEach(infoBox => {
+                             // Solo actualizar los valores que cambian
+                             const speedElement = infoBox.querySelector("#speedValue");
+                             const fuelElement = infoBox.querySelector("#fuelValue");
+                             const co2Element = infoBox.querySelector("#co2Value");
+ 
+                             if (speedElement) speedElement.textContent = `${coord.speed || '0'} knots`;
+                             if (fuelElement) fuelElement.textContent = `${coord.fuelConsumption || '0'} L/100km`;
+                             if (co2Element) co2Element.textContent = `${coord.CummCO2emissions || '0'} kg`;
+                         });
+                     }
 
                               const intervaloId = iniciarMovimientoMarcadorShip( shipsMarker, coordenadas, 500, actualizarInfoBox );
                               marcadoresShips[ shipsId ] = {
@@ -9560,7 +9892,22 @@ const cargarMarcadoresPuertos = async () => {
                } );
 
                marker.addListener( "click", () => {
-                    const infoBox = document.querySelector( ".info-box" );
+                    const existingPinnedBox = document.querySelector( `.info-box.pinned[data-port-id="${ id }"]` );
+                    if ( existingPinnedBox ) {
+                         existingPinnedBox.classList.add( 'highlight' );
+                         setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                         return;
+                    }
+
+                    // Buscar un infobox no pinneado o crear uno nuevo
+                    let infoBox = document.querySelector( ".info-box:not(.pinned)" );
+                    if ( !infoBox ) {
+                         infoBox = document.createElement( 'div' );
+                         infoBox.className = 'info-box';
+                         document.body.appendChild( infoBox );
+                    }
+
+                    infoBox.setAttribute( 'data-port-id', id );
                     infoBox.style.display = "flex";
                     infoBox.innerHTML = `
         <div class="info-header">
@@ -9576,6 +9923,9 @@ const cargarMarcadoresPuertos = async () => {
                     </div>
                 </div>
                 <div class="action-buttons">
+                <button class="action-btn pin-btn" title="Fijar ventana">
+                    <i class="action-icon">📌</i>
+                </button>
                     <button class="action-btn share-btn" title="Compartir">
                         <i class="action-icon">📤</i>
                     </button>
@@ -9641,7 +9991,7 @@ const cargarMarcadoresPuertos = async () => {
                     </div>
                     <div class="status-item">
                         <label>Estado muelle</label>
-                        <div class="status-badge">
+                        <div class="status-badge libre">
                             <span class="status-icon">✅</span>
                             <span>${ infrastructure.dockStatus }</span>
                         </div>
@@ -9711,7 +10061,7 @@ const cargarMarcadoresPuertos = async () => {
                     <div class="utility-item">
                         <span class="utility-icon">🗑️</span>
                         <span class="utility-label">Residuos</span>
-                        <span class="utility-status">${ utilities.wasteManagementStatus }</span>
+                        <span class="utility-status warning">${ utilities.wasteManagementStatus }</span>
                     </div>
                 </div>
             </div>
@@ -9829,6 +10179,18 @@ const cargarMarcadoresPuertos = async () => {
 
             <div class="operational-data">
                 <label>Datos operativos</label>
+                <div class="capacity-bar-container">
+               <div class="capacity-info">
+                  <span>Capacidad utilizada</span>
+                  <span class="capacity-value">70%</span>
+               </div>
+               <div class="capacity-bar">
+                  <div class="capacity-progress" style="width: 70%"></div>
+               </div>
+               <div class="capacity-details">
+                  <span>35000 / 50000 tons</span>
+               </div>
+            </div>
                 <div class="operational-stats">
                     <div class="stat-item">
                         <div class="stat-icon">⚖️</div>
@@ -9869,10 +10231,40 @@ const cargarMarcadoresPuertos = async () => {
             </div>
         </div>
     `;
-                    document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                         infoBox.style.display = "none";
+                    // Event listener para el botón de cerrar
+                    infoBox.querySelector( "#cerrar-info-box" ).addEventListener( "click", () => {
+                         infoBox.remove(); // Usar remove() en lugar de style.display = "none"
                     } );
-                    document.querySelector( ".share-btn" )?.addEventListener( "click", async () => {
+
+                    const pinBtn = infoBox.querySelector( ".pin-btn" );
+                    pinBtn.addEventListener( "click", ( e ) => {
+                         const infoBoxElement = e.target.closest( '.info-box' );
+                         if ( infoBoxElement.classList.contains( 'pinned' ) ) {
+                              // Desfijar
+                              infoBoxElement.classList.remove( 'pinned' );
+                              pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                              pinBtn.title = "Fijar ventana";
+                         } else {
+                              // Fijar
+                              infoBoxElement.classList.add( 'pinned' );
+                              pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                              pinBtn.title = "Desfijar ventana";
+
+                              // Crear nuevo infobox para futuras propiedades
+                              const newInfoBox = document.createElement( 'div' );
+                              newInfoBox.className = 'info-box';
+                              newInfoBox.style.display = 'none';
+                              document.body.appendChild( newInfoBox );
+
+                              // Reinicializar el arrastre para el nuevo infobox si es necesario
+                              const nameContainer = infoBoxElement.querySelector( '.nameContainer' );
+                              if ( nameContainer && typeof hacerArrastrable === 'function' ) {
+                                   hacerArrastrable( infoBoxElement, nameContainer );
+                              }
+                         }
+                    } );
+                    // Event listener para el botón de compartir
+                    infoBox.querySelector( ".share-btn" )?.addEventListener( "click", async () => {
                          try {
                               if ( navigator.share ) {
                                    await navigator.share( {
@@ -9890,7 +10282,7 @@ const cargarMarcadoresPuertos = async () => {
                     } );
 
                     // Copiar ID
-                    document.querySelector( ".copy-btn" )?.addEventListener( "click", async () => {
+                    infoBox.querySelector( ".copy-btn" )?.addEventListener( "click", async () => {
                          try {
                               await navigator.clipboard.writeText( id );
                               showNotification( '¡ID copiado!' );
@@ -10407,7 +10799,22 @@ function cargarEstadios() {
                     } );
 
                     marker.addListener( "click", function () {
-                         const infoBox = document.querySelector( ".info-box" );
+                         const existingPinnedBox = document.querySelector( `.info-box.pinned[data-stadium-id="${ estadio.nombre }"]` );
+                         if ( existingPinnedBox ) {
+                              existingPinnedBox.classList.add( 'highlight' );
+                              setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                              return;
+                         }
+
+                         // Buscar un infobox no pinneado o crear uno nuevo
+                         let infoBox = document.querySelector( ".info-box:not(.pinned)" );
+                         if ( !infoBox ) {
+                              infoBox = document.createElement( 'div' );
+                              infoBox.className = 'info-box';
+                              document.body.appendChild( infoBox );
+                         }
+
+                         infoBox.setAttribute( 'data-stadium-id', estadio.nombre );
                          infoBox.style.display = "flex";
                          infoBox.innerHTML = `
         <div class="info-header">
@@ -10423,6 +10830,9 @@ function cargarEstadios() {
                     </div>
                 </div>
                 <div class="action-buttons">
+                 <button class="action-btn pin-btn" title="Fijar ventana">
+                    <i class="action-icon">📌</i>
+                </button>
                     <button class="action-btn share-btn" title="Compartir">
                         <i class="action-icon">📤</i>
                     </button>
@@ -10481,10 +10891,40 @@ function cargarEstadios() {
             </div>
         </div>
     `;
-                         document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                              infoBox.style.display = "none";
+                         // Event listener para el botón de cerrar
+                         infoBox.querySelector( "#cerrar-info-box" ).addEventListener( "click", function () {
+                              infoBox.remove(); // Usar remove() en lugar de style.display = "none"
                          } );
-                         document.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+
+                         // Event listener para el botón de pin
+                         const pinBtn = infoBox.querySelector( ".pin-btn" );
+                         pinBtn.addEventListener( "click", ( e ) => {
+                              const infoBoxElement = e.target.closest( '.info-box' );
+                              if ( infoBoxElement.classList.contains( 'pinned' ) ) {
+                                   // Desfijar
+                                   infoBoxElement.classList.remove( 'pinned' );
+                                   pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                   pinBtn.title = "Fijar ventana";
+                              } else {
+                                   // Fijar
+                                   infoBoxElement.classList.add( 'pinned' );
+                                   pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                   pinBtn.title = "Desfijar ventana";
+
+                                   // Crear nuevo infobox para futuras propiedades
+                                   const newInfoBox = document.createElement( 'div' );
+                                   newInfoBox.className = 'info-box';
+                                   newInfoBox.style.display = 'none';
+                                   document.body.appendChild( newInfoBox );
+
+                                   // Reinicializar el arrastre para el nuevo infobox si es necesario
+                                   const nameContainer = infoBoxElement.querySelector( '.nameContainer' );
+                                   if ( nameContainer && typeof hacerArrastrable === 'function' ) {
+                                        hacerArrastrable( infoBoxElement, nameContainer );
+                                   }
+                              }
+                         } );
+                         infoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
                               try {
                                    if ( navigator.share ) {
                                         await navigator.share( {
