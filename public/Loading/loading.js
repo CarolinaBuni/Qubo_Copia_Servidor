@@ -1,4 +1,17 @@
 // Función principal para gestionar la pantalla de carga
+// Al inicio del archivo
+(function preloadCloudinaryImages() {
+     const imageUrls = [
+         'https://res.cloudinary.com/dafjggs2p/image/upload/v1742076755/qubo/loading_images/loading1_nprixm.jpg',
+         'https://res.cloudinary.com/dafjggs2p/image/upload/v1742076754/qubo/loading_images/loading2_t6jf5w.jpg'
+     ];
+     
+     imageUrls.forEach(url => {
+         const img = new Image();
+         img.src = url;
+     });
+ })();
+
 function initLoading() {
       // Contenedor de fondo y loading ya existen en el HTML
     const backgroundContainer = document.getElementById('background-container');
@@ -11,13 +24,12 @@ function initLoading() {
     
      // Array con todos los fondos posibles
      const backgrounds = [
-          { type: 'video', src: './assets/stars.mp4', id: 'stars1' },
-          { type: 'video', src: './assets/stars1.mp4', id: 'stars2' },
-          { type: 'video', src: './assets/stars3.mp4', id: 'stars3' },
-          { type: 'image', src: './assets/loading1.jpg', id: 'img1' },
-          { type: 'image', src: './assets/loading2.jpg', id: 'img2' }
-          // Puedes añadir más fondos si los tienes
-     ];
+          { type: 'video', src: 'https://res.cloudinary.com/dafjggs2p/video/upload/v1742076778/qubo/loading_images/stars_jrzq4c.mp4', id: 'stars1' },
+          { type: 'video', src: 'https://res.cloudinary.com/dafjggs2p/video/upload/v1742077293/qubo/loading_images/stars1_bhzugj.mp4', id: 'stars2' },
+          { type: 'video', src: 'https://res.cloudinary.com/dafjggs2p/video/upload/v1742076774/qubo/loading_images/stars3_unfeli.mp4', id: 'stars3' },
+          { type: 'image', src: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1742076755/qubo/loading_images/loading1_nprixm.jpg', id: 'img1' },
+          { type: 'image', src: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1742076754/qubo/loading_images/loading2_t6jf5w.jpg', id: 'img2' }
+      ];
      
 
      // Función para seleccionar el próximo fondo de manera justa
