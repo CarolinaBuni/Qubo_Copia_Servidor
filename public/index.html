@@ -10,12 +10,12 @@
    <script src="./Loading/loading.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/3.30.2/minified.min.js"></script>
    <!-- Script para Google Maps -->
-   <!-- <script
+   <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBM6Pgky2ROijg4Lxh9knz66oW1rb0kS8k&callback=initMap&libraries=places&v=weekly"
-      defer></script> -->
+      defer></script>
    
-   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCB-JwjJiauGErvF0S2_2ada4uVkShE7hE&
-   callback=initMap&libraries=places&v=weekly" defer></script>
+   <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCB-JwjJiauGErvF0S2_2ada4uVkShE7hE&
+   callback=initMap&libraries=places&v=weekly" defer></script> -->
 
    <!-- Script para ChatGPT -->
    <script>
@@ -531,7 +531,7 @@
                <span><br />Trains</span>
             </a>
          </li>
-         <li class="airplane-sub-nav-item">
+         <li id="airplane-sub-nav-item" class="airplane-sub-nav-item">
             <a href="#">
                <img class="bar-buttons subLevel" src="./assets/iconAirplain.svg" alt="Icon Airplane" />
                <span><br />Airplane</span>
@@ -975,9 +975,9 @@
    <!-- Añade esto donde quieras que aparezca el chat -->
    <div id="discord-widget" class="discord-widget">
    </div>
-   <script src="./app.js"></script>
    <div id="gmp-map"></div>
    <script src="./static-images.js"></script>
+   <script src="./app.js"></script>
 
 </body>
 

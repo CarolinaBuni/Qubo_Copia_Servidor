@@ -38,6 +38,16 @@ body {
 
 :root {
      --color-verde-qubo: #08ecc4;
+     --primary-color: #08ecc4;
+     --secondary-color: #ffffff;
+     --bg-color: #121212;
+     --text-color: #ffffff;
+     --label-color: var(--primary-color);
+     --border-radius: 20px;
+     --spacing: 1rem;
+     --card-bg: rgba(0, 0, 0, 0.3);
+     --emergency-color: #ff3e3e;
+     --card-bg: rgba(0, 10, 25, 0.7);
 }
 
 
@@ -261,6 +271,25 @@ span {
     margin: 10px 0;
 }
 
+.alert-box {
+    background-color: #ffeeee;
+    border-left: 4px solid #ff0000;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.alert-box h3 {
+    color: #cc0000;
+    margin-top: 0;
+    font-size: 16px;
+}
+
+.alert-box p {
+    margin-bottom: 0;
+    color: #333;
+}
+
 .expand-btn {
      position: absolute;
      right: 8px;
@@ -425,6 +454,16 @@ span {
      /* display: grid; */
     grid-template-columns: 1fr 1fr;
     gap: 15px;
+ }
+
+.features-grid label {
+    color: var(--primary-color);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: block;
  }
  
  .features-list {
@@ -661,6 +700,270 @@ span {
      background: rgba(231, 76, 60, 0.2);
      color: #e74c3c;
  }
+
+
+.status-badge.emergency::before {
+    background: #e74c3c;
+    box-shadow: 0 0 8px #e74c3c;
+}
+
+.status-badge.patrol {
+    background: rgba(8, 236, 196, 0.1);
+    border: 1px solid rgba(8, 236, 196, 0.3);
+    color: var(--primary-color);
+    padding: 8px 14px 8px 30px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    position: relative;
+}
+
+.status-badge.patrol::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background: var(--primary-color);
+    box-shadow: 0 0 8px var(--primary-color);
+    animation: pulse-patrol 2s infinite;
+}
+
+.status-badge.emergency {
+    background: rgba(255, 62, 62, 0.1);
+    border-color: rgba(255, 62, 62, 0.3);
+    color: var(--emergency-color);
+}
+
+.status-badge.emergency::before {
+    background: var(--emergency-color);
+    box-shadow: 0 0 8px var(--emergency-color);
+}
+/* Mejoras para el estado actual */
+.status-section {
+    padding: 0 0 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.status-section.emergency label {
+    color: var(--emergency-color);
+}
+
+.status-section label,
+.crew-section label,
+.vehicle-section label {
+    color: var(--primary-color);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tracker-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Crew section */
+.crew-section {
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.crew-members {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.crew-member {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.3s ease;
+}
+
+.crew-member:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.crew-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 236, 196, 0.1);
+}
+
+.crew-avatar.driver {
+    background: rgba(255, 204, 0, 0.1);
+}
+
+.crew-avatar.doctor {
+    background: rgba(41, 128, 185, 0.1);
+}
+
+.crew-avatar.nurse {
+    background: rgba(155, 89, 182, 0.1);
+}
+
+.crew-icon {
+    font-size: 20px;
+}
+
+.crew-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.crew-role {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.crew-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+/* Vehicle section */
+.vehicle-section {
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body > div:nth-child(6) > div.info-content > div.vehicle-section > label > span {
+    font-size: 14px;
+}
+
+.vehicle-specs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.specs-item {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.specs-item:hover {
+    background: rgba(8, 236, 196, 0.05);
+    transform: translateY(-2px);
+}
+
+.specs-icon {
+    font-size: 18px;
+}
+
+.specs-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.specs-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.specs-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+/* Mejora del indicador de combustible */
+.fuel-gauge {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.fuel-level {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), #06d9b2);
+    border-radius: 3px;
+    box-shadow: 0 0 8px rgba(8, 236, 196, 0.3);
+}
+
+.equipment-status {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.equipment-status.available {
+    color: var(--success-color);
+}
+
+body > div:nth-child(6) > div.info-content > div.status-section > label > span {
+    font-size: 14px;
+}
+
+.status-section.emergency label {
+    color: var(--emergency-color);
+}
+
+.status-display {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 16px;
+    position: relative;
+}
+
+.status-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.response-time {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.time-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.time-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.ambulance-location-tracker {
+    margin-top: 16px;
+}
 
 #delete-qubo {
      cursor: pointer;
@@ -2152,6 +2455,41 @@ body > div:nth-child(6) > div.info-content > div.navigation-info > div.route-inf
     padding: 16px;
     margin-bottom: 1rem;
 }
+
+div.ambulance-location-tracker > div.ambulance-route-line {
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color) 0%, rgba(8, 236, 196, 0.3) 100%);
+    border-radius: 2px;
+    position: relative;
+    margin-bottom: 8px;
+    box-shadow: 0 0 10px rgba(8, 236, 196, 0.2);
+}
+
+.ambulance-current-position{
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--emergency-color);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    box-shadow: 0 0 8px rgba(255, 62, 62, 0.7);
+}
+
+div.location-tracker > div.route-line > div {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--emergency-color);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    box-shadow: 0 0 8px rgba(255, 62, 62, 0.7);
+}
 /* Estilos para las especificaciones técnicas */
 .specs-grid {
     display: grid;
@@ -2845,3 +3183,767 @@ body > div:nth-child(6) > div.info-content > div.navigation-info > div.route-inf
  .transport-icon {
      font-size: 1.25rem;
  }
+
+ @keyframes borde-parpadeante {
+    0% { 
+        box-shadow: 0 0 0 1px rgba(222, 39, 76, 0.5), 0 0 5px rgba(222, 39, 76, 0.3); 
+        border-color: rgba(222, 39, 76, 0.7);
+    }
+    50% { 
+        box-shadow: 0 0 0 2px rgba(222, 39, 76, 1), 0 0 15px rgba(222, 39, 76, 0.8); 
+        border-color: rgba(222, 39, 76, 1);
+    }
+    100% { 
+        box-shadow: 0 0 0 1px rgba(222, 39, 76, 0.5), 0 0 5px rgba(222, 39, 76, 0.3); 
+        border-color: rgba(222, 39, 76, 0.7);
+    }
+}
+
+.alert-container {
+    margin-bottom: var(--spacing);
+    border-radius: 14px;
+    background: rgba(30, 0, 0, 0.8);
+    border: 2px solid rgba(222, 39, 76, 0.7);
+    /* overflow: hidden; */
+    position: relative;
+    animation: borde-parpadeante 1.5s infinite;
+}
+
+.alert-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    background: rgba(222, 39, 76, 0.8);
+    padding: 12px 16px;
+    border-radius: 14px 14px 0 0;
+}
+
+.alert-icon {
+    font-size: 20px;
+    color: #ffcc00;
+}
+
+.alert-title {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.alert-content {
+    padding: 16px;
+    background-color: transparent;
+}
+
+body > div.info-box-pack-location.info-box > div.info-content > div:nth-child(2) > div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.alert-description {
+    color: white !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    margin: 0 !important;
+    font-weight: 400 !important;
+}
+/* Estilos para el indicador de IA en la alerta */
+.ai-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 8px;
+    border-radius: 12px;
+    margin-left: auto;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.ai-icon {
+    font-size: 12px;
+}
+
+.ai-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.5px;
+}
+
+/* Estilos para el footer de IA */
+.ai-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ai-icon {
+    font-size: 14px;
+}
+
+.ai-text {
+    font-size: 12px;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Añadir estos estilos específicos para planes a PLANE/style.css */
+
+.flight-status {
+    margin-top: var(--spacing);
+    padding-top: var(--spacing);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.flight-status label {
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.status-badge.landing {
+    background: rgba(52, 152, 219, 0.2);
+    color: #3498db;
+}
+
+.status-badge.takeoff {
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+}
+
+.status-badge.cruise {
+    background: rgba(241, 196, 15, 0.2);
+    color: #f1c40f;
+}
+
+.status-label {
+    color: var(--label-color);
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.speed-badge {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Modificación para animación de landing */
+@keyframes plane-landing {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+}
+
+.status-icon {
+    animation: plane-landing 2s infinite ease-in-out;
+}
+
+
+/* Estilos para Pharmacy */
+
+/* Visualización del horario */
+.schedule-display {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.schedule-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.schedule-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.schedule-label {
+    color: var(--text-color);
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.schedule-value {
+    color: var(--primary-color);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.pharmacy-status-section {
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pharmacy-status-indicator {
+    margin-top: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.pharmacy-status-badge {
+    position: relative;
+    background: rgba(39, 174, 96, 0.1);
+    border: 1px solid rgba(39, 174, 96, 0.3);
+    color: #2ecc71;
+    padding: 8px 14px 8px 30px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.pharmacy-status-badge::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background: #2ecc71;
+    box-shadow: 0 0 8px #2ecc71;
+    animation: pulse 2s infinite;
+}
+
+.pharmacy-duty-badge {
+    background: rgba(241, 196, 15, 0.1);
+    border: 1px solid rgba(241, 196, 15, 0.3);
+    color: #f1c40f;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+/* Barra de progreso del tiempo */
+.time-progress {
+    margin-top: 8px;
+    margin-bottom: 20px;
+}
+
+.time-bar {
+    --progress-width: 60%; /* Valor por defecto */
+}
+
+.time-bar::before {
+    width: var(--progress-width);
+}
+
+.time-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    position: relative;
+    margin-bottom: 6px;
+}
+
+.time-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 60%; /* Tiempo actual (se puede calcular con JS) */
+    background: linear-gradient(90deg, rgba(8, 236, 196, 0.4), var(--primary-color));
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(8, 236, 196, 0.4);
+}
+
+.current-time-marker {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px rgba(8, 236, 196, 0.7);
+    animation: pulse 2s infinite;
+}
+
+/* .time-bar .current-time-marker {
+    transform: translate(0, -50%) !important;
+    margin-left: -4px !important;
+} */
+
+.time-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.time-labels span {
+    color: inherit !important;
+    font-size: unset !important;
+}
+
+.pharmacy-status-section {
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pharmacy-status-section label {
+    color: var(--primary-color);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pharmacy-label-icon {
+    font-size: 14px;
+}
+
+.pharmacy-status-indicator {
+    margin-top: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+
+
+/* Servicios de la farmacia */
+.services-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.service-item {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.service-item:hover {
+    transform: translateY(-2px);
+    background: rgba(8, 236, 196, 0.05);
+}
+
+.service-item::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background: var(--primary-color);
+    opacity: 0.8;
+}
+
+/* Mejorar visualización de servicios disponibles y no disponibles */
+.service-item.available {
+    border-left: 4px solid #2ecc71;
+}
+
+.service-item.unavailable {
+    border-left: 4px solid #e74c3c;
+    opacity: 0.8;
+}
+
+.service-item.available .service-icon-container {
+    background: rgba(46, 204, 113, 0.1);
+}
+
+.service-item.unavailable .service-icon-container {
+    background: rgba(231, 76, 60, 0.1);
+}
+
+.service-item.available .service-availability {
+    color: #2ecc71;
+    font-weight: 600;
+}
+
+.service-item.unavailable .service-availability {
+    color: #e74c3c;
+    font-weight: 500;
+}
+
+/* Eliminar la línea verde del after que está en todos los servicios */
+.service-item::after {
+    display: none;
+}
+
+.service-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: rgba(8, 236, 196, 0.1);
+    border-radius: 8px;
+}
+
+.service-icon {
+    font-size: 18px;
+}
+
+.service-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.service-name {
+    color: var(--text-color);
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.service-value {
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.service-availability {
+    color: #2ecc71;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Animación pulsante para la marca de tiempo actual */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(8, 236, 196, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(8, 236, 196, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(8, 236, 196, 0); }
+}
+
+.pharmacy-features-grid {
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 8px;
+}
+
+.pharmacy-features-grid label {
+    color: var(--primary-color);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: block;
+}
+
+/* Estilos para POLICE DIGITAL TWINS */
+
+.police-status-badge {
+    background: rgba(255, 204, 0, 0.1);
+    color: var(--warning-color);
+    padding: 8px 14px 8px 30px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+}
+
+.police-status-badge::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background: var(--warning-color);
+    box-shadow: 0 0 8px var(--warning-color);
+    animation: pulse 2s infinite;
+}
+
+.police-status-badge.emergency {
+    background: rgba(255, 62, 62, 0.1);
+    border-color: rgba(255, 62, 62, 0.3);
+    color: var(--emergency-color);
+}
+
+.police-status-badge.emergency::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background: var(--emergency-color);
+    box-shadow: 0 0 8px var(--emergency-color);
+    animation: pulse-emergency 2s infinite;
+}
+
+.police-current-position {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: pulse 2s infinite;
+}
+
+
+.location-tracker {
+    margin-top: 16px;
+}
+
+.police-route-line {
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color) 0%, rgba(8, 236, 196, 0.3) 100%);
+    border-radius: 2px;
+    position: relative;
+    margin-bottom: 8px;
+    box-shadow: 0 0 10px rgba(8, 236, 196, 0.2);
+}
+.police-route-line {
+    background: linear-gradient(90deg, var(--secondary-color) 0%, rgba(8, 236, 196, 0.3) 100%);
+}
+
+.tracker-labels span {
+    color: unset;
+    font-size: unset;
+    text-align: unset;
+    margin-bottom: unset;
+}
+
+.vehicle-section label {
+    color: var(--secondary-color);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.police-specs-item {
+    position: relative;
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: all 0.3s ease;
+    border-left: 2px solid var(--primary-color);
+}
+
+.police-specs-item:hover {
+    transform: translateY(-2px);
+    background: rgba(0, 15, 35, 0.8);
+}
+
+.police-specs-icon {
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 30, 60, 0.4);
+    border-radius: 8px;
+    color: var(--secondary-color);
+}
+
+/* Eliminar todos los efectos de animación */
+.police-specs-icon::before,
+.police-specs-item::after {
+    display: none;
+}
+
+.police-specs-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.police-specs-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.5px;
+}
+
+.police-specs-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.admin-section {
+    padding: 16px 0;
+    margin-top: 5px;
+}
+
+.admin-section label {
+    color: var(--secondary-color);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+/* Eliminar patrones y efectos excesivos */
+.admin-card::before {
+    display: none;
+}
+
+.admin-card:hover {
+    transform: translateY(-2px);
+}
+
+.admin-card-header {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(8, 236, 196, 0.1);
+}
+
+.admin-icon-container {
+    width: 34px;
+    height: 34px;
+    background: rgba(0, 30, 60, 0.4);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Eliminar animación giratoria */
+.admin-icon-container::before {
+    display: none;
+}
+
+.admin-icon {
+    font-size: 18px;
+    color: var(--secondary-color);
+}
+
+.admin-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.admin-card-content {
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-value {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    max-width: 70%;
+}
+
+.admin-badge, 
+.admin-badge.central {
+    background: rgba(8, 236, 196, 0.1);
+    color: var(--primary-color);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* Eliminar animación de brillos */
+.admin-badge::before,
+.admin-badge.central::before {
+    display: none;
+}
+
+/* Uniformizar colores para todas las tarjetas */
+.admin-card:first-child,
+.admin-card:last-child {
+    background: var(--card-bg);
+}
+
+.admin-card:first-child .admin-card-header,
+.admin-card:last-child .admin-card-header {
+    border-bottom-color: rgba(8, 236, 196, 0.1);
+}
+
+.admin-card:first-child .admin-icon,
+.admin-card:last-child .admin-icon {
+    color: var(--primary-color);
+    text-shadow: none;
+}
+
+.admin-card:first-child .admin-icon-container,
+.admin-card:last-child .admin-icon-container {
+    background: rgba(0, 30, 60, 0.4);
+}
+
+/* Asegurarnos de que el badge "Police" tenga el color correcto */
+.badge.primary {
+    background-color: var(--primary-color);
+    color: #000000;
+    box-shadow: 0 0 10px rgba(8, 236, 196, 0.5);
+}
+
+/* Actualizar la línea de ruta para que coincida con el estilo */
+.police-route-line {
+    background: linear-gradient(90deg, var(--primary-color) 0%, rgba(8, 236, 196, 0.3) 100%);
+}
+
+/* Animación de pulso específica para emergencia */
+@keyframes pulse-emergency {
+    0% { box-shadow: 0 0 0 0 rgba(255, 62, 62, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(255, 62, 62, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 62, 62, 0); }
+}
+
+

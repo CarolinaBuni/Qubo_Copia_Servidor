@@ -17,6 +17,7 @@ const QUBO_ICONS = {
      garages: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186034/qubo/qubos/garagesQubo_vjlyzj.svg',
      environment: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/environment_Qubo_qqip5m.svg',
      bus: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740247958/qubo/qubos/bus_lgobts.svg',
+     busStop: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/bus_Qubo_bjpfxf.svg",
      clubsNightlife: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/clubsAndnightlife_Qubo_cgliaf.svg',
      commercialOrIndustrial: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/commercialOrIndustrialQubo_nb1ksg.svg',
      boats: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186032/qubo/qubos/boats_Qubo_grzsos.svg',

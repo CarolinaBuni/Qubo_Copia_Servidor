@@ -7,7 +7,60 @@ let map;
 let myLocationMarker;
 let autocomplete;
 let loadingController;
+let subcategoryIcons = {};
+// Sistema de registro de marcadores
+window.markerTypes = {};
 
+function registerMarkerType( type, config ) {
+     window.markerTypes[ type ] = {
+          buttonId: config.buttonId,
+          isLayerActive: config.isLayerActive,
+          findMarker: config.findMarker
+     };
+     console.log( `✅ Registrado tipo: ${ type }` );
+}
+
+async function shareMarker( type, id, title, text ) {
+     try {
+          const baseUrl = window.location.origin + window.location.pathname;
+          const shareUrl = `${ baseUrl }?view=${ type }&id=${ id }`;
+
+          const shareData = {
+               title: title,
+               text: text,
+               url: shareUrl
+          };
+
+          if ( navigator.share && navigator.canShare( shareData ) ) {
+               await navigator.share( shareData );
+          } else {
+               const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+               await navigator.clipboard.writeText( shareText );
+               showNotification( '¡Información copiada al portapapeles!' );
+          }
+     } catch ( error ) {
+          console.error( 'Error al compartir:', error );
+     }
+}
+
+function getCookie( name ) {
+     const value = `; ${ document.cookie }`;
+     const parts = value.split( `; ${ name }=` );
+     if ( parts.length === 2 ) {
+          const token = parts.pop().split( ';' ).shift();
+          // console.log( "Token recuperado:", token );  // Verifica aquí que el token es correcto
+          return token;
+     }
+     return null;  // Si no encuentra la cookie, devuelve null
+}
+
+function normalizeString( str ) {
+     const normalized = str.toLowerCase()
+          .replace( /&/g, 'and' )
+          .replace( /[\s-_]+/g, '' )
+          .trim();
+     return normalized;
+}
 
 document.addEventListener( 'DOMContentLoaded', function () {
      loadingController = window.initLoading();
@@ -19,9 +72,9 @@ document.addEventListener( 'DOMContentLoaded', function () {
           } );
      }
      // Iniciar el mapa después de cargar el DOM
-    setTimeout(() => {
-     initMap();
- }, 100);
+     setTimeout( () => {
+          initMap();
+     }, 100 );
 } );
 
 // Función para mostrar notificaciones
@@ -51,32 +104,47 @@ function showNotification( message ) {
 
 // Añadir al inicio del archivo, después de las declaraciones de variables
 function handleSharedUrl() {
+     if ( window.checkMarkersInterval ) {
+          clearInterval( window.checkMarkersInterval );
+     }
+
      const urlParams = new URLSearchParams( window.location.search );
      const view = urlParams.get( 'view' );
      const id = urlParams.get( 'id' );
 
-     if ( view === 'store' && id ) {
-          // Activar la capa de tiendas si no está activa
-          if ( !storesActivos ) {
-               document.getElementById( 'stores-sub-nav-item' ).click();
+     if ( !view || !id ) return;
+
+     const typeConfig = window.markerTypes[ view ];
+     if ( !typeConfig ) return;
+
+     if ( !typeConfig.isLayerActive() ) {
+          document.getElementById( typeConfig.buttonId ).click();
+     }
+
+     let attempts = 0;
+     window.checkMarkersInterval = setInterval( () => {
+          attempts++;
+          if ( attempts > 20 || !typeConfig.isLayerActive() ) {
+               clearInterval( window.checkMarkersInterval );
+               return;
           }
 
-          // Esperar a que los marcadores se carguen
-          const checkMarkers = setInterval( () => {
-               if ( marcadoresTiendas[ id ] ) {
-                    clearInterval( checkMarkers );
-                    // Simular click en el marcador
-                    google.maps.event.trigger( marcadoresTiendas[ id ].marker, 'click' );
-                    // Centrar el mapa en el marcador
-                    map.setCenter( marcadoresTiendas[ id ].marker.getPosition() );
-                    map.setZoom( 18 );
-               }
-          }, 100 );
-     }
+          const marker = typeConfig.findMarker( id );
+          if ( marker ) {
+               clearInterval( window.checkMarkersInterval );
+               google.maps.event.trigger( marker, 'click' );
+               map.setCenter( marker.getPosition() );
+               map.setZoom( 18 );
+          }
+     }, 100 );
 }
+window.addEventListener( 'load', handleSharedUrl );
+
+
+
+
 
 // Llamar a la función cuando se carga la página
-window.addEventListener( 'load', handleSharedUrl );
 
 
 function precargarImagenes() {
@@ -124,7 +192,7 @@ function procesarSesion() {
      return true;
 }
 
-
+//? EMPIEZA INITMAP
 function initMap( fromSession = false ) {
 
 
@@ -161,6 +229,8 @@ function initMap( fromSession = false ) {
 
      // Crear el mapa y establecerlo en el div con el id "gmp-map"
      map = new google.maps.Map( document.getElementById( "gmp-map" ), mapOptions );
+     initAddQubo();
+
 
 
      fetch( '/api/v1/qubo/icons', {
@@ -254,16 +324,7 @@ function initMap( fromSession = false ) {
           };
      }
 
-     function getCookie( name ) {
-          const value = `; ${ document.cookie }`;
-          const parts = value.split( `; ${ name }=` );
-          if ( parts.length === 2 ) {
-               const token = parts.pop().split( ';' ).shift();
-               // console.log( "Token recuperado:", token );  // Verifica aquí que el token es correcto
-               return token;
-          }
-          return null;  // Si no encuentra la cookie, devuelve null
-     }
+
 
 
 
@@ -410,6 +471,220 @@ function initMap( fromSession = false ) {
           } );
      } );
 
+
+     // ****************** ADD QUBO ****************** 
+
+     function initAddQubo() {
+          // Elementos del DOM necesarios para esta funcionalidad
+          const addQuboButton = document.getElementById( 'addQubo' );
+          const formContainer = document.querySelector( '.form-container' );
+          const messageBox = document.getElementById( 'messageBox' );
+          const closeButton = document.getElementById( 'cerrar-form' );
+          const form = document.getElementById( 'categoryForm' );
+
+          // Variables de control locales
+          let isAddingQubo = false;
+          let currentMarker = null;
+
+          // 1. Cuando se cambia la subcategoría:
+          document.getElementById( 'subcategory' ).addEventListener( 'change', function () {
+               if ( currentMarker ) {
+                    const subcategory = this.value;
+                    const normalizedSubcategory = normalizeString( subcategory );
+                    const position = currentMarker.getPosition();
+                    // Inicializamos con el icono por defecto
+                    let iconUrl = 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
+                    // Si subcategoryIcons.QUBO_ICONS está definido, buscamos la clave normalizada
+                    if ( subcategoryIcons && subcategoryIcons.QUBO_ICONS ) {
+                         const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
+                              .find( key => normalizeString( key ) === normalizedSubcategory );
+                         if ( iconKey ) {
+                              iconUrl = subcategoryIcons.QUBO_ICONS[ iconKey ];
+                         }
+                    }
+                    currentMarker.setMap( null );
+                    // Crear un nuevo marcador con el icono actualizado
+                    currentMarker = new google.maps.Marker( {
+                         position: position,
+                         map: map,
+                         title: 'New Qubo',
+                         icon: iconUrl
+                    } );
+               }
+          } );
+
+          // 2. Al hacer click en el botón "Add Qubo":
+          addQuboButton.addEventListener( 'click', function () {
+               isAddingQubo = true;
+               messageBox.style.display = 'block';
+               messageBox.innerHTML = 'Qubo add mode activated, please click on the map to select the location.';
+               formContainer.classList.add( 'hidden' );
+               console.log( 'Qubo add mode activated, please click on the map to select the location.' );
+          } );
+
+          // 3. Al hacer click en el mapa (para colocar el marcador temporal)
+          map.addListener( 'click', function ( event ) {
+               if ( isAddingQubo ) {
+                    const lat = event.latLng.lat();
+                    const lng = event.latLng.lng();
+                    console.log( "Latitud:", lat, "Longitud:", lng );
+                    if ( currentMarker ) {
+                         currentMarker.setMap( null );
+                    }
+                    // Obtén el valor actual del select y normalízalo
+                    const subcategory = document.getElementById( 'subcategory' ).value;
+                    const normalizedSubcategory = normalizeString( subcategory );
+                    // Establece el icono por defecto y, si se encuentra uno, actualízalo
+                    let iconUrl = 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
+                    if ( subcategoryIcons && subcategoryIcons.QUBO_ICONS ) {
+                         const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS ).find(
+                              key => normalizeString( key ) === normalizedSubcategory
+                         );
+                         if ( iconKey ) {
+                              iconUrl = subcategoryIcons.QUBO_ICONS[ iconKey ];
+                         }
+                    }
+                    currentMarker = new google.maps.Marker( {
+                         position: event.latLng,
+                         map: map,
+                         title: 'Nuevo Qubo',
+                         icon: iconUrl
+                    } );
+                    // Guardar la latitud y longitud en los inputs ocultos
+                    document.getElementById( 'clickedLat' ).value = lat;
+                    document.getElementById( 'clickedLng' ).value = lng;
+                    // Mostrar el formulario para rellenar más información
+                    formContainer.classList.remove( 'hidden' );
+                    messageBox.style.display = 'none';
+                    isAddingQubo = false;
+                    console.log( 'Formulario mostrado, por favor completa la información del Qubo.' );
+               }
+          } );
+
+          // 4. Al hacer click en el botón "cerrar" del formulario (cancelar)
+          closeButton.addEventListener( 'click', function () {
+               formContainer.classList.add( 'hidden' );
+               messageBox.style.display = 'none';
+               if ( currentMarker ) {
+                    currentMarker.setMap( null );
+                    currentMarker = null;
+               }
+               isAddingQubo = false;
+               console.log( 'Formulario cerrado, marcador eliminado.' );
+          } );
+
+          // 5. Al enviar el formulario (crear el Qubo de forma permanente)
+          form.addEventListener( 'submit', function ( event ) {
+               event.preventDefault();
+               const startDate = new Date( document.getElementById( 'startDateTime' ).value );
+               const finishDate = new Date( document.getElementById( 'endDateTime' ).value );
+               if ( isNaN( startDate.valueOf() ) || isNaN( finishDate.valueOf() ) ) {
+                    alert( 'Please enter valid start and finish dates.' );
+                    return;
+               }
+               const formData = new FormData( form );
+               const token = getCookie( 'access_token' );
+               formData.append( 'token', token );
+
+               fetch( form.action, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+               } )
+                    .then( response => {
+                         if ( !response.ok ) {
+                              return response.text().then( text => { throw new Error( `Error del servidor: ${ text }` ); } );
+                         }
+                         return response.json();
+                    } )
+                    .then( data => {
+                         // Usar la función auxiliar para obtener el icono (normalizado) según data.subcategory
+                         const newIcon = getIconForSubcategory( data.subcategory ) ||
+                              'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
+
+                         // Crear un nuevo marcador con los datos recibidos del servidor
+                         const marker = new google.maps.Marker( {
+                              position: {
+                                   lat: parseFloat( data.latitude ),
+                                   lng: parseFloat( data.longitude )
+                              },
+                              map: map,
+                              title: data.title,
+                              icon: newIcon
+                         } );
+                         activeMarkers.set( data._id, marker );
+                         // Agregar listener al marcador para mostrar un infobox con información
+                         marker.addListener( 'click', function () {
+                              const infoBox = document.querySelector( ".info-box" );
+                              infoBox.style.display = 'flex';
+                              infoBox.innerHTML = `
+                     <div class='nameContainer'>
+                       <p>${ data.category }</p>
+                       <p>${ data.title }</p>
+                     </div>
+                     <div class='own'>
+                       <img src='${ data.img }'>
+                     </div>
+                     <p>Descripción: ${ data.description }</p>
+                     <p>Subcategoría: ${ data.subcategory }</p>
+                     <p>Fecha de inicio: ${ new Date( data.startDate ).toLocaleDateString() } a las ${ new Date( data.startDate ).toLocaleTimeString() }</p>
+                     <p>Fecha de finalización: ${ new Date( data.finishDate ).toLocaleDateString() } a las ${ new Date( data.finishDate ).toLocaleTimeString() }</p>
+                     <p>Link: <a href="${ data.link }" target="_blank">${ data.link }</a></p>
+                     <p>Anónimo: ${ data.anonymous ? "Sí" : "No" }</p>
+                     <button id="cerrar-info-box">
+                       <img src='./assets/botonCerrar.svg'>
+                     </button>
+                     <button id="delete-qubo" data-qubo-id="${ data._id }">
+                       <img src='./assets/trash-can.svg'>
+                     </button>
+                   `;
+                              // Clonar los botones para evitar acumulación de listeners
+                              const closeBtnInfo = document.getElementById( "cerrar-info-box" );
+                              const deleteBtn = document.getElementById( "delete-qubo" );
+                              const newCloseBtn = closeBtnInfo.cloneNode( true );
+                              const newDeleteBtn = deleteBtn.cloneNode( true );
+                              closeBtnInfo.parentNode.replaceChild( newCloseBtn, closeBtnInfo );
+                              deleteBtn.parentNode.replaceChild( newDeleteBtn, deleteBtn );
+                              newCloseBtn.addEventListener( "click", () => {
+                                   infoBox.style.display = "none";
+                              } );
+                              newDeleteBtn.addEventListener( "click", handleQuboDelete( data._id, marker, infoBox, messageBox ) );
+                         } );
+                         form.reset();
+                         formContainer.classList.add( 'hidden' );
+                         messageBox.innerHTML = `Qubo añadido con éxito!`;
+                         messageBox.style.display = 'block';
+                         setTimeout( () => {
+                              messageBox.style.display = 'none';
+                         }, 3000 );
+                         if ( currentMarker ) {
+                              currentMarker.setMap( null );
+                              currentMarker = null;
+                         }
+                    } )
+                    .catch( error => {
+                         console.error( error );
+                         alert( error.message );
+                    } );
+          } );
+     }
+
+     // Función auxiliar para obtener el icono normalizado a partir de una subcategoría
+     function getIconForSubcategory( subcat ) {
+          if ( subcategoryIcons && subcategoryIcons.QUBO_ICONS ) {
+               const normalized = normalizeString( subcat );
+               const key = Object.keys( subcategoryIcons.QUBO_ICONS ).find(
+                    k => normalizeString( k ) === normalized
+               );
+               return key ? subcategoryIcons.QUBO_ICONS[ key ] : null;
+          }
+          return null;
+     }
+
+
+
+
+
      document.addEventListener( 'DOMContentLoaded', () => {
           const inputContainer = document.getElementById( 'input-container' );
           const searchDirectionButton = document.getElementById( 'search-direction-button' );
@@ -432,9 +707,6 @@ function initMap( fromSession = false ) {
           // Evento para mostrar y ocultar el inputContainer al hacer clic en el botón
           searchDirectionButton.addEventListener( 'click', toggleInputContainer );
      } );
-
-
-
 
      //? Funcion del INPUT
 
@@ -483,100 +755,108 @@ function initMap( fromSession = false ) {
           return normalized;
      }
 
-     document.addEventListener( 'DOMContentLoaded', function () {
-          // Cargar los iconos de las subcategorías desde el servidor
+     //*Nuevo código para manejar el envío del formulario
 
 
-          const addQuboButton = document.getElementById( 'addQubo' );
-          const formContainer = document.querySelector( '.form-container' );
-          const messageBox = document.getElementById( 'messageBox' );
-          const closeButton = document.getElementById( 'cerrar-form' );
-
-          let isAddingQubo = false;
-          let currentMarker = null;
+     // document.addEventListener( 'DOMContentLoaded', function () {
+     //      // Cargar los iconos de las subcategorías desde el servidor
 
 
+     //      const addQuboButton = document.getElementById( 'addQubo' );
+     //      console.log(addQuboButton);
+
+     //      const formContainer = document.querySelector( '.form-container' );
+     //      const messageBox = document.getElementById( 'messageBox' );
+     //      const closeButton = document.getElementById( 'cerrar-form' );
+
+     //      let isAddingQubo = false;
+     //      let currentMarker = null;
+
+     //      // En el event listener de 'change'
+     //      document.getElementById( 'subcategory' ).addEventListener( 'change', function () {
+     //           if ( currentMarker ) {
+     //                const subcategory = this.value;
+     //                const normalizedSubcategory = normalizeString( subcategory );  // Normalizar el valor
+     //                // console.log( 'Subcategoría seleccionada:', subcategory );
+     //                // console.log( 'Subcategoría normalizada:', normalizedSubcategory );
+
+     //                const position = currentMarker.getPosition();
+     //                currentMarker.setMap( null );
+
+     //                // Buscar el icono comparando valores normalizados
+     //                const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
+     //                     .find( key => normalizeString( key ) === normalizedSubcategory );  // Comparar normalizados
+     //                const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
+     //                // console.log( 'Changing icon to:', iconUrl );
+
+     //                currentMarker = new google.maps.Marker( {
+     //                     position: position,
+     //                     map: map,
+     //                     title: 'New Qubo',
+     //                     icon: iconUrl
+     //                } );
+     //           }
+     //      } );
+
+     //      addQuboButton.addEventListener( 'click', function () {
+     //           isAddingQubo = true;
+     //           messageBox.style.display = 'block';
+     //           formContainer.classList.add( 'hidden' );
+     //           console.log( 'Qubo add mode activated, please click on the map to select the location.' );
+     //      } );
 
 
-          // En el event listener de 'change'
-          document.getElementById( 'subcategory' ).addEventListener( 'change', function () {
-               if ( currentMarker ) {
-                    const subcategory = this.value;
-                    const normalizedSubcategory = normalizeString( subcategory );  // Normalizar el valor
-                    // console.log( 'Subcategoría seleccionada:', subcategory );
-                    // console.log( 'Subcategoría normalizada:', normalizedSubcategory );
 
-                    const position = currentMarker.getPosition();
-                    currentMarker.setMap( null );
 
-                    // Buscar el icono comparando valores normalizados
-                    const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
-                         .find( key => normalizeString( key ) === normalizedSubcategory );  // Comparar normalizados
-                    const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
-                    // console.log( 'Changing icon to:', iconUrl );
 
-                    currentMarker = new google.maps.Marker( {
-                         position: position,
-                         map: map,
-                         title: 'New Qubo',
-                         icon: iconUrl
-                    } );
-               }
-          } );
 
-          addQuboButton.addEventListener( 'click', function () {
-               isAddingQubo = true;
-               messageBox.style.display = 'block';
-               formContainer.classList.add( 'hidden' );
-               console.log( 'Qubo add mode activated, please click on the map to select the location.' );
-          } );
 
-          map.addListener( 'click', function ( event ) {
-               if ( isAddingQubo ) {
-                    const lat = event.latLng.lat();
-                    const lng = event.latLng.lng();
-                    console.log( "Latitud:", lat, "Longitud:", lng );
-                    if ( currentMarker ) {
-                         currentMarker.setMap( null );
-                    }
+     //      map.addListener( 'click', function ( event ) {
+     //           if ( isAddingQubo ) {
+     //                const lat = event.latLng.lat();
+     //                const lng = event.latLng.lng();
+     //                console.log( "Latitud:", lat, "Longitud:", lng );
+     //                if ( currentMarker ) {
+     //                     currentMarker.setMap( null );
+     //                }
 
-                    const subcategory = document.getElementById( 'subcategory' ).value;
-                    const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
-                         .find( key => normalizeString( key ) === subcategory );
-                    const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
-                    // console.log( 'Subcategory:', subcategory );
-                    // console.log( 'Icon URL:', iconUrl );
+     //                const subcategory = document.getElementById( 'subcategory' ).value;
+     //                const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
+     //                     .find( key => normalizeString( key ) === subcategory );
+     //                const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
+     //                // console.log( 'Subcategory:', subcategory );
+     //                // console.log( 'Icon URL:', iconUrl );
 
-                    currentMarker = new google.maps.Marker( {
-                         position: event.latLng,
-                         map: map,
-                         title: 'Nuevo Qubo',
-                         icon: iconUrl
-                    } );
+     //                currentMarker = new google.maps.Marker( {
+     //                     position: event.latLng,
+     //                     map: map,
+     //                     title: 'Nuevo Qubo',
+     //                     icon: iconUrl
+     //                } );
 
-                    document.getElementById( 'clickedLat' ).value = lat;
-                    document.getElementById( 'clickedLng' ).value = lng;
+     //                document.getElementById( 'clickedLat' ).value = lat;
+     //                document.getElementById( 'clickedLng' ).value = lng;
 
-                    formContainer.classList.remove( 'hidden' );
-                    messageBox.style.display = 'none';
+     //                formContainer.classList.remove( 'hidden' );
+     //                messageBox.style.display = 'none';
 
-                    isAddingQubo = false;
-                    console.log( 'Formulario mostrado, por favor completa la información del Qubo.' );
-               }
-          } );
+     //                isAddingQubo = false;
+     //                console.log( 'Formulario mostrado, por favor completa la información del Qubo.' );
+     //           }
+     //      } );
 
-          closeButton.addEventListener( 'click', function () {
-               formContainer.classList.add( 'hidden' );
-               isAddingQubo = false;
+     //      closeButton.addEventListener( 'click', function () {
+     //           formContainer.classList.add( 'hidden' );
+     //           isAddingQubo = false;
 
-               if ( currentMarker ) {
-                    currentMarker.setMap( null );
-                    currentMarker = null;
-               }
+     //           if ( currentMarker ) {
+     //                currentMarker.setMap( null );
+     //                currentMarker = null;
+     //           }
 
-               console.log( 'Formulario cerrado, marcador eliminado.' );
-          } );
-     } );
+     //           console.log( 'Formulario cerrado, marcador eliminado.' );
+     //      } );
+     // } );
 
 
 
@@ -625,6 +905,7 @@ function initMap( fromSession = false ) {
                }
           } );
      } );
+
 
      //***************************************************** */
 
@@ -765,171 +1046,188 @@ function initMap( fromSession = false ) {
      //*Nuevo código para manejar el envío del formulario
 
 
-     document.addEventListener( 'DOMContentLoaded', function () {
-          const form = document.getElementById( 'categoryForm' );
-          const formContainer = document.querySelector( '.form-container' );
-          const messageBox = document.getElementById( 'messageBox' );
-          const closeButton = document.getElementById( 'cerrar-form' );
-          let currentMarker = null; // Variable para el marcador temporal
-          let isAddingQubo = false; // Definimos la variable de control aquí
+     // document.addEventListener( 'DOMContentLoaded', function () {
+     //      const form = document.getElementById( 'categoryForm' );
+     //      const formContainer = document.querySelector( '.form-container' );
+     //      const messageBox = document.getElementById( 'messageBox' );
+     //      const closeButton = document.getElementById( 'cerrar-form' );
+     //      let currentMarker = null; // Variable para el marcador temporal
+     //      let isAddingQubo = false; // Definimos la variable de control aquí
 
-          // Evento para el botón de añadir Qubo
-          const addQuboButton = document.getElementById( 'addQubo' );
-          addQuboButton.addEventListener( 'click', function () {
-               isAddingQubo = true;
-               messageBox.style.display = 'block';
-               messageBox.innerHTML = 'Qubo add mode activated, please click on the map to select the location.';
-          } );
-
-
-          // Evento para el botón de cerrar formulario
-          closeButton.addEventListener( 'click', function () {
-               formContainer.classList.add( 'hidden' );
-               messageBox.style.display = 'none';
-               // Eliminar el marcador temporal si existe
-               if ( currentMarker ) {
-                    currentMarker.setMap( null );
-                    currentMarker = null;
-               }
-               isAddingQubo = false; // Reseteamos el estado
-          } );
-
-          // Evento click en el mapa
-          map.addListener( 'click', function ( event ) {
-               if ( isAddingQubo ) {
-                    if ( currentMarker ) {
-                         currentMarker.setMap( null );
-                    }
-                    currentMarker = new google.maps.Marker( {
-                         position: event.latLng,
-                         map: map,
-                         icon: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg'
-                    } );
-
-                    document.getElementById( 'clickedLat' ).value = event.latLng.lat();
-                    document.getElementById( 'clickedLng' ).value = event.latLng.lng();
-
-                    formContainer.classList.remove( 'hidden' );
-                    messageBox.style.display = 'none';
-                    isAddingQubo = false;
-               }
-          } );
-
-          // let newMarker;
-          // Evento submit del formulario
-          form.addEventListener( 'submit', function ( event ) {
-               event.preventDefault();
-
-               const startDate = new Date( document.getElementById( 'startDateTime' ).value );
-               const finishDate = new Date( document.getElementById( 'endDateTime' ).value );
-
-               if ( isNaN( startDate.valueOf() ) || isNaN( finishDate.valueOf() ) ) {
-                    alert( 'Please enter valid start and finish dates.' );
-                    return;
-               }
-
-               const formData = new FormData( form );
-
-               // Agregar el token a formData para que el servidor lo procese
-               const token = getCookie( 'access_token' );
-               formData.append( 'token', token );
-
-               fetch( form.action, {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include'
-               } )
-                    .then( response => {
-                         if ( !response.ok ) {
-                              return response.text().then( text => {
-                                   throw new Error( `Error del servidor: ${ text }` );
-                              } );
-                         }
-                         return response.json();
-                    } )
-                    .then( data => {
-                         // console.log( 'Datos recibidos del servidor:', data );
-
-                         // Crear nuevo marcador con los datos recibidos
-                         const marker = new google.maps.Marker( {
-                              position: {
-                                   lat: parseFloat( data.latitude ),
-                                   lng: parseFloat( data.longitude )
-                              },
-                              map: map,
-                              title: data.title, // Usar el título del servidor
-                              icon: subcategoryIcons.QUBO_ICONS[ data.subcategory ] || 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg'
-                         } );
-
-                         // Guardar el marcador en nuestro registro
-                         activeMarkers.set( data._id, marker );
-
-                         // Añadir event listener al nuevo marcador usando la sintaxis correcta
-                         marker.addListener( 'click', function () {
-                              const infoBox = document.querySelector( ".info-box" );
-                              infoBox.style.display = 'flex';
-
-                              infoBox.innerHTML = `
-                                   <div class='nameContainer'>
-                                        <p>${ data.category }</p>
-                                        <p>${ data.title }</p>
-                                   </div>
-                                   <div class='own'>
-                                        <img src='${ data.img }'>
-                                   </div>
-                                   <p>Descripción: ${ data.description }</p>
-                                   <p>Subcategoría: ${ data.subcategory }</p>
-                                   <p>Fecha de inicio: ${ new Date( data.startDate ).toLocaleDateString() } a las ${ new Date( data.startDate ).toLocaleTimeString() }</p>
-                                   <p>Fecha de finalización: ${ new Date( data.finishDate ).toLocaleDateString() } a las ${ new Date( data.finishDate ).toLocaleTimeString() }</p>
-                                   <p>Link: <a href="${ data.link }" target="_blank">${ data.link }</a></p>
-                                   <p>Anónimo: ${ data.anonymous ? "Sí" : "No" }</p>
-                                   <button id="cerrar-info-box">
-                                        <img src='./assets/botonCerrar.svg'>
-                                   </button>
-                                   <button id="delete-qubo" data-qubo-id="${ data._id }">
-                                        <img src='./assets/trash-can.svg'>
-                                   </button>
-                              `;
-
-                              // Obtener los botones
-                              const closeButton = document.getElementById( "cerrar-info-box" );
-                              const deleteButton = document.getElementById( "delete-qubo" );
-
-                              // Clonar los botones para eliminar event listeners anteriores
-                              const newCloseButton = closeButton.cloneNode( true );
-                              const newDeleteButton = deleteButton.cloneNode( true );
-                              closeButton.parentNode.replaceChild( newCloseButton, closeButton );
-                              deleteButton.parentNode.replaceChild( newDeleteButton, deleteButton );
-
-                              // Añadir nuevos event listeners a los botones clonados
-                              newCloseButton.addEventListener( "click", () => {
-                                   infoBox.style.display = "none";
-                              } );
-
-                              // Para Qubos nuevos (en el submit del formulario)
-                              newDeleteButton.addEventListener( "click", handleQuboDelete( data._id, marker, infoBox, messageBox ) );
-
-                         } );
+     //      // Evento para el botón de añadir Qubo
+     //      const addQuboButton = document.getElementById( 'addQubo' );
+     //      addQuboButton.addEventListener( 'click', function () {
+     //           isAddingQubo = true;
+     //           messageBox.style.display = 'block';
+     //           messageBox.innerHTML = 'Qubo add mode activated, please click on the map to select the location.';
+     //      } );
 
 
-                         // Limpiar el formulario y mostrar mensaje de éxito
-                         form.reset();
-                         formContainer.classList.add( 'hidden' );
+     //      // Evento para el botón de cerrar formulario
+     //      closeButton.addEventListener( 'click', function () {
+     //           formContainer.classList.add( 'hidden' );
+     //           messageBox.style.display = 'none';
+     //           // Eliminar el marcador temporal si existe
+     //           if ( currentMarker ) {
+     //                currentMarker.setMap( null );
+     //                currentMarker = null;
+     //           }
+     //           isAddingQubo = false; // Reseteamos el estado
+     //      } );
 
-                         messageBox.innerHTML = `Qubo añadido con éxito!`;
-                         messageBox.style.display = 'flex';
-                         setTimeout( () => {
-                              messageBox.style.display = 'none';
-                         }, 3000 );
+     //      // Evento click en el mapa
+     //      map.addListener( 'click', function ( event ) {
+     //           if ( isAddingQubo ) {
+     //                if ( currentMarker ) {
+     //                     currentMarker.setMap( null );
+     //                }
+     //                currentMarker = new google.maps.Marker( {
+     //                     position: event.latLng,
+     //                     map: map,
+     //                     icon: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg'
+     //                } );
 
-                         // Eliminar el marcador temporal
-                         if ( currentMarker ) {
-                              currentMarker.setMap( null );
-                              currentMarker = null;
-                         }
-                    } );
-          } );
-     } );
+     //                document.getElementById( 'clickedLat' ).value = event.latLng.lat();
+     //                document.getElementById( 'clickedLng' ).value = event.latLng.lng();
+
+     //                formContainer.classList.remove( 'hidden' );
+     //                messageBox.style.display = 'none';
+     //                isAddingQubo = false;
+     //           }
+     //      } );
+
+
+     //      // let newMarker;
+     //      // Evento submit del formulario
+     //      form.addEventListener( 'submit', function ( event ) {
+     //           event.preventDefault();
+
+     //           const startDate = new Date( document.getElementById( 'startDateTime' ).value );
+     //           const finishDate = new Date( document.getElementById( 'endDateTime' ).value );
+
+     //           if ( isNaN( startDate.valueOf() ) || isNaN( finishDate.valueOf() ) ) {
+     //                alert( 'Please enter valid start and finish dates.' );
+     //                return;
+     //           }
+
+     //           const formData = new FormData( form );
+
+     //           // Agregar el token a formData para que el servidor lo procese
+     //           const token = getCookie( 'access_token' );
+     //           formData.append( 'token', token );
+
+     //           fetch( form.action, {
+     //                method: 'POST',
+     //                body: formData,
+     //                credentials: 'include'
+     //           } )
+     //                .then( response => {
+     //                     if ( !response.ok ) {
+     //                          return response.text().then( text => {
+     //                               throw new Error( `Error del servidor: ${ text }` );
+     //                          } );
+     //                     }
+     //                     return response.json();
+     //                } )
+     //                .then( data => {
+     //                     // console.log( 'Datos recibidos del servidor:', data );
+
+     //                     // Crear nuevo marcador con los datos recibidos
+     //                     const marker = new google.maps.Marker( {
+     //                          position: {
+     //                               lat: parseFloat( data.latitude ),
+     //                               lng: parseFloat( data.longitude )
+     //                          },
+     //                          map: map,
+     //                          title: data.title, // Usar el título del servidor
+     //                          icon: subcategoryIcons.QUBO_ICONS[ data.subcategory ] || 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg'
+     //                     } );
+
+     //                     // Guardar el marcador en nuestro registro
+     //                     activeMarkers.set( data._id, marker );
+
+     //                     // Añadir event listener al nuevo marcador usando la sintaxis correcta
+     //                     marker.addListener( 'click', function () {
+     //                          const infoBox = document.querySelector( ".info-box" );
+     //                          infoBox.style.display = 'flex';
+
+     //                          infoBox.innerHTML = `
+     //                                <div class='nameContainer'>
+     //                                     <p>${ data.category }</p>
+     //                                     <p>${ data.title }</p>
+     //                                </div>
+     //                                <div class='own'>
+     //                                     <img src='${ data.img }'>
+     //                                </div>
+     //                                <p>Descripción: ${ data.description }</p>
+     //                                <p>Subcategoría: ${ data.subcategory }</p>
+     //                                <p>Fecha de inicio: ${ new Date( data.startDate ).toLocaleDateString() } a las ${ new Date( data.startDate ).toLocaleTimeString() }</p>
+     //                                <p>Fecha de finalización: ${ new Date( data.finishDate ).toLocaleDateString() } a las ${ new Date( data.finishDate ).toLocaleTimeString() }</p>
+     //                                <p>Link: <a href="${ data.link }" target="_blank">${ data.link }</a></p>
+     //                                <p>Anónimo: ${ data.anonymous ? "Sí" : "No" }</p>
+     //                                <button id="cerrar-info-box">
+     //                                     <img src='./assets/botonCerrar.svg'>
+     //                                </button>
+     //                                <button id="delete-qubo" data-qubo-id="${ data._id }">
+     //                                     <img src='./assets/trash-can.svg'>
+     //                                </button>
+     //                           `;
+
+     //                          // Obtener los botones
+     //                          const closeButton = document.getElementById( "cerrar-info-box" );
+     //                          const deleteButton = document.getElementById( "delete-qubo" );
+
+     //                          // Clonar los botones para eliminar event listeners anteriores
+     //                          const newCloseButton = closeButton.cloneNode( true );
+     //                          const newDeleteButton = deleteButton.cloneNode( true );
+     //                          closeButton.parentNode.replaceChild( newCloseButton, closeButton );
+     //                          deleteButton.parentNode.replaceChild( newDeleteButton, deleteButton );
+
+     //                          // Añadir nuevos event listeners a los botones clonados
+     //                          newCloseButton.addEventListener( "click", () => {
+     //                               infoBox.style.display = "none";
+     //                          } );
+
+     //                          // Para Qubos nuevos (en el submit del formulario)
+     //                          newDeleteButton.addEventListener( "click", handleQuboDelete( data._id, marker, infoBox, messageBox ) );
+
+     //                     } );
+
+
+     //                     // Limpiar el formulario y mostrar mensaje de éxito
+     //                     form.reset();
+     //                     formContainer.classList.add( 'hidden' );
+
+     //                     messageBox.innerHTML = `Qubo añadido con éxito!`;
+     //                     messageBox.style.display = 'flex';
+     //                     setTimeout( () => {
+     //                          messageBox.style.display = 'none';
+     //                     }, 3000 );
+
+     //                     // Eliminar el marcador temporal
+     //                     if ( currentMarker ) {
+     //                          currentMarker.setMap( null );
+     //                          currentMarker = null;
+     //                     }
+     //                } );
+     //      } );
+     // } );
+
+
+
+
+
+     //************* ADD QUBO *****************/
+
+
+
+
+
+     //***************************************************** */
+
+
+
+
 
 
      //! PRUEBA CON OTRO KML DE BARRIO
@@ -1294,7 +1592,7 @@ function initMap( fromSession = false ) {
      } );
 
 
-     //* ELECTRICITY
+     //* ELECTRICITY 
      const electricityMadrid = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Electricity/Electricity.kmz?sp=r&st=2024-05-19T15:09:48Z&se=2029-01-01T00:09:48Z&sv=2022-11-02&sr=b&sig=BMuM4bLJ7RWEGSjsY6zZeWrKSu8IPa%2F9KK46GpZBN4I%3D";
 
      const botonElectricity = document.getElementById( 'electricity-sub-nav-item' );
@@ -2557,84 +2855,294 @@ function initMap( fromSession = false ) {
 
      //! Función para mostrar PARKS&GARDENS
 
+     //! Función para mostrar PARKS&GARDENS
+
      const parksGardensApiUrl = `/api/proxy?url=${ encodeURIComponent(
           "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Parks%20%26%20Gardens/Fiware_EnvAndSust_ParksAndGardens-00001?sp=r&st=2024-06-02T17:13:28Z&se=2090-01-01T02:13:28Z&sv=2022-11-02&sr=b&sig=XBdhgow87NphHa30BQWyt%2Bc%2FJsUyjU%2FXEVZuy9L12t8%3D"
      ) }`;
 
-     const cargarMarcadoresParksGardens = () => {
-          fetch( parksGardensApiUrl )
-               .then( response => {
-                    if ( response.ok ) {
-                         return response.json();
-                    } else {
-                         throw new Error( "La solicitud no fue exitosa" );
+     // Endpoint de alertas para parques y jardines
+     const parksGardensAlertsUrl = `/api/proxy?url=${ encodeURIComponent(
+          "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Env%20%26%20Sust%20Incidences/Fiware_EnvAndSust_ParksAndGardens-00001_ALERTS.json?sp=r&st=2025-04-23T09:46:11Z&se=2099-04-23T17:46:11Z&sv=2024-11-04&sr=b&sig=KSLJMPqTrglWUCteJGTMLPCSI28bfXxNpHczDMm4tGY%3D"
+     ) }`;
+
+     // Función para cargar primero las alertas y luego los marcadores
+     const cargarMarcadoresParksGardens = async () => {
+          try {
+               showNotification( 'Cargando datos de parques y jardines...', 2000 );
+
+               // 1. Primero cargar las alertas para crear un mapa de búsqueda rápida
+               const alertsMap = {};
+
+               try {
+                    const alertsResponse = await fetch( parksGardensAlertsUrl );
+                    const alertsData = await alertsResponse.json();
+
+                    if ( alertsData && alertsData.alerts && Array.isArray( alertsData.alerts ) ) {
+                         console.log( `✅ Encontradas ${ alertsData.alerts.length } incidencias de parques y jardines` );
+
+                         // Guardar todas las incidencias en un objeto para búsqueda O(1)
+                         alertsData.alerts.forEach( alert => {
+                              alertsMap[ alert.related_id ] = alert.alert_description;
+                         } );
                     }
-               } )
-               .then( data => {
+               } catch ( error ) {
+                    console.error( "Error cargando incidencias de parques y jardines:", error );
+               }
 
-                    const markersData = data.parksandg0001;
+               // 2. Ahora cargar los datos principales de parques y jardines
+               const response = await fetch( parksGardensApiUrl );
+               if ( !response.ok ) {
+                    throw new Error( "La solicitud no fue exitosa" );
+               }
 
-                    markersData.forEach( item => {
-                         const {
-                              ubicacion,
-                              name,
-                              description,
-                              streetAddress,
-                              postalCode,
-                              addressLocality,
-                              addressRegion,
-                              addressCountry,
-                              neighborhood,
-                              district,
-                              source,
-                              owner
-                         } = parseFiwareData( item );
+               const data = await response.json();
+               const markersData = data.parksandg0001;
 
-                         if ( ubicacion && name ) {
-                              const marker = new google.maps.Marker( {
-                                   position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
-                                   map: map,
-                                   title: name,
-                                   icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740260651/qubo/qubos/parksandgardens_o3ihp5.svg",
-                              } );
+               markersData.forEach( item => {
+                    const {
+                         ubicacion,
+                         name,
+                         description,
+                         streetAddress,
+                         postalCode,
+                         addressLocality,
+                         addressRegion,
+                         addressCountry,
+                         neighborhood,
+                         district,
+                         source,
+                         owner
+                    } = parseFiwareData( item );
 
-                              marker.addListener( "click", () => {
-                                   const infoBox = document.querySelector( ".info-box" );
+                    if ( ubicacion && name ) {
+                         // Verificar si este parque tiene una alerta
+                         const hasAlert = alertsMap[ item.id ] !== undefined;
+                         const alertDescription = hasAlert ? alertsMap[ item.id ] : null;
 
-                                   infoBox.style.display = "flex";
-                                   infoBox.innerHTML = `
-                              <div class='nameContainer'> 
-                                   <p>Parque</p> 
-                                  <p>${ name }</p>
-                              </div>
-                             <img src='${ STATIC_IMAGES.parksGardens }'>
-                              <p> <span>${ description }</span> </p>
-                              
-                              <p>Address: <span>${ streetAddress }, ${ postalCode }</span> </p>
-                              <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
-                              <p>ID: <span>${ item.id }</span> </p>
-                              <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
-                              <button id="cerrar-info-box">
-                                  <img src='./assets/botonCerrar.svg'>
-                              </button>
-                              <button class='share'>
-                                  <img src='./assets/shareIcon.svg'>
-                              </button>
-                              `;
+                         // Elegir el icono apropiado según si tiene alerta o no
+                         const iconUrl = hasAlert
+                              ? "https://res.cloudinary.com/dafjggs2p/image/upload/v1745401709/qubo/qubos/incidence_parksAndGardens_xcn1we.svg"
+                              : "https://res.cloudinary.com/dafjggs2p/image/upload/v1740260651/qubo/qubos/parksandgardens_o3ihp5.svg";
 
-                                   const cerrarBoton = document.getElementById( "cerrar-info-box" );
-                                   cerrarBoton.addEventListener( "click", () => {
-                                        infoBox.style.display = "none";
-                                   } );
-                              } );
+                         const marker = new google.maps.Marker( {
+                              position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+                              map: map,
+                              title: name,
+                              icon: iconUrl,
+                         } );
 
-                              markersParksGardens.push( marker ); // Añade el marcador al array de parques y jardines
+                         // Guardar la info de alerta en el marcador
+                         if ( hasAlert ) {
+                              marker.hasAlert = true;
+                              marker.alertDescription = alertDescription;
                          }
-                    } );
-               } )
-               .catch( error => {
-                    console.error( "Hubo un problema con la solicitud:", error );
+
+                         marker.addListener( "click", () => {
+                              try {
+                                   // Buscar un infobox no pinneado o crear uno nuevo
+                                   let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                                   if ( !currentInfoBox ) {
+                                        currentInfoBox = document.createElement( 'div' );
+                                        currentInfoBox.className = 'info-box';
+                                        document.body.appendChild( currentInfoBox );
+                                   }
+
+                                   // Si existe alerta, la incluimos en el HTML
+                                   const alertHtml = hasAlert
+                                        ? `<div class="alert-container">
+                                 <div class="alert-header">
+                                     <span class="alert-icon">⚠️</span>
+                                     <h3 class="alert-title">AI INCIDENT</h3>
+                                 </div>
+                                 <div class="alert-content">
+                                     <p class="alert-description">${ alertDescription }</p>
+                                     <div class="ai-footer">
+                                         <span class="ai-icon">🧠</span>
+                                         <span class="ai-text">Analysis generated by artificial intelligence</span>
+                                     </div>
+                                 </div>
+                               </div>`
+                                        : '';
+
+                                   currentInfoBox.setAttribute( 'data-park-id', item.id );
+                                   currentInfoBox.style.display = "flex";
+                                   currentInfoBox.innerHTML = `
+                             <div class="info-header">
+                                 <img src="${ STATIC_IMAGES.parksGardens }" alt="Parques y Jardines" class="property-image"/>
+                                 <div class="header-bar">
+                                     <div class="property-badges">
+                                         <div class="badge-container">
+                                             <span class="badge primary">PARK</span>
+                                             <div class="badge-location nameContainer">
+                                                 <span>${ name }</span>
+                                                 <span>${ district || "" }, ${ addressRegion || "" }</span>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="action-buttons">
+                                         <button class="action-btn pin-btn" title="Fijar ventana">
+                                             <i class="action-icon">📌</i>
+                                         </button>
+                                         <button class="action-btn share-btn" title="Compartir">
+                                             <i class="action-icon">📤</i>
+                                         </button>
+                                         <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
+                                             <i class="action-icon">✕</i>
+                                         </button>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div class="info-content">
+                                 ${ alertHtml }
+                                 <div class="info-grid">
+                                     <div class="info-row">
+                                         <div class="info-item">
+                                             <label>Código identificador</label>
+                                             <div class="id-value-container">
+                                                 <span>${ item.id }</span>
+                                                 <button class="copy-btn" title="Copiar código">
+                                                     <i class="copy-icon">📋</i>
+                                                 </button>
+                                             </div>
+                                         </div>
+                                         <div class="info-item">
+                                             <label>Distrito</label>
+                                             <span>${ district || 'N/A' }</span>
+                                         </div>
+                                     </div>
+                                     <div class="info-row">
+                                         <div class="info-item">
+                                             <label>Dirección</label>
+                                             <span>${ streetAddress || 'N/A' }</span>
+                                         </div>
+                                         <div class="info-item">
+                                             <label>Localización</label>
+                                             <span>${ addressLocality || 'N/A' }, ${ addressRegion || 'N/A' }</span>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <div class="features-grid">
+                                     <label>Características</label>
+                                     <div class="features-list">
+                                         <div class="feature-item">
+                                             <span class="feature-icon">🌳</span>
+                                             <span class="feature-text">Parque público</span>
+                                         </div>
+                                         ${ owner ? `
+                                         <div class="feature-item">
+                                             <span class="feature-icon">👥</span>
+                                             <span class="feature-text">Propietario: ${ owner }</span>
+                                         </div>` : '' }
+                                         ${ neighborhood ? `
+                                         <div class="feature-item">
+                                             <span class="feature-icon">🏙️</span>
+                                             <span class="feature-text">Barrio: ${ neighborhood }</span>
+                                         </div>` : '' }
+                                     </div>
+                                 </div>
+                                 <div class="description">
+                                     <label>Descripción</label>
+                                     <p>${ description || 'No hay descripción disponible' }</p>
+                                 </div>
+                                 ${ source ? `
+                                 <div class="external-links">
+                                     <label>Enlaces</label>
+                                     <a href="${ source }" target="_blank" class="external-link">
+                                         <span>Ver enlace original</span>
+                                     </a>
+                                 </div>` : '' }
+                             </div>
+                         `;
+
+                                   // Agregar listeners a los botones
+                                   // 1. Botón cerrar
+                                   const closeButton = currentInfoBox.querySelector( "#cerrar-info-box" );
+                                   closeButton.addEventListener( "click", () => {
+                                        currentInfoBox.remove();
+                                   } );
+
+                                   // 2. Botón pin
+                                   const pinButton = currentInfoBox.querySelector( ".pin-btn" );
+                                   pinButton.addEventListener( "click", () => {
+                                        if ( currentInfoBox.classList.contains( "pinned" ) ) {
+                                             currentInfoBox.classList.remove( "pinned" );
+                                             pinButton.innerHTML = '<i class="action-icon">📌</i>';
+                                             pinButton.title = "Fijar ventana";
+                                        } else {
+                                             currentInfoBox.classList.add( "pinned" );
+                                             pinButton.innerHTML = '<i class="action-icon">📍</i>';
+                                             pinButton.title = "Desfijar ventana";
+
+                                             // Crear una nueva info-box para el siguiente clic
+                                             const newInfoBox = document.createElement( 'div' );
+                                             newInfoBox.className = 'info-box';
+                                             newInfoBox.style.display = 'none';
+                                             document.body.appendChild( newInfoBox );
+                                        }
+                                   } );
+
+                                   // 3. Botón compartir
+                                   const shareButton = currentInfoBox.querySelector( ".share-btn" );
+                                   shareButton.addEventListener( "click", () => {
+                                        const baseUrl = window.location.origin + window.location.pathname;
+                                        const shareUrl = `${ baseUrl }?view=park&id=${ item.id }`;
+
+                                        const shareData = {
+                                             title: `🌳 Parque - ${ name }`,
+                                             text: `📍 ${ addressLocality || "" }, ${ addressRegion || "" }\n` +
+                                                  `${ description ? description.substring( 0, 100 ) + ( description.length > 100 ? '...' : '' ) : 'Sin descripción' }\n`,
+                                             url: shareUrl
+                                        };
+
+                                        // Intentar compartir usando la API Web Share si está disponible
+                                        if ( navigator.share && navigator.canShare( shareData ) ) {
+                                             navigator.share( shareData )
+                                                  .catch( err => console.error( "Error al compartir:", err ) );
+                                        } else {
+                                             // Fallback: copiar al portapapeles
+                                             const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+                                             navigator.clipboard.writeText( shareText )
+                                                  .then( () => showNotification( '¡Información copiada al portapapeles!' ) )
+                                                  .catch( err => console.error( "Error al copiar:", err ) );
+                                        }
+                                   } );
+
+                                   // 4. Botón copiar código
+                                   const copyButton = currentInfoBox.querySelector( ".copy-btn" );
+                                   copyButton.addEventListener( "click", () => {
+                                        navigator.clipboard.writeText( item.id )
+                                             .then( () => {
+                                                  // Feedback visual de que se copió
+                                                  copyButton.innerHTML = '<i class="copy-icon">✓</i>';
+                                                  setTimeout( () => {
+                                                       copyButton.innerHTML = '<i class="copy-icon">📋</i>';
+                                                  }, 2000 );
+                                             } )
+                                             .catch( err => {
+                                                  console.error( 'Error al copiar: ', err );
+                                                  // Fallback
+                                                  prompt( "Copia este código:", item.id );
+                                             } );
+                                   } );
+
+                                   // Hacer el infobox arrastrable
+                                   inicializarArrastre( currentInfoBox );
+                              } catch ( error ) {
+                                   console.error( "Error al mostrar info del parque:", error );
+                              }
+                         } );
+
+                         markersParksGardens.push( marker );
+                    }
                } );
+
+               showNotification( `Se han cargado ${ markersParksGardens.length } parques y jardines`, 2000 );
+
+          } catch ( error ) {
+               console.error( "Hubo un problema con la solicitud:", error );
+               showNotification( 'Error al cargar parques y jardines', 3000 );
+          }
      };
 
      const eventParksGardens = document.getElementById( "parksGardens-sub-nav-item" );
@@ -3369,72 +3877,459 @@ function initMap( fromSession = false ) {
      } );
 
      //! Botón ENERGY&EFFICIENCY
-     // Función para cargar y mostrar marcadores de eficiencia energética
-     const cargarYMostrarMarcadoresEnergiaEficiencia = async () => {
+
+     // Función para mostrar notificaciones
+     function showNotification( message, duration = 3000 ) {
+          const messageBox = document.getElementById( 'messageBox' );
+          if ( !messageBox ) {
+               const newMessageBox = document.createElement( 'div' );
+               newMessageBox.id = 'messageBox';
+               newMessageBox.style.display = 'block';
+               newMessageBox.style.position = 'fixed';
+               newMessageBox.style.bottom = '20px';
+               newMessageBox.style.left = '50%';
+               newMessageBox.style.transform = 'translateX(-50%)';
+               newMessageBox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+               newMessageBox.style.color = 'white';
+               newMessageBox.style.padding = '10px 20px';
+               newMessageBox.style.borderRadius = '5px';
+               newMessageBox.style.zIndex = '9999';
+               document.body.appendChild( newMessageBox );
+
+               newMessageBox.textContent = message;
+               setTimeout( () => {
+                    newMessageBox.style.display = 'none';
+               }, duration );
+               return;
+          }
+
+          messageBox.textContent = message;
+          messageBox.style.display = 'block';
+
+          // Limpiar cualquier temporizador existente
+          if ( messageBox.timeoutId ) {
+               clearTimeout( messageBox.timeoutId );
+          }
+
+          // Configurar un nuevo temporizador
+          messageBox.timeoutId = setTimeout( () => {
+               messageBox.style.display = 'none';
+          }, duration );
+     }
+
+     // Variable para almacenar los datos originales
+     let energyEfficiencyData = null;
+
+     // Variable para almacenar los marcadores que se muestran actualmente
+     let markersEnergyEfficiency = [];
+
+     // Variable para el estado de visibilidad
+     let energyAndEfficiencyVisible = false;
+
+     // Función para cargar los datos una sola vez
+     const cargarDatosEficienciaEnergetica = async () => {
           try {
+               showNotification( 'Cargando datos de eficiencia energética...', 2000 );
 
                const urlEnergyEfficiency = `/api/proxy?url=${ encodeURIComponent(
                     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Environment%20%26%20Sustainability/Energy%20Efficiency/Fiware_EnvAndSust_BuildingsEnergyEfficiency.json?sp=r&st=2024-01-04T16:17:19Z&se=2090-01-01T00:17:19Z&sv=2022-11-02&sr=b&sig=w%2B2x10PtsIkypmzPvwFSe0ZSOmVgBFy%2FsYlbf1ICgV4%3D"
                ) }`;
+
                const response = await fetch( urlEnergyEfficiency );
                const data = await response.json();
 
-               data.consumptionobs0001.forEach( item => {
-                    const ubicacion = item.location.value.coordinates;
-                    const lat = parseFloat( ubicacion[ 1 ] );
-                    const lng = parseFloat( ubicacion[ 0 ] );
+               console.log( `✅ Datos cargados: ${ data.consumptionobs0001.length } instalaciones de eficiencia energética` );
 
-                    const energyEfficiencyMarker = new google.maps.Marker( {
-                         position: { lat: lat, lng: lng },
-                         map: map,
-                         title: item.name.value,
-                         icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740777930/qubo/qubos/energyefficiency_2_bxqjew.svg"
-                    } );
+               // 2. Cargar incidencias
+               const alertsEndpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Env%20%26%20Sust%20Incidences/Fiware_EnvAndSust_BuildingsEnergyEfficiency-00001_ALERTS.json?sp=r&st=2025-04-22T22:03:47Z&se=2099-04-23T06:03:47Z&sv=2024-11-04&sr=b&sig=KHPejfq3cJPbXvYQwiXxXX5NGc2yfUtWW1JP9N5oBlY%3D";
+               const alertsUrl = `/api/proxy?url=${ encodeURIComponent( alertsEndpoint ) }`;
 
-                    energyEfficiencyMarker.addListener( 'click', () => {
-                         const infoBox = document.querySelector( ".info-box" );
-                         infoBox.style.display = "flex";
-                         const idWithoutPrefix = item.id.replace( /^consumptionobs_/, '' );
+               try {
+                    const alertsResponse = await fetch( alertsUrl );
+                    const alertsData = await alertsResponse.json();
 
-
-                         infoBox.innerHTML = `
-                              <div class='nameContainer'>
-                                   <p>${ item.name.value }</p>
-                              </div>
-                              <img src='${ STATIC_IMAGES.energyEfficiency }'>
-                              <p>Código identificador: <span>${ idWithoutPrefix }</span> </p>
-                              <p>Address: <span>${ item.address.value.streetAddress }</span> </p>
-                              <p>Barrio: <span>${ item.address.value.neighborhood }</span> </p>
-                              <p>Localización: <span>${ item.address.value.district }, ${ item.address.value.addressRegion }</span> </p>
-                              <p>Año Contrucción: <span>${ item.month.value }/${ item.year.value }</span> </p>
-                              <p>${ item.energyConsumedAndCost.value.energyType.value }: <span>${ item.energyConsumedAndCost.value.energyConsumed.value.value.value } ${ item.energyConsumedAndCost.value.energyConsumed.value.measurementUnit.value }</span>  </p>
-                              <p> <span>${ item.description.value }</span> </p>
-                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                              <button class='share'><img src='./assets/shareIcon.svg'></button>
-                         `;
-                         document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                              infoBox.style.display = "none";
+                    if ( alertsData.alerts && Array.isArray( alertsData.alerts ) ) {
+                         // Crear un mapa para búsqueda rápida
+                         const alertsMap = {};
+                         alertsData.alerts.forEach( alert => {
+                              alertsMap[ alert.related_id ] = alert.alert_description;
                          } );
-                    } );
 
-                    markersEnergyEfficiency.push( energyEfficiencyMarker ); // Añade el marcador al array de eficiencia energética
-               } );
+                         // Marcar los elementos con alertas
+                         data.consumptionobs0001.forEach( item => {
+                              if ( alertsMap[ item.id ] ) {
+                                   item.hasAlert = true;
+                                   item.alertDescription = alertsMap[ item.id ];
+                              }
+                         } );
+                    }
+               } catch ( error ) {
+                    console.error( "Error cargando incidencias:", error );
+               }
+
+               // Almacenar los datos para uso futuro
+               energyEfficiencyData = data;
+
+               showNotification( 'Datos de eficiencia energética cargados', 2000 );
+               return data;
           } catch ( error ) {
-               console.error( "Error fetching energy and efficiency stations:", error );
+               console.error( "Error cargando datos de eficiencia energética:", error );
+               showNotification( 'Error al cargar datos', 3000 );
+               return null;
           }
      };
-     // Evento botón ENERGY AND EFFICIENCY
-     const eventEnergyAndEfficiency = document.getElementById( "energyAndEfficiency-sub-nav-item" );
-     let markersEnergyEfficiency = []; // Array para almacenar los marcadores de eficiencia energética
-     let energyAndEfficiencyVisible = false; // Bandera para el estado de visibilidad
-     eventEnergyAndEfficiency.addEventListener( 'click', async () => {
-          // Alternar la visibilidad de los marcadores de eficiencia energética
-          toggleMarcadores( markersEnergyEfficiency, energyAndEfficiencyVisible );
-          energyAndEfficiencyVisible = !energyAndEfficiencyVisible; // Cambia la bandera de visibilidad
 
-          // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
-          if ( markersEnergyEfficiency.length === 0 && energyAndEfficiencyVisible ) {
-               await cargarYMostrarMarcadoresEnergiaEficiencia();
+     // Función para mostrar marcadores solo en la vista actual
+     // Función para mostrar marcadores solo en la vista actual
+     const mostrarMarcadoresEnVistaActual = () => {
+          // Si no hay datos cargados, no podemos mostrar nada
+          if ( !energyEfficiencyData ) return;
+
+          // Eliminar marcadores anteriores
+          limpiarMarcadoresEnergia();
+
+          // Obtener los límites actuales del mapa
+          const bounds = map.getBounds();
+          if ( !bounds ) {
+               console.warn( "No se pueden obtener los límites del mapa" );
+               return;
+          }
+
+          // Limitar el número máximo de marcadores para mantener un buen rendimiento
+          const MAX_MARKERS = 100;
+          const dataArray = energyEfficiencyData.consumptionobs0001;
+
+          showNotification( 'Mostrando marcadores en la vista actual...', 2000 );
+
+          // Primero filtrar los que están en los límites actuales
+          const markersInView = [];
+
+          for ( const item of dataArray ) {
+               // Verificación rápida de propiedades esenciales para evitar errores
+               if ( !item.id || !item.location || !item.location.value || !item.location.value.coordinates ) continue;
+
+               const ubicacion = item.location.value.coordinates;
+               const lat = parseFloat( ubicacion[ 1 ] );
+               const lng = parseFloat( ubicacion[ 0 ] );
+
+               if ( isNaN( lat ) || isNaN( lng ) ) continue;
+
+               const position = new google.maps.LatLng( lat, lng );
+
+               if ( bounds.contains( position ) ) {
+                    markersInView.push( item );
+               }
+          }
+
+          console.log( `Marcadores en vista actual: ${ markersInView.length }` );
+
+          // Si hay demasiados marcadores en la vista, seleccionamos un subconjunto
+          let markersToShow;
+
+          if ( markersInView.length > MAX_MARKERS ) {
+               // Priorizar marcadores con alertas
+               const markersWithAlerts = markersInView.filter( item => item.hasAlert );
+               const markersWithoutAlerts = markersInView.filter( item => !item.hasAlert );
+
+               // Asegurar que todos los marcadores con alertas se muestren
+               if ( markersWithAlerts.length <= MAX_MARKERS ) {
+                    // Si hay menos marcadores con alertas que el máximo, añadir algunos sin alertas
+                    const remainingSlots = MAX_MARKERS - markersWithAlerts.length;
+                    // Tomar una muestra equidistante de los marcadores sin alertas
+                    const step = Math.max( 1, Math.floor( markersWithoutAlerts.length / remainingSlots ) );
+                    const sampledWithoutAlerts = [];
+
+                    for ( let i = 0; i < markersWithoutAlerts.length && sampledWithoutAlerts.length < remainingSlots; i += step ) {
+                         sampledWithoutAlerts.push( markersWithoutAlerts[ i ] );
+                    }
+
+                    markersToShow = [ ...markersWithAlerts, ...sampledWithoutAlerts ];
+               } else {
+                    // Si hay más marcadores con alertas que el máximo, mostrar solo una muestra de ellos
+                    markersToShow = markersWithAlerts.slice( 0, MAX_MARKERS );
+               }
+
+               showNotification( `Limitando a ${ markersToShow.length } marcadores para mejor rendimiento`, 2000 );
+          } else {
+               markersToShow = markersInView;
+          }
+
+          // Crear los marcadores para los elementos seleccionados
+          markersToShow.forEach( item => {
+               const ubicacion = item.location.value.coordinates;
+               const lat = parseFloat( ubicacion[ 1 ] );
+               const lng = parseFloat( ubicacion[ 0 ] );
+
+               // Elegir el icono apropiado
+               const iconUrl = item.hasAlert
+                    ? "https://res.cloudinary.com/dafjggs2p/image/upload/v1745359906/qubo/qubos/incidence_energy_efficiency_d5uwa0.svg"
+                    : "https://res.cloudinary.com/dafjggs2p/image/upload/v1740777930/qubo/qubos/energyefficiency_2_bxqjew.svg";
+
+               const energyEfficiencyMarker = new google.maps.Marker( {
+                    position: { lat, lng },
+                    map: map,
+                    title: item.name ? item.name.value : "Energy Efficiency",
+                    icon: iconUrl,
+                    optimized: true
+               } );
+
+               // Configurar el evento de clic
+               energyEfficiencyMarker.addListener( 'click', () => {
+                    try {  // Añadimos un try/catch pero mantenemos el código mínimo para velocidad
+                         // Comprobar si ya existe un infobox pinneado
+                         const existingPinnedBox = document.querySelector( `.info-box.pinned[data-energy-id="${ item.id }"]` );
+                         if ( existingPinnedBox ) {
+                              existingPinnedBox.classList.add( 'highlight' );
+                              setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                              return;
+                         }
+
+                         // Buscar un infobox no pinneado o crear uno nuevo
+                         let infoBox = document.querySelector( ".info-box:not(.pinned)" );
+                         if ( !infoBox ) {
+                              infoBox = document.createElement( 'div' );
+                              infoBox.className = 'info-box';
+                              document.body.appendChild( infoBox );
+                         }
+
+                         infoBox.setAttribute( 'data-energy-id', item.id );
+                         infoBox.style.display = "flex";
+
+                         // Solo añadimos esta comprobación simple que es donde estaba el error
+                         let idWithoutPrefix = item.id;
+                         if ( typeof item.id === 'string' && item.id.includes( 'consumptionobs_' ) ) {
+                              idWithoutPrefix = item.id.replace( /^consumptionobs_/, '' );
+                         }
+
+                         // Si existe alerta, la incluimos en el HTML
+                         const alertHtml = item.alertDescription
+                              ? `<div class="alert-container">
+                         <div class="alert-header">
+                             <span class="alert-icon">⚠️</span>
+                             <h3 class="alert-title">AI INCIDENT</h3>
+                         </div>
+                         <div class="alert-content">
+                             <p class="alert-description">${ item.alertDescription }</p>
+                             <div class="ai-footer">
+                                 <span class="ai-icon">🧠</span>
+                                 <span class="ai-text">Analysis generated by artificial intelligence</span>
+                             </div>
+                         </div>
+                     </div>`
+                              : '';
+
+                         infoBox.innerHTML = `
+                     <div class="info-header">
+                         <img src="${ STATIC_IMAGES.energyEfficiency }" alt="Eficiencia Energética" class="property-image"/>
+                         <div class="header-bar">
+                             <div class="property-badges">
+                                 <div class="badge-container">
+                                     <span class="badge primary">ENERGY</span>
+                                     <div class="badge-location nameContainer">
+                                         <span>${ item.name ? item.name.value : "Energy Efficiency" }</span>
+                                         <span>${ item.address && item.address.value ? ( item.address.value.district || "" ) + ", " + ( item.address.value.addressRegion || "" ) : "" }</span>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div class="action-buttons">
+                                 <button class="action-btn pin-btn" title="Fijar ventana">
+                                     <i class="action-icon">📌</i>
+                                 </button>
+                                 <button class="action-btn share-btn" title="Compartir">
+                                     <i class="action-icon">📤</i>
+                                 </button>
+                                 <button class="action-btn close-btn" title="Cerrar">
+                                     <i class="action-icon">✕</i>
+                                 </button>
+                             </div>
+                         </div>
+                     </div>
+                     <div class="info-content">
+                         ${ alertHtml }
+                         <div class="info-grid">
+                             <div class="info-row">
+                                 <div class="info-item">
+                                     <label>Código identificador</label>
+                                     <div class="id-value-container">
+                                         <span>${ idWithoutPrefix }</span>
+                                         <button class="copy-btn" title="Copiar código">
+                                             <i class="copy-icon">📋</i>
+                                         </button>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div class="info-row">
+                                 <div class="info-item">
+                                     <label>Dirección</label>
+                                     <span>${ item.address && item.address.value ? ( item.address.value.streetAddress || 'N/A' ) : 'N/A' }</span>
+                                 </div>
+                                 <div class="info-item">
+                                     <label>Barrio</label>
+                                     <span>${ item.address && item.address.value ? ( item.address.value.neighborhood || 'N/A' ) : 'N/A' }</span>
+                                 </div>
+                             </div>
+                             <div class="info-row">
+                                 <div class="info-item">
+                                     <label>Localización</label>
+                                     <span>${ item.address && item.address.value ? ( item.address.value.district || 'N/A' ) + ", " + ( item.address.value.addressRegion || 'N/A' ) : 'N/A' }</span>
+                                 </div>
+                                 <div class="info-item">
+                                     <label>Fecha</label>
+                                     <span>${ item.month ? item.month.value : 'N/A' }/${ item.year ? item.year.value : 'N/A' }</span>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="features-grid">
+                             <label>Consumo Energético</label>
+                             <div class="features-list">
+                                 <div class="feature-item">
+                                     <span class="feature-icon">⚡</span>
+                                     <span class="feature-text">${ item.energyConsumedAndCost && item.energyConsumedAndCost.value ?
+                                   item.energyConsumedAndCost.value.energyType.value + ": " +
+                                   item.energyConsumedAndCost.value.energyConsumed.value.value.value + " " +
+                                   item.energyConsumedAndCost.value.energyConsumed.value.measurementUnit.value
+                                   : 'N/A' }</span>
+                                 </div>
+                             </div>
+                         </div>
+                         ${ item.description && item.description.value ? `
+                         <div class="description">
+                             <label>Descripción</label>
+                             <p>${ item.description.value }</p>
+                         </div>` : '' }
+                     </div>
+                 `;
+
+                         // Event Listeners
+                         // 1. Botón cerrar
+                         infoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                              infoBox.remove();
+                         } );
+
+                         // 2. Botón pin
+                         const pinBtn = infoBox.querySelector( ".pin-btn" );
+                         pinBtn.addEventListener( "click", ( e ) => {
+                              const infoBox = e.target.closest( '.info-box' );
+                              if ( infoBox.classList.contains( 'pinned' ) ) {
+                                   infoBox.classList.remove( 'pinned' );
+                                   pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                   pinBtn.title = "Fijar ventana";
+                              } else {
+                                   infoBox.classList.add( 'pinned' );
+                                   pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                   pinBtn.title = "Desfijar ventana";
+
+                                   const newInfoBox = document.createElement( 'div' );
+                                   newInfoBox.className = 'info-box';
+                                   newInfoBox.style.display = 'none';
+                                   document.body.appendChild( newInfoBox );
+                              }
+                         } );
+
+                         // 3. Botón compartir
+                         infoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                              try {
+                                   const baseUrl = window.location.origin + window.location.pathname;
+                                   const shareUrl = `${ baseUrl }?view=energy&id=${ item.id }`;
+
+                                   const shareData = {
+                                        title: `⚡ Eficiencia Energética - ${ item.name ? item.name.value : "Energy Efficiency" }`,
+                                        text: `📍 ${ item.address && item.address.value ? ( item.address.value.district || "" ) + ", " + ( item.address.value.addressRegion || "" ) : "" }\n` +
+                                             `⚡ ${ item.energyConsumedAndCost && item.energyConsumedAndCost.value ?
+                                                  item.energyConsumedAndCost.value.energyType.value + ": " +
+                                                  item.energyConsumedAndCost.value.energyConsumed.value.value.value + " " +
+                                                  item.energyConsumedAndCost.value.energyConsumed.value.measurementUnit.value
+                                                  : 'N/A' }\n` +
+                                             `📅 Fecha: ${ item.month ? item.month.value : 'N/A' }/${ item.year ? item.year.value : 'N/A' }`,
+                                        url: shareUrl
+                                   };
+
+                                   if ( navigator.share && navigator.canShare( shareData ) ) {
+                                        await navigator.share( shareData );
+                                   } else {
+                                        const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+                                        await navigator.clipboard.writeText( shareText );
+                                        showNotification( '¡Información copiada al portapapeles!' );
+                                   }
+                              } catch ( error ) {
+                                   console.error( 'Error al compartir:', error );
+                              }
+                         } );
+
+                         // 4. Botón copiar código
+                         const copyButton = infoBox.querySelector( ".copy-btn" );
+                         if ( copyButton ) {
+                              copyButton.addEventListener( "click", () => {
+                                   navigator.clipboard.writeText( idWithoutPrefix )
+                                        .then( () => {
+                                             // Feedback visual de que se copió
+                                             copyButton.innerHTML = '<i class="copy-icon">✓</i>';
+                                             setTimeout( () => {
+                                                  copyButton.innerHTML = '<i class="copy-icon">📋</i>';
+                                             }, 2000 );
+                                        } )
+                                        .catch( err => {
+                                             console.error( 'Error al copiar: ', err );
+                                             // Fallback
+                                             prompt( "Copia este código:", idWithoutPrefix );
+                                        } );
+                              } );
+                         }
+
+                         // Hacer el infobox arrastrable
+                         inicializarArrastre( infoBox );
+                    } catch ( error ) {
+                         console.error( "Error al mostrar infobox:", error );
+                         showNotification( "Error al mostrar información del marcador", 3000 );
+                    }
+               } );
+
+               markersEnergyEfficiency.push( energyEfficiencyMarker );
+          } );
+
+          // Informar al usuario
+          if ( markersEnergyEfficiency.length > 0 ) {
+               showNotification( `Mostrando ${ markersEnergyEfficiency.length } marcadores de eficiencia energética`, 2000 );
+          } else {
+               showNotification( 'No hay instalaciones de eficiencia energética en esta área', 2000 );
+          }
+     };
+     // Función para limpiar los marcadores existentes
+     const limpiarMarcadoresEnergia = () => {
+          markersEnergyEfficiency.forEach( marker => {
+               marker.setMap( null );
+          } );
+          markersEnergyEfficiency = [];
+     };
+
+     // Función para manejar el clic en el botón de Energy&Efficiency
+     const eventEnergyAndEfficiency = document.getElementById( "energyAndEfficiency-sub-nav-item" );
+
+     eventEnergyAndEfficiency.addEventListener( 'click', async () => {
+          // Alternar la visibilidad
+          energyAndEfficiencyVisible = !energyAndEfficiencyVisible;
+
+          if ( energyAndEfficiencyVisible ) {
+               // Si no hay datos cargados, cargarlos primero
+               if ( !energyEfficiencyData ) {
+                    await cargarDatosEficienciaEnergetica();
+
+                    // Configurar el listener para cuando el mapa cambie
+                    if ( map && !map.energyListenerSet ) {
+                         map.addListener( 'idle', () => {
+                              if ( energyAndEfficiencyVisible ) {
+                                   mostrarMarcadoresEnVistaActual();
+                              }
+                         } );
+                         map.energyListenerSet = true;
+                    }
+               }
+
+               // Mostrar marcadores en la vista actual
+               mostrarMarcadoresEnVistaActual();
+          } else {
+               // Ocultar todos los marcadores
+               limpiarMarcadoresEnergia();
           }
      } );
 
@@ -5249,30 +6144,178 @@ function initMap( fromSession = false ) {
                               position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                               map: map,
                               title: name,
-                              icon: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740247958/qubo/qubos/bus_lgobts.svg' // Asegúrate de tener un icono para las paradas de autobús
+                              icon: 'https://res.cloudinary.com/dafjggs2p/image/upload/v1717186033/qubo/qubos/bus_Qubo_bjpfxf.svg' // Asegúrate de tener un icono para las paradas de autobús
                          } );
 
                          marcadoresParadasBus.push( paradaMarker );
 
                          // Añadir un evento click al marcador de la parada para mostrar información
                          paradaMarker.addListener( "click", () => {
-                              const infoBox = document.querySelector( ".info-box" );
-                              infoBox.style.display = "flex";
-                              infoBox.innerHTML = `
-                                   <div class='nameContainer'>
-                                        <p>${ type }</p>
-                                        <strong>${ name }</strong>
+                              // Guardar el ID de la parada para poder referenciarlo después
+                              const stopId = item.id;
+                              const stopCode = stopId.replace( /^urn:ngsi-ld:PublicTransportStop:/, '' );
+                              // Versión truncada del ID para mostrar
+                              const displayId = stopCode.length > 20 ? stopCode.substring( 0, 20 ) + '...' : stopCode;
+
+                              // Comprobar si ya existe un infobox pinneado para esta parada
+                              const existingPinnedBox = document.querySelector( `.info-box.pinned[data-stop-id="${ stopId }"]` );
+                              if ( existingPinnedBox ) {
+                                   existingPinnedBox.classList.add( 'highlight' );
+                                   setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                   return;
+                              }
+
+                              // Buscar un infobox no pinneado o crear uno nuevo
+                              let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                              if ( !currentInfoBox ) {
+                                   currentInfoBox = document.createElement( 'div' );
+                                   currentInfoBox.className = 'info-box';
+                                   document.body.appendChild( currentInfoBox );
+                              }
+
+                              // Establecer el atributo data-stop-id y mostrar el infobox
+                              currentInfoBox.setAttribute( 'data-stop-id', stopId );
+                              currentInfoBox.style.display = "flex";
+                              currentInfoBox.innerHTML = `
+     <div class="info-header">
+          <img src="https://res.cloudinary.com/dafjggs2p/image/upload/v1740056437/qubo/static/staticBusStop_edejve.jpg" alt="Bus Stop" class="property-image"/>
+          <div class="header-bar">
+               <div class="property-badges">
+                    <div class="badge-container">
+                         <span class="badge primary">STOP</span>
+                         <div class="badge-location nameContainer">
+                              <span>${ name }</span>
+                              <span>${ parsedData.operator || 'EMT Madrid' }</span>
                                    </div>
-                                   <img src='${ STATIC_IMAGES.bus }'>
-                                   <p>Dirección: <span>${ streetAddress }, ${ addressRegion } ${ addressCountry }</span> </p>
-                                   <p> <span>${ description }</span> </p>
-                                   <button id="cerrar-info-box">
-                                        <img src="./assets/botonCerrar.svg" alt="Cerrar">
+                    </div>
+               </div>
+               <div class="action-buttons">
+                    <button class="action-btn pin-btn" title="Fijar ventana">
+                         <i class="action-icon">📌</i>
                                    </button>
-                                   `;
-                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                                   infoBox.style.display = "none";
+                    <button class="action-btn share-btn" title="Compartir">
+                         <i class="action-icon">📤</i>
+                    </button>
+                    <button class="action-btn close-btn" title="Cerrar">
+                         <i class="action-icon">✕</i>
+                    </button>
+               </div>
+          </div>
+     </div>
+
+     <div class="info-content">
+          <div class="info-grid">
+               <div class="info-row">
+                    <div class="info-item">
+                         <label>Tipo</label>
+                         <span>${ type || 'PublicTransportStop' }</span>
+                    </div>
+                    <div class="info-item">
+                         <label>Código Parada</label>
+                         <div class="id-value-container">
+                              <div class="id-wrapper">
+                                   <span title="${ stopCode }">${ displayId }</span>
+                                   <button class="copy-btn" title="Copiar código completo">
+                                        <i class="copy-icon">📋</i>
+                                   </button>
+                              </div>
+                         </div>
+                    </div>
+               </div>
+               <div class="info-row">
+                    <div class="info-item">
+                         <label>Dirección</label>
+                         <span>${ streetAddress || description }</span>
+                    </div>
+                    <div class="info-item">
+                         <label>Ubicación</label>
+                         <span>${ addressRegion }, ${ addressCountry }</span>
+                    </div>
+               </div>
+          </div>
+     </div>
+     `;
+                              // Agregar listeners a los botones
+                              // 1. Botón cerrar
+                              currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                   currentInfoBox.remove();
                               } );
+                              // 2. Botón pin para fijar la ventana
+                              const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                              pinBtn.addEventListener( "click", ( e ) => {
+                                   const infoBox = e.target.closest( '.info-box' );
+                                   if ( infoBox.classList.contains( 'pinned' ) ) {
+                                        // Desfijar
+                                        infoBox.classList.remove( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                        pinBtn.title = "Fijar ventana";
+                                   } else {
+                                        // Fijar
+                                        infoBox.classList.add( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                        pinBtn.title = "Desfijar ventana";
+
+                                        // Crear nuevo infobox para futuras propiedades
+                                        const newInfoBox = document.createElement( 'div' );
+                                        newInfoBox.className = 'info-box';
+                                        newInfoBox.style.display = 'none';
+                                        document.body.appendChild( newInfoBox );
+                                   }
+                              } );
+                              currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                   try {
+                                        // Registrar el tipo de marcador bus_stop si no está registrado
+                                        if ( !window.markerTypes || !window.markerTypes[ 'bus_stop' ] ) {
+                                             // Si no tenemos el sistema de registro, compartir directamente
+                                             const baseUrl = window.location.origin + window.location.pathname;
+                                             const shareUrl = `${ baseUrl }?view=bus_stop&id=${ stopId }`;
+
+                                             const shareData = {
+                                                  title: `Parada de Bus - ${ name }`,
+                                                  text: `📍 ${ addressRegion }, ${ addressCountry }`,
+                                                  url: shareUrl
+                                             };
+
+                                             if ( navigator.share && navigator.canShare( shareData ) ) {
+                                                  await navigator.share( shareData );
+                                             } else {
+                                                  await navigator.clipboard.writeText( shareUrl );
+                                                  showNotification( '¡Enlace copiado al portapapeles!' );
+                                             }
+                                        } else {
+                                             // Si tenemos el sistema de registro, usar shareMarker
+                                             shareMarker(
+                                                  'bus_stop',
+                                                  stopId,
+                                                  `Parada de Bus - ${ name }`,
+                                                  `📍 ${ addressRegion }, ${ addressCountry }`
+                                             );
+                                        }
+                                   } catch ( error ) {
+                                        console.error( 'Error al compartir:', error );
+                                   }
+                              } );
+                              // 4. Botón copiar código
+                              currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                   try {
+                                        await navigator.clipboard.writeText( stopCode );
+
+                                        // Cambiar el icono temporalmente
+                                        const copyBtn = currentInfoBox.querySelector( ".copy-btn" );
+                                        copyBtn.innerHTML = '<i class="copy-icon">✓</i>';
+                                        setTimeout( () => {
+                                             copyBtn.innerHTML = '<i class="copy-icon">📋</i>';
+                                        }, 2000 );
+
+                                        // Mostrar notificación
+                                        showNotification( '¡Código copiado!' );
+                                   } catch ( error ) {
+                                        console.error( "Error al copiar:", error );
+                                   }
+                              } );
+
+                              // Hacer que el infobox sea arrastrable
+                              inicializarArrastre( currentInfoBox );
                          } );
                     } );
                } )
@@ -5502,7 +6545,14 @@ function initMap( fromSession = false ) {
                     .catch( error => console.error( 'Error al cargar datos del autobús:', error ) );
           }
      }
-
+     // Registrar BUS_STOP
+     registerMarkerType( 'bus_stop', {
+          buttonId: 'bus-stops-sub-nav-item', // Ajusta al ID correcto de tu botón
+          isLayerActive: () => marcadoresParadasBus.length > 0,
+          findMarker: ( id ) => marcadoresParadasBus.find( marker =>
+               marker.get( 'stopId' ) === id
+          )
+     } );
      // Modificar el evento del botón para manejar todos los marcadores de autobús y las paradas
      const eventAutobus = document.getElementById( "bus-sub-nav-item" );
      eventAutobus.addEventListener( 'click', function () {
@@ -5571,27 +6621,220 @@ function initMap( fromSession = false ) {
 
                               // Listener para abrir el infobox
                               avionMarker.addListener( "click", function () {
-                                   const infoBox = document.querySelector( ".info-box" );
-                                   infoBox.style.display = "flex";
-                                   infoBox.innerHTML = `
-                                   <div class='nameContainer'>
-                                        <p>PLane</p>
-                                        <p></p>
-                                   </div>
-                                        <img src="${ imagenUrl }" alt="Avión" onerror="this.src='${ defaultImageUrl }'"/>
-                                        <p>Modelo: <span>${ data.model.value }</span> </p>
-                                        <p>Matrícula: <span>${ data.registrationNumber.value }</span> </p>
-                                        <p>ID Aerolínea: <span>${ data.airline.object }</span> </p>
-                                        <p>Capacidad: <span>${ data.capacity.value }</span> </p>
-                                        <p id="velocidad-info-${ avionId }">Velocidad: <span>${ coordenadas[ 0 ].speed } KNT</span> </p>
-                                             <p id="status-info-${ avionId }">Estado: <span>${ coordenadas[ 0 ].status }</span> </p>
-                                        <button id="cerrar-info-box">
-                                             <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                                        </button>
-                                   `;
-                                   document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                                        infoBox.style.display = "none";
+                                   const planeId = avionId;
+
+                                   // Comprobar si ya existe un infobox pinneado para este avión
+                                   const existingPinnedBox = document.querySelector( `.info-box.pinned[data-plane-id="${ planeId }"]` );
+                                   if ( existingPinnedBox ) {
+                                        existingPinnedBox.classList.add( 'highlight' );
+                                        setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                        return;
+                                   }
+
+                                   // Buscar un infobox no pinneado o crear uno nuevo
+                                   let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                                   if ( !currentInfoBox ) {
+                                        currentInfoBox = document.createElement( 'div' );
+                                        currentInfoBox.className = 'info-box';
+                                        document.body.appendChild( currentInfoBox );
+                                   }
+
+                                   currentInfoBox.setAttribute( 'data-plane-id', planeId );
+                                   currentInfoBox.style.display = "flex";
+
+                                   // Añadir información sobre la longitud total del recorrido
+                                   const totalCoordinates = coordenadas.length;
+                                   coordenadas.forEach( ( coord, idx ) => {
+                                        // Añadir porcentaje de progreso a cada coordenada
+                                        coord.progressPercent = Math.round( ( idx / ( totalCoordinates - 1 ) ) * 100 );
                                    } );
+
+                                   // Calcular el progreso basado en el estado actual
+                                   function getProgressAndStatus( status ) {
+                                        // Si status es undefined o null, usamos un valor por defecto
+                                        if ( !status ) {
+                                             return {
+                                                  class: 'takeoff',
+                                                  displayText: 'Iniciando vuelo'
+                                             };
+                                        }
+
+                                        // Mapear estados en español a clases CSS
+                                        let statusClass;
+                                        let displayText = status; // Por defecto, mostrar el texto original
+
+                                        if ( status === 'despegue' ) {
+                                             statusClass = 'takeoff';
+                                             displayText = 'En despegue';
+                                        } else if ( status === 'en vuelo' ) {
+                                             statusClass = 'cruise';
+                                             displayText = 'En vuelo';
+                                        } else if ( status === 'aterrizando' ) {
+                                             statusClass = 'landing';
+                                             displayText = 'Aterrizando';
+                                        } else {
+                                             // Por defecto, si no reconocemos el estado
+                                             statusClass = 'cruise';
+                                             displayText = 'En vuelo';
+                                        }
+
+                                        return {
+                                             class: statusClass,
+                                             displayText: displayText
+                                        };
+                                   }
+                                   // Calcular el progreso inicial (0-100%)
+                                   // Por estas líneas corregidas
+                                   // Antes de la línea donde está el HTML, añade esta línea
+                                   const initialProgress = Math.round( ( 0 / ( coordenadas.length - 1 ) ) * 100 );
+                                   const { class: statusClass, displayText } = getProgressAndStatus( coordenadas[ 0 ].status );
+                                   const progress = initialProgress;
+                                   currentInfoBox.innerHTML = `
+                                  <div class="info-header">
+        <img src="${ data[ "Imagen URL" ] || defaultImageUrl }" alt="Plane" class="property-image" 
+             onerror="this.src='${ defaultImageUrl }'"/>
+        <div class="header-bar">
+            <div class="property-badges">
+                <div class="badge-container">
+                    <span class="badge primary">PLANE</span>
+                    <div class="badge-location nameContainer">
+                        <span>${ data.model.value }</span>
+                        <span>${ data.airline.object.replace( 'urn:ngsi-ld:Airline:', '' ) }</span>
+                                   </div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn pin-btn" title="Fijar ventana">
+                    <i class="action-icon">📌</i>
+                                        </button>
+                <button class="action-btn share-btn" title="Compartir">
+                    <i class="action-icon">📤</i>
+                </button>
+                <button class="action-btn close-btn" title="Cerrar">
+                    <i class="action-icon">✕</i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-content">
+        <div class="info-grid">
+            <div class="info-row">
+                <div class="info-item">
+                    <label>Modelo</label>
+                    <span>${ data.model.value }</span>
+                </div>
+                <div class="info-item">
+                    <label>Matrícula</label>
+                    <div class="id-value-container">
+                        <div class="id-wrapper">
+                            <span title="${ data.registrationNumber.value }">${ data.registrationNumber.value }</span>
+                            <button class="copy-btn" title="Copiar código completo">
+                                <i class="copy-icon">📋</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-item">
+                    <label>ID Aerolínea</label>
+                    <span>${ data.airline.object }</span>
+                </div>
+                <div class="info-item">
+                    <label>Capacidad</label>
+                    <span>${ data.capacity.value } pasajeros</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flight-status">
+            <label>Estado del Vuelo</label>
+            <div class="status-indicators">
+                <div class="status-item">
+                    <div class="status-icon">🛫</div>
+                    <div class="status-info">
+                        <div class="status-badge ${ statusClass }">${ displayText }</div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${ progress }%"><span>${ progress }%</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-icon">⚡</div>
+                    <div class="status-info">
+                        <div class="status-label">Velocidad Actual</div>
+                        <div class="speed-badge" id="velocidad-info-${ avionId }">${ coordenadas[ 0 ].speed } KNT</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+                                   // Event Listeners
+                                   // 1. Botón cerrar
+                                   currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                        currentInfoBox.remove();
+                                   } );
+                                   // 2. Botón pin
+                                   const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                                   pinBtn.addEventListener( "click", ( e ) => {
+                                        const infoBox = e.target.closest( '.info-box' );
+                                        if ( infoBox.classList.contains( 'pinned' ) ) {
+                                             infoBox.classList.remove( 'pinned' );
+                                             pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                             pinBtn.title = "Fijar ventana";
+                                        } else {
+                                             infoBox.classList.add( 'pinned' );
+                                             pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                             pinBtn.title = "Desfijar ventana";
+
+                                             const newInfoBox = document.createElement( 'div' );
+                                             newInfoBox.className = 'info-box';
+                                             newInfoBox.style.display = 'none';
+                                             document.body.appendChild( newInfoBox );
+                                        }
+                                   } );
+                                   // 3. Botón compartir
+                                   currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                        try {
+                                             const baseUrl = window.location.origin + window.location.pathname;
+                                             const shareUrl = `${ baseUrl }?view=plane&id=${ avionId }`;
+
+                                             const shareData = {
+                                                  title: `✈️ ${ data.model.value } - ${ data.airline.object.replace( 'urn:ngsi-ld:Airline:', '' ) }`,
+                                                  text: `🛩️ Matrícula: ${ data.registrationNumber.value }\n` +
+                                                       `👥 Capacidad: ${ data.capacity.value } pasajeros\n` +
+                                                       `🏢 Aerolínea: ${ data.airline.object.replace( 'urn:ngsi-ld:Airline:', '' ) }`,
+                                                  url: shareUrl
+                                             };
+
+                                             if ( navigator.share && navigator.canShare( shareData ) ) {
+                                                  await navigator.share( shareData );
+                                             } else {
+                                                  const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+                                                  await navigator.clipboard.writeText( shareText );
+                                                  showNotification( '¡Información copiada al portapapeles!' );
+                                             }
+                                        } catch ( error ) {
+                                             console.error( 'Error al compartir:', error );
+                                        }
+                                   } );
+                                   // 4. Botón copiar
+                                   currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                        try {
+                                             await navigator.clipboard.writeText( data.registrationNumber.value );
+                                             const copyBtn = currentInfoBox.querySelector( ".copy-btn" );
+                                             copyBtn.innerHTML = '<i class="copy-icon">✓</i>';
+                                             setTimeout( () => {
+                                                  copyBtn.innerHTML = '<i class="copy-icon">📋</i>';
+                                             }, 2000 );
+                                             showNotification( '¡Código copiado!' );
+                                        } catch ( error ) {
+                                             console.error( "Error al copiar:", error );
+                                        }
+                                   } );
+                                   // Hacer el infobox arrastrable
+                                   inicializarArrastre( currentInfoBox );
                               } );
                          } else {
                               console.error( 'Los datos del avión no tienen el formato esperado:', data );
@@ -5603,25 +6846,86 @@ function initMap( fromSession = false ) {
           obtenerYmoverAvion();
      }
 
+
      function iniciarMovimientoMarcadorConVelocidadYEstado( marker, coordenadas, delay, avionId ) {
           let index = 0;
 
           // Iniciar intervalo de movimiento
+          // const intervaloId = setInterval( () => {
+          //      if ( index >= coordenadas.length ) {
+          //           clearInterval( intervaloId );
+          //           if ( marcadoresAviones[ avionId ] ) {
+          //                marcadoresAviones[ avionId ].intervaloId = null;
+          //           }
+          //           return;
+          //      }
+          // Iniciar intervalo de movimiento
           const intervaloId = setInterval( () => {
                if ( index >= coordenadas.length ) {
                     clearInterval( intervaloId );
-                    marcadoresAviones[ avionId ].intervaloId = null;
+                    if ( marcadoresAviones[ avionId ] ) {
+                         marcadoresAviones[ avionId ].intervaloId = null;
+
+                         // NUEVO: Actualizar el infobox para mostrar "Aterrizado" cuando finaliza
+                         const infoBox = document.querySelector( `.info-box[data-plane-id="${ avionId }"]` );
+                         if ( infoBox && infoBox.style.display === "flex" ) {
+                              const statusBadge = infoBox.querySelector( '.status-badge' );
+                              if ( statusBadge ) {
+                                   // Mostramos "Aterrizado" con estilo landing
+                                   statusBadge.className = 'status-badge landing';
+                                   statusBadge.textContent = 'Aterrizado';
+
+                                   // La barra de progreso al 100%
+                                   const progressBar = infoBox.querySelector( '.progress' );
+                                   if ( progressBar ) {
+                                        progressBar.style.width = '100%';
+                                        const progressSpan = progressBar.querySelector( 'span' );
+                                        if ( progressSpan ) {
+                                             progressSpan.textContent = '100%';
+                                        }
+                                   }
+                              }
+                         }
+                    }
                     return;
                }
 
                const nextPosition = new google.maps.LatLng( coordenadas[ index ].lat, coordenadas[ index ].lng );
                marker.setPosition( nextPosition );
 
-               // Actualizar la información en el infobox si está abierto
-               const infoBox = document.querySelector( ".info-box" );
-               if ( infoBox.style.display === "flex" ) {
-                    document.getElementById( `velocidad-info-${ avionId }` ).textContent = `Velocidad: ${ coordenadas[ index ].speed } KNT`;
-                    document.getElementById( `status-info-${ avionId }` ).textContent = `Estado: ${ coordenadas[ index ].status }`;
+               // Actualizar la información en el infobox SI EXISTE
+               const infoBox = document.querySelector( `.info-box[data-plane-id="${ avionId }"]` );
+               if ( infoBox && infoBox.style.display === "flex" ) {
+                    const speedBadge = infoBox.querySelector( `#velocidad-info-${ avionId }` );
+                    if ( speedBadge ) {
+                         speedBadge.textContent = `${ coordenadas[ index ].speed } KNT`;
+                    }
+
+                    // Calcular progreso actual (0-100%)
+                    const progressPercent = Math.round( ( index / ( coordenadas.length - 1 ) ) * 100 );
+
+                    // Obtener información del estado actual del vuelo
+                    const { class: statusClass, displayText } = getProgressAndStatus( coordenadas[ index ].status );
+
+                    // Actualizar también la barra de progreso si es necesario
+                    const statusBadge = infoBox.querySelector( '.status-badge' );
+                    if ( statusBadge ) {
+                         statusBadge.className = `status-badge ${ statusClass }`;
+                         statusBadge.textContent = displayText;
+
+                         const progressBar = infoBox.querySelector( '.progress' );
+
+                         if ( progressBar ) {
+                              // Animación suave de progreso
+                              progressBar.style.transition = 'width 0.5s ease';
+                              progressBar.style.width = `${ progressPercent }%`;
+
+                              const progressSpan = progressBar.querySelector( 'span' );
+                              if ( progressSpan ) {
+                                   progressSpan.textContent = `${ progressPercent }%`;
+                              }
+                         }
+                    }
                }
 
                index++;
@@ -5632,7 +6936,40 @@ function initMap( fromSession = false ) {
                marcadoresAviones[ avionId ] = {};
           }
           marcadoresAviones[ avionId ].intervaloId = intervaloId;
+          return intervaloId;
      }
+
+     // Función auxiliar para el cálculo del progreso
+     function getProgressAndStatus( status ) {
+          // Mapear estados en español a clases CSS
+          let statusClass;
+          let displayText = status; // Por defecto, mostrar el texto original
+
+          if ( status === 'despegue' ) {
+               statusClass = 'takeoff';
+               displayText = 'En despegue';
+          } else if ( status === 'en vuelo' ) {
+               statusClass = 'cruise';
+               displayText = 'En vuelo';
+          } else if ( status === 'aterrizando' ) {
+               statusClass = 'landing';
+               displayText = 'Aterrizando';
+          } else {
+               // Por defecto, si no reconocemos el estado
+               statusClass = 'cruise';
+          }
+
+          return {
+               class: statusClass,
+               displayText: displayText
+          };
+     }
+
+     registerMarkerType( 'plane', {
+          buttonId: 'planes-sub-nav-item',
+          isActive: () => planesActivos,
+          findMarker: ( id ) => marcadoresAviones[ id ]?.marker
+     } );
 
      // Añadir el evento para el botón del avión
      const eventAirplane = document.querySelector( ".airplane-sub-nav-item" );
@@ -5646,21 +6983,36 @@ function initMap( fromSession = false ) {
      } );
 
 
+
+
+
+     //! Función para Marcadores de HELICOPTER
      //! Función para Marcadores de HELICOPTER
      const marcadoresHelicopteros = {};
+     let helicopterosActivos = false;
+
+     // Registrar el tipo de marcador
+     registerMarkerType( 'helicopter', {
+          buttonId: 'helicopter-sub-nav-item',
+          isLayerActive: () => helicopterosActivos,
+          findMarker: ( id ) => marcadoresHelicopteros[ id ]?.marker
+     } );
 
      function iniciarHelicopteroEnMapa( helicopteroId, iconUrl, title, apiUrl ) {
           const defaultImageUrl = './assets/defaultHelicopterImage.png';
 
           // Verificar si el marcador ya existe
           if ( marcadoresHelicopteros[ helicopteroId ] ) {
-               clearInterval( marcadoresHelicopteros[ helicopteroId ].intervaloId );
-               marcadoresHelicopteros[ helicopteroId ].marker.setMap( null );
+               if ( marcadoresHelicopteros[ helicopteroId ].intervaloId ) {
+                    clearInterval( marcadoresHelicopteros[ helicopteroId ].intervaloId );
+               }
+               if ( marcadoresHelicopteros[ helicopteroId ].marker ) {
+                    marcadoresHelicopteros[ helicopteroId ].marker.setMap( null );
+               }
                delete marcadoresHelicopteros[ helicopteroId ];
                return;
           }
 
-          // Crear el marcador para el helicóptero
           const helicopteroMarker = new google.maps.Marker( {
                map: map,
                title: title,
@@ -5677,43 +7029,211 @@ function initMap( fromSession = false ) {
                                    lat: coord.location.value.lat,
                                    lng: coord.location.value.lng,
                                    speed: coord.speed.value,
-                                   status: data.status.value // Estado actual del helicóptero
+                                   status: data.status.value
                               } ) );
 
-                              const intervaloId = iniciarMovimientoMarcadorConVelocidadYEstado( helicopteroMarker, coordenadas, 2000, helicopteroId );
+                              // Obtener posición inicial de URL compartida
+                              const urlParams = new URLSearchParams( window.location.search );
+                              let startPosition = 0;
+                              if ( urlParams.get( 'view' ) === 'helicopter' && urlParams.get( 'id' ) === helicopteroId ) {
+                                   startPosition = parseInt( urlParams.get( 'position' ) ) || 0;
+                              }
+
+                              const intervaloId = iniciarMovimientoMarcadorHelicoptero(
+                                   helicopteroMarker,
+                                   coordenadas,
+                                   2000,
+                                   helicopteroId,
+                                   startPosition
+                              );
+
                               marcadoresHelicopteros[ helicopteroId ] = {
                                    marker: helicopteroMarker,
                                    intervaloId: intervaloId,
                                    datosHelicoptero: data,
+                                   currentIndex: startPosition
                               };
 
-                              const imagenUrl = data[ "Imagen URL" ] || defaultImageUrl;
-
                               helicopteroMarker.addListener( "click", function () {
-                                   const infoBox = document.querySelector( ".info-box" );
-                                   infoBox.style.display = "flex";
-                                   infoBox.innerHTML = `
-                                   <div class='nameContainer'>
-                                        <p>Helicopter</p>
-                                        <p></p>
-                                   </div>
-                                   <img src="${ imagenUrl }" alt="Helicóptero" onerror="this.src='${ defaultImageUrl }'"/>
-                                   <p>Modelo: <span>${ data.model.value }</span> </p>
-                                   <p>Matrícula: <span>${ data.registrationNumber.value }</span> </p>
-                                   <p>Propietario: <span>${ data.owner.object }</span> </p>
-                                   <p>Capacidad: <span>${ data.capacity.value }</span> </p>
-                                   <p id="velocidad-info-${ helicopteroId }">Velocidad: <span>${ coordenadas[ 0 ].speed } KNT</span> </p>
-                                   <p id="status-info-${ helicopteroId }">Estado: <span>${ coordenadas[ 0 ].status }</span> </p>
-                                   <button id="cerrar-info-box">
-                                        <img src="./assets/botonCerrar.svg" alt="Cerrar">
-                                   </button>
-                              `;
-                                   document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                                        infoBox.style.display = "none";
+                                   const helicopterId = helicopteroId;
+
+                                   const existingPinnedBox = document.querySelector( `.info-box.pinned[data-helicopter-id="${ helicopterId }"]` );
+                                   if ( existingPinnedBox ) {
+                                        existingPinnedBox.classList.add( 'highlight' );
+                                        setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                        return;
+                                   }
+
+                                   let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                                   if ( !currentInfoBox ) {
+                                        currentInfoBox = document.createElement( 'div' );
+                                        currentInfoBox.className = 'info-box';
+                                        document.body.appendChild( currentInfoBox );
+                                   }
+
+                                   currentInfoBox.setAttribute( 'data-helicopter-id', helicopterId );
+                                   currentInfoBox.style.display = "flex";
+
+                                   const initialProgress = Math.round( ( startPosition / ( coordenadas.length - 1 ) ) * 100 );
+                                   const { class: statusClass, displayText } = getProgressAndStatus( coordenadas[ startPosition ].status );
+
+                                   currentInfoBox.innerHTML = `
+                            <div class="info-header">
+                                <img src="${ data[ "Imagen URL" ] || defaultImageUrl }" alt="Helicopter" class="property-image" 
+                                     onerror="this.src='${ defaultImageUrl }'"/>
+                                <div class="header-bar">
+                                    <div class="property-badges">
+                                        <div class="badge-container">
+                                            <span class="badge primary">HELICOPTER</span>
+                                            <div class="badge-location nameContainer">
+                                                <span>${ data.model.value }</span>
+                                                <span>${ data.owner.object.replace( 'urn:ngsi-ld:Owner:', '' ) }</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="action-btn pin-btn" title="Fijar ventana">
+                                            <i class="action-icon">📌</i>
+                                        </button>
+                                        <button class="action-btn share-btn" title="Compartir">
+                                            <i class="action-icon">📤</i>
+                                        </button>
+                                        <button class="action-btn close-btn" title="Cerrar">
+                                            <i class="action-icon">✕</i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info-content">
+                                <div class="info-grid">
+                                    <div class="info-row">
+                                        <div class="info-item">
+                                            <label>Modelo</label>
+                                            <span>${ data.model.value }</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Matrícula</label>
+                                            <div class="id-value-container">
+                                                <div class="id-wrapper">
+                                                    <span title="${ data.registrationNumber.value }">${ data.registrationNumber.value }</span>
+                                                    <button class="copy-btn" title="Copiar código completo">
+                                                        <i class="copy-icon">📋</i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="info-item">
+                                            <label>Propietario</label>
+                                            <span>${ data.owner.object.replace( 'urn:ngsi-ld:Owner:', '' ) }</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Capacidad</label>
+                                            <span>${ data.capacity.value } pasajeros</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flight-status">
+                                    <label>Estado del Vuelo</label>
+                                    <div class="status-indicators">
+                                        <div class="status-item">
+                                            <div class="status-icon">🚁</div>
+                                            <div class="status-info">
+                                                <div class="status-badge ${ statusClass }">${ displayText }</div>
+                                                <div class="progress-bar">
+                                                    <div class="progress" style="width: ${ initialProgress }%">
+                                                        <span>${ initialProgress }%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="status-item">
+                                            <div class="status-icon">⚡</div>
+                                            <div class="status-info">
+                                                <div class="status-label">Velocidad Actual</div>
+                                                <div class="speed-badge" id="velocidad-info-${ helicopterId }">
+                                                    ${ coordenadas[ startPosition ].speed } KNT
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+
+                                   // Event Listeners
+                                   // 1. Botón cerrar
+                                   currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                        currentInfoBox.remove();
                                    } );
+
+                                   // 2. Botón pin
+                                   const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                                   pinBtn.addEventListener( "click", ( e ) => {
+                                        const infoBox = e.target.closest( '.info-box' );
+                                        if ( infoBox.classList.contains( 'pinned' ) ) {
+                                             infoBox.classList.remove( 'pinned' );
+                                             pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                             pinBtn.title = "Fijar ventana";
+                                        } else {
+                                             infoBox.classList.add( 'pinned' );
+                                             pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                             pinBtn.title = "Desfijar ventana";
+
+                                             const newInfoBox = document.createElement( 'div' );
+                                             newInfoBox.className = 'info-box';
+                                             newInfoBox.style.display = 'none';
+                                             document.body.appendChild( newInfoBox );
+                                        }
+                                   } );
+
+                                   // 3. Botón compartir
+                                   currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                        try {
+                                             const baseUrl = window.location.origin + window.location.pathname;
+                                             const currentIndex = marcadoresHelicopteros[ helicopterId ].currentIndex || 0;
+                                             const shareUrl = `${ baseUrl }?view=helicopter&id=${ helicopterId }&position=${ currentIndex }`;
+
+                                             const shareData = {
+                                                  title: `🚁 ${ data.model.value } - ${ data.owner.object.replace( 'urn:ngsi-ld:Owner:', '' ) }`,
+                                                  text: `🪪 Matrícula: ${ data.registrationNumber.value }\n` +
+                                                       `👥 Capacidad: ${ data.capacity.value } pasajeros\n` +
+                                                       `🏢 Propietario: ${ data.owner.object.replace( 'urn:ngsi-ld:Owner:', '' ) }`,
+                                                  url: shareUrl
+                                             };
+
+                                             if ( navigator.share && navigator.canShare( shareData ) ) {
+                                                  await navigator.share( shareData );
+                                             } else {
+                                                  const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+                                                  await navigator.clipboard.writeText( shareText );
+                                                  showNotification( '¡Información copiada al portapapeles!' );
+                                             }
+                                        } catch ( error ) {
+                                             console.error( 'Error al compartir:', error );
+                                        }
+                                   } );
+
+                                   // 4. Botón copiar
+                                   currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                        try {
+                                             await navigator.clipboard.writeText( data.registrationNumber.value );
+                                             const copyBtn = currentInfoBox.querySelector( ".copy-btn" );
+                                             copyBtn.innerHTML = '<i class="copy-icon">✓</i>';
+                                             setTimeout( () => {
+                                                  copyBtn.innerHTML = '<i class="copy-icon">📋</i>';
+                                             }, 2000 );
+                                             showNotification( '¡Código copiado!' );
+                                        } catch ( error ) {
+                                             console.error( "Error al copiar:", error );
+                                        }
+                                   } );
+
+                                   // Hacer el infobox arrastrable
+                                   inicializarArrastre( currentInfoBox );
                               } );
-                         } else {
-                              console.error( 'Los datos del helicóptero no tienen el formato esperado:', data );
                          }
                     } )
                     .catch( error => console.error( 'Error al obtener coordenadas del helicóptero:', error ) );
@@ -5722,32 +7242,93 @@ function initMap( fromSession = false ) {
           obtenerYmoverHelicoptero();
      }
 
-     function iniciarMovimientoMarcadorConVelocidadYEstado( marker, coordenadas, delay, helicopteroId ) {
-          let index = 0;
+     function iniciarMovimientoMarcadorHelicoptero( marker, coordenadas, delay, helicopteroId, startIndex = 0 ) {
+          let index = startIndex;
 
-          return setInterval( () => {
+          const intervaloId = setInterval( () => {
+               marcadoresHelicopteros[ helicopteroId ].currentIndex = index;
+
                if ( index >= coordenadas.length ) {
-                    clearInterval( marcadoresHelicopteros[ helicopteroId ].intervaloId );
+                    clearInterval( intervaloId );
+                    if ( marcadoresHelicopteros[ helicopteroId ] ) {
+                         marcadoresHelicopteros[ helicopteroId ].intervaloId = null;
+
+                         const infoBox = document.querySelector( `.info-box[data-helicopter-id="${ helicopteroId }"]` );
+                         if ( infoBox && infoBox.style.display === "flex" ) {
+                              const statusBadge = infoBox.querySelector( '.status-badge' );
+                              if ( statusBadge ) {
+                                   statusBadge.className = 'status-badge landing';
+                                   statusBadge.textContent = 'Aterrizado';
+
+                                   const progressBar = infoBox.querySelector( '.progress' );
+                                   if ( progressBar ) {
+                                        progressBar.style.width = '100%';
+                                        const progressSpan = progressBar.querySelector( 'span' );
+                                        if ( progressSpan ) {
+                                             progressSpan.textContent = '100%';
+                                        }
+                                   }
+                              }
+                         }
+                    }
                     return;
                }
 
                const nextPosition = new google.maps.LatLng( coordenadas[ index ].lat, coordenadas[ index ].lng );
                marker.setPosition( nextPosition );
 
-               // Actualizar la información en el infobox si está abierto
-               const infoBox = document.querySelector( ".info-box" );
-               if ( infoBox.style.display === "flex" ) {
-                    document.getElementById( `velocidad-info-${ helicopteroId }` ).textContent = `Velocidad: ${ coordenadas[ index ].speed } KNT`;
-                    document.getElementById( `status-info-${ helicopteroId }` ).textContent = `Estado: ${ coordenadas[ index ].status }`;
+               const infoBox = document.querySelector( `.info-box[data-helicopter-id="${ helicopteroId }"]` );
+               if ( infoBox && infoBox.style.display === "flex" ) {
+                    const speedBadge = infoBox.querySelector( `#velocidad-info-${ helicopteroId }` );
+                    if ( speedBadge ) {
+                         speedBadge.textContent = `${ coordenadas[ index ].speed } KNT`;
+                    }
+
+                    const progressPercent = Math.round( ( index / ( coordenadas.length - 1 ) ) * 100 );
+                    const { class: statusClass, displayText } = getProgressAndStatus( coordenadas[ index ].status );
+
+                    const statusBadge = infoBox.querySelector( '.status-badge' );
+                    if ( statusBadge ) {
+                         statusBadge.className = `status-badge ${ statusClass }`;
+                         statusBadge.textContent = displayText;
+
+                         const progressBar = infoBox.querySelector( '.progress' );
+                         if ( progressBar ) {
+                              progressBar.style.transition = 'width 0.5s ease';
+                              progressBar.style.width = `${ progressPercent }%`;
+
+                              const progressSpan = progressBar.querySelector( 'span' );
+                              if ( progressSpan ) {
+                                   progressSpan.textContent = `${ progressPercent }%`;
+                              }
+                         }
+                    }
                }
 
                index++;
           }, delay );
+
+          return intervaloId;
      }
 
-     // Añadir el evento para el botón del helicóptero
+     // Evento del botón del helicóptero
      const eventHelicopter = document.querySelector( ".helicopter-sub-nav-item" );
      eventHelicopter.addEventListener( 'click', function () {
+          helicopterosActivos = !helicopterosActivos;
+
+          if ( !helicopterosActivos ) {
+               Object.keys( marcadoresHelicopteros ).forEach( id => {
+                    if ( marcadoresHelicopteros[ id ].intervaloId ) {
+                         clearInterval( marcadoresHelicopteros[ id ].intervaloId );
+                    }
+                    if ( marcadoresHelicopteros[ id ].marker ) {
+                         marcadoresHelicopteros[ id ].marker.setMap( null );
+                    }
+                    delete marcadoresHelicopteros[ id ];
+               } );
+               return;
+          }
+
           iniciarHelicopteroEnMapa(
                'samur001',
                'https://res.cloudinary.com/dafjggs2p/image/upload/v1740776005/qubo/qubos/helicopterQubo_sgwyep.svg',
@@ -5762,6 +7343,10 @@ function initMap( fromSession = false ) {
                'https://anpaccountdatalakegen2.blob.core.windows.net/service/Mobility/Helicopters/fiware_helicopter_dgt_pegasus.json?sp=r&st=2024-10-27T11:46:04Z&se=2099-10-27T19:46:04Z&sv=2022-11-02&sr=b&sig=gUeO0XYrB4Mz%2F4CDzEzKQJwtQkMpg%2FtNp0Dxbq%2B4vk4%3D'
           );
      } );
+
+
+
+
 
      //! Función para Marcadores de POLICE
      const marcadoresPolicia = {};
@@ -5812,62 +7397,286 @@ function initMap( fromSession = false ) {
           obtenerYmoverPolicia();
 
           policiaMarker.addListener( "click", function () {
-               if ( !marcadoresPolicia[ policeId ] || !marcadoresPolicia[ policeId ].datosPolicia ) return;
-               const datosPolicia = marcadoresPolicia[ policeId ].datosPolicia;
-               const infoBox = document.querySelector( ".info-box" );
-               infoBox.style.display = "flex";
-               let additionalInfo = "";
-
-               if ( policeId === 3 || policeId === 4 || policeId === 5 || policeId === 6 || policeId === 7 || policeId === 8 || policeId === 9 || policeId === 10 || policeId === 11 ) {
-                    additionalInfo = `
-                <p>Flota: <span>${ datosPolicia[ "Flota" ] }</span> </p>
-                <p>Dirección General o Servicio de Adscripción: <span>${ datosPolicia[ "Direccion General o Servicio de Adscripcion" ] }</span> </p>
-                <p>Tipo de Uso: <span>${ datosPolicia[ "Tipo de Uso" ] }</span> </p>
-                <p>Tipo Vehículo: <span>${ datosPolicia[ "Tipo Vehiculo" ] }</span> </p>
-                <p>Relación Contractual: <span>${ datosPolicia[ "Relacion Contractual" ] }</span> </p>
-                <p>Energía/Combustible: <span>${ datosPolicia[ "Energia/Combustible" ] }</span> </p>
-                <p>Categoría Eléctrico: <span>${ datosPolicia[ "Categoria Electrico" ] }</span> </p>
-                <p>Distintivo: <span>${ datosPolicia[ "Distintivo" ] }</span> </p>
-                <p>Clase Industria: <span>${ datosPolicia[ "Clase Industria" ] }</span> </p>
-                <p>Categoría Homologación UE: <span>${ datosPolicia[ "Categ Homologacion UE" ] }</span> </p>
-            `;
+               // Comprobar si ya existe un infobox pinneado
+               const existingPinnedBox = document.querySelector( `.info-box.pinned[data-police-id="${ policeId }"]` );
+               if ( existingPinnedBox ) {
+                    existingPinnedBox.classList.add( 'highlight' );
+                    setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                    return;
                }
 
+               // Buscar un infobox no pinneado o crear uno nuevo
+               let infoBox = document.querySelector( ".info-box:not(.pinned)" );
+               if ( !infoBox ) {
+                    infoBox = document.createElement( 'div' );
+                    infoBox.className = 'info-box police-info-box';
+                    document.body.appendChild( infoBox );
+               }
+
+               infoBox.setAttribute( 'data-police-id', policeId );
+               infoBox.style.display = "flex";
+
+               if ( !marcadoresPolicia[ policeId ] || !marcadoresPolicia[ policeId ].datosPolicia ) return;
+               const datosPolicia = marcadoresPolicia[ policeId ].datosPolicia;
+
+               // Generar datos aleatorios para complementar los de la API
+               const tiempoEstimado = Math.floor( Math.random() * 10 ) + 3; // Entre 3 y 12 minutos
+
+               // Mapear el estado de la API a una clase CSS y texto adecuado
+               let estadoInfo = { clase: 'patrol', texto: 'En ronda' }; // Por defecto
+
+               if ( datosPolicia.Estado ) {
+                    const estadoLower = datosPolicia.Estado.toLowerCase();
+                    if ( estadoLower.includes( 'emergencia' ) ) {
+                         estadoInfo = { clase: 'emergency', texto: 'Atendiendo emergencia' };
+                    } else if ( estadoLower.includes( 'servicio' ) ) {
+                         estadoInfo = { clase: 'offduty', texto: 'Fuera de servicio' };
+                    } else if ( estadoLower.includes( 'siguiendo' ) || estadoLower.includes( 'persiguiendo' ) ) {
+                         estadoInfo = { clase: 'following', texto: 'Siguiendo vehículo' };
+                    } else if ( estadoLower.includes( 'ronda' ) ) {
+                         estadoInfo = { clase: 'patrol', texto: 'En ronda' };
+                    }
+               }
+
+               // Determinar si es moto o coche basado en los datos o ID
+               const esMotocicleta =
+                    ( datosPolicia[ "Tipo Vehiculo" ] && datosPolicia[ "Tipo Vehiculo" ].toLowerCase().includes( 'moto' ) ) ||
+                    policeId === 2 || policeId === 5 || policeId === 8; // IDs ficticios para motos, ajustar según necesidad
+
+               // Determinar el icono del vehículo
+               const iconoVehiculo = esMotocicleta ? '🏍️' : '🚓';
+               const tipoVehiculo = esMotocicleta ? 'Moto Policial' : 'Patrulla';
+
+               // Obtener datos adicionales si existen
+               const flota = datosPolicia[ "Flota" ] || 'FLOTA DE SEGURIDAD Y EMERGENCIAS';
+               const direccionGeneral = datosPolicia[ "Direccion General o Servicio de Adscripcion" ] || 'D.G. POLICÍA MUNICIPAL';
+               const tipoUso = datosPolicia[ "Tipo de Uso" ] || 'POLICIAL';
+               const combustible = datosPolicia[ "Energia/Combustible" ] || 'GASOLINA';
 
                infoBox.innerHTML = `
-            <div class='nameContainer'>
-               <p>${ title }</p>
-            </div>
-            <img src="${ datosPolicia.ImagenURL }" alt="Policía Image">
-            <p>Estado: <span>${ datosPolicia.Estado }</span> </p>
-            <p>Matrícula: <span>${ datosPolicia.Matricula }</span> </p>
-            <p>Indicativo: <span>${ datosPolicia.Indicativo }</span> </p>
-            ${ additionalInfo }
-            <button id="cerrar-info-box">
-                <img src="./assets/botonCerrar.svg" alt="Cerrar">
-            </button>
-        `;
-               document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                    infoBox.style.display = "none";
+               <div class="info-header">
+                    <img src="${ datosPolicia.ImagenURL || "/assets/maxresdefault.jpg" }" alt="Imagen Policía" class="property-image"/>
+                    <div class="header-bar">
+                         <div class="property-badges">
+                              <div class="badge-container">
+                                   <span class="badge primary">POLICE</span>
+                                   <div class="badge-location">
+                                        <span>Unidad ${ datosPolicia.Indicativo || 'M-' + policeId + '00' }</span>
+                                        <span>${ tipoVehiculo }</span>
+                                   </div>
+                              </div>
+                         </div>
+                         <div class="action-buttons">
+                              <button class="action-btn pin-btn" title="Fijar ventana">
+                                   <i class="action-icon">📌</i>
+                              </button>
+                              <button class="action-btn share-btn" title="Compartir">
+                                   <i class="action-icon">📤</i>
+                              </button>
+                              <button class="action-btn close-btn" title="Cerrar">
+                                   <i class="action-icon">✕</i>
+                              </button>
+                         </div>
+                    </div>
+               </div>
+               
+               <div class="info-content">
+                    <!-- Status section -->
+                    <div class="status-section">
+                         <label><span class="label-icon">🚨</span> ESTADO OPERATIVO</label>
+                         <div class="status-display">
+                              <div class="status-indicator">
+                                   <span class="police-status-badge ${ estadoInfo.clase }">${ estadoInfo.texto }</span>
+                                   <span class="response-time">
+                                        <span class="time-label">Tiempo estimado</span>
+                                        <span class="time-value">${ tiempoEstimado } min</span>
+                                   </span>
+                              </div>
+                              
+                              <div class="location-tracker">
+                                   <div class="police-route-line">
+                                        <div class="police-current-position"></div>
+                                   </div>
+                                   <div class="tracker-labels">
+                                        <span>Comisaría</span>
+                                        <span>Destino</span>
+                                   </div>
+                              </div>
+                         </div>
+                    </div>
+                    
+                    <!-- Datos del vehículo -->
+                    <div class="vehicle-section">
+                         <label><span class="label-icon">${ iconoVehiculo }</span> DATOS DEL VEHÍCULO</label>
+                         <div class="vehicle-specs">
+                              <div class="police-specs-item">
+                                   <span class="police-specs-icon">🔢</span>
+                                   <div class="police-specs-detail">
+                                        <span class="police-specs-label">Matrícula</span>
+                                        <span class="police-specs-value">${ datosPolicia.Matricula || '1473 BJR' }</span>
+                                   </div>
+                              </div>
+                              
+                              <div class="police-specs-item">
+                                   <span class="police-specs-icon">🏁</span>
+                                   <div class="police-specs-detail">
+                                        <span class="police-specs-label">Indicativo</span>
+                                        <span class="police-specs-value">${ datosPolicia.Indicativo || 'M-' + policeId + '00' }</span>
+                                   </div>
+                              </div>
+                              
+                              <div class="police-specs-item">
+                                   <span class="police-specs-icon">${ iconoVehiculo }</span>
+                                   <div class="police-specs-detail">
+                                        <span class="police-specs-label">Tipo Vehículo</span>
+                                        <span class="police-specs-value">${ datosPolicia[ "Tipo Vehiculo" ] || ( esMotocicleta ? 'MOTO' : 'COCHE PATRULLA' ) }</span>
+                                   </div>
+                              </div>
+                              
+                              <div class="police-specs-item">
+                                   <span class="police-specs-icon">⛽</span>
+                                   <div class="police-specs-detail">
+                                        <span class="police-specs-label">Combustible</span>
+                                        <span class="police-specs-value">${ combustible }</span>
+                                   </div>
+                              </div>
+                         </div>
+                    </div>
+                    
+                    <!-- Detalles administrativos -->
+                    <div class="admin-section">
+                         <label><span class="label-icon">🏢</span> DATOS ADMINISTRATIVOS</label>
+                         <div class="admin-details">
+                              <div class="admin-card">
+                                   <div class="admin-card-header">
+                                        <div class="admin-icon-container">
+                                             <span class="admin-icon">🔰</span>
+                                        </div>
+                                        <span class="admin-label">Flota</span>
+                                   </div>
+                                   <div class="admin-card-content">
+                                        <span class="admin-value">${ flota }</span>
+                                        <div class="admin-badge">Oficial</div>
+                                   </div>
+                              </div>
+                              
+                              <div class="admin-card">
+                                   <div class="admin-card-header">
+                                        <div class="admin-icon-container">
+                                             <span class="admin-icon">📂</span>
+                                        </div>
+                                        <span class="admin-label">Dirección General</span>
+                                   </div>
+                                   <div class="admin-card-content">
+                                        <span class="admin-value">${ direccionGeneral }</span>
+                                        <div class="admin-badge central">Central</div>
+                                   </div>
+                              </div>
+                         </div>
+                    </div>
+               </div>`;
+
+               // Event Listeners
+               // 1. Botón cerrar
+               infoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                    infoBox.remove();
                } );
+
+               // 2. Botón pin
+               const pinBtn = infoBox.querySelector( ".pin-btn" );
+               pinBtn.addEventListener( "click", ( e ) => {
+                    const infoBox = e.target.closest( '.info-box' );
+                    if ( infoBox.classList.contains( 'pinned' ) ) {
+                         infoBox.classList.remove( 'pinned' );
+                         pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                         pinBtn.title = "Fijar ventana";
+                    } else {
+                         infoBox.classList.add( 'pinned' );
+                         pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                         pinBtn.title = "Desfijar ventana";
+
+                         const newInfoBox = document.createElement( 'div' );
+                         newInfoBox.className = 'info-box police-info-box';
+                         newInfoBox.style.display = 'none';
+                         document.body.appendChild( newInfoBox );
+                    }
+               } );
+
+               // 3. Botón compartir
+               infoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                    try {
+                         const baseUrl = window.location.origin + window.location.pathname;
+                         const shareUrl = `${ baseUrl }?view=police&id=${ policeId }`;
+
+                         const shareData = {
+                              title: `👮 Policía - ${ datosPolicia.Indicativo || 'Unidad ' + policeId }`,
+                              text: `🚨 Estado: ${ estadoInfo.texto }\n` +
+                                   `🚓 Tipo: ${ datosPolicia[ "Tipo Vehiculo" ] || ( esMotocicleta ? 'MOTO' : 'COCHE PATRULLA' ) }\n` +
+                                   `🔢 Matrícula: ${ datosPolicia.Matricula || '1473 BJR' }\n` +
+                                   `🏢 Adscripción: ${ direccionGeneral }`,
+                              url: shareUrl
+                         };
+
+                         if ( navigator.share && navigator.canShare( shareData ) ) {
+                              await navigator.share( shareData );
+                         } else {
+                              const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+                              await navigator.clipboard.writeText( shareText );
+                              showNotification( '¡Información copiada al portapapeles!' );
+                         }
+                    } catch ( error ) {
+                         console.error( 'Error al compartir:', error );
+                    }
+               } );
+
+               // Animar la posición actual del vehículo policial en la línea de ruta
+               let posicion = Math.random() * 70 + 15; // Posición inicial aleatoria entre 15% y 85%
+               const currentPosition = infoBox.querySelector( ".police-current-position" );
+
+               function animarPosicion() {
+                    posicion = ( posicion + 0.2 ) % 100;
+                    currentPosition.style.left = `${ posicion }%`;
+                    requestAnimationFrame( animarPosicion );
+               }
+
+               animarPosicion();
+
+               // Actualizar tiempo estimado periódicamente
+               let intervaloTiempo = setInterval( () => {
+                    const timeElement = infoBox.querySelector( '.time-value' );
+                    if ( !timeElement ) {
+                         clearInterval( intervaloTiempo );
+                         return;
+                    }
+                    const newTime = Math.floor( Math.random() * 10 ) + 3;
+                    timeElement.textContent = `${ newTime } min`;
+               }, 8000 );
+
+               // Limpiar intervalo cuando se cierra el infobox
+               infoBox.addEventListener( 'remove', function () {
+                    clearInterval( intervaloTiempo );
+               } );
+
+               // Hacer el infobox arrastrable
+               inicializarArrastre( infoBox );
           } );
      }
 
      const eventPolicia = document.getElementById( "police-sub-nav-item" );
      eventPolicia.addEventListener( 'click', function () {
           // iniciarPoliciaEnMapa();
-          iniciarMarcadorPolicia( 1, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Policía Municipal', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/POLICIA%20MUNICIPAL.json?sp=r&st=2024-04-12T10:18:27Z&se=2090-01-01T19:18:27Z&sv=2022-11-02&sr=b&sig=bjiUeiUu6249e2GARkN5s5px2Wnb53AdJrQbKiicVBs%3D' );
+          iniciarMarcadorPolicia( 1, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1743250923/qubo/qubos/policeDigitalTwin_nh4cfu.svg', 'Policía Municipal', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/POLICIA%20MUNICIPAL.json?sp=r&st=2024-04-12T10:18:27Z&se=2090-01-01T19:18:27Z&sv=2022-11-02&sr=b&sig=bjiUeiUu6249e2GARkN5s5px2Wnb53AdJrQbKiicVBs%3D' );
 
-          iniciarMarcadorPolicia( 2, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Policía Nacional', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/POLICIA%20NACIONAL.json?sp=r&st=2024-04-12T10:18:55Z&se=2090-01-01T19:18:55Z&sv=2022-11-02&sr=b&sig=QUuR3BqwWc8PlqyosuDQAL8k6k%2Bh5mhqEPt7ME7ephI%3D' );
-          iniciarMarcadorPolicia( 3, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%202.json?sp=r&st=2024-04-13T10:38:40Z&se=2090-01-01T19:38:40Z&sv=2022-11-02&sr=b&sig=Ljgo16hG8iUtiHBJqHBpYHTDDUZZv9RF9i04ztjaVfs%3D' );
-          iniciarMarcadorPolicia( 4, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%203.json?sp=r&st=2024-04-13T10:38:57Z&se=2090-01-01T19:38:57Z&sv=2022-11-02&sr=b&sig=IP3pcipwSvq1cMNLpjr1W%2FBZjCPd5glP7H874%2FfhPWE%3D' );
-          iniciarMarcadorPolicia( 5, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%204.json?sp=r&st=2024-04-13T10:39:21Z&se=2090-01-01T19:39:21Z&sv=2022-11-02&sr=b&sig=jcbi9boBRMtPhMAocaQJfUYnuaVl9Gh4IQRKIS3rMWc%3D' );
-          iniciarMarcadorPolicia( 6, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%205.json?sp=r&st=2024-04-13T10:39:38Z&se=2090-01-01T19:39:38Z&sv=2022-11-02&sr=b&sig=DIL5gs%2FZSxUVi3HkT9cgmcrufxNu6iispaF07JrYYAw%3D' );
-          iniciarMarcadorPolicia( 7, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%206.json?sp=r&st=2024-04-13T11:58:01Z&se=2090-01-01T20:58:01Z&sv=2022-11-02&sr=b&sig=F%2BxKmZOci%2BQ5Q6QQoXUqp9snuyAH0XCZ8RlzQxyEVbM%3D' );
-          iniciarMarcadorPolicia( 8, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%207.json?sp=r&st=2024-04-13T11:57:25Z&se=2090-01-01T20:57:25Z&sv=2022-11-02&sr=b&sig=M4VdMbgUpm9SWnkZcKU4Qjg1wRwQRh5jW21pLvnysMM%3D' );
-          iniciarMarcadorPolicia( 9, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%208.json?sp=r&st=2024-04-13T11:58:27Z&se=2090-01-01T20:58:27Z&sv=2022-11-02&sr=b&sig=wl0B5fWxbJLJJejTWsNXXivpjecPXAzJw%2BhvnOjIFDk%3D' );
-          iniciarMarcadorPolicia( 10, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%209.json?sp=r&st=2024-04-13T12:02:51Z&se=2090-01-01T21:02:51Z&sv=2022-11-02&sr=b&sig=CiaYAd3FyHedPAx9WB3C6f8beIllF%2FJNSpbFeQetKXw%3D' );
-          iniciarMarcadorPolicia( 11, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg', 'Vehículo Policía Municipal 9', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%2010.json?sp=r&st=2024-04-13T12:03:55Z&se=2090-01-01T21:03:55Z&sv=2022-11-02&sr=b&sig=Ycfix07DscFJARyiPtY0NJCTzVFSe3TZXwjWpV7fh5g%3D' );
+          iniciarMarcadorPolicia( 2, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1743250923/qubo/qubos/policeDigitalTwin_nh4cfu.svg', 'Policía Nacional', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/POLICIA%20NACIONAL.json?sp=r&st=2024-04-12T10:18:55Z&se=2090-01-01T19:18:55Z&sv=2022-11-02&sr=b&sig=QUuR3BqwWc8PlqyosuDQAL8k6k%2Bh5mhqEPt7ME7ephI%3D' );
+          iniciarMarcadorPolicia( 3, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1743250923/qubo/qubos/policeDigitalTwin_nh4cfu.svg', 'Vehículo Policía Municipal 1', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%202.json?sp=r&st=2024-04-13T10:38:40Z&se=2090-01-01T19:38:40Z&sv=2022-11-02&sr=b&sig=Ljgo16hG8iUtiHBJqHBpYHTDDUZZv9RF9i04ztjaVfs%3D' );
+          iniciarMarcadorPolicia( 4, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1743250923/qubo/qubos/policeDigitalTwin_nh4cfu.svg', 'Vehículo Policía Municipal 2', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%203.json?sp=r&st=2024-04-13T10:38:57Z&se=2090-01-01T19:38:57Z&sv=2022-11-02&sr=b&sig=IP3pcipwSvq1cMNLpjr1W%2FBZjCPd5glP7H874%2FfhPWE%3D' );
+          iniciarMarcadorPolicia( 5, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1743250923/qubo/qubos/policeDigitalTwin_nh4cfu.svg', 'Vehículo Policía Municipal 3', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%204.json?sp=r&st=2024-04-13T10:39:21Z&se=2090-01-01T19:39:21Z&sv=2022-11-02&sr=b&sig=jcbi9boBRMtPhMAocaQJfUYnuaVl9Gh4IQRKIS3rMWc%3D' );
+          iniciarMarcadorPolicia( 6, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1743250923/qubo/qubos/policeDigitalTwin_nh4cfu.svg', 'Vehículo Policía Municipal 4', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%205.json?sp=r&st=2024-04-13T10:39:38Z&se=2090-01-01T19:39:38Z&sv=2022-11-02&sr=b&sig=DIL5gs%2FZSxUVi3HkT9cgmcrufxNu6iispaF07JrYYAw%3D' );
+          iniciarMarcadorPolicia( 7, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1743250923/qubo/qubos/policeDigitalTwin_nh4cfu.svg', 'Vehículo Policía Municipal 5', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%206.json?sp=r&st=2024-04-13T11:58:01Z&se=2090-01-01T20:58:01Z&sv=2022-11-02&sr=b&sig=F%2BxKmZOci%2BQ5Q6QQoXUqp9snuyAH0XCZ8RlzQxyEVbM%3D' );
+          iniciarMarcadorPolicia( 8, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1743250923/qubo/qubos/policeDigitalTwin_nh4cfu.svg', 'Vehículo Policía Municipal 6', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%207.json?sp=r&st=2024-04-13T11:57:25Z&se=2090-01-01T20:57:25Z&sv=2022-11-02&sr=b&sig=M4VdMbgUpm9SWnkZcKU4Qjg1wRwQRh5jW21pLvnysMM%3D' );
+          iniciarMarcadorPolicia( 9, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1743250923/qubo/qubos/policeDigitalTwin_nh4cfu.svg', 'Vehículo Policía Municipal 7', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%208.json?sp=r&st=2024-04-13T11:58:27Z&se=2090-01-01T20:58:27Z&sv=2022-11-02&sr=b&sig=wl0B5fWxbJLJJejTWsNXXivpjecPXAzJw%2BhvnOjIFDk%3D' );
+          iniciarMarcadorPolicia( 10, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1743250923/qubo/qubos/policeDigitalTwin_nh4cfu.svg', 'Vehículo Policía Municipal 8', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%209.json?sp=r&st=2024-04-13T12:02:51Z&se=2090-01-01T21:02:51Z&sv=2022-11-02&sr=b&sig=CiaYAd3FyHedPAx9WB3C6f8beIllF%2FJNSpbFeQetKXw%3D' );
+          iniciarMarcadorPolicia( 11, 'https://res.cloudinary.com/dafjggs2p/image/upload/v1743250923/qubo/qubos/policeDigitalTwin_nh4cfu.svg', 'Vehículo Policía Municipal 9', 'https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Vehiculo%20Policia%20Municipal%2010.json?sp=r&st=2024-04-13T12:03:55Z&se=2090-01-01T21:03:55Z&sv=2022-11-02&sr=b&sig=Ycfix07DscFJARyiPtY0NJCTzVFSe3TZXwjWpV7fh5g%3D' );
 
      } );
 
@@ -5924,28 +7733,236 @@ function initMap( fromSession = false ) {
 
           // Añadir un evento click al marcador de la ambulancia para mostrar información
           ambulanciaMarker.addListener( "click", function () {
-               const infoBox = document.querySelector( ".info-box" );
+               // Comprobar si ya existe un infobox pinneado
+               const existingPinnedBox = document.querySelector( `.info-box.pinned[data-ambulance-id="${ ambulanciaId }"]` );
+               if ( existingPinnedBox ) {
+                    existingPinnedBox.classList.add( 'highlight' );
+                    setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                    return;
+               }
+
+               // Buscar un infobox no pinneado o crear uno nuevo
+               let infoBox = document.querySelector( ".info-box:not(.pinned)" );
+               if ( !infoBox ) {
+                    infoBox = document.createElement( 'div' );
+                    infoBox.className = 'info-box ambulances-info-box';
+                    document.body.appendChild( infoBox );
+               }
+
+               infoBox.setAttribute( 'data-ambulance-id', ambulanciaId );
                infoBox.style.display = "flex";
+
                const datosAmbulancia = marcadoresAmbulancias[ ambulanciaId ].datosAmbulancia;
+
+               // Generar solo los datos aleatorios que no vienen de la API
+               const tiempoRespuesta = Math.floor( Math.random() * 5 ) + 1; // Entre 1 y 5 minutos
+               const nivelCombustible = Math.floor( Math.random() * 31 ) + 70; // Entre 70% y 100%
+               const equipamientoCompleto = Math.random() > 0.3;
+
+               // Mapear el estado de la API a la clase CSS correspondiente
+               let estadoClase = 'patrol'; // Por defecto "En Ronda"
+               if ( datosAmbulancia.Estado && datosAmbulancia.Estado.toLowerCase().includes( 'emergencia' ) ) {
+                    estadoClase = 'emergency';
+               }
+
                infoBox.innerHTML = `
-                    <div class='nameContainer'>
-                              <p>Ambulances/p>
-                              <p></p>
+               <div class="info-header">
+                    <img src="${ datosAmbulancia.ImagenURL }" alt="Ambulancia" class="property-image"/>
+                    <div class="header-bar">
+                         <div class="property-badges">
+                              <div class="badge-container">
+                                   <span class="badge primary">AMBULANCE</span>
+                                   <div class="badge-location">
+                                        <span>Unidad ${ datosAmbulancia.Indicativo }</span>
+                                        <span>Soporte Vital Avanzado</span>
+                                   </div>
                               </div>
-               <img src="${ datosAmbulancia.ImagenURL }" alt="Imagen de la Ambulancia"/>
-               <p>Estado: <span>${ datosAmbulancia.Estado }</span> </p>
-               <p>Conductor/a: <span>${ datosAmbulancia[ 'Conductor/a' ] }</span> </p>
-               <p>Médico: <span>${ datosAmbulancia.Medico }</span> </p>
-               <p>Enfermero/a: <span>${ datosAmbulancia[ 'Enfermero/a' ] }</span> </p>
-               <p>Indicativo: <span>${ datosAmbulancia.Indicativo }</span> </p>
-               <p>Matrícula: <span>${ datosAmbulancia.Matricula }</span> </p>
-               <button id="cerrar-info-box">
-                    <img src="./assets/botonCerrar.svg" alt="Cerrar">
-               </button>
-               `;
-               document.getElementById( "cerrar-info-box" ).addEventListener( "click", function () {
-                    infoBox.style.display = "none";
+                         </div>
+                         <div class="action-buttons">
+                              <button class="action-btn pin-btn" title="Fijar ventana">
+                                   <i class="action-icon">📌</i>
+                              </button>
+                              <button class="action-btn share-btn" title="Compartir">
+                                   <i class="action-icon">📤</i>
+                              </button>
+                              <button class="action-btn close-btn" title="Cerrar">
+                                   <i class="action-icon">✕</i>
+                              </button>
+                         </div>
+                    </div>
+               </div>
+               
+               <div class="info-content">
+                    <!-- Status section con indicadores visuales -->
+                    <div class="status-section">
+                         <label><span class="label-icon">🚨</span> ESTADO OPERATIVO</label>
+                         <div class="status-display">
+                              <div class="status-indicator">
+                                   <span class="status-badge ${ estadoClase }">${ datosAmbulancia.Estado }</span>
+                                   <span class="response-time">
+                                        <span class="time-label">Tiempo de respuesta</span>
+                                        <span class="time-value">${ tiempoRespuesta } min</span>
+                                   </span>
+                              </div>
+                              
+                              <div class="ambulance-location-tracker">
+                                   <div class="ambulance-route-line">
+                                        <div class="ambulance-current-position"></div>
+                                   </div>
+                                   <div class="tracker-labels">
+                                        <span>Hospital Central</span>
+                                        <span>Zona de patrulla</span>
+                                   </div>
+                              </div>
+                         </div>
+                    </div>
+                    
+                    <!-- Crew information -->
+                    <div class="crew-section">
+                         <label><span class="label-icon">👥</span> EQUIPO MÉDICO</label>
+                         <div class="crew-members">
+                              <div class="crew-member">
+                                   <div class="crew-avatar driver">
+                                        <span class="crew-icon">🚑</span>
+                                   </div>
+                                   <div class="crew-details">
+                                        <span class="crew-role">Conductor/a</span>
+                                        <span class="crew-name">${ datosAmbulancia[ 'Conductor/a' ] }</span>
+                                   </div>
+                              </div>
+                              
+                              <div class="crew-member">
+                                   <div class="crew-avatar doctor">
+                                        <span class="crew-icon">👨‍⚕️</span>
+                                   </div>
+                                   <div class="crew-details">
+                                        <span class="crew-role">Médico</span>
+                                        <span class="crew-name">${ datosAmbulancia.Medico }</span>
+                                   </div>
+                              </div>
+                              
+                              <div class="crew-member">
+                                   <div class="crew-avatar nurse">
+                                        <span class="crew-icon">👩‍⚕️</span>
+                                   </div>
+                                   <div class="crew-details">
+                                        <span class="crew-role">Enfermero/a</span>
+                                        <span class="crew-name">${ datosAmbulancia[ 'Enfermero/a' ] }</span>
+                                   </div>
+                              </div>
+                         </div>
+                    </div>
+                    
+                    <!-- Vehicle details section completa -->
+                    <div class="vehicle-section">
+                         <label><span class="label-icon">🚑</span> DATOS DEL VEHÍCULO</label>
+                         <div class="vehicle-details">
+                              <div class="vehicle-specs">
+                                   <div class="specs-item">
+                                        <span class="specs-icon">🔢</span>
+                                        <div class="police-specs-detail">
+                                             <span class="specs-label">Matrícula</span>
+                                             <span class="specs-value">${ datosAmbulancia.Matricula }</span>
+                                        </div>
+                                   </div>
+                                   
+                                   <div class="specs-item">
+                                        <span class="specs-icon">🏁</span>
+                                        <div class="police-specs-detail">
+                                             <span class="specs-label">Indicativo</span>
+                                             <span class="specs-value">${ datosAmbulancia.Indicativo }</span>
+                                        </div>
+                                   </div>
+            
+                                   <div class="specs-item">
+                                        <span class="specs-icon">⛽</span>
+                                        <div class="police-specs-detail">
+                                             <span class="specs-label">Combustible</span>
+                                             <div class="fuel-gauge">
+                                                  <div class="fuel-level" style="width: ${ nivelCombustible }%;"></div>
+                                             </div>
+                                        </div>
+                                   </div>
+                                   
+                                   <div class="specs-item">
+                                        <span class="specs-icon">🔋</span>
+                                        <div class="police-specs-detail">
+                                             <span class="specs-label">Equipamiento</span>
+                                             <span class="equipment-status ${ equipamientoCompleto ? 'available' : 'unavailable' }">${ equipamientoCompleto ? 'Completo' : 'Incompleto' }</span>
+                                        </div>
+                                   </div>
+                              </div>
+                         </div>
+                    </div>
+               </div>`;
+
+               // Event Listeners
+               // 1. Botón cerrar
+               infoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                    infoBox.remove();
                } );
+
+               // 2. Botón pin
+               const pinBtn = infoBox.querySelector( ".pin-btn" );
+               pinBtn.addEventListener( "click", ( e ) => {
+                    const infoBox = e.target.closest( '.info-box' );
+                    if ( infoBox.classList.contains( 'pinned' ) ) {
+                         infoBox.classList.remove( 'pinned' );
+                         pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                         pinBtn.title = "Fijar ventana";
+                    } else {
+                         infoBox.classList.add( 'pinned' );
+                         pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                         pinBtn.title = "Desfijar ventana";
+
+                         const newInfoBox = document.createElement( 'div' );
+                         newInfoBox.className = 'info-box ambulances-info-box';
+                         newInfoBox.style.display = 'none';
+                         document.body.appendChild( newInfoBox );
+                    }
+               } );
+
+               // 3. Botón compartir
+               infoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                    try {
+                         const baseUrl = window.location.origin + window.location.pathname;
+                         const shareUrl = `${ baseUrl }?view=ambulance&id=${ ambulanciaId }`;
+
+                         const shareData = {
+                              title: `🚑 Ambulancia - ${ datosAmbulancia.Indicativo }`,
+                              text: `🚨 Estado: ${ datosAmbulancia.Estado }\n` +
+                                   `👨‍⚕️ Médico: ${ datosAmbulancia.Medico }\n` +
+                                   `👩‍⚕️ Enfermero/a: ${ datosAmbulancia[ 'Enfermero/a' ] }\n` +
+                                   `🚑 Matrícula: ${ datosAmbulancia.Matricula }`,
+                              url: shareUrl
+                         };
+
+                         if ( navigator.share && navigator.canShare( shareData ) ) {
+                              await navigator.share( shareData );
+                         } else {
+                              const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+                              await navigator.clipboard.writeText( shareText );
+                              showNotification( '¡Información copiada al portapapeles!' );
+                         }
+                    } catch ( error ) {
+                         console.error( 'Error al compartir:', error );
+                    }
+               } );
+
+               // Animar la posición actual de la ambulancia en la línea de ruta
+               let posicion = Math.random() * 70 + 15; // Posición inicial aleatoria entre 15% y 85%
+               const currentPosition = infoBox.querySelector( ".current-position" );
+
+               function animarPosicion() {
+                    posicion = ( posicion + 0.2 ) % 100;
+                    currentPosition.style.left = `${ posicion }%`;
+                    requestAnimationFrame( animarPosicion );
+               }
+
+               animarPosicion();
+
+               // Hacer el infobox arrastrable
+               inicializarArrastre( infoBox );
           } );
      }
 
@@ -6063,22 +8080,22 @@ function initMap( fromSession = false ) {
                                    infoBox.setAttribute( 'data-ship-id', data.id );
                                    infoBox.style.display = "flex";
 
-                                    // Calcular el porcentaje de combustible
-                        const fuelPercentage = data.fuelLevel || 78; // Valor por defecto si no existe
-                        
-                        // Obtener la primera coordenada para los valores iniciales
-                        const initialCoord = data.location.coordinates[0];
-                                  
-                                             infoBox.innerHTML = `
+                                   // Calcular el porcentaje de combustible
+                                   const fuelPercentage = data.fuelLevel || 78; // Valor por defecto si no existe
+
+                                   // Obtener la primera coordenada para los valores iniciales
+                                   const initialCoord = data.location.coordinates[ 0 ];
+
+                                   infoBox.innerHTML = `
                             <div class="info-header">
-                                <img src="${data.ImagenURL}" alt="Ship" class="property-image"/>
+                                <img src="${ data.ImagenURL }" alt="Ship" class="property-image"/>
                                 <div class="header-bar">
                                     <div class="property-badges">
                                         <div class="badge-container">
                                             <span class="badge primary">SHIP</span>
                                             <div class="badge-location nameContainer">
-                                                <span>${data.name}</span>
-                                                <span>${data.model}</span>
+                                                <span>${ data.name }</span>
+                                                <span>${ data.model }</span>
                                             </div>
                                         </div>
                                     </div>
@@ -6099,7 +8116,7 @@ function initMap( fromSession = false ) {
                             <div class="info-content">
                                 <div class="id-row">
                                     <span class="id-label">ID BARCO</span>
-                                    <span class="id-text">${data.id}</span>
+                                    <span class="id-text">${ data.id }</span>
                                     <div class="copy-container">
                                         <button class="copy-btn" title="Copiar ID">
                                             <i class="copy-icon">📋</i>
@@ -6111,21 +8128,21 @@ function initMap( fromSession = false ) {
                                     <div class="info-row">
                                         <div class="info-item">
                                             <label>Tipo</label>
-                                            <span>${data.type}</span>
+                                            <span>${ data.type }</span>
                                         </div>
                                         <div class="info-item">
                                             <label>Modelo</label>
-                                            <span>${data.model}</span>
+                                            <span>${ data.model }</span>
                                         </div>
                                     </div>
                                     <div class="info-row">
                                         <div class="info-item">
                                             <label>Fabricante</label>
-                                            <span>${data.manufacturer}</span>
+                                            <span>${ data.manufacturer }</span>
                                         </div>
                                         <div class="info-item">
                                             <label>Propietario</label>
-                                            <span>${data.owner.name}</span>
+                                            <span>${ data.owner.name }</span>
                                         </div>
                                     </div>
                                 </div>
@@ -6139,28 +8156,28 @@ function initMap( fromSession = false ) {
                                         </div>
                                         <div class="status-badge">
                                             <span class="status-icon">🔋</span>
-                                            <span>Combustible: ${fuelPercentage}%</span>
+                                            <span>Combustible: ${ fuelPercentage }%</span>
                                         </div>
                                     </div>
                                     <div class="info-grid">
                                         <div class="info-row">
                                             <div class="info-item">
                                                 <label>Velocidad</label>
-                                                <span id="speedValue">${initialCoord.speed || '0'} knots</span>
+                                                <span id="speedValue">${ initialCoord.speed || '0' } knots</span>
                                             </div>
                                             <div class="info-item">
                                                 <label>Rumbo</label>
-                                                <span>${data.heading || '85°'}</span>
+                                                <span>${ data.heading || '85°' }</span>
                                             </div>
                                         </div>
                                         <div class="info-row">
                                             <div class="info-item">
                                                 <label>Consumo combustible</label>
-                                                <span id="fuelValue">${initialCoord.fuelConsumption || '0'} L/100km</span>
+                                                <span id="fuelValue">${ initialCoord.fuelConsumption || '0' } L/100km</span>
                                             </div>
                                             <div class="info-item">
                                                 <label>Emisiones CO2</label>
-                                                <span id="co2Value">${initialCoord.CummCO2emissions || '0'} kg</span>
+                                                <span id="co2Value">${ initialCoord.CummCO2emissions || '0' } kg</span>
                                             </div>
                                         </div>
                                     </div>
@@ -6173,16 +8190,16 @@ function initMap( fromSession = false ) {
                                             <div class="route-point">
                                                 <div class="point-icon origin">A</div>
                                                 <div class="point-details">
-                                                    <span class="point-name">${data.origin || 'Puerto de Valencia'}</span>
-                                                    <span class="point-time">Salida: ${data.departureTime || '10:30 AM'}</span>
+                                                    <span class="point-name">${ data.origin || 'Puerto de Valencia' }</span>
+                                                    <span class="point-time">Salida: ${ data.departureTime || '10:30 AM' }</span>
                                                 </div>
                                             </div>
                                             <div class="route-line"></div>
                                             <div class="route-point">
                                                 <div class="point-icon destination">B</div>
                                                 <div class="point-details">
-                                                    <span class="point-name">${data.destination}</span>
-                                                    <span class="point-time">Llegada est.: ${data.arrivalTime || '18:45 PM'}</span>
+                                                    <span class="point-name">${ data.destination }</span>
+                                                    <span class="point-time">Llegada est.: ${ data.arrivalTime || '18:45 PM' }</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -6191,11 +8208,11 @@ function initMap( fromSession = false ) {
                                         <div class="info-row">
                                             <div class="info-item">
                                                 <label>Distancia total</label>
-                                                <span>${data.totalDistance || '450 km'}</span>
+                                                <span>${ data.totalDistance || '450 km' }</span>
                                             </div>
                                             <div class="info-item">
                                                 <label>Tiempo estimado</label>
-                                                <span>${data.estimatedTime || '8h 15m'}</span>
+                                                <span>${ data.estimatedTime || '8h 15m' }</span>
                                             </div>
                                         </div>
                                     </div>
@@ -6207,22 +8224,22 @@ function initMap( fromSession = false ) {
                                         <div class="env-item">
                                             <span class="env-icon">🌡️</span>
                                             <span class="env-label">Temperatura aire</span>
-                                            <span class="env-value">${data.environmentalData?.airTemperature || '23.5°C'}</span>
+                                            <span class="env-value">${ data.environmentalData?.airTemperature || '23.5°C' }</span>
                                         </div>
                                         <div class="env-item">
                                             <span class="env-icon">💧</span>
                                             <span class="env-label">Temperatura agua</span>
-                                            <span class="env-value">${data.environmentalData?.waterTemperature || '18.3°C'}</span>
+                                            <span class="env-value">${ data.environmentalData?.waterTemperature || '18.3°C' }</span>
                                         </div>
                                         <div class="env-item">
                                             <span class="env-icon">💨</span>
                                             <span class="env-label">Viento</span>
-                                            <span class="env-value">${data.environmentalData?.wind || '15 km/h NE'}</span>
+                                            <span class="env-value">${ data.environmentalData?.wind || '15 km/h NE' }</span>
                                         </div>
                                         <div class="env-item">
                                             <span class="env-icon">🌊</span>
                                             <span class="env-label">Estado del mar</span>
-                                            <span class="env-value">${data.environmentalData?.seaState || 'Moderado'}</span>
+                                            <span class="env-value">${ data.environmentalData?.seaState || 'Moderado' }</span>
                                         </div>
                                     </div>
                                 </div>
@@ -6233,22 +8250,22 @@ function initMap( fromSession = false ) {
                                         <div class="spec-item">
                                             <span class="spec-icon">📏</span>
                                             <span class="spec-label">Eslora</span>
-                                            <span class="spec-value">${data.specifications?.length || '120m'}</span>
+                                            <span class="spec-value">${ data.specifications?.length || '120m' }</span>
                                         </div>
                                         <div class="spec-item">
                                             <span class="spec-icon">↔️</span>
                                             <span class="spec-label">Manga</span>
-                                            <span class="spec-value">${data.specifications?.width || '22m'}</span>
+                                            <span class="spec-value">${ data.specifications?.width || '22m' }</span>
                                         </div>
                                         <div class="spec-item">
                                             <span class="spec-icon">↕️</span>
                                             <span class="spec-label">Calado</span>
-                                            <span class="spec-value">${data.specifications?.draft || '8.5m'}</span>
+                                            <span class="spec-value">${ data.specifications?.draft || '8.5m' }</span>
                                         </div>
                                         <div class="spec-item">
                                             <span class="spec-icon">⚓</span>
                                             <span class="spec-label">Peso muerto</span>
-                                            <span class="spec-value">${data.specifications?.deadweight || '15,000 tons'}</span>
+                                            <span class="spec-value">${ data.specifications?.deadweight || '15,000 tons' }</span>
                                         </div>
                                     </div>
                                 </div>
@@ -6286,11 +8303,11 @@ function initMap( fromSession = false ) {
                                         <div class="info-row">
                                             <div class="info-item">
                                                 <label>Contacto</label>
-                                                <span>${data.owner?.contact || '+34 123 456 789'}</span>
+                                                <span>${ data.owner?.contact || '+34 123 456 789' }</span>
                                             </div>
                                             <div class="info-item">
                                                 <label>Email</label>
-                                                <span>${data.owner?.email || 'captain@seavoyager.com'}</span>
+                                                <span>${ data.owner?.email || 'captain@seavoyager.com' }</span>
                                             </div>
                                         </div>
                                     </div>
@@ -6298,87 +8315,87 @@ function initMap( fromSession = false ) {
                             </div>
                         `;
 
-                                             /// Event listener para el botón de cerrar
-                        infoBox.querySelector("#cerrar-info-box").addEventListener("click", () => {
-                         infoBox.remove(); // Usar remove() en lugar de style.display = "none"
-                     });
+                                   /// Event listener para el botón de cerrar
+                                   infoBox.querySelector( "#cerrar-info-box" ).addEventListener( "click", () => {
+                                        infoBox.remove(); // Usar remove() en lugar de style.display = "none"
+                                   } );
 
-                     // Event listener para el botón de pin
-                     const pinBtn = infoBox.querySelector(".pin-btn");
-                     pinBtn.addEventListener("click", (e) => {
-                         const infoBoxElement = e.target.closest('.info-box');
-                         if (infoBoxElement.classList.contains('pinned')) {
-                             // Desfijar
-                             infoBoxElement.classList.remove('pinned');
-                             pinBtn.innerHTML = '<i class="action-icon">📌</i>';
-                             pinBtn.title = "Fijar ventana";
-                         } else {
-                             // Fijar
-                             infoBoxElement.classList.add('pinned');
-                             pinBtn.innerHTML = '<i class="action-icon">📍</i>';
-                             pinBtn.title = "Desfijar ventana";
+                                   // Event listener para el botón de pin
+                                   const pinBtn = infoBox.querySelector( ".pin-btn" );
+                                   pinBtn.addEventListener( "click", ( e ) => {
+                                        const infoBoxElement = e.target.closest( '.info-box' );
+                                        if ( infoBoxElement.classList.contains( 'pinned' ) ) {
+                                             // Desfijar
+                                             infoBoxElement.classList.remove( 'pinned' );
+                                             pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                             pinBtn.title = "Fijar ventana";
+                                        } else {
+                                             // Fijar
+                                             infoBoxElement.classList.add( 'pinned' );
+                                             pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                             pinBtn.title = "Desfijar ventana";
 
-                             // Crear nuevo infobox para futuras propiedades
-                             const newInfoBox = document.createElement('div');
-                             newInfoBox.className = 'info-box';
-                             newInfoBox.style.display = 'none';
-                             document.body.appendChild(newInfoBox);
+                                             // Crear nuevo infobox para futuras propiedades
+                                             const newInfoBox = document.createElement( 'div' );
+                                             newInfoBox.className = 'info-box';
+                                             newInfoBox.style.display = 'none';
+                                             document.body.appendChild( newInfoBox );
 
-                             // Reinicializar el arrastre para el nuevo infobox si es necesario
-                             const nameContainer = infoBoxElement.querySelector('.nameContainer');
-                             if (nameContainer && typeof hacerArrastrable === 'function') {
-                                 hacerArrastrable(infoBoxElement, nameContainer);
-                             }
-                         }
-                     });
-                     // Event listener para el botón de compartir
-                     infoBox.querySelector(".share-btn").addEventListener("click", async () => {
-                         try {
-                             if (navigator.share) {
-                                 await navigator.share({
-                                     title: `Ship ${data.name}`,
-                                     text: `Información sobre ${data.name}`,
-                                     url: window.location.href
-                                 });
-                             } else {
-                                 await navigator.clipboard.writeText(window.location.href);
-                                 showNotification('¡Enlace copiado!');
-                             }
-                         } catch (error) {
-                             console.error('Error al compartir:', error);
-                         }
-                     });
+                                             // Reinicializar el arrastre para el nuevo infobox si es necesario
+                                             const nameContainer = infoBoxElement.querySelector( '.nameContainer' );
+                                             if ( nameContainer && typeof hacerArrastrable === 'function' ) {
+                                                  hacerArrastrable( infoBoxElement, nameContainer );
+                                             }
+                                        }
+                                   } );
+                                   // Event listener para el botón de compartir
+                                   infoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                        try {
+                                             if ( navigator.share ) {
+                                                  await navigator.share( {
+                                                       title: `Ship ${ data.name }`,
+                                                       text: `Información sobre ${ data.name }`,
+                                                       url: window.location.href
+                                                  } );
+                                             } else {
+                                                  await navigator.clipboard.writeText( window.location.href );
+                                                  showNotification( '¡Enlace copiado!' );
+                                             }
+                                        } catch ( error ) {
+                                             console.error( 'Error al compartir:', error );
+                                        }
+                                   } );
 
-                     // Copiar ID
-                     infoBox.querySelector(".copy-btn").addEventListener("click", async () => {
-                         try {
-                             await navigator.clipboard.writeText(data.id);
-                             showNotification('¡ID copiado!');
-                         } catch (error) {
-                             console.error('Error al copiar:', error);
-                         }
-                     });
-                 });
+                                   // Copiar ID
+                                   infoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                        try {
+                                             await navigator.clipboard.writeText( data.id );
+                                             showNotification( '¡ID copiado!' );
+                                        } catch ( error ) {
+                                             console.error( 'Error al copiar:', error );
+                                        }
+                                   } );
+                              } );
 
                               // SEGUNDO PASO: Función que solo actualiza los valores dinámicos
                               // Función para actualizar los valores dinámicos del infoBox
-                    function actualizarInfoBox(index) {
-                         const infoBoxes = document.querySelectorAll(`.info-box[data-ship-id="${data.id}"]`);
-                         if (!infoBoxes.length) return;
- 
-                         const coord = data.location.coordinates[index];
- 
-                         infoBoxes.forEach(infoBox => {
-                             // Solo actualizar los valores que cambian
-                             const speedElement = infoBox.querySelector("#speedValue");
-                             const fuelElement = infoBox.querySelector("#fuelValue");
-                             const co2Element = infoBox.querySelector("#co2Value");
- 
-                             if (speedElement) speedElement.textContent = `${coord.speed || '0'} knots`;
-                             if (fuelElement) fuelElement.textContent = `${coord.fuelConsumption || '0'} L/100km`;
-                             if (co2Element) co2Element.textContent = `${coord.CummCO2emissions || '0'} kg`;
-                         });
-                     }
+                              function actualizarInfoBox( index ) {
+                                   const infoBoxes = document.querySelectorAll( `.info-box[data-ship-id="${ data.id }"]` );
+                                   if ( !infoBoxes.length ) return;
+
+                                   const coord = data.location.coordinates[ index ];
+
+                                   infoBoxes.forEach( infoBox => {
+                                        // Solo actualizar los valores que cambian
+                                        const speedElement = infoBox.querySelector( "#speedValue" );
+                                        const fuelElement = infoBox.querySelector( "#fuelValue" );
+                                        const co2Element = infoBox.querySelector( "#co2Value" );
+
+                                        if ( speedElement ) speedElement.textContent = `${ coord.speed || '0' } knots`;
+                                        if ( fuelElement ) fuelElement.textContent = `${ coord.fuelConsumption || '0' } L/100km`;
+                                        if ( co2Element ) co2Element.textContent = `${ coord.CummCO2emissions || '0' } kg`;
+                                   } );
+                              }
 
                               const intervaloId = iniciarMovimientoMarcadorShip( shipsMarker, coordenadas, 500, actualizarInfoBox );
                               marcadoresShips[ shipsId ] = {
@@ -6925,17 +8942,24 @@ function initMap( fromSession = false ) {
 
      //* FUNCIÓN PARA STORES *//
 
-     // let marcadoresTiendas = {};
-     // let storesActivos = false;
 
      function iniciarStoresEnMapa() {
           // Si ya están activos, los eliminamos
+          console.log( "⚡️ iniciarStoresEnMapa - Estado actual:", storesActivos ? "ACTIVO" : "INACTIVO" );
           if ( storesActivos ) {
+               // AÑADIR ESTO: Cancelar cualquier intervalo existente
+               if ( window.checkMarkersInterval ) {
+                    clearInterval( window.checkMarkersInterval );
+                    window.checkMarkersInterval = null;
+                    console.log( "🛑 Intervalo de búsqueda cancelado" );
+               }
+
                Object.values( marcadoresTiendas ).forEach( ( marker ) => {
                     if ( marker.marker ) marker.marker.setMap( null );
                } );
                marcadoresTiendas = {};
                storesActivos = false;
+               console.log( "✅ Stores DESACTIVADAS completamente" );
                return;
           }
 
@@ -7264,32 +9288,13 @@ function initMap( fromSession = false ) {
                                    }
                               } );
 
-                              currentInfoBox.querySelector( ".share-btn" )?.addEventListener( "click", async () => {
-                                   try {
-                                        // Construir una URL con los parámetros de la tienda
-                                        const baseUrl = window.location.origin + window.location.pathname;
-                                        const shareUrl = `${ baseUrl }?view=store&id=${ tienda.id }`;
-
-                                        const shareData = {
-                                             title: `${ tienda.name.value } - Zara Store`,
-                                             text: `📍 ${ tienda.address.value.addressLocality }, ${ tienda.address.value.addressCountry }\n` +
-                                                  `💰 Ventas Mensuales: ${ tienda.annexZara.value.monthlySales }\n` +
-                                                  `👥 Clientes Diarios: ${ tienda.annexZara.value.dailyCustomers }\n` +
-                                                  `👕 Inventario: ${ tienda.annexZara.value.inventoryAvailable }\n` +
-                                                  `👤 Empleados: ${ tienda.annexZara.value.numberOfEmployees }`,
-                                             url: shareUrl
-                                        };
-
-                                        if ( navigator.share && navigator.canShare( shareData ) ) {
-                                             await navigator.share( shareData );
-                                        } else {
-                                             const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
-                                             await navigator.clipboard.writeText( shareText );
-                                             showNotification( '¡Información copiada al portapapeles!' );
-                                        }
-                                   } catch ( error ) {
-                                        console.error( 'Error al compartir:', error );
-                                   }
+                              currentInfoBox.querySelector( ".share-btn" )?.addEventListener( "click", () => {
+                                   shareMarker(
+                                        'store',
+                                        tienda.id,
+                                        `${ tienda.name.value }`, // Título simple
+                                        `📍 ${ tienda.address.value.addressLocality }, ${ tienda.address.value.addressCountry }` // Solo la ubicación
+                                   );
                               } );
 
                               currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
@@ -7327,10 +9332,20 @@ function initMap( fromSession = false ) {
                } )
                .catch( ( error ) => console.error( "Error al cargar las tiendas:", error ) );
      }
+     // Registrar STORES
+     registerMarkerType( 'store', {
+          buttonId: 'stores-sub-nav-item',
+          isLayerActive: () => storesActivos,
+          findMarker: ( id ) => marcadoresTiendas[ id ]?.marker
+     } );
 
      // Añadir el event listener para el botón de tiendas
-     document.getElementById( "stores-sub-nav-item" ).addEventListener( "click", iniciarStoresEnMapa );
-
+     // Añadir el event listener para el botón de tiendas solo una vez
+     if ( !window.storesListenerAdded ) {
+          document.getElementById( "stores-sub-nav-item" ).addEventListener( "click", iniciarStoresEnMapa );
+          window.storesListenerAdded = true;
+          console.log( "✅ Listener de stores añadido una sola vez" );
+     }
 
 
 
@@ -7694,6 +9709,43 @@ function initMap( fromSession = false ) {
      }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+//? SE ACABA INITMAP Y COMIENZA EL CODIGO DE AQUI PARA ADELANTE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Función para volver a tu ubicación inicial
 function goToMyLocation() {
      map.setCenter( myLocationMarker.getPosition() );
@@ -7916,15 +9968,251 @@ eventNewBuildings.addEventListener( "click", () => {
 
 
 //! Función para mostrar HOUSES
-const cargarYMostrarMarcadoresCasas = async () => {
+// const cargarYMostrarMarcadoresCasas = async () => {
+//      try {
+//           const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Houses/Fiware_Buildings_Houses-00001?sp=r&st=2024-03-31T08:25:20Z&se=2090-01-01T17:25:20Z&sv=2022-11-02&sr=b&sig=gYyNiUSwKU5upO86hX1DgDGRmoosucVSPcYZ%2BxGSnHY%3D";
+//           const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
+
+//           const response = await fetch( proxyUrl );
+//           const data = await response.json();
+
+//           // Precargar todas las imágenes al recibir los datos
+//           data.buildings0007.forEach( item => {
+//                if ( item.thumbnail && item.thumbnail.value ) {
+//                     const img = new Image();
+//                     img.src = item.thumbnail.value;
+//                }
+//           } );
+
+//           data.buildings0007.forEach( item => {
+//                const parsedData = parseFiwareData( item );
+//                if ( parsedData.ubicacion ) {
+//                     const houseMarker = new google.maps.Marker( {
+//                          position: { lat: parsedData.ubicacion[ 1 ], lng: parsedData.ubicacion[ 0 ] },
+//                          map: map,
+//                          title: parsedData.name,
+//                          icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186034/qubo/qubos/Houses.svg"
+//                     } );
+
+//                     houseMarker.addListener( 'click', () => {
+//                          const idWithoutPrefix = item.id.replace( /^building_ide_/, '' );
+//                          const capitalizedCategory = parsedData.category;
+//                          const parkingInfo = item.annexIdealista.value.parkingSpace.hasParkingSpace ? "Sí" : "No";
+//                          const parkingIncluded = item.annexIdealista.value.parkingSpace.isParkingSpaceIncludedInPrice ? "Sí" : "No";
+
+//                          // Buscar si existe un infobox pinneado para esta casa
+//                          const existingPinnedBox = document.querySelector( `.info-box.pinned[data-house-id="${ idWithoutPrefix }"]` );
+//                          if ( existingPinnedBox ) {
+//                               existingPinnedBox.classList.add( 'highlight' );
+//                               setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+//                               return;
+//                          }
+
+//                          // Buscar un infobox no pinneado o crear uno nuevo
+//                          let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+//                          if ( !currentInfoBox ) {
+//                               currentInfoBox = document.createElement( 'div' );
+//                               currentInfoBox.className = 'info-box';
+//                               document.body.appendChild( currentInfoBox );
+//                          }
+
+//                          currentInfoBox.setAttribute( 'data-house-id', idWithoutPrefix );
+//                          currentInfoBox.style.display = "flex";
+
+
+//                          currentInfoBox.innerHTML = `
+//         <div class="info-header">
+//             <img src="${ item.thumbnail.value }" alt="Property" class="property-image"/>
+//             <div class="header-bar">
+//                 <div class="property-badges">
+//                     <div class="badge-container">
+//                         <span class="badge primary">${ capitalizedCategory }</span>
+//                         <div class="badge-location nameContainer">
+//                             <span>${ parsedData.name }</span>
+//                             <span>${ parsedData.addressLocality }, ${ parsedData.addressRegion }</span>
+//                         </div>
+//                     </div>
+//                 </div>
+//                 <div class="action-buttons">
+//                 <button class="action-btn pin-btn" title="Fijar ventana">
+//                         <i class="action-icon">📌</i>
+//                     </button>
+//                     <button class="action-btn share-btn" title="Compartir">
+//                         <i class="action-icon">📤</i>
+//                     </button>
+//                     <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
+//                         <i class="action-icon">✕</i>
+//                     </button>
+//                 </div>
+//             </div>
+//         </div>
+
+//         <div class="info-content">
+//             <div class="info-grid">
+//                 <div class="info-row">
+//                     <div class="info-item">
+//                         <label for="codigo">Código identificador</label>
+//                         <div class="id-value-container">
+//                             <span>${ idWithoutPrefix }</span>
+//                             <button class="copy-btn" title="Copiar código">
+//                                 <i class="copy-icon">📋</i>
+//                             </button>
+//                         </div>
+//                     </div>
+//                     <div class="info-item">
+//                         <label for="distrito">Distrito</label>
+//                         <span>${ parsedData.district }</span>
+//                     </div>
+//                 </div>
+//                 <div class="info-row">
+//                     <div class="info-item">
+//                         <label for="operacion">Tipo de operación</label>
+//                         <span>${ item.annexIdealista.value.operation.charAt( 0 ).toUpperCase() + item.annexIdealista.value.operation.slice( 1 ) }</span>
+//                     </div>
+//                     <div class="info-item">
+//                         <label for="ubicacion">Localización</label>
+//                         <span>${ parsedData.addressLocality }, ${ parsedData.addressRegion }</span>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             <div class="features-grid">
+//                 <label>Características</label>
+//                 <div class="features-list">
+//                     <div class="feature-item">
+//                         <span class="feature-icon">💰</span>
+//                         <span class="feature-text">${ ( item.annexIdealista.value.price ).toLocaleString( 'es-ES' ) } €</span>
+//                     </div>
+//                     <div class="feature-item">
+//                         <span class="feature-icon">📏</span>
+//                         <span class="feature-text">${ item.annexIdealista.value.size } m²</span>
+//                     </div>
+//                     <div class="feature-item">
+//                         <span class="feature-icon">🛏️</span>
+//                         <span class="feature-text">${ item.annexIdealista.value.rooms } habitaciones</span>
+//                     </div>
+//                     <div class="feature-item">
+//                         <span class="feature-icon">🚿</span>
+//                         <span class="feature-text">${ item.annexIdealista.value.bathrooms } baños</span>
+//                     </div>
+//                     ${ parkingInfo === "Sí" ? `
+//                     <div class="feature-item">
+//                         <span class="feature-icon">🚗</span>
+//                         <span class="feature-text">Parking ${ parkingIncluded === "Sí" ? "incluido" : "no incluido" }</span>
+//                     </div>
+//                     ` : '' }
+//                 </div>
+//             </div>
+
+//             <div class="description">
+//                 <label>Descripción</label>
+//                 <p>${ parsedData.description }</p>
+//             </div>
+
+//             <div class="external-links">
+//                 <label>Enlaces</label>
+//                 <a href="${ parsedData.source }" target="_blank" class="external-link">
+//                     <span>Ver en Idealista</span>
+//                 </a>
+//             </div>
+//         </div>
+//     `;
+//                          currentInfoBox.querySelector( "#cerrar-info-box" ).addEventListener( "click", () => {
+//                               currentInfoBox.remove(); // Usar remove() en lugar de display none
+//                          } );
+//                          const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+//                          pinBtn.addEventListener( "click", ( e ) => {
+//                               const infoBox = e.target.closest( '.info-box' );
+//                               if ( infoBox.classList.contains( 'pinned' ) ) {
+//                                    // Desfijar
+//                                    infoBox.classList.remove( 'pinned' );
+//                                    pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+//                                    pinBtn.title = "Fijar ventana";
+//                               } else {
+//                                    // Fijar
+//                                    infoBox.classList.add( 'pinned' );
+//                                    pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+//                                    pinBtn.title = "Desfijar ventana";
+
+//                                    // Crear nuevo infobox para futuras propiedades y hacerlo arrastrable
+//                                    const newInfoBox = document.createElement( 'div' );
+//                                    newInfoBox.className = 'info-box';
+//                                    newInfoBox.style.display = 'none';
+//                                    document.body.appendChild( newInfoBox );
+
+//                                    // Reinicializar el arrastre para el nuevo infobox
+//                                    const nameContainer = newInfoBox.querySelector( '.nameContainer' );
+//                                    if ( nameContainer ) {
+//                                         hacerArrastrable( newInfoBox, nameContainer );
+//                                    }
+//                               }
+//                          } );
+//                          currentInfoBox.querySelector( ".share-btn" )?.addEventListener( "click", async () => {
+//                               try {
+//                                    if ( navigator.share ) {
+//                                         await navigator.share( {
+//                                              title: `${ capitalizedCategory } - ${ parsedData.name }`,
+//                                              text: `${ parsedData.description }`,
+//                                              url: parsedData.source
+//                                         } );
+//                                    } else {
+//                                         await navigator.clipboard.writeText( parsedData.source );
+//                                         showNotification( '¡Enlace copiado!' );
+//                                    }
+//                               } catch ( error ) {
+//                                    console.error( 'Error al compartir:', error );
+//                               }
+//                          } );
+
+//                          currentInfoBox.querySelector( ".copy-btn" )?.addEventListener( "click", async () => {
+//                               try {
+//                                    await navigator.clipboard.writeText( idWithoutPrefix );
+//                                    showNotification( '¡Código copiado!' );
+//                               } catch ( error ) {
+//                                    console.error( 'Error al copiar:', error );
+//                               }
+//                          } );
+//                     } );
+
+//                     markersHouses.push( houseMarker ); // Añade el marcador al array de casas
+//                }
+//           } );
+//      } catch ( error ) {
+//           console.error( "Error fetching houses:", error );
+//      }
+// };
+
+// // Evento botón HOUSES
+// const eventHouses = document.getElementById( "houses-sub-nav-item" );
+// let markersHouses = []; // Array para almacenar los marcadores de casas
+// let housesVisible = false; // Bandera para el estado de visibilidad
+
+// eventHouses.addEventListener( 'click', async () => {
+//      // Alternar la visibilidad de los marcadores de casas
+//      toggleMarcadores( markersHouses, housesVisible );
+//      housesVisible = !housesVisible; // Cambia la bandera de visibilidad
+
+//      // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
+//      if ( markersHouses.length === 0 && housesVisible ) {
+//           await cargarYMostrarMarcadoresCasas();
+//      }
+// } );
+
+// =========================
+//? FUNCIONALIDAD PARA MOSTRAR CASAS Y ACTUALIZAR INCIDENCIAS
+
+// Array global para almacenar los marcadores de casas
+let markersHouses = [];
+
+// Función para cargar y mostrar los marcadores de casas
+async function cargarYMostrarMarcadoresCasas() {
      try {
           const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Buildings/Houses/Fiware_Buildings_Houses-00001?sp=r&st=2024-03-31T08:25:20Z&se=2090-01-01T17:25:20Z&sv=2022-11-02&sr=b&sig=gYyNiUSwKU5upO86hX1DgDGRmoosucVSPcYZ%2BxGSnHY%3D";
           const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
-
           const response = await fetch( proxyUrl );
           const data = await response.json();
 
-          // Precargar todas las imágenes al recibir los datos
+          // Pre-cargar imágenes (si existen)
           data.buildings0007.forEach( item => {
                if ( item.thumbnail && item.thumbnail.value ) {
                     const img = new Image();
@@ -7935,46 +10223,62 @@ const cargarYMostrarMarcadoresCasas = async () => {
           data.buildings0007.forEach( item => {
                const parsedData = parseFiwareData( item );
                if ( parsedData.ubicacion ) {
+                    // Guardamos el id completo y el id sin prefijo
+                    const fullHouseId = item.id; // Ej: "building_ide_102736716"
+                    const idWithoutPrefix = fullHouseId.replace( /^building_ide_/, '' );
+                    // Crear el marcador con el icono por defecto (casas)
+
                     const houseMarker = new google.maps.Marker( {
                          position: { lat: parsedData.ubicacion[ 1 ], lng: parsedData.ubicacion[ 0 ] },
                          map: map,
                          title: parsedData.name,
                          icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186034/qubo/qubos/Houses.svg"
                     } );
+                    // Guardamos la propiedad houseId en el marcador para poder relacionarlo con la incidencia
+                    houseMarker.houseId = fullHouseId;
+                    houseMarker.displayId = idWithoutPrefix;
 
+                    // Listener para mostrar el infobox al hacer click
                     houseMarker.addListener( 'click', () => {
-                         const idWithoutPrefix = item.id.replace( /^building_ide_/, '' );
-                         const capitalizedCategory = parsedData.category;
-                         const parkingInfo = item.annexIdealista.value.parkingSpace.hasParkingSpace ? "Sí" : "No";
-                         const parkingIncluded = item.annexIdealista.value.parkingSpace.isParkingSpaceIncludedInPrice ? "Sí" : "No";
+                         // Usamos el id sin prefijo para mostrarlo en el infobox
+                         const idDisplay = houseMarker.displayId;
 
-                         // Buscar si existe un infobox pinneado para esta casa
-                         const existingPinnedBox = document.querySelector( `.info-box.pinned[data-house-id="${ idWithoutPrefix }"]` );
-                         if ( existingPinnedBox ) {
-                              existingPinnedBox.classList.add( 'highlight' );
-                              setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
-                              return;
-                         }
+                         // Comprobar si hay alerta para este marcador
+                         console.log( "🔍 Verificando alerta para marcador:", houseMarker.houseId );
+                         console.log( "📝 ¿Tiene descripción de alerta?", !!houseMarker.alertDescription );
 
-                         // Buscar un infobox no pinneado o crear uno nuevo
+                         // Si existe alerta, la incluimos en el HTML (en rojo y más destacada)
+                         const alertHtml = houseMarker.alertDescription
+                              ? `<div class="alert-container">
+                              <div class="alert-header">
+                                   <span class="alert-icon">⚠️</span>
+                                   <h3 class="alert-title">AI INCIDENT</h3>
+                              </div>
+                              <div class="alert-content">
+                                   <p class="alert-description">${ houseMarker.alertDescription }</p>
+                                   <div class="ai-footer">
+                                        <span class="ai-icon">🧠</span>
+                                        <span class="ai-text">Analysis generated by artificial intelligence</span>
+                                   </div>
+                              </div>
+                                   
+                              </div>`
+                              : '';
                          let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
                          if ( !currentInfoBox ) {
                               currentInfoBox = document.createElement( 'div' );
                               currentInfoBox.className = 'info-box';
                               document.body.appendChild( currentInfoBox );
                          }
-
-                         currentInfoBox.setAttribute( 'data-house-id', idWithoutPrefix );
+                         currentInfoBox.setAttribute( 'data-house-id', idDisplay );
                          currentInfoBox.style.display = "flex";
-
-
                          currentInfoBox.innerHTML = `
         <div class="info-header">
             <img src="${ item.thumbnail.value }" alt="Property" class="property-image"/>
             <div class="header-bar">
                 <div class="property-badges">
                     <div class="badge-container">
-                        <span class="badge primary">${ capitalizedCategory }</span>
+                    <span class="badge primary">${ parsedData.category.charAt( 0 ).toUpperCase() + parsedData.category.slice( 1 ) }</span>
                         <div class="badge-location nameContainer">
                             <span>${ parsedData.name }</span>
                             <span>${ parsedData.addressLocality }, ${ parsedData.addressRegion }</span>
@@ -7994,36 +10298,35 @@ const cargarYMostrarMarcadoresCasas = async () => {
                 </div>
             </div>
         </div>
-
         <div class="info-content">
+             ${ alertHtml }
             <div class="info-grid">
                 <div class="info-row">
                     <div class="info-item">
-                        <label for="codigo">Código identificador</label>
+                    <label>Código identificador</label>
                         <div class="id-value-container">
-                            <span>${ idWithoutPrefix }</span>
+                      <span>${ idDisplay }</span>
                             <button class="copy-btn" title="Copiar código">
                                 <i class="copy-icon">📋</i>
                             </button>
                         </div>
                     </div>
                     <div class="info-item">
-                        <label for="distrito">Distrito</label>
+                    <label>Distrito</label>
                         <span>${ parsedData.district }</span>
                     </div>
                 </div>
                 <div class="info-row">
                     <div class="info-item">
-                        <label for="operacion">Tipo de operación</label>
+                    <label>Tipo de operación</label>
                         <span>${ item.annexIdealista.value.operation.charAt( 0 ).toUpperCase() + item.annexIdealista.value.operation.slice( 1 ) }</span>
                     </div>
                     <div class="info-item">
-                        <label for="ubicacion">Localización</label>
+                    <label>Localización</label>
                         <span>${ parsedData.addressLocality }, ${ parsedData.addressRegion }</span>
                     </div>
                 </div>
             </div>
-
             <div class="features-grid">
                 <label>Características</label>
                 <div class="features-list">
@@ -8043,20 +10346,19 @@ const cargarYMostrarMarcadoresCasas = async () => {
                         <span class="feature-icon">🚿</span>
                         <span class="feature-text">${ item.annexIdealista.value.bathrooms } baños</span>
                     </div>
-                    ${ parkingInfo === "Sí" ? `
+                  ${ item.annexIdealista.value.parkingSpace.hasParkingSpace ? `
                     <div class="feature-item">
                         <span class="feature-icon">🚗</span>
-                        <span class="feature-text">Parking ${ parkingIncluded === "Sí" ? "incluido" : "no incluido" }</span>
+                      <span class="feature-text">Parking ${ item.annexIdealista.value.parkingSpace.isParkingSpaceIncludedInPrice ? "incluido" : "no incluido" }</span>
                     </div>
                     ` : '' }
                 </div>
             </div>
-
             <div class="description">
                 <label>Descripción</label>
                 <p>${ parsedData.description }</p>
-            </div>
 
+              </div>
             <div class="external-links">
                 <label>Enlaces</label>
                 <a href="${ parsedData.source }" target="_blank" class="external-link">
@@ -8065,86 +10367,173 @@ const cargarYMostrarMarcadoresCasas = async () => {
             </div>
         </div>
     `;
-                         currentInfoBox.querySelector( "#cerrar-info-box" ).addEventListener( "click", () => {
-                              currentInfoBox.remove(); // Usar remove() en lugar de display none
+                         // Agregar listener para cerrar el infobox
+                         // Botón cerrar
+                         const closeButton = currentInfoBox.querySelector( "#cerrar-info-box" );
+                         closeButton.addEventListener( "click", () => {
+                              currentInfoBox.remove();
                          } );
-                         const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
-                         pinBtn.addEventListener( "click", ( e ) => {
-                              const infoBox = e.target.closest( '.info-box' );
-                              if ( infoBox.classList.contains( 'pinned' ) ) {
-                                   // Desfijar
-                                   infoBox.classList.remove( 'pinned' );
-                                   pinBtn.innerHTML = '<i class="action-icon">📌</i>';
-                                   pinBtn.title = "Fijar ventana";
+                         // Botón pin para fijar la ventana
+                         const pinButton = currentInfoBox.querySelector( ".pin-btn" );
+                         pinButton.addEventListener( "click", () => {
+                              if ( currentInfoBox.classList.contains( "pinned" ) ) {
+                                   currentInfoBox.classList.remove( "pinned" );
+                                   pinButton.innerHTML = '<i class="action-icon">📌</i>';
+                                   pinButton.title = "Fijar ventana";
                               } else {
-                                   // Fijar
-                                   infoBox.classList.add( 'pinned' );
-                                   pinBtn.innerHTML = '<i class="action-icon">📍</i>';
-                                   pinBtn.title = "Desfijar ventana";
-
-                                   // Crear nuevo infobox para futuras propiedades y hacerlo arrastrable
-                                   const newInfoBox = document.createElement( 'div' );
-                                   newInfoBox.className = 'info-box';
-                                   newInfoBox.style.display = 'none';
-                                   document.body.appendChild( newInfoBox );
-
-                                   // Reinicializar el arrastre para el nuevo infobox
-                                   const nameContainer = newInfoBox.querySelector( '.nameContainer' );
-                                   if ( nameContainer ) {
-                                        hacerArrastrable( newInfoBox, nameContainer );
-                                   }
+                                   currentInfoBox.classList.add( "pinned" );
+                                   pinButton.innerHTML = '<i class="action-icon">📍</i>';
+                                   pinButton.title = "Desfijar ventana";
                               }
                          } );
-                         currentInfoBox.querySelector( ".share-btn" )?.addEventListener( "click", async () => {
-                              try {
-                                   if ( navigator.share ) {
-                                        await navigator.share( {
-                                             title: `${ capitalizedCategory } - ${ parsedData.name }`,
-                                             text: `${ parsedData.description }`,
-                                             url: parsedData.source
-                                        } );
-                                   } else {
-                                        await navigator.clipboard.writeText( parsedData.source );
-                                        showNotification( '¡Enlace copiado!' );
-                                   }
-                              } catch ( error ) {
-                                   console.error( 'Error al compartir:', error );
-                              }
+                         // Botón compartir
+                         // Reemplazar SOLO esta parte del listener del botón compartir
+                         const shareButton = currentInfoBox.querySelector( ".share-btn" );
+                         shareButton.addEventListener( "click", () => {
+                              shareMarker(
+                                   'house',
+                                   houseMarker.houseId,
+                                   `${ parsedData.name }`, // Título simple
+                                   `📍 ${ parsedData.addressLocality }, ${ parsedData.addressRegion }` // Solo la ubicación
+                              );
                          } );
 
-                         currentInfoBox.querySelector( ".copy-btn" )?.addEventListener( "click", async () => {
-                              try {
-                                   await navigator.clipboard.writeText( idWithoutPrefix );
-                                   showNotification( '¡Código copiado!' );
-                              } catch ( error ) {
-                                   console.error( 'Error al copiar:', error );
-                              }
+                         // Botón copiar código
+                         const copyButton = currentInfoBox.querySelector( ".copy-btn" );
+                         copyButton.addEventListener( "click", () => {
+                              navigator.clipboard.writeText( idDisplay )
+                                   .then( () => {
+                                        // Feedback visual de que se copió
+                                        copyButton.innerHTML = '<i class="copy-icon">✓</i>';
+                                        setTimeout( () => {
+                                             copyButton.innerHTML = '<i class="copy-icon">📋</i>';
+                                        }, 2000 );
+                                   } )
+                                   .catch( err => {
+                                        console.error( 'Error al copiar: ', err );
+                                        // Fallback
+                                        prompt( "Copia este código:", idDisplay );
+                                   } );
                          } );
                     } );
 
-                    markersHouses.push( houseMarker ); // Añade el marcador al array de casas
+                    markersHouses.push( houseMarker );
                }
           } );
      } catch ( error ) {
           console.error( "Error fetching houses:", error );
      }
-};
+}
 
-// Evento botón HOUSES
+registerMarkerType( 'house', {
+     buttonId: 'houses-sub-nav-item',
+     isLayerActive: () => housesVisible,
+     findMarker: ( id ) => markersHouses.find( m => m.houseId === id )
+} );
+
+function updateHouseIncidences() {
+     const alertsEndpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Buildings%20Incidences/Fiware_Buildings_Houses-00001_ALERTS.json?sp=r&st=2025-03-22T15:38:04Z&se=2099-03-22T23:38:04Z&sv=2024-11-04&sr=b&sig=tkfFqZ3lex7HXmnMgBv6yGPMaYpCN0Bey6uku%2B%2B7%2BZA%3D";
+     const alertsUrl = `/api/proxy?url=${ encodeURIComponent( alertsEndpoint ) }`;
+
+     console.log( "🔍 Buscando incidencias para casas..." );
+
+     fetch( alertsUrl )
+          .then( response => {
+               console.log( "📊 Respuesta de incidencias:", response.status );
+               if ( !response.ok ) {
+                    throw new Error( `Error HTTP: ${ response.status }` );
+               }
+               return response.json();
+          } )
+          .then( data => {
+               console.log( "📋 Datos de incidencias recibidos:", data );
+
+               if ( data.alerts && Array.isArray( data.alerts ) ) {
+                    console.log( `✅ Encontradas ${ data.alerts.length } incidencias` );
+                    console.log( "🏠 IDs de casas disponibles:", markersHouses.map( m => m.houseId ) );
+
+                    let coincidencias = 0;
+
+                    data.alerts.forEach( alert => {
+                         console.log( `🔎 Buscando marcador para: ${ alert.related_id }` );
+
+                         if ( markersHouses.length === 0 ) {
+                              console.warn( "⚠️ No hay marcadores de casas cargados aún" );
+                              return;
+                         }
+
+                         let encontrado = false;
+
+                         markersHouses.forEach( marker => {
+                              console.log( `  - Comparando: [${ marker.houseId }] con [${ alert.related_id }] - ${ marker.houseId === alert.related_id ? "✓ COINCIDE" : "✗ DIFERENTE" }` );
+
+                              if ( marker.houseId === alert.related_id ) {
+                                   encontrado = true;
+                                   coincidencias++;
+
+                                   console.log( `✅ COINCIDE: Marcador ${ marker.houseId } tiene incidencia` );
+
+                                   // SIMPLEMENTE CAMBIAR LA URL DEL ICONO
+                                   // Usar el icono rojo de Houses - cambiado a la URL del icono rojo
+                                   const redHouseIconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1740779713/qubo/qubos/buildings_hgrrz1.svg";
+
+                                   // Aplicar directamente el nuevo icono
+                                   marker.setIcon( redHouseIconUrl );
+
+                                   // Guardar la descripción de la alerta en el marcador
+                                   marker.alertDescription = alert.alert_description;
+
+                                   console.log( `✅ Marcador ${ marker.houseId } actualizado con alerta: ${ alert.alert_description }` );
+                              }
+                         } );
+
+                         if ( !encontrado ) {
+                              console.warn( `⚠️ No se encontró marcador para la incidencia: ${ alert.related_id }` );
+                         }
+                    } );
+
+                    console.log( `📊 Resumen: ${ coincidencias } de ${ data.alerts.length } incidencias aplicadas` );
+
+               } else {
+                    console.warn( "⚠️ No se encontraron alertas en la respuesta o formato incorrecto" );
+               }
+          } )
+          .catch( error => {
+               console.error( "❌ Error obteniendo incidencias:", error );
+          } );
+}
+
+// Evento para el botón de Houses (por ejemplo, un submenú)
 const eventHouses = document.getElementById( "houses-sub-nav-item" );
-let markersHouses = []; // Array para almacenar los marcadores de casas
-let housesVisible = false; // Bandera para el estado de visibilidad
+let housesVisible = false;
+let housesLoaded = false;
+eventHouses.addEventListener( "click", async () => {
+     console.log( "🏠 Click en botón de Houses - Estado actual:", housesVisible ? "visible" : "oculto" );
 
-eventHouses.addEventListener( 'click', async () => {
-     // Alternar la visibilidad de los marcadores de casas
+     // Alterna la visibilidad de los marcadores
      toggleMarcadores( markersHouses, housesVisible );
-     housesVisible = !housesVisible; // Cambia la bandera de visibilidad
+     housesVisible = !housesVisible;
 
-     // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
-     if ( markersHouses.length === 0 && housesVisible ) {
-          await cargarYMostrarMarcadoresCasas();
+     if ( housesVisible ) {
+          // Solo cargar marcadores si no existen
+          if ( markersHouses.length === 0 ) {
+               console.log( "🔄 Cargando marcadores de casas por primera vez..." );
+               await cargarYMostrarMarcadoresCasas();
+               housesLoaded = true;
+
+               // Pequeño retraso para asegurar que los marcadores estén listos
+               setTimeout( () => {
+                    console.log( "⏱️ Actualizando incidencias después de cargar marcadores..." );
+                    updateHouseIncidences();
+               }, 500 );
+          } else {
+               // Si ya están cargados, solo actualizar incidencias
+               console.log( "🔄 Marcadores ya cargados, actualizando incidencias..." );
+               updateHouseIncidences();
+          }
      }
 } );
+
 
 
 //! Función para mostrar OFFICES
@@ -9188,17 +11577,48 @@ botonUnderConstruction.addEventListener( 'click', () => {
 } );
 
 //* BOTÓN HEALTH ****************
+
+// Función para formatear texto en mayúsculas a formato título
+function formatearTexto( texto ) {
+     if ( !texto ) return '';
+
+     // Si el texto está en mayúsculas completamente, lo convertimos a formato título
+     if ( texto === texto.toUpperCase() ) {
+          return texto.toLowerCase().split( ' ' ).map( palabra => {
+               // No poner en mayúscula palabras como "de", "del", "la", etc.
+               const palabrasIgnoradas = [ 'de', 'del', 'la', 'el', 'los', 'las', 'y', 'e', 'o', 'u', 'a', 'en' ];
+               if ( palabrasIgnoradas.includes( palabra ) ) {
+                    return palabra;
+               }
+               return palabra.charAt( 0 ).toUpperCase() + palabra.slice( 1 );
+          } ).join( ' ' );
+     }
+
+     // Si no está todo en mayúsculas, lo devolvemos como está
+     return texto;
+}
+
 //! Función para mostrar HOSPITALS&CLINICS
 const eventHospitals = document.getElementById( "hospital-clinics-nav-item" );
 let markersHospital = []; // Array para almacenar los marcadores
 let hospitalsVisible = false; // Bandera para el estado de visibilidad
 
+// Registrar tipo de marcador para compartir
+registerMarkerType( 'hospital', {
+     buttonId: 'hospital-clinics-nav-item',
+     isLayerActive: () => hospitalsVisible,
+     findMarker: ( id ) => markersHospital.find( marker => marker.hospitalId === id )
+} );
+
 // Event Hospitals
 eventHospitals.addEventListener( "click", () => {
+
+     // Toggle visibilidad
+     hospitalsVisible = !hospitalsVisible;
+
      // Si los marcadores ya están mostrados, los ocultamos
-     if ( hospitalsVisible ) {
+     if ( !hospitalsVisible ) {
           markersHospital.forEach( marker => marker.setMap( null ) ); // Oculta cada marcador
-          hospitalsVisible = false; // Actualiza la bandera de visibilidad
      } else {
           // Si los marcadores están ocultos, los mostramos
           if ( markersHospital.length > 0 ) {
@@ -9206,6 +11626,7 @@ eventHospitals.addEventListener( "click", () => {
           } else {
                const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Hospitals%20%26%20Clinics/Fiware_Health_HospitalsAndClinics-00001?sp=r&st=2023-12-30T10:17:13Z&se=2090-01-01T18:17:13Z&sv=2022-11-02&sr=b&sig=9W9CmvHNvBDU7GhdmzMbkM5AP193N%2FFBRT1b5w4KFJ0%3D";
                const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
+
                // Si es la primera vez, crea los marcadores
                fetch( proxyUrl )
                     .then( response => response.json() )
@@ -9224,37 +11645,202 @@ eventHospitals.addEventListener( "click", () => {
                                    addressCountry,
                                    owner
                               } = parseFiwareData( item );
+
                               const marker = new google.maps.Marker( {
                                    position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                                    map: map,
                                    title: item.name.value,
                                    icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1717186037/qubo/qubos/quboHospitals_rqrldc.svg"
-
                               } );
 
+                              // Guardar ID del hospital en el marcador para poder buscarlo después
+                              marker.hospitalId = id;
 
                               // Agrega un evento click a cada marcador para mostrar el infoBox
                               marker.addListener( "click", () => {
-                                   const infoBox = document.querySelector( ".info-box" );
-                                   infoBox.style.display = "flex";
-                                   infoBox.innerHTML = `
-                                   <div class='nameContainer'>
-                                        <p>${ category }</p>
-                                        <p>${ name }</p>
-                                   </div>
-                                   <img src='${ STATIC_IMAGES.hospital }'>
-                                   <p>Address: <span>${ streetAddress }, ${ postalCode }</span></p>
-                                   <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
-                                   <p>Country: <span>${ addressCountry }</span> </p>
-                                   <p>Owner: <span>${ owner }</span> </p>
-                                   <p>Description: <span>${ description }</span> </p>
-                                   <p>ID: <span>${ id }</span> </p>
-                                   <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                                   <button class='share'><img src='./assets/shareIcon.svg'></button>
-                              `;
-                                   document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                                        infoBox.style.display = "none";
+                                   const hospitalId = id;
+
+                                   // Buscar si hay infobox pinneado de este hospital
+                                   const existingPinnedBox = document.querySelector( `.info-box.pinned[data-hospital-id="${ hospitalId }"]` );
+                                   if ( existingPinnedBox ) {
+                                        existingPinnedBox.classList.add( 'highlight' );
+                                        setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                        return;
+                                   }
+
+                                   // Buscar infobox no pinneado o crear uno nuevo
+                                   let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                                   if ( !currentInfoBox ) {
+                                        currentInfoBox = document.createElement( 'div' );
+                                        currentInfoBox.className = 'info-box';
+                                        document.body.appendChild( currentInfoBox );
+                                   }
+
+                                   currentInfoBox.setAttribute( 'data-hospital-id', hospitalId );
+                                   currentInfoBox.style.display = "flex";
+
+                                   // Usar la función para formatear todos los textos
+                                   const tipoText = description.includes( 'Tipo de centro:' ) ?
+                                        formatearTexto( description.match( /Tipo de centro: ([^;]+)/ )[ 1 ] ) : "General";
+                                   const propiedadText = description.includes( 'Propiedad de:' ) ?
+                                        formatearTexto( description.match( /Propiedad de: ([^,]+)/ )[ 1 ] ) : formatearTexto( owner );
+                                   const gestionText = description.includes( 'Gestionado por:' ) ?
+                                        formatearTexto( description.match( /Gestionado por: ([^$]+)/ )[ 1 ] ) : formatearTexto( owner );
+
+                                   currentInfoBox.innerHTML = `
+                            <div class="info-header">
+                                <img src="${ STATIC_IMAGES.hospital }" alt="Hospital" class="property-image"/>
+                                <div class="header-bar">
+                                    <div class="property-badges">
+                                        <div class="badge-container">
+                                            <span class="badge primary">HOSPITAL</span>
+                                            <div class="badge-location nameContainer">
+                                                 <span>${ formatearTexto( name ) }</span>
+                                             <span>${ formatearTexto( addressLocality ) }</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="action-btn pin-btn" title="Fijar ventana">
+                                            <i class="action-icon">📌</i>
+                                        </button>
+                                        <button class="action-btn share-btn" title="Compartir">
+                                            <i class="action-icon">📤</i>
+                                        </button>
+                                        <button class="action-btn close-btn" title="Cerrar">
+                                            <i class="action-icon">✕</i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-content">
+                                <div class="info-grid">
+                                    <div class="info-row">
+                                        <div class="info-item">
+                                            <label><span class="label-icon">🆔</span> ID</label>
+                                            <div class="id-value-container">
+                                                <div class="id-wrapper">
+                                                    <span title="${ id }">${ id }</span>
+                                                    <button class="copy-btn" title="Copiar código completo">
+                                                        <i class="copy-icon">📋</i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="info-item">
+                                            <label><span class="label-icon">🌍</span> País</label>
+                                            <span>${ formatearTexto( addressCountry ) }</span>
+                                        </div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="info-item">
+                                            <label><span class="label-icon">📍</span> Dirección</label>
+                                            <span>${ formatearTexto( streetAddress ) }, ${ formatearTexto( postalCode ) }</span>
+                                        </div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="info-item">
+                                            <label><span class="label-icon">🌐</span> Localización</label>
+                                            <span>${ formatearTexto( addressLocality ) }, ${ formatearTexto( addressRegion ) }</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label><span class="label-icon">👥</span> Propietario</label>
+                                            <span>${ formatearTexto( owner ) }</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="features-grid">
+                                    <label>Información del Hospital</label>
+                                    <div class="features-list">
+                                        <div class="feature-item">
+                                            <span class="feature-icon">🏥</span>
+                                            <span class="feature-text">Tipo de centro: ${ tipoText }</span>
+                                        </div>
+                                        <div class="feature-item">
+                                            <span class="feature-icon">👔</span>
+                                            <span class="feature-text">Propiedad de: ${ propiedadText }</span>
+                                        </div>
+                                        <div class="feature-item">
+                                            <span class="feature-icon">⚕️</span>
+                                            <span class="feature-text">Gestionado por: ${ gestionText }</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+
+
+
+                                   // Event Listeners
+                                   // 1. Botón cerrar
+                                   currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                        currentInfoBox.remove();
                                    } );
+
+                                   // 2. Botón pin
+                                   const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                                   pinBtn.addEventListener( "click", ( e ) => {
+                                        const infoBox = e.target.closest( '.info-box' );
+                                        if ( infoBox.classList.contains( 'pinned' ) ) {
+                                             infoBox.classList.remove( 'pinned' );
+                                             pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                             pinBtn.title = "Fijar ventana";
+                                        } else {
+                                             infoBox.classList.add( 'pinned' );
+                                             pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                             pinBtn.title = "Desfijar ventana";
+
+                                             const newInfoBox = document.createElement( 'div' );
+                                             newInfoBox.className = 'info-box';
+                                             newInfoBox.style.display = 'none';
+                                             document.body.appendChild( newInfoBox );
+                                        }
+                                   } );
+
+                                   // 3. Botón compartir
+                                   currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                        try {
+                                             const baseUrl = window.location.origin + window.location.pathname;
+                                             const shareUrl = `${ baseUrl }?view=hospital&id=${ hospitalId }`;
+
+                                             const shareData = {
+                                                  title: `🏥 ${ category } - ${ name }`,
+                                                  text: `📍 ${ addressLocality }, ${ addressRegion }\n` +
+                                                       `🌍 ${ addressCountry }\n` +
+                                                       `👥 Propietario: ${ owner }`,
+                                                  url: shareUrl
+                                             };
+
+                                             if ( navigator.share && navigator.canShare( shareData ) ) {
+                                                  await navigator.share( shareData );
+                                             } else {
+                                                  const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+                                                  await navigator.clipboard.writeText( shareText );
+                                                  showNotification( '¡Información copiada al portapapeles!' );
+                                             }
+                                        } catch ( error ) {
+                                             console.error( 'Error al compartir:', error );
+                                        }
+                                   } );
+
+                                   // 4. Botón copiar
+                                   currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                                        try {
+                                             await navigator.clipboard.writeText( id );
+                                             const copyBtn = currentInfoBox.querySelector( ".copy-btn" );
+                                             copyBtn.innerHTML = '<i class="copy-icon">✓</i>';
+                                             setTimeout( () => {
+                                                  copyBtn.innerHTML = '<i class="copy-icon">📋</i>';
+                                             }, 2000 );
+                                             showNotification( '¡Código copiado!' );
+                                        } catch ( error ) {
+                                             console.error( "Error al copiar:", error );
+                                        }
+                                   } );
+
+                                   // Hacer el infobox arrastrable
+                                   inicializarArrastre( currentInfoBox );
                               } );
 
                               markersHospital.push( marker ); // Añade el marcador al array
@@ -9262,10 +11848,8 @@ eventHospitals.addEventListener( "click", () => {
                     } )
                     .catch( error => console.error( "Error al cargar los marcadores de hospitales:", error ) );
           }
-          hospitalsVisible = true; // Actualiza la bandera de visibilidad
      }
-}
-);
+} );
 
 
 //! Función para mostrar OPTICS, DENTISTIS ETC
@@ -9386,9 +11970,63 @@ document.getElementById( "virus-hazard-nav-item" ).addEventListener( "click", to
 
 
 //! Función para mostrar PHARMACY
+//! Función para mostrar PHARMACY
+let markersFarmacias = []; // Array para almacenar los marcadores de farmacias
+let farmaciasVisible = false; // Bandera para el estado de visibilidad
+
+// Registrar tipo de marcador para compartir
+registerMarkerType( 'pharmacy', {
+     buttonId: 'pharmacy-nav-item',
+     isLayerActive: () => farmaciasVisible,
+     findMarker: ( id ) => markersFarmacias.find( marker => marker.pharmacyId === id )
+} );
+
+// Función para generar una hora de apertura aleatoria (solo para demostración)
+function generarHorarioAleatorio() {
+     const horaApertura = Math.floor( Math.random() * 4 ) + 8; // Entre 8 y 11
+     const horaCierre = Math.floor( Math.random() * 4 ) + 20; // Entre 20 y 23
+     return {
+          apertura: horaApertura,
+          cierre: horaCierre,
+          texto: `${ horaApertura }:00 - ${ horaCierre }:00`
+     };
+}
+
+// Función para calcular si está abierto y la posición del marcador de tiempo actual
+function calcularEstadoHorario( horario ) {
+     const ahora = new Date();
+     const horaActual = ahora.getHours();
+     const minutos = ahora.getMinutes();
+
+     // Calcular estado (abierto/cerrado)
+     const estaAbierto = horaActual >= horario.apertura && horaActual < horario.cierre;
+
+     // Calcular posición del marcador (0-100%)
+     let porcentaje = 0;
+
+     if ( horaActual < horario.apertura ) {
+          // Antes de abrir
+          porcentaje = 0;
+     } else if ( horaActual >= horario.cierre ) {
+          // Después de cerrar
+          porcentaje = 100;
+     } else {
+          // Durante el horario de apertura
+          const totalMinutos = ( horario.cierre - horario.apertura ) * 60;
+          const minutosTranscurridos = ( ( horaActual - horario.apertura ) * 60 ) + minutos;
+          porcentaje = Math.round( ( minutosTranscurridos / totalMinutos ) * 100 );
+     }
+
+     return {
+          abierto: estaAbierto,
+          porcentaje: porcentaje
+     };
+}
+
 const cargarMarcadoresFarmacias = () => {
      const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Health/Pharmacy/Fiware_Health_Pharmacy-00001?sp=r&st=2024-01-03T13:10:58Z&se=2090-03-01T21:10:58Z&sv=2022-11-02&sr=b&sig=%2BWst1weUxMGfSdDVWZ25AmykNzJkguql09VWbkpaGOQ%3D";
      const proxyUrl = `/api/proxy?url=${ encodeURIComponent( endpoint ) }`;
+
      fetch( proxyUrl )
           .then( ( response ) => {
                if ( response.ok ) {
@@ -9402,8 +12040,6 @@ const cargarMarcadoresFarmacias = () => {
                const markersData = data.buildings0001;
 
                markersData.forEach( ( item ) => {
-
-                    // const ubicacion = item.location.value.coordinates;
                     const {
                          ubicacion,
                          name,
@@ -9419,43 +12055,269 @@ const cargarMarcadoresFarmacias = () => {
                          owner
                     } = parseFiwareData( item );
 
+                    // IMPORTANTE: Verificar que ubicacion tenga datos válidos
+                    if ( !ubicacion || ubicacion.length < 2 ||
+                         typeof ubicacion[ 0 ] !== 'number' ||
+                         typeof ubicacion[ 1 ] !== 'number' ) {
+                         console.error( "Ubicación inválida para la farmacia:", item.id, ubicacion );
+                         return; // Saltar este item
+                    }
+
                     const marker = new google.maps.Marker( {
                          position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
                          map: map,
-                         title: `Marcador ${ item.id }`,
+                         title: name || `Marcador ${ item.id }`,
                          icon: "./assets/quboFarmacia.png",
                     } );
 
+                    // Guardar ID de farmacia para buscarlo después
+                    marker.pharmacyId = item.id;
+
                     marker.addListener( "click", () => {
-                         const infoBox = document.querySelector( ".info-box" );
+                         const pharmacyId = item.id;
 
-                         infoBox.style.display = "flex";
-                         infoBox.innerHTML = `
-                         <div class='nameContainer'>
-                              <p>${ description }</p>
-                              <p>${ name }</p>
-                         </div>
-                         <img src='${ STATIC_IMAGES.pharmacy }'>
-                         <p>Owner: <span>${ owner }</span> </p>
-                         <p>Address: <span>${ streetAddress }</span> </p>
-                         <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
-                         <p>Country: <span>${ addressCountry }</span> </p>
-                         <p>ID: <span>${ item.id }</span> </p>
-                         <button id="cerrar-info-box">
-                              <img src='./assets/botonCerrar.svg'>
-                         </button>
-                         <button class='share'>
-                              <img src='./assets/shareIcon.svg'>
-                         </button>
-                         `;
+                         // Comprobar si ya existe un infobox pinneado
+                         const existingPinnedBox = document.querySelector( `.info-box.pinned[data-pharmacy-id="${ pharmacyId }"]` );
+                         if ( existingPinnedBox ) {
+                              existingPinnedBox.classList.add( 'highlight' );
+                              setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                              return;
+                         }
 
-                         const cerrarBoton = document.getElementById( "cerrar-info-box" );
-                         cerrarBoton.addEventListener( "click", () => {
-                              infoBox.style.display = "none";
+                         // Buscar un infobox no pinneado o crear uno nuevo
+                         let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                         if ( !currentInfoBox ) {
+                              currentInfoBox = document.createElement( 'div' );
+                              currentInfoBox.className = 'info-box';
+                              document.body.appendChild( currentInfoBox );
+                         }
+
+                         currentInfoBox.setAttribute( 'data-pharmacy-id', pharmacyId );
+                         currentInfoBox.style.display = "flex";
+
+                         // Generar datos aleatorios para la demo
+                         const horario = generarHorarioAleatorio();
+                         const estadoHorario = calcularEstadoHorario( horario );
+                         const deGuardia = Math.random() > 0.5;
+                         const telefono = `91 ${ Math.floor( Math.random() * 900 ) + 100 } ${ Math.floor( Math.random() * 90 ) + 10 } ${ Math.floor( Math.random() * 90 ) + 10 }`;
+                         const tieneUrgencias = Math.random() > 0.3;
+                         const tieneEntrega = Math.random() > 0.4;
+                         const tieneVacunacion = Math.random() > 0.5;
+
+                         currentInfoBox.innerHTML = `
+                    <div class="info-header">
+                        <img src="${ STATIC_IMAGES.pharmacy }" alt="Farmacia" class="property-image"/>
+                        <div class="header-bar">
+                            <div class="property-badges">
+                                <div class="badge-container">
+                                    <span class="badge primary">PHARMACY</span>
+                                    <div class="badge-location nameContainer">
+                                        <span>${ formatearTexto( name || '' ) }</span>
+                                        <span>${ formatearTexto( addressLocality || '' ) }</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="action-btn pin-btn" title="Fijar ventana">
+                                    <i class="action-icon">📌</i>
+                                </button>
+                                <button class="action-btn share-btn" title="Compartir">
+                                    <i class="action-icon">📤</i>
+                                </button>
+                                <button class="action-btn close-btn" title="Cerrar">
+                                    <i class="action-icon">✕</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-content">
+                        <div class="info-grid">
+                            <div class="info-row">
+                                <div class="info-item">
+                                    <label><span class="label-icon">🔍</span> ID</label>
+                                    <div class="id-value-container">
+                                        <div class="id-wrapper">
+                                            <span title="${ pharmacyId }">${ pharmacyId }</span>
+                                            <button class="copy-btn" title="Copiar código completo">
+                                                <i class="copy-icon">📋</i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <label><span class="label-icon">🌍</span> País</label>
+                                    <span>${ formatearTexto( addressCountry || '' ) }</span>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-item">
+                                    <label><span class="label-icon">📍</span> Dirección</label>
+                                    <span>${ formatearTexto( streetAddress || '' ) }</span>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-item">
+                                    <label><span class="label-icon">🌐</span> Localización</label>
+                                    <span>${ formatearTexto( addressLocality || '' ) }, ${ formatearTexto( addressRegion || '' ) }</span>
+                                </div>
+                                <div class="info-item">
+                                    <label><span class="label-icon">👥</span> Propietario</label>
+                                    <span>${ formatearTexto( owner || '' ) }</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pharmacy-features-grid">
+                            <label><span class="label-icon">💊</span> Información de la Farmacia</label>
+                            
+                            <!-- Horario con visualización gráfica -->
+                            <div class="schedule-display">
+                                <div class="schedule-info">
+                                    <span class="feature-icon">⏰</span>
+                                    <div class="schedule-details">
+                                        <span class="schedule-label">Horario de atención</span>
+                                        <span class="schedule-value">${ horario.texto }</span>
+                                    </div>
+                                </div>
+                              <div class="time-progress">
+    <div class="time-bar" style="--progress-width: ${ estadoHorario.porcentaje }%">
+        <div class="current-time-marker" style="left: ${ estadoHorario.porcentaje }%"></div>
+    </div>
+    <div class="time-labels">
+        <span>${ horario.apertura }h</span>
+        <span>${ Math.floor( ( horario.apertura + horario.cierre ) / 2 ) }h</span>
+        <span>${ horario.cierre }h</span>
+    </div>
+</div>
+                            </div>
+                            
+                            <!-- Servicios con iconos -->
+                            <div class="services-container">
+                                <div class="service-item available">
+                                    <div class="service-icon-container">
+                                        <span class="service-icon">📞</span>
+                                    </div>
+                                    <div class="service-details">
+                                        <span class="service-name">Teléfono</span>
+                                        <span class="service-value">${ telefono }</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="service-item ${ tieneUrgencias ? 'available' : 'unavailable' }">
+                                    <div class="service-icon-container">
+                                        <span class="service-icon">🚑</span>
+                                    </div>
+                                    <div class="service-details">
+                                        <span class="service-name">Urgencias</span>
+                                         <span class="service-availability">${ tieneUrgencias ? '✅ Disponible' : '❌ No disponible' }</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="service-item ${ tieneEntrega ? 'available' : 'unavailable' }">
+                                    <div class="service-icon-container">
+                                        <span class="service-icon">🏠</span>
+                                    </div>
+                                    <div class="service-details">
+                                        <span class="service-name">Entrega a domicilio</span>
+                                        <span class="service-availability">${ tieneEntrega ? '✅ Disponible' : '❌ No disponible' }</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="service-item ${ tieneVacunacion ? 'available' : 'unavailable' }">
+                                    <div class="service-icon-container">
+                                        <span class="service-icon">💉</span>
+                                    </div>
+                                    <div class="service-details">
+                                        <span class="service-name">Vacunación</span>
+                                         <span class="service-availability">${ tieneVacunacion ? '✅ Disponible' : '❌ No disponible' }</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pharmacy-status-section">
+                            <label><span class="pharmacy-label-icon">🔄</span> Estado actual</label>
+                            <div class="pharmacy-status-indicator">
+                                <span class="pharmacy-status-badge ${ estadoHorario.abierto ? 'open' : 'closed' }">${ estadoHorario.abierto ? 'Abierto ahora' : 'Cerrado' }</span>
+                                ${ deGuardia ? '<span class="pharmacy-duty-badge">De guardia hoy</span>' : '' }
+                            </div>
+                        </div>
+                    </div>`;
+
+                         // Event Listeners
+                         // 1. Botón cerrar
+                         currentInfoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                              currentInfoBox.remove();
                          } );
+
+                         // 2. Botón pin
+                         const pinBtn = currentInfoBox.querySelector( ".pin-btn" );
+                         pinBtn.addEventListener( "click", ( e ) => {
+                              const infoBox = e.target.closest( '.info-box' );
+                              if ( infoBox.classList.contains( 'pinned' ) ) {
+                                   infoBox.classList.remove( 'pinned' );
+                                   pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                   pinBtn.title = "Fijar ventana";
+                              } else {
+                                   infoBox.classList.add( 'pinned' );
+                                   pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                   pinBtn.title = "Desfijar ventana";
+
+                                   const newInfoBox = document.createElement( 'div' );
+                                   newInfoBox.className = 'info-box';
+                                   newInfoBox.style.display = 'none';
+                                   document.body.appendChild( newInfoBox );
+                              }
+                         } );
+
+                         // 3. Botón compartir
+                         currentInfoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                              try {
+                                   const baseUrl = window.location.origin + window.location.pathname;
+                                   const shareUrl = `${ baseUrl }?view=pharmacy&id=${ pharmacyId }`;
+
+                                   const shareData = {
+                                        title: `💊 Farmacia - ${ formatearTexto( name || '' ) }`,
+                                        text: `📍 ${ formatearTexto( streetAddress || '' ) }\n` +
+                                             `🌍 ${ formatearTexto( addressLocality || '' ) }, ${ formatearTexto( addressRegion || '' ) }\n` +
+                                             `📞 ${ telefono }\n` +
+                                             `${ estadoHorario.abierto ? '✅ Abierto ahora: ' + horario.texto : '❌ Cerrado' }`,
+                                        url: shareUrl
+                                   };
+
+                                   if ( navigator.share && navigator.canShare( shareData ) ) {
+                                        await navigator.share( shareData );
+                                   } else {
+                                        const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+                                        await navigator.clipboard.writeText( shareText );
+                                        showNotification( '¡Información copiada al portapapeles!' );
+                                   }
+                              } catch ( error ) {
+                                   console.error( 'Error al compartir:', error );
+                              }
+                         } );
+
+                         // 4. Botón copiar
+                         currentInfoBox.querySelector( ".copy-btn" ).addEventListener( "click", async () => {
+                              try {
+                                   await navigator.clipboard.writeText( pharmacyId );
+                                   const copyBtn = currentInfoBox.querySelector( ".copy-btn" );
+                                   copyBtn.innerHTML = '<i class="copy-icon">✓</i>';
+                                   setTimeout( () => {
+                                        copyBtn.innerHTML = '<i class="copy-icon">📋</i>';
+                                   }, 2000 );
+                                   showNotification( '¡Código copiado!' );
+                              } catch ( error ) {
+                                   console.error( "Error al copiar:", error );
+                              }
+                         } );
+
+                         // Hacer el infobox arrastrable
+                         inicializarArrastre( currentInfoBox );
                     } );
 
-                    markersFarmacias.push( marker ); // Añade el marcador al array de farmacias
+                    markersFarmacias.push( marker ); // Añade el marcador al array
                } );
           } )
           .catch( ( error ) => {
@@ -9464,17 +12326,21 @@ const cargarMarcadoresFarmacias = () => {
 };
 
 const eventFarmacias = document.getElementById( "pharmacy-nav-item" );
-let markersFarmacias = []; // Array para almacenar los marcadores de farmacias
-let farmaciasVisible = false; // Bandera para el estado de visibilidad
 
 eventFarmacias.addEventListener( "click", () => {
-     // Alternar la visibilidad de los marcadores de farmacias
-     toggleMarcadores( markersFarmacias, farmaciasVisible );
-     farmaciasVisible = !farmaciasVisible; // Cambia la bandera de visibilidad
+     // Alternar la visibilidad
+     farmaciasVisible = !farmaciasVisible;
 
-     // Si los marcadores aún no se han cargado y deben mostrarse, cargarlos y mostrarlos
-     if ( markersFarmacias.length === 0 && farmaciasVisible ) {
-          cargarMarcadoresFarmacias();
+     if ( !farmaciasVisible ) {
+          markersFarmacias.forEach( marker => marker.setMap( null ) ); // Ocultar marcadores
+     } else {
+          // Si los marcadores ya existen, mostrarlos
+          if ( markersFarmacias.length > 0 ) {
+               markersFarmacias.forEach( marker => marker.setMap( map ) );
+          } else {
+               // Si es la primera vez, cargar los marcadores
+               cargarMarcadoresFarmacias();
+          }
      }
 } );
 
@@ -9568,6 +12434,77 @@ function convertToTitleCase( str ) {
           .join( ' ' );
 }
 
+// Esta función actualizará los marcadores de las estaciones de policía con alertas
+function updatePoliceIncidences() {
+     const alertsEndpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Security%20Incidences/Fiware_Security_Police-00001_ALERTS.json?sp=r&st=2025-04-22T21:50:49Z&se=2099-04-23T05:50:49Z&sv=2024-11-04&sr=b&sig=XI%2F9fYBtfdyD1MvUU62Oa6s51SA6K%2Bm1wJCAfgxrIig%3D";
+     const alertsUrl = `/api/proxy?url=${ encodeURIComponent( alertsEndpoint ) }`;
+
+     console.log( "🔍 Buscando incidencias para estaciones de policía..." );
+
+     fetch( alertsUrl )
+          .then( response => {
+               console.log( "📊 Respuesta de incidencias de policía:", response.status );
+               if ( !response.ok ) {
+                    throw new Error( `Error HTTP: ${ response.status }` );
+               }
+               return response.json();
+          } )
+          .then( data => {
+               console.log( "📋 Datos de incidencias de policía recibidos:", data );
+
+               if ( data.alerts && Array.isArray( data.alerts ) ) {
+                    console.log( `✅ Encontradas ${ data.alerts.length } incidencias de policía` );
+                    console.log( "🚓 IDs de estaciones de policía disponibles:", markersPolice.map( m => m.policeId ) );
+
+                    let coincidencias = 0;
+
+                    data.alerts.forEach( alert => {
+                         console.log( `🔎 Buscando marcador para: ${ alert.related_id }` );
+
+                         if ( markersPolice.length === 0 ) {
+                              console.warn( "⚠️ No hay marcadores de policía cargados aún" );
+                              return;
+                         }
+
+                         let encontrado = false;
+
+                         markersPolice.forEach( marker => {
+                              // Asumimos que guardamos el ID en el marcador como policeId
+                              // Si no es el caso, ajustar esta comparación
+                              console.log( `  - Comparando: [${ marker.policeId }] con [${ alert.related_id }] - ${ marker.policeId === alert.related_id ? "✓ COINCIDE" : "✗ DIFERENTE" }` );
+
+                              if ( marker.policeId === alert.related_id ) {
+                                   encontrado = true;
+                                   coincidencias++;
+
+                                   console.log( `✅ COINCIDE: Marcador ${ marker.policeId } tiene incidencia` );
+
+                                   // Cambiar el icono a una versión roja/alerta
+                                   const redPoliceIconUrl = "https://res.cloudinary.com/dafjggs2p/image/upload/v1745359002/qubo/qubos/incidence_police_zdkeug.svg";
+                                   marker.setIcon( redPoliceIconUrl );
+
+                                   // Guardar la descripción de la alerta en el marcador
+                                   marker.alertDescription = alert.alert_description;
+
+                                   console.log( `✅ Marcador ${ marker.policeId } actualizado con alerta: ${ alert.alert_description }` );
+                              }
+                         } );
+
+                         if ( !encontrado ) {
+                              console.warn( `⚠️ No se encontró marcador para la incidencia: ${ alert.related_id }` );
+                         }
+                    } );
+
+                    console.log( `📊 Resumen: ${ coincidencias } de ${ data.alerts.length } incidencias aplicadas` );
+               } else {
+                    console.warn( "⚠️ No se encontraron alertas en la respuesta o formato incorrecto" );
+               }
+          } )
+          .catch( error => {
+               console.error( "❌ Error obteniendo incidencias:", error );
+          } );
+}
+
 
 function cargarMarcadoresPolice() {
      const endpoint = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Security/Police/Fiware_Security_Police-00001?sp=r&st=2024-06-02T10:30:17Z&se=2090-01-01T19:30:17Z&sv=2022-11-02&sr=b&sig=t5a17aCew3nA5twJGHg5K4fiMXBI%2BphX9N%2F3bjpbDRg%3D";
@@ -9598,79 +12535,207 @@ function cargarMarcadoresPolice() {
                               title: name,
                               icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740258188/qubo/qubos/Police_vjjnmu.svg"
                          } );
+
+                         // Guardar el ID completo del edificio en el marcador para poder relacionarlo con la incidencia
+                         marker.policeId = item.id;
+
                          // Dentro del evento click del marcador
                          marker.addListener( "click", () => {
-                              const infoBox = document.querySelector( ".info-box" );
+                              // Comprobar si ya existe un infobox pinneado
+                              const existingPinnedBox = document.querySelector( `.info-box.pinned[data-police-id="${ item.id }"]` );
+                              if ( existingPinnedBox ) {
+                                   existingPinnedBox.classList.add( 'highlight' );
+                                   setTimeout( () => existingPinnedBox.classList.remove( 'highlight' ), 1000 );
+                                   return;
+                              }
+
+                              // Buscar un infobox no pinneado o crear uno nuevo
+                              let infoBox = document.querySelector( ".info-box:not(.pinned)" );
+                              if ( !infoBox ) {
+                                   infoBox = document.createElement( 'div' );
+                                   infoBox.className = 'info-box';
+                                   document.body.appendChild( infoBox );
+                              }
+
+                              infoBox.setAttribute( 'data-police-id', item.id );
                               infoBox.style.display = "flex";
+
+                              // Comprobar si hay alerta para este marcador
+                              console.log( "🔍 Verificando alerta para marcador de policía:", marker.policeId );
+                              console.log( "📝 ¿Tiene descripción de alerta?", !!marker.alertDescription );
+
+                              // Si existe alerta, la incluimos en el HTML
+                              const alertHtml = marker.alertDescription
+                                   ? `<div class="alert-container">
+                                 <div class="alert-header">
+                                     <span class="alert-icon">⚠️</span>
+                                     <h3 class="alert-title">AI INCIDENT</h3>
+                                 </div>
+                                 <div class="alert-content">
+                                     <p class="alert-description">${ marker.alertDescription }</p>
+                                     <div class="ai-footer">
+                                         <span class="ai-icon">🧠</span>
+                                         <span class="ai-text">Analysis generated by artificial intelligence</span>
+                                     </div>
+                                 </div>
+                             </div>`
+                                   : '';
 
                               // Construir contenido de infoBox de manera condicional
                               let infoContent = `
-         <div class='nameContainer'>
-             <p>${ category }</p>
-             <p>${ name }</p>
-         </div>
-         <img src='${ STATIC_IMAGES.police }'>
-     `;
-
-                              // Agregar solo los campos que tienen datos válidos
-                              if ( addressLocality ) {
-                                   infoContent += `<p>Localización: ${ addressLocality }${ addressRegion ? ', ' + addressRegion : '' }</p>`;
-                              }
-                              if ( streetAddress ) {
-                                   infoContent += `<p>Address: ${ streetAddress }</p>`;
-                              }
-                              if ( postalCode ) {
-                                   infoContent += `<p>C.P: ${ postalCode }</p>`;
-                              }
-                              if ( neighborhood && neighborhood !== 'N/A' ) {
-                                   infoContent += `<p>Neighborhood: ${ neighborhood }</p>`;
-                              }
-                              if ( district && district !== 'N/A' ) {
-                                   infoContent += `<p>District: ${ district }</p>`;
-                              }
-                              if ( addressCountry ) {
-                                   infoContent += `<p>Country: ${ addressCountry }</p>`;
-                              }
-                              if ( description ) {
-                                   infoContent += `<p>${ description }</p>`;
-                              }
-                              if ( source ) {
-                                   infoContent += `<p>Link: <a href="${ source }" target="_blank">${ source }</a></p>`;
-                              }
-
-                              // Agregar botones
-                              infoContent += `
-                                   <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                                   <button class='share'><img src='./assets/shareIcon.svg'></button>
-                                   `;
+                             <div class="info-header">
+                                 <img src="${ STATIC_IMAGES.police }" alt="Estación de Policía" class="property-image"/>
+                                 <div class="header-bar">
+                                     <div class="property-badges">
+                                         <div class="badge-container">
+                                             <span class="badge primary">${ category }</span>
+                                             <div class="badge-location nameContainer">
+                                                 <span>${ name }</span>
+                                                 <span>${ addressLocality || "" }, ${ addressRegion || "" }</span>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="action-buttons">
+                                         <button class="action-btn pin-btn" title="Fijar ventana">
+                                             <i class="action-icon">📌</i>
+                                         </button>
+                                         <button class="action-btn share-btn" title="Compartir">
+                                             <i class="action-icon">📤</i>
+                                         </button>
+                                         <button class="action-btn close-btn" title="Cerrar">
+                                             <i class="action-icon">✕</i>
+                                         </button>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div class="info-content">
+                                 ${ alertHtml }
+                                 <div class="info-grid">
+                                     <div class="info-row">
+                                         <div class="info-item">
+                                             <label>Código identificador</label>
+                                             <div class="id-value-container">
+                                                 <span>${ item.id }</span>
+                                                 <button class="copy-btn" title="Copiar código">
+                                                     <i class="copy-icon">📋</i>
+                                                 </button>
+                                             </div>
+                                         </div>
+                                         
+                                     </div>
+                                     <div class="info-row">
+                                         <div class="info-item">
+                                             <label>Dirección</label>
+                                             <span>${ streetAddress || 'N/A' }</span>
+                                         </div>
+                                         <div class="info-item">
+                                             <label>Localización</label>
+                                             <span>${ addressLocality || 'N/A' }, ${ addressRegion || 'N/A' }</span>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 ${ description ? `
+                                 <div class="description">
+                                     <label>Descripción</label>
+                                     <p>${ description }</p>
+                                 </div>` : '' }
+                                 ${ source ? `
+                                 <div class="external-links">
+                                     <label>Enlaces</label>
+                                     <a href="${ source }" target="_blank" class="external-link">
+                                         <span>Ver fuente</span>
+                                     </a>
+                                 </div>` : '' }
+                             </div>
+                         `;
 
                               // Insertar el contenido en el infoBox
                               infoBox.innerHTML = infoContent;
 
-                              // Manejar el cierre del infoBox
-                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                                   infoBox.style.display = "none";
+                              // Event Listeners
+                              // 1. Botón cerrar
+                              infoBox.querySelector( ".close-btn" ).addEventListener( "click", () => {
+                                   infoBox.remove();
                               } );
+
+                              // 2. Botón pin
+                              const pinBtn = infoBox.querySelector( ".pin-btn" );
+                              pinBtn.addEventListener( "click", ( e ) => {
+                                   const infoBox = e.target.closest( '.info-box' );
+                                   if ( infoBox.classList.contains( 'pinned' ) ) {
+                                        infoBox.classList.remove( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                        pinBtn.title = "Fijar ventana";
+                                   } else {
+                                        infoBox.classList.add( 'pinned' );
+                                        pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                        pinBtn.title = "Desfijar ventana";
+
+                                        const newInfoBox = document.createElement( 'div' );
+                                        newInfoBox.className = 'info-box';
+                                        newInfoBox.style.display = 'none';
+                                        document.body.appendChild( newInfoBox );
+                                   }
+                              } );
+
+                              // 3. Botón compartir
+                              infoBox.querySelector( ".share-btn" ).addEventListener( "click", async () => {
+                                   shareMarker(
+                                        'police',
+                                        item.id,
+                                        `${ name }`, // Título simple
+                                        `📍 ${ addressLocality || "" }, ${ addressRegion || "" }` // Solo la ubicación
+                                   );
+                              } );
+
+                              // 4. Botón copiar código
+                              const copyButton = infoBox.querySelector( ".copy-btn" );
+                              copyButton.addEventListener( "click", () => {
+                                   navigator.clipboard.writeText( item.id )
+                                        .then( () => {
+                                             // Feedback visual de que se copió
+                                             copyButton.innerHTML = '<i class="copy-icon">✓</i>';
+                                             setTimeout( () => {
+                                                  copyButton.innerHTML = '<i class="copy-icon">📋</i>';
+                                             }, 2000 );
+                                        } )
+                                        .catch( err => {
+                                             console.error( 'Error al copiar: ', err );
+                                             // Fallback
+                                             prompt( "Copia este código:", item.id );
+                                        } );
+                              } );
+
+                              // Hacer el infobox arrastrable
+                              inicializarArrastre( infoBox );
                          } );
 
                          markersPolice.push( marker );
                     }
                } );
+
+               // Una vez cargados todos los marcadores, buscar las incidencias
+               updatePoliceIncidences();
           } )
           .catch( error => console.error( "Error al cargar los marcadores de Policias:", error ) );
-};
+}
+
+
 const eventPolice = document.getElementById( "police-sub-nav-item" );
-let markersPolice = []; // Array para almacenar los marcadores de parcelas
+let markersPolice = []; // Array para almacenar los marcadores de estaciones de policía
 let policeVisible = false; // Bandera para el estado de visibilidad
 
 eventPolice.addEventListener( "click", () => {
-     // Alternar la visibilidad de los marcadores de parcelas
+     // Alternar la visibilidad de los marcadores
      toggleMarcadores( markersPolice, policeVisible );
      policeVisible = !policeVisible; // Cambia la bandera de visibilidad
 
      // Si los marcadores aún no se han cargado, cargarlos
      if ( markersPolice.length === 0 && policeVisible ) {
-          cargarMarcadoresPolice(); // Llama a la función para cargar los marcadores de parcelas
+          cargarMarcadoresPolice(); // Llama a la función para cargar los marcadores
+     } else if ( policeVisible ) {
+          // Si ya están cargados y se están mostrando, actualizar las incidencias
+          updatePoliceIncidences();
      }
 } );
 
@@ -11349,64 +14414,373 @@ const museumsApiUrl = `/api/proxy?url=${ encodeURIComponent(
      "https://anpaccountdatalakegen2.blob.core.windows.net/service/Entertainment%20%26%20Sports/Museums/Fiware_Entertainment_Musuems-00001?sp=r&st=2024-06-16T17:49:06Z&se=2090-01-01T02:49:06Z&sv=2022-11-02&sr=b&sig=j%2BMozWtJqpIgWXgEitlNgqCHWhqw9XbBGOSJ%2Fy3pkbE%3D"
 ) }`;
 
-function cargarMarcadoresMuseums() {
-     fetch( museumsApiUrl )
-          .then( response => response.json() )
-          .then( data => {
-               data.pois0003.forEach( item => {
-                    const {
-                         ubicacion,
-                         name,
-                         category,
-                         description,
-                         streetAddress,
-                         postalCode,
-                         addressLocality,
-                         addressRegion,
-                         addressCountry,
-                         neighborhood,
-                         district,
-                         source
-                    } = parseFiwareData( item );
+// Endpoint de alertas para museos
+const museumsAlertsUrl = `/api/proxy?url=${ encodeURIComponent(
+     "https://anpaccountdatalakegen2.blob.core.windows.net/service/Incidences/Ent%20%26%20Sports%20Incidences/Fiware_Entertainment_Musuems-00001_ALERTS.json?sp=r&st=2025-04-23T11:05:22Z&se=2099-04-23T19:05:22Z&sv=2024-11-04&sr=b&sig=ZqTiFY1OBJVL2Qxo3pGjzGnyLYQAYReRhcYA9fblV0Q%3D"
+) }`;
 
-                    if ( ubicacion && name ) {
-                         const marker = new google.maps.Marker( {
-                              position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
-                              map: map,
-                              title: name,
-                              icon: "https://res.cloudinary.com/dafjggs2p/image/upload/v1740305822/qubo/qubos/museums_ydt8og.svg"
-                         } );
+// Función para cargar primero las alertas y luego los marcadores
+async function cargarMarcadoresMuseums() {
+     try {
+          showNotification( 'Cargando datos de museos...', 2000 );
 
-                         marker.addListener( "click", () => {
-                              const infoBox = document.querySelector( ".info-box" );
-                              infoBox.style.display = "flex";
-                              infoBox.innerHTML = `
-                              <div class='nameContainer'>
-                                   <p>${ category }</p>
-                                   <p>${ name }</p>
-                              </div>
-                              <img src='${ STATIC_IMAGES.museums }'>
-                              <p>Localización: <span>${ addressLocality }, ${ addressRegion }</span> </p>
-                              <p>Address: <span>${ streetAddress }</span> </p>
-                              <p>C.P: <span>${ postalCode }</span> </p>
-                              <p>Neighborhood: <span>${ neighborhood }</span> </p>
-                              <p>District: <span>${ district }</span> </p>
-                              <p>Country: <span>${ addressCountry }</span> </p>
-                              <p>Description: <span>${ description }</span> </p>
-                              <p>Link: <a href="${ source }" target="_blank">${ source }</a></p>
-                              <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                              <button class='share'><img src='./assets/shareIcon.svg'></button>
-                         `;
-                              document.getElementById( "cerrar-info-box" ).addEventListener( "click", () => {
-                                   infoBox.style.display = "none";
-                              } );
-                         } );
+          // 1. Primero cargar las alertas para crear un mapa de búsqueda rápida
+          const alertsMap = {};
 
-                         markersMuseums.push( marker );
+          try {
+               const alertsResponse = await fetch( museumsAlertsUrl );
+               const alertsData = await alertsResponse.json();
+
+               if ( alertsData && alertsData.alerts && Array.isArray( alertsData.alerts ) ) {
+                    console.log( `✅ Encontradas ${ alertsData.alerts.length } incidencias de museos` );
+
+                    // Guardar todas las incidencias en un objeto para búsqueda O(1)
+                    alertsData.alerts.forEach( alert => {
+                         alertsMap[ alert.related_id ] = alert.alert_description;
+                    } );
+               }
+          } catch ( error ) {
+               console.error( "Error cargando incidencias de museos:", error );
+          }
+
+          // 2. Ahora cargar los datos principales de museos
+          const response = await fetch( museumsApiUrl );
+          const data = await response.json();
+
+          data.pois0003.forEach( item => {
+               const {
+                    ubicacion,
+                    name,
+                    category,
+                    description,
+                    streetAddress,
+                    postalCode,
+                    addressLocality,
+                    addressRegion,
+                    addressCountry,
+                    neighborhood,
+                    district,
+                    source
+               } = parseFiwareData( item );
+
+               if ( ubicacion && name ) {
+                    // Verificar si este museo tiene una alerta
+                    const hasAlert = alertsMap[ item.id ] !== undefined;
+                    const alertDescription = hasAlert ? alertsMap[ item.id ] : null;
+
+                    // Elegir el icono apropiado según si tiene alerta o no
+                    const iconUrl = hasAlert
+                         ? "https://res.cloudinary.com/dafjggs2p/image/upload/v1745406496/qubo/qubos/incidence_museums_yd57zw.svg"
+                         : "https://res.cloudinary.com/dafjggs2p/image/upload/v1740305822/qubo/qubos/museums_ydt8og.svg";
+
+                    const marker = new google.maps.Marker( {
+                         position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+                         map: map,
+                         title: name,
+                         icon: iconUrl
+                    } );
+
+                    // Guardar la info de alerta en el marcador
+                    if ( hasAlert ) {
+                         marker.hasAlert = true;
+                         marker.alertDescription = alertDescription;
                     }
-               } );
-          } )
-          .catch( error => console.error( "Error al cargar los marcadores Museums:", error ) );
+
+                    marker.addListener( "click", () => {
+                         try {
+                              // Buscar un infobox no pinneado o crear uno nuevo
+                              let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
+                              if ( !currentInfoBox ) {
+                                   currentInfoBox = document.createElement( 'div' );
+                                   currentInfoBox.className = 'info-box';
+                                   document.body.appendChild( currentInfoBox );
+                              }
+
+                              // Si existe alerta, la incluimos en el HTML
+                              const alertHtml = hasAlert
+                                   ? `<div class="alert-container">
+                                 <div class="alert-header">
+                                     <span class="alert-icon">⚠️</span>
+                                     <h3 class="alert-title">AI INCIDENT</h3>
+                                 </div>
+                                 <div class="alert-content">
+                                     <p class="alert-description">${ alertDescription }</p>
+                                     <div class="ai-footer">
+                                         <span class="ai-icon">🧠</span>
+                                         <span class="ai-text">Analysis generated by artificial intelligence</span>
+                                     </div>
+                                 </div>
+                               </div>`
+                                   : '';
+
+                              // INICIO DE LA MODIFICACIÓN - CAMBIO COMPLETO EN LA CONSTRUCCIÓN DEL HTML
+
+                              // Solo mostrar las secciones si hay datos reales
+                              let infoGridContent = `
+                             <div class="info-row">
+                                 <div class="info-item">
+                                     <label>Código identificador</label>
+                                     <div class="id-value-container">
+                                         <span>${ item.id }</span>
+                                         <button class="copy-btn" title="Copiar código">
+                                             <i class="copy-icon">📋</i>
+                                         </button>
+                                     </div>
+                                 </div>`;
+
+                              // Solo añadir distrito si hay uno
+                              if ( district && district !== 'N/A' && district.trim() !== '' ) {
+                                   infoGridContent += `
+                                 <div class="info-item">
+                                     <label>Distrito</label>
+                                     <span>${ district }</span>
+                                 </div>`;
+                              }
+
+                              infoGridContent += `</div>`; // Cerrar la primera fila
+
+                              // Segunda fila - dirección y código postal
+                              let row2Content = '';
+
+                              if ( streetAddress && streetAddress !== 'N/A' && streetAddress.trim() !== '' ) {
+                                   row2Content += `
+                                 <div class="info-item">
+                                     <label>Dirección</label>
+                                     <span>${ streetAddress }</span>
+                                 </div>`;
+                              }
+
+                              if ( postalCode && postalCode !== 'N/A' && postalCode.trim() !== '' ) {
+                                   row2Content += `
+                                 <div class="info-item">
+                                     <label>Código Postal</label>
+                                     <span>${ postalCode }</span>
+                                 </div>`;
+                              }
+
+                              // Solo incluir la segunda fila si tiene contenido
+                              if ( row2Content ) {
+                                   infoGridContent += `<div class="info-row">${ row2Content }</div>`;
+                              }
+
+                              // Tercera fila - localización y barrio
+                              let row3Content = '';
+
+                              // Comprobar si hay información de localización
+                              let locationText = '';
+                              if ( addressLocality && addressLocality !== 'N/A' && addressLocality.trim() !== '' ) {
+                                   locationText = addressLocality;
+                                   if ( addressRegion && addressRegion !== 'N/A' && addressRegion.trim() !== '' ) {
+                                        locationText += ', ' + addressRegion;
+                                   }
+                              } else if ( addressRegion && addressRegion !== 'N/A' && addressRegion.trim() !== '' ) {
+                                   locationText = addressRegion;
+                              }
+
+                              if ( locationText ) {
+                                   row3Content += `
+                                 <div class="info-item">
+                                     <label>Localización</label>
+                                     <span>${ locationText }</span>
+                                 </div>`;
+                              }
+
+                              if ( neighborhood && neighborhood !== 'N/A' && neighborhood.trim() !== '' ) {
+                                   row3Content += `
+                                 <div class="info-item">
+                                     <label>Barrio</label>
+                                     <span>${ neighborhood }</span>
+                                 </div>`;
+                              }
+
+                              // Solo incluir la tercera fila si tiene contenido
+                              if ( row3Content ) {
+                                   infoGridContent += `<div class="info-row">${ row3Content }</div>`;
+                              }
+
+                              // Construir la sección de características
+                              let featuresContent = `
+                             <div class="feature-item">
+                                 <span class="feature-icon">🏛️</span>
+                                 <span class="feature-text">Museo / Espacio cultural</span>
+                             </div>`;
+
+                              if ( category && category !== 'N/A' && category.trim() !== '' ) {
+                                   featuresContent += `
+                                 <div class="feature-item">
+                                     <span class="feature-icon">🎨</span>
+                                     <span class="feature-text">Categoría: ${ category }</span>
+                                 </div>`;
+                              }
+
+                              if ( addressCountry && addressCountry !== 'N/A' && addressCountry.trim() !== '' ) {
+                                   featuresContent += `
+                                 <div class="feature-item">
+                                     <span class="feature-icon">🌍</span>
+                                     <span class="feature-text">País: ${ addressCountry }</span>
+                                 </div>`;
+                              }
+
+                              // Sección de descripción solo si hay descripción
+                              const descriptionSection = ( description && description !== 'N/A' && description.trim() !== '' ) ? `
+                             <div class="description">
+                                 <label>Descripción</label>
+                                 <p>${ description }</p>
+                             </div>` : '';
+
+                              // Enlaces solo si hay enlace
+                              const linksSection = ( source && source !== 'N/A' && source.trim() !== '' ) ? `
+                             <div class="external-links">
+                                 <label>Enlaces</label>
+                                 <a href="${ source }" target="_blank" class="external-link">
+                                     <span>Ver enlace original</span>
+                                 </a>
+                             </div>` : '';
+                              // Construir una ubicación limpia para el badge-location
+                              let locationBadgeText = '';
+                              if ( addressLocality && addressLocality !== 'N/A' && addressLocality.trim() !== '' ) {
+                                   locationBadgeText = addressLocality;
+                                   if ( addressRegion && addressRegion !== 'N/A' && addressRegion.trim() !== '' ) {
+                                        locationBadgeText += ', ' + addressRegion;
+                                   }
+                              } else if ( addressRegion && addressRegion !== 'N/A' && addressRegion.trim() !== '' ) {
+                                   locationBadgeText = addressRegion;
+                              }
+
+                              // Construir el HTML final
+                              currentInfoBox.setAttribute( 'data-museum-id', item.id );
+                              currentInfoBox.style.display = "flex";
+                              currentInfoBox.innerHTML = `
+                             <div class="info-header">
+                                 <img src="${ STATIC_IMAGES.museums }" alt="Museo" class="property-image"/>
+                                 <div class="header-bar">
+                                     <div class="property-badges">
+                                         <div class="badge-container">
+                                             <span class="badge primary">${ category || "MUSEO" }</span>
+                                             <div class="badge-location nameContainer">
+                                                 <span>${ name }</span>
+                                                 ${ locationBadgeText ? `<span>${ locationBadgeText }</span>` : '' }
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="action-buttons">
+                                         <button class="action-btn pin-btn" title="Fijar ventana">
+                                             <i class="action-icon">📌</i>
+                                         </button>
+                                         <button class="action-btn share-btn" title="Compartir">
+                                             <i class="action-icon">📤</i>
+                                         </button>
+                                         <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
+                                             <i class="action-icon">✕</i>
+                                         </button>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div class="info-content">
+                                 ${ alertHtml }
+                                 <div class="info-grid">
+                                     ${ infoGridContent }
+                                 </div>
+                                 <div class="features-grid">
+                                     <label>Características</label>
+                                     <div class="features-list">
+                                         ${ featuresContent }
+                                     </div>
+                                 </div>
+                                 ${ descriptionSection }
+                                 ${ linksSection }
+                             </div>
+                         `;
+                              // FIN DE LA MODIFICACIÓN
+
+                              // Agregar listeners a los botones
+                              // 1. Botón cerrar
+                              const closeButton = currentInfoBox.querySelector( "#cerrar-info-box" );
+                              closeButton.addEventListener( "click", () => {
+                                   currentInfoBox.remove();
+                              } );
+
+                              // 2. Botón pin
+                              const pinButton = currentInfoBox.querySelector( ".pin-btn" );
+                              pinButton.addEventListener( "click", () => {
+                                   if ( currentInfoBox.classList.contains( "pinned" ) ) {
+                                        currentInfoBox.classList.remove( "pinned" );
+                                        pinButton.innerHTML = '<i class="action-icon">📌</i>';
+                                        pinButton.title = "Fijar ventana";
+                                   } else {
+                                        currentInfoBox.classList.add( "pinned" );
+                                        pinButton.innerHTML = '<i class="action-icon">📍</i>';
+                                        pinButton.title = "Desfijar ventana";
+
+                                        // Crear una nueva info-box para el siguiente clic
+                                        const newInfoBox = document.createElement( 'div' );
+                                        newInfoBox.className = 'info-box';
+                                        newInfoBox.style.display = 'none';
+                                        document.body.appendChild( newInfoBox );
+                                   }
+                              } );
+
+                              // 3. Botón compartir
+                              const shareButton = currentInfoBox.querySelector( ".share-btn" );
+                              shareButton.addEventListener( "click", () => {
+                                   const baseUrl = window.location.origin + window.location.pathname;
+                                   const shareUrl = `${ baseUrl }?view=museum&id=${ item.id }`;
+
+                                   const shareData = {
+                                        title: `🏛️ Museo - ${ name }`,
+                                        text: `📍 ${ addressLocality || "" }, ${ addressRegion || "" }\n` +
+                                             `${ description ? description.substring( 0, 100 ) + ( description.length > 100 ? '...' : '' ) : 'Sin descripción' }\n`,
+                                        url: shareUrl
+                                   };
+
+                                   // Intentar compartir usando la API Web Share si está disponible
+                                   if ( navigator.share && navigator.canShare( shareData ) ) {
+                                        navigator.share( shareData )
+                                             .catch( err => console.error( "Error al compartir:", err ) );
+                                   } else {
+                                        // Fallback: copiar al portapapeles
+                                        const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
+                                        navigator.clipboard.writeText( shareText )
+                                             .then( () => showNotification( '¡Información copiada al portapapeles!' ) )
+                                             .catch( err => console.error( "Error al copiar:", err ) );
+                                   }
+                              } );
+
+                              // 4. Botón copiar código
+                              const copyButton = currentInfoBox.querySelector( ".copy-btn" );
+                              copyButton.addEventListener( "click", () => {
+                                   navigator.clipboard.writeText( item.id )
+                                        .then( () => {
+                                             // Feedback visual de que se copió
+                                             copyButton.innerHTML = '<i class="copy-icon">✓</i>';
+                                             setTimeout( () => {
+                                                  copyButton.innerHTML = '<i class="copy-icon">📋</i>';
+                                             }, 2000 );
+                                        } )
+                                        .catch( err => {
+                                             console.error( 'Error al copiar: ', err );
+                                             // Fallback
+                                             prompt( "Copia este código:", item.id );
+                                        } );
+                              } );
+
+                              // Hacer el infobox arrastrable
+                              inicializarArrastre( currentInfoBox );
+                         } catch ( error ) {
+                              console.error( "Error al mostrar info del museo:", error );
+                         }
+                    } );
+
+                    markersMuseums.push( marker );
+               }
+          } );
+
+          showNotification( `Se han cargado ${ markersMuseums.length } museos`, 2000 );
+
+     } catch ( error ) {
+          console.error( "Error al cargar los marcadores Museums:", error );
+          showNotification( 'Error al cargar museos', 3000 );
+     }
 }
 
 const eventMuseums = document.getElementById( "museums-sub-nav-item" );
@@ -11969,40 +15343,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
 } );
 
-//? Función para manejar el widget de Discord
-// function initDiscordWidget() {
-//      const widgetContainer = document.querySelector( '.discord-widget' );
-//      let isMinimized = true; // Estado inicial minimizado
 
-//      // Crear el contenedor del widget con estado minimizado
-//      widgetContainer.innerHTML = `
-//                <div class="discord-widget-header">
-//                     <i class="fab fa-discord"></i>
-//                     <span>Discord Chat</span>
-//                     <button class="toggle-widget">+</button>
-//                </div>
-//                <div class="discord-widget-content" style="display: none;">
-//                     <iframe 
-//                          src="https://discord.com/widget?id=1338208014183956560&theme=dark" 
-//                          width="350" 
-//                          height="500" 
-//                          allowtransparency="true" 
-//                          frameborder="0" 
-//                          sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
-//                     </iframe>
-//                </div>
-//                `;
-
-//      // Añadir el evento para minimizar/maximizar
-//      const toggleButton = widgetContainer.querySelector( '.toggle-widget' );
-//      const widgetContent = widgetContainer.querySelector( '.discord-widget-content' );
-
-//      toggleButton.addEventListener( 'click', () => {
-//           isMinimized = !isMinimized;
-//           widgetContent.style.display = isMinimized ? 'none' : 'block';
-//           toggleButton.textContent = isMinimized ? '+' : '-';
-//      } );
-// }
 
 // // Inicializar el widget cuando el documento esté listo
 // document.addEventListener( 'DOMContentLoaded', initDiscordWidget );
@@ -12176,3 +15517,4 @@ document.addEventListener( 'DOMContentLoaded', function () {
           `;
      document.head.appendChild( style );
 } );
+
