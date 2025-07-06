@@ -1,3 +1,3 @@
 .env
 /node_modules
-checkSession.js
+src/utils/checkSession.js

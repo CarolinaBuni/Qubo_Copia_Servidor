@@ -41,7 +41,7 @@
 // checkDatabase();
 
 //* checkSessions.js en APP2
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config();
 const { MongoClient } = require('mongodb');
 const mongoose = require('mongoose');
 const { authDB } = require('./config/db');

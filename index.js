@@ -19,8 +19,10 @@ const QUBO_ICONS = require( "./src/constants/cloudinaryUrls" );
 // Conectar a la base de datos
 connectDB();
 
-// Middleware básico
-app.use( express.static( path.join( __dirname, "public" ) ) );
+// Middleware básico - EXCLUIR index.html para procesarlo manualmente
+app.use( express.static( path.join( __dirname, "public" ), {
+   index: false  // No servir index.html automáticamente
+} ) );
 app.use( cookieParser() );
 app.use( express.json() );
 
@@ -37,6 +39,41 @@ cloudinary.config( {
    cloud_name: process.env.CLOUD_NAME,
    api_key: process.env.API_KEY,
    api_secret: process.env.API_SECRET,
+} );
+
+// Servir el HTML principal con la API key inyectada (ANTES de cualquier middleware)
+app.get( "/", ( req, res ) => {
+   console.log('🚀🚀🚀 ENTRANDO EN LA RUTA / PERSONALIZADA 🚀🚀🚀');
+   console.log('📍 Método:', req.method, 'Ruta:', req.path, 'URL:', req.url);
+   
+   // Verificar si hay token de autenticación
+   const token = req.cookies.access_token;
+   console.log('🔐 Token presente:', !!token);
+   
+   const fs = require('fs');
+   const htmlPath = path.join( __dirname, "public", "index.html" );
+   
+   console.log('🔑 Variable de entorno GOOGLE_MAPS_API_KEY_1:', process.env.GOOGLE_MAPS_API_KEY_1?.substring(0, 20) + '...');
+   
+   try {
+      let htmlContent = fs.readFileSync(htmlPath, 'utf8');
+      
+      // Reemplazar el placeholder con la API key real
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY_1;
+      htmlContent = htmlContent.replace('{{GOOGLE_MAPS_API_KEY}}', apiKey);
+      
+      // Inyectar el estado de autenticación en el HTML
+      const isAuthenticated = !!token;
+      htmlContent = htmlContent.replace('{{IS_AUTHENTICATED}}', isAuthenticated.toString());
+      
+      console.log('✅ Reemplazo realizado. ¿Contiene placeholder?', htmlContent.includes('{{GOOGLE_MAPS_API_KEY}}'));
+      console.log('🔐 Estado de autenticación inyectado:', isAuthenticated);
+      
+      res.send(htmlContent);
+   } catch (error) {
+      console.error('❌ Error al leer/procesar HTML:', error);
+      res.status(500).send('Error interno del servidor');
+   }
 } );
 
 // Añadir aquí la ruta del proxy para Azure
@@ -128,20 +165,21 @@ app.get( "/auth/session", async ( req, res ) => {
    }
 } );
 
-// Servir archivos estáticos y proteger rutas
-app.get( "/", ( req, res ) => {
-   res.sendFile( path.join( __dirname, "public", "index.html" ) );
-} );
-
-
 // Middleware de autenticación para rutas protegidas
 app.use( ( req, res, next ) => {
-   if ( req.path.includes( '.css' ) ||
+   console.log('🔍 MIDDLEWARE GENERAL - Ruta:', req.path);
+   
+   // Excluir archivos estáticos y la ruta principal
+   if ( req.path === '/' ||
+      req.path.includes( '.css' ) ||
       req.path.includes( '.js' ) ||
       req.path.includes( '.svg' ) ||
       req.path.includes( '.ico' ) ) {
+      console.log('⚡ EXCLUIDA - Pasando al siguiente middleware');
       return next();
    }
+   
+   console.log('🔒 EJECUTANDO isAuth para:', req.path);
    isAuth( req, res, next );
 } );
 
@@ -165,6 +203,8 @@ app.get( "/proxy-image", async ( req, res ) => {
       res.status( 500 ).send( { error: "Error al cargar el recurso." } );
    }
 } );
+
+
 
 // Rutas de la API
 app.use( "/api/v1/", router );

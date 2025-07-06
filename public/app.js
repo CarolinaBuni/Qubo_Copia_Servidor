@@ -43,15 +43,35 @@ async function shareMarker( type, id, title, text ) {
      }
 }
 
+// function getCookie( name ) {
+//      const value = `; ${ document.cookie }`;
+//      const parts = value.split( `; ${ name }=` );
+//      if ( parts.length === 2 ) {
+//           const token = parts.pop().split( ';' ).shift();
+//           // console.log( "Token recuperado:", token );  // Verifica aquí que el token es correcto
+//           return token && token.trim() !== '' ? token : null;  // Verificar que no esté vacío
+//      }
+//      return null;  // Si no encuentra la cookie, devuelve null
+// }
+
 function getCookie( name ) {
+     console.log('🍪 DEBUG getCookie - Buscando:', name);
+     console.log('🍪 DEBUG getCookie - document.cookie:', document.cookie);
+     
      const value = `; ${ document.cookie }`;
+     console.log('🍪 DEBUG getCookie - value:', value);
+     
      const parts = value.split( `; ${ name }=` );
+     console.log('🍪 DEBUG getCookie - parts:', parts);
+     console.log('🍪 DEBUG getCookie - parts.length:', parts.length);
+     
      if ( parts.length === 2 ) {
           const token = parts.pop().split( ';' ).shift();
-          // console.log( "Token recuperado:", token );  // Verifica aquí que el token es correcto
-          return token;
+          console.log('🍪 DEBUG getCookie - token encontrado:', token);
+          return token && token.trim() !== '' ? token : null;
      }
-     return null;  // Si no encuentra la cookie, devuelve null
+     console.log('🍪 DEBUG getCookie - NO encontrado');
+     return null;
 }
 
 function normalizeString( str ) {
@@ -63,6 +83,29 @@ function normalizeString( str ) {
 }
 
 document.addEventListener( 'DOMContentLoaded', function () {
+     // 🔥 VERIFICAR AUTENTICACIÓN ANTES DE HACER CUALQUIER COSA
+     const token = getCookie('access_token');
+     console.log('🔍 DEBUG: Token encontrado?', !!token);
+     console.log('🔍 DEBUG: Valor del token:', token);
+     console.log('🔍 DEBUG: Longitud del token:', token ? token.length : 'N/A');
+     console.log('📋 DEBUG: Todas las cookies:', document.cookie);
+
+      // NUEVO: Verificar si el token tiene el formato correcto
+      if (token) {
+          const parts = token.split('.');
+          console.log('🔍 DEBUG: Partes del JWT:', parts.length);
+          console.log('🔍 DEBUG: Primera parte:', parts[0]);
+     }
+     
+     if (!token || token === null || token === undefined || token.trim() === '') {
+          console.log('❌ No hay token válido, redirigiendo a APP1...');
+          alert('No hay token válido, redirigiendo...');
+          window.location.href = 'https://sign-in-qubo-git-verceldeployment-inesljs-projects.vercel.app';
+          return; // Detener ejecución
+     }
+     
+     console.log('✅ Token encontrado, continuando con APP2...');
+     
      loadingController = window.initLoading();
      const dashboardButton = document.getElementById( 'dashboard-button' );
      if ( dashboardButton ) {
@@ -134,9 +177,9 @@ function handleSharedUrl() {
                clearInterval( window.checkMarkersInterval );
                google.maps.event.trigger( marker, 'click' );
                map.setCenter( marker.getPosition() );
-               map.setZoom( 18 );
-          }
-     }, 100 );
+                    map.setZoom( 18 );
+               }
+          }, 100 );
 }
 window.addEventListener( 'load', handleSharedUrl );
 
@@ -201,15 +244,17 @@ function initMap( fromSession = false ) {
           return;
      }
 
-     // Recuperar el token de las cookies
-     const token = getCookie( 'access_token' );
-     // console.log( "Token en cookie:", token );
+     // // Recuperar el token de las cookies
+     // const token = getCookie( 'access_token' );
+     // // console.log( "Token en cookie:", token );
 
-     // Verificar si el token existe
-     if ( !token ) {
-          console.log( "❌ No hay token disponible" );
-          return;  // Solo detenemos la ejecución
-     }
+     // // Verificar si el token existe
+     // if ( !token ) {
+     //      console.log( "❌ No hay token disponible" );
+     // alert('No hay token válido, redirigiendo...');
+     // window.location.href = 'https://sign-in-qubo-git-verceldeployment-inesljs-projects.vercel.app';
+     //      return;  // Solo detenemos la ejecución
+     // }
 
      // Resto del código de initMap...
      console.log( "🗺️ Iniciando mapa..." );
@@ -738,14 +783,14 @@ function initMap( fromSession = false ) {
           const formHeight = formContainer.offsetHeight;
           const windowWidth = window.innerWidth;
           const windowHeight = window.innerHeight;
-
+     
           const left = ( windowWidth / 2 ) - ( formWidth / 2 );
           const top = ( windowHeight / 2 ) - ( formHeight / 2 ) - 50;
-
+     
           formContainer.style.left = left + 'px';
           formContainer.style.top = top + 'px';
      }
-
+     
      let subcategoryIcons = {};
      function normalizeString( str ) {
           const normalized = str.toLowerCase()
@@ -755,108 +800,108 @@ function initMap( fromSession = false ) {
           return normalized;
      }
 
-     //*Nuevo código para manejar el envío del formulario
+//*Nuevo código para manejar el envío del formulario
 
 
-     // document.addEventListener( 'DOMContentLoaded', function () {
-     //      // Cargar los iconos de las subcategorías desde el servidor
+// document.addEventListener( 'DOMContentLoaded', function () {
+//      // Cargar los iconos de las subcategorías desde el servidor
 
 
-     //      const addQuboButton = document.getElementById( 'addQubo' );
+//      const addQuboButton = document.getElementById( 'addQubo' );
      //      console.log(addQuboButton);
 
-     //      const formContainer = document.querySelector( '.form-container' );
-     //      const messageBox = document.getElementById( 'messageBox' );
-     //      const closeButton = document.getElementById( 'cerrar-form' );
+//      const formContainer = document.querySelector( '.form-container' );
+//      const messageBox = document.getElementById( 'messageBox' );
+//      const closeButton = document.getElementById( 'cerrar-form' );
 
-     //      let isAddingQubo = false;
-     //      let currentMarker = null;
+//      let isAddingQubo = false;
+//      let currentMarker = null;
 
-     //      // En el event listener de 'change'
+//      // En el event listener de 'change'
      //      document.getElementById( 'subcategory' ).addEventListener( 'change', function () {
-     //           if ( currentMarker ) {
-     //                const subcategory = this.value;
-     //                const normalizedSubcategory = normalizeString( subcategory );  // Normalizar el valor
-     //                // console.log( 'Subcategoría seleccionada:', subcategory );
-     //                // console.log( 'Subcategoría normalizada:', normalizedSubcategory );
+//           if ( currentMarker ) {
+//                const subcategory = this.value;
+//                const normalizedSubcategory = normalizeString( subcategory );  // Normalizar el valor
+//                // console.log( 'Subcategoría seleccionada:', subcategory );
+//                // console.log( 'Subcategoría normalizada:', normalizedSubcategory );
 
-     //                const position = currentMarker.getPosition();
-     //                currentMarker.setMap( null );
+//                const position = currentMarker.getPosition();
+//                currentMarker.setMap( null );
 
-     //                // Buscar el icono comparando valores normalizados
-     //                const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
-     //                     .find( key => normalizeString( key ) === normalizedSubcategory );  // Comparar normalizados
-     //                const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
-     //                // console.log( 'Changing icon to:', iconUrl );
+//                // Buscar el icono comparando valores normalizados
+//                const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
+//                     .find( key => normalizeString( key ) === normalizedSubcategory );  // Comparar normalizados
+//                const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
+//                // console.log( 'Changing icon to:', iconUrl );
 
-     //                currentMarker = new google.maps.Marker( {
-     //                     position: position,
-     //                     map: map,
-     //                     title: 'New Qubo',
-     //                     icon: iconUrl
-     //                } );
-     //           }
-     //      } );
+//                currentMarker = new google.maps.Marker( {
+//                     position: position,
+//                     map: map,
+//                     title: 'New Qubo',
+//                     icon: iconUrl
+//                } );
+//           }
+//      } );
 
-     //      addQuboButton.addEventListener( 'click', function () {
-     //           isAddingQubo = true;
-     //           messageBox.style.display = 'block';
-     //           formContainer.classList.add( 'hidden' );
-     //           console.log( 'Qubo add mode activated, please click on the map to select the location.' );
-     //      } );
-
-
+//      addQuboButton.addEventListener( 'click', function () {
+//           isAddingQubo = true;
+//           messageBox.style.display = 'block';
+//           formContainer.classList.add( 'hidden' );
+//           console.log( 'Qubo add mode activated, please click on the map to select the location.' );
+//      } );
 
 
 
 
 
-     //      map.addListener( 'click', function ( event ) {
-     //           if ( isAddingQubo ) {
-     //                const lat = event.latLng.lat();
-     //                const lng = event.latLng.lng();
-     //                console.log( "Latitud:", lat, "Longitud:", lng );
-     //                if ( currentMarker ) {
-     //                     currentMarker.setMap( null );
-     //                }
 
-     //                const subcategory = document.getElementById( 'subcategory' ).value;
-     //                const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
-     //                     .find( key => normalizeString( key ) === subcategory );
-     //                const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
-     //                // console.log( 'Subcategory:', subcategory );
-     //                // console.log( 'Icon URL:', iconUrl );
 
-     //                currentMarker = new google.maps.Marker( {
-     //                     position: event.latLng,
-     //                     map: map,
-     //                     title: 'Nuevo Qubo',
-     //                     icon: iconUrl
-     //                } );
+//      map.addListener( 'click', function ( event ) {
+//           if ( isAddingQubo ) {
+//                const lat = event.latLng.lat();
+//                const lng = event.latLng.lng();
+//                console.log( "Latitud:", lat, "Longitud:", lng );
+//                if ( currentMarker ) {
+//                     currentMarker.setMap( null );
+//                }
 
-     //                document.getElementById( 'clickedLat' ).value = lat;
-     //                document.getElementById( 'clickedLng' ).value = lng;
+//                const subcategory = document.getElementById( 'subcategory' ).value;
+//                const iconKey = Object.keys( subcategoryIcons.QUBO_ICONS )
+//                     .find( key => normalizeString( key ) === subcategory );
+//                const iconUrl = iconKey ? subcategoryIcons.QUBO_ICONS[ iconKey ] : 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg';
+//                // console.log( 'Subcategory:', subcategory );
+//                // console.log( 'Icon URL:', iconUrl );
 
-     //                formContainer.classList.remove( 'hidden' );
-     //                messageBox.style.display = 'none';
+//                currentMarker = new google.maps.Marker( {
+//                     position: event.latLng,
+//                     map: map,
+//                     title: 'Nuevo Qubo',
+//                     icon: iconUrl
+//                } );
 
-     //                isAddingQubo = false;
-     //                console.log( 'Formulario mostrado, por favor completa la información del Qubo.' );
-     //           }
-     //      } );
+//                document.getElementById( 'clickedLat' ).value = lat;
+//                document.getElementById( 'clickedLng' ).value = lng;
 
-     //      closeButton.addEventListener( 'click', function () {
-     //           formContainer.classList.add( 'hidden' );
-     //           isAddingQubo = false;
+//                formContainer.classList.remove( 'hidden' );
+//                messageBox.style.display = 'none';
 
-     //           if ( currentMarker ) {
-     //                currentMarker.setMap( null );
-     //                currentMarker = null;
-     //           }
+//                isAddingQubo = false;
+//                console.log( 'Formulario mostrado, por favor completa la información del Qubo.' );
+//           }
+//      } );
 
-     //           console.log( 'Formulario cerrado, marcador eliminado.' );
-     //      } );
-     // } );
+//      closeButton.addEventListener( 'click', function () {
+//           formContainer.classList.add( 'hidden' );
+//           isAddingQubo = false;
+
+//           if ( currentMarker ) {
+//                currentMarker.setMap( null );
+//                currentMarker = null;
+//           }
+
+//           console.log( 'Formulario cerrado, marcador eliminado.' );
+//      } );
+// } );
 
 
 
@@ -905,7 +950,7 @@ function initMap( fromSession = false ) {
                }
           } );
      } );
-
+     
 
      //***************************************************** */
 
@@ -1592,7 +1637,7 @@ function initMap( fromSession = false ) {
      } );
 
 
-     //* ELECTRICITY 
+     //* ELECTRICITY
      const electricityMadrid = "https://anpaccountdatalakegen2.blob.core.windows.net/service/Infrastructure/Electricity/Electricity.kmz?sp=r&st=2024-05-19T15:09:48Z&se=2029-01-01T00:09:48Z&sv=2022-11-02&sr=b&sig=BMuM4bLJ7RWEGSjsY6zZeWrKSu8IPa%2F9KK46GpZBN4I%3D";
 
      const botonElectricity = document.getElementById( 'electricity-sub-nav-item' );
@@ -2893,29 +2938,29 @@ function initMap( fromSession = false ) {
                // 2. Ahora cargar los datos principales de parques y jardines
                const response = await fetch( parksGardensApiUrl );
                if ( !response.ok ) {
-                    throw new Error( "La solicitud no fue exitosa" );
-               }
+                         throw new Error( "La solicitud no fue exitosa" );
+                    }
 
                const data = await response.json();
-               const markersData = data.parksandg0001;
+                    const markersData = data.parksandg0001;
 
-               markersData.forEach( item => {
-                    const {
-                         ubicacion,
-                         name,
-                         description,
-                         streetAddress,
-                         postalCode,
-                         addressLocality,
-                         addressRegion,
-                         addressCountry,
-                         neighborhood,
-                         district,
-                         source,
-                         owner
-                    } = parseFiwareData( item );
+                    markersData.forEach( item => {
+                         const {
+                              ubicacion,
+                              name,
+                              description,
+                              streetAddress,
+                              postalCode,
+                              addressLocality,
+                              addressRegion,
+                              addressCountry,
+                              neighborhood,
+                              district,
+                              source,
+                              owner
+                         } = parseFiwareData( item );
 
-                    if ( ubicacion && name ) {
+                         if ( ubicacion && name ) {
                          // Verificar si este parque tiene una alerta
                          const hasAlert = alertsMap[ item.id ] !== undefined;
                          const alertDescription = hasAlert ? alertsMap[ item.id ] : null;
@@ -2925,10 +2970,10 @@ function initMap( fromSession = false ) {
                               ? "https://res.cloudinary.com/dafjggs2p/image/upload/v1745401709/qubo/qubos/incidence_parksAndGardens_xcn1we.svg"
                               : "https://res.cloudinary.com/dafjggs2p/image/upload/v1740260651/qubo/qubos/parksandgardens_o3ihp5.svg";
 
-                         const marker = new google.maps.Marker( {
-                              position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
-                              map: map,
-                              title: name,
+                              const marker = new google.maps.Marker( {
+                                   position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+                                   map: map,
+                                   title: name,
                               icon: iconUrl,
                          } );
 
@@ -2938,7 +2983,7 @@ function initMap( fromSession = false ) {
                               marker.alertDescription = alertDescription;
                          }
 
-                         marker.addListener( "click", () => {
+                              marker.addListener( "click", () => {
                               try {
                                    // Buscar un infobox no pinneado o crear uno nuevo
                                    let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
@@ -2954,7 +2999,7 @@ function initMap( fromSession = false ) {
                                  <div class="alert-header">
                                      <span class="alert-icon">⚠️</span>
                                      <h3 class="alert-title">AI INCIDENT</h3>
-                                 </div>
+                              </div>
                                  <div class="alert-content">
                                      <p class="alert-description">${ alertDescription }</p>
                                      <div class="ai-footer">
@@ -2983,10 +3028,10 @@ function initMap( fromSession = false ) {
                                      <div class="action-buttons">
                                          <button class="action-btn pin-btn" title="Fijar ventana">
                                              <i class="action-icon">📌</i>
-                                         </button>
+                              </button>
                                          <button class="action-btn share-btn" title="Compartir">
                                              <i class="action-icon">📤</i>
-                                         </button>
+                              </button>
                                          <button class="action-btn close-btn" id="cerrar-info-box" title="Cerrar">
                                              <i class="action-icon">✕</i>
                                          </button>
@@ -3956,7 +4001,7 @@ function initMap( fromSession = false ) {
                          } );
 
                          // Marcar los elementos con alertas
-                         data.consumptionobs0001.forEach( item => {
+               data.consumptionobs0001.forEach( item => {
                               if ( alertsMap[ item.id ] ) {
                                    item.hasAlert = true;
                                    item.alertDescription = alertsMap[ item.id ];
@@ -4008,9 +4053,9 @@ function initMap( fromSession = false ) {
                // Verificación rápida de propiedades esenciales para evitar errores
                if ( !item.id || !item.location || !item.location.value || !item.location.value.coordinates ) continue;
 
-               const ubicacion = item.location.value.coordinates;
-               const lat = parseFloat( ubicacion[ 1 ] );
-               const lng = parseFloat( ubicacion[ 0 ] );
+                    const ubicacion = item.location.value.coordinates;
+                    const lat = parseFloat( ubicacion[ 1 ] );
+                    const lng = parseFloat( ubicacion[ 0 ] );
 
                if ( isNaN( lat ) || isNaN( lng ) ) continue;
 
@@ -4065,16 +4110,16 @@ function initMap( fromSession = false ) {
                     ? "https://res.cloudinary.com/dafjggs2p/image/upload/v1745359906/qubo/qubos/incidence_energy_efficiency_d5uwa0.svg"
                     : "https://res.cloudinary.com/dafjggs2p/image/upload/v1740777930/qubo/qubos/energyefficiency_2_bxqjew.svg";
 
-               const energyEfficiencyMarker = new google.maps.Marker( {
+                    const energyEfficiencyMarker = new google.maps.Marker( {
                     position: { lat, lng },
-                    map: map,
+                         map: map,
                     title: item.name ? item.name.value : "Energy Efficiency",
                     icon: iconUrl,
                     optimized: true
-               } );
+                    } );
 
                // Configurar el evento de clic
-               energyEfficiencyMarker.addListener( 'click', () => {
+                    energyEfficiencyMarker.addListener( 'click', () => {
                     try {  // Añadimos un try/catch pero mantenemos el código mínimo para velocidad
                          // Comprobar si ya existe un infobox pinneado
                          const existingPinnedBox = document.querySelector( `.info-box.pinned[data-energy-id="${ item.id }"]` );
@@ -4128,7 +4173,7 @@ function initMap( fromSession = false ) {
                                      <div class="badge-location nameContainer">
                                          <span>${ item.name ? item.name.value : "Energy Efficiency" }</span>
                                          <span>${ item.address && item.address.value ? ( item.address.value.district || "" ) + ", " + ( item.address.value.addressRegion || "" ) : "" }</span>
-                                     </div>
+                              </div>
                                  </div>
                              </div>
                              <div class="action-buttons">
@@ -4278,7 +4323,7 @@ function initMap( fromSession = false ) {
 
                          // Hacer el infobox arrastrable
                          inicializarArrastre( infoBox );
-                    } catch ( error ) {
+          } catch ( error ) {
                          console.error( "Error al mostrar infobox:", error );
                          showNotification( "Error al mostrar información del marcador", 3000 );
                     }
@@ -6864,7 +6909,7 @@ function initMap( fromSession = false ) {
                if ( index >= coordenadas.length ) {
                     clearInterval( intervaloId );
                     if ( marcadoresAviones[ avionId ] ) {
-                         marcadoresAviones[ avionId ].intervaloId = null;
+                    marcadoresAviones[ avionId ].intervaloId = null;
 
                          // NUEVO: Actualizar el infobox para mostrar "Aterrizado" cuando finaliza
                          const infoBox = document.querySelector( `.info-box[data-plane-id="${ avionId }"]` );
@@ -7004,10 +7049,10 @@ function initMap( fromSession = false ) {
           // Verificar si el marcador ya existe
           if ( marcadoresHelicopteros[ helicopteroId ] ) {
                if ( marcadoresHelicopteros[ helicopteroId ].intervaloId ) {
-                    clearInterval( marcadoresHelicopteros[ helicopteroId ].intervaloId );
+               clearInterval( marcadoresHelicopteros[ helicopteroId ].intervaloId );
                }
                if ( marcadoresHelicopteros[ helicopteroId ].marker ) {
-                    marcadoresHelicopteros[ helicopteroId ].marker.setMap( null );
+               marcadoresHelicopteros[ helicopteroId ].marker.setMap( null );
                }
                delete marcadoresHelicopteros[ helicopteroId ];
                return;
@@ -7088,13 +7133,13 @@ function initMap( fromSession = false ) {
                                             <div class="badge-location nameContainer">
                                                 <span>${ data.model.value }</span>
                                                 <span>${ data.owner.object.replace( 'urn:ngsi-ld:Owner:', '' ) }</span>
-                                            </div>
+                                   </div>
                                         </div>
                                     </div>
                                     <div class="action-buttons">
                                         <button class="action-btn pin-btn" title="Fijar ventana">
                                             <i class="action-icon">📌</i>
-                                        </button>
+                                   </button>
                                         <button class="action-btn share-btn" title="Compartir">
                                             <i class="action-icon">📤</i>
                                         </button>
@@ -7206,7 +7251,7 @@ function initMap( fromSession = false ) {
 
                                              if ( navigator.share && navigator.canShare( shareData ) ) {
                                                   await navigator.share( shareData );
-                                             } else {
+                         } else {
                                                   const shareText = `${ shareData.title }\n\n${ shareData.text }\n\n🔗 Ver detalles: ${ shareUrl }`;
                                                   await navigator.clipboard.writeText( shareText );
                                                   showNotification( '¡Información copiada al portapapeles!' );
@@ -7463,13 +7508,13 @@ function initMap( fromSession = false ) {
                                    <div class="badge-location">
                                         <span>Unidad ${ datosPolicia.Indicativo || 'M-' + policeId + '00' }</span>
                                         <span>${ tipoVehiculo }</span>
-                                   </div>
+            </div>
                               </div>
                          </div>
                          <div class="action-buttons">
                               <button class="action-btn pin-btn" title="Fijar ventana">
                                    <i class="action-icon">📌</i>
-                              </button>
+            </button>
                               <button class="action-btn share-btn" title="Compartir">
                                    <i class="action-icon">📤</i>
                               </button>
@@ -7775,13 +7820,13 @@ function initMap( fromSession = false ) {
                                    <div class="badge-location">
                                         <span>Unidad ${ datosAmbulancia.Indicativo }</span>
                                         <span>Soporte Vital Avanzado</span>
-                                   </div>
+                              </div>
                               </div>
                          </div>
                          <div class="action-buttons">
                               <button class="action-btn pin-btn" title="Fijar ventana">
                                    <i class="action-icon">📌</i>
-                              </button>
+               </button>
                               <button class="action-btn share-btn" title="Compartir">
                                    <i class="action-icon">📤</i>
                               </button>
@@ -9342,7 +9387,7 @@ function initMap( fromSession = false ) {
      // Añadir el event listener para el botón de tiendas
      // Añadir el event listener para el botón de tiendas solo una vez
      if ( !window.storesListenerAdded ) {
-          document.getElementById( "stores-sub-nav-item" ).addEventListener( "click", iniciarStoresEnMapa );
+     document.getElementById( "stores-sub-nav-item" ).addEventListener( "click", iniciarStoresEnMapa );
           window.storesListenerAdded = true;
           console.log( "✅ Listener de stores añadido una sola vez" );
      }
@@ -10518,7 +10563,7 @@ eventHouses.addEventListener( "click", async () => {
           // Solo cargar marcadores si no existen
           if ( markersHouses.length === 0 ) {
                console.log( "🔄 Cargando marcadores de casas por primera vez..." );
-               await cargarYMostrarMarcadoresCasas();
+          await cargarYMostrarMarcadoresCasas();
                housesLoaded = true;
 
                // Pequeño retraso para asegurar que los marcadores estén listos
@@ -11697,7 +11742,7 @@ eventHospitals.addEventListener( "click", () => {
                                             <div class="badge-location nameContainer">
                                                  <span>${ formatearTexto( name ) }</span>
                                              <span>${ formatearTexto( addressLocality ) }</span>
-                                            </div>
+                                   </div>
                                         </div>
                                     </div>
                                     <div class="action-buttons">
@@ -12114,16 +12159,16 @@ const cargarMarcadoresFarmacias = () => {
                                     <div class="badge-location nameContainer">
                                         <span>${ formatearTexto( name || '' ) }</span>
                                         <span>${ formatearTexto( addressLocality || '' ) }</span>
-                                    </div>
+                         </div>
                                 </div>
                             </div>
                             <div class="action-buttons">
                                 <button class="action-btn pin-btn" title="Fijar ventana">
                                     <i class="action-icon">📌</i>
-                                </button>
+                         </button>
                                 <button class="action-btn share-btn" title="Compartir">
                                     <i class="action-icon">📤</i>
-                                </button>
+                         </button>
                                 <button class="action-btn close-btn" title="Cerrar">
                                     <i class="action-icon">✕</i>
                                 </button>
@@ -12339,7 +12384,7 @@ eventFarmacias.addEventListener( "click", () => {
                markersFarmacias.forEach( marker => marker.setMap( map ) );
           } else {
                // Si es la primera vez, cargar los marcadores
-               cargarMarcadoresFarmacias();
+          cargarMarcadoresFarmacias();
           }
      }
 } );
@@ -12592,7 +12637,7 @@ function cargarMarcadoresPolice() {
                                              <div class="badge-location nameContainer">
                                                  <span>${ name }</span>
                                                  <span>${ addressLocality || "" }, ${ addressRegion || "" }</span>
-                                             </div>
+         </div>
                                          </div>
                                      </div>
                                      <div class="action-buttons">
@@ -12647,7 +12692,7 @@ function cargarMarcadoresPolice() {
                                      </a>
                                  </div>` : '' }
                              </div>
-                         `;
+                                   `;
 
                               // Insertar el contenido en el infoBox
                               infoBox.innerHTML = infoContent;
@@ -14447,23 +14492,23 @@ async function cargarMarcadoresMuseums() {
           const response = await fetch( museumsApiUrl );
           const data = await response.json();
 
-          data.pois0003.forEach( item => {
-               const {
-                    ubicacion,
-                    name,
-                    category,
-                    description,
-                    streetAddress,
-                    postalCode,
-                    addressLocality,
-                    addressRegion,
-                    addressCountry,
-                    neighborhood,
-                    district,
-                    source
-               } = parseFiwareData( item );
+               data.pois0003.forEach( item => {
+                    const {
+                         ubicacion,
+                         name,
+                         category,
+                         description,
+                         streetAddress,
+                         postalCode,
+                         addressLocality,
+                         addressRegion,
+                         addressCountry,
+                         neighborhood,
+                         district,
+                         source
+                    } = parseFiwareData( item );
 
-               if ( ubicacion && name ) {
+                    if ( ubicacion && name ) {
                     // Verificar si este museo tiene una alerta
                     const hasAlert = alertsMap[ item.id ] !== undefined;
                     const alertDescription = hasAlert ? alertsMap[ item.id ] : null;
@@ -14473,10 +14518,10 @@ async function cargarMarcadoresMuseums() {
                          ? "https://res.cloudinary.com/dafjggs2p/image/upload/v1745406496/qubo/qubos/incidence_museums_yd57zw.svg"
                          : "https://res.cloudinary.com/dafjggs2p/image/upload/v1740305822/qubo/qubos/museums_ydt8og.svg";
 
-                    const marker = new google.maps.Marker( {
-                         position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
-                         map: map,
-                         title: name,
+                         const marker = new google.maps.Marker( {
+                              position: { lat: ubicacion[ 1 ], lng: ubicacion[ 0 ] },
+                              map: map,
+                              title: name,
                          icon: iconUrl
                     } );
 
@@ -14486,7 +14531,7 @@ async function cargarMarcadoresMuseums() {
                          marker.alertDescription = alertDescription;
                     }
 
-                    marker.addListener( "click", () => {
+                         marker.addListener( "click", () => {
                          try {
                               // Buscar un infobox no pinneado o crear uno nuevo
                               let currentInfoBox = document.querySelector( ".info-box:not(.pinned)" );
@@ -14502,7 +14547,7 @@ async function cargarMarcadoresMuseums() {
                                  <div class="alert-header">
                                      <span class="alert-icon">⚠️</span>
                                      <h3 class="alert-title">AI INCIDENT</h3>
-                                 </div>
+                              </div>
                                  <div class="alert-content">
                                      <p class="alert-description">${ alertDescription }</p>
                                      <div class="ai-footer">
