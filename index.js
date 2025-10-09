@@ -59,7 +59,7 @@ app.get( "/", ( req, res ) => {
       let htmlContent = fs.readFileSync(htmlPath, 'utf8');
       
       // Reemplazar el placeholder con la API key real
-      const apiKey = process.env.GOOGLE_MAPS_API_KEY_1;
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
       htmlContent = htmlContent.replace('{{GOOGLE_MAPS_API_KEY}}', apiKey);
       
       // Inyectar el estado de autenticación en el HTML
