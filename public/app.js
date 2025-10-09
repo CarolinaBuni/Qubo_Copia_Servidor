@@ -451,10 +451,10 @@ function initMap( fromSession = false ) {
                          <p>Link: <a href="${ qubo.link }" target="_blank">${ qubo.link }</a></p>
                          <p>Anónimo: ${ qubo.anonymous ? "Sí" : "No" }</p>
                          <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                         <button id="delete-qubo" data-qubo-id="${ qubo._id }">
-                         <img src='./assets/trash-can.svg'>
+                         <button id="delete-qubo" data-qubo-id="${data._id}" class="action-btn delete-btn" title="Eliminar">
+                         <i class="action-icon">🗑️</i>
                          </button>
-                    `;
+                         `;
                               // Eliminar listeners anteriores y crear nuevos
                               const closeButton = document.getElementById( "cerrar-info-box" );
                               const deleteButton = document.getElementById( "delete-qubo" );

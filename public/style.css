@@ -422,6 +422,8 @@ span {
      border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+
+
 .description label {
      color: var(--primary-color);
      font-size: 13px;
@@ -973,6 +975,7 @@ body > div:nth-child(6) > div.info-content > div.status-section > label > span {
      right: 93%;
      top: 14px;
      width: 25px;
+     z-index: 11;
 }
 
 #delete-qubo>img {
