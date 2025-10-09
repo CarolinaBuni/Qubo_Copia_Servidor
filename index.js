@@ -53,7 +53,6 @@ app.get( "/", ( req, res ) => {
    const fs = require('fs');
    const htmlPath = path.join( __dirname, "public", "index.html" );
    
-   console.log('🔑 Variable de entorno GOOGLE_MAPS_API_KEY_1:', process.env.GOOGLE_MAPS_API_KEY_1?.substring(0, 20) + '...');
    
    try {
       let htmlContent = fs.readFileSync(htmlPath, 'utf8');
