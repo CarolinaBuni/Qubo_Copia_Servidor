@@ -371,123 +371,325 @@ function initMap( fromSession = false ) {
 
 
 
+//! VOLVER A ESTE
 
+     // function cargarQubos() {
+     //      const token = getCookie( 'access_token' );
+     //      // console.log( "🔑 Token para qubos:", token ? "Presente" : "No encontrado" );
+     //      fetch( '/api/v1/qubo', {
+     //           headers: {
+     //                'Authorization': `Bearer ${ token }`,
+     //                'Content-Type': 'application/json'
+     //           },
+     //           credentials: 'include'  // Importante para enviar cookies en solicitudes
+     //      } )
+     //           .then( response => {
+     //                console.log( "📝 Respuesta de Qubos:", response.status );
+     //                if ( !response.ok ) {
+     //                     throw new Error( `HTTP error! status: ${ response.status }` );
+     //                }
+     //                return response.json();
+     //           } )
+     //           .then( qubos => {
+     //                console.log( "✅ Total de Qubos recibidos:", qubos.length );
+     //                console.log( "🗺️ Estado del mapa:", !!map );
+     //                qubos.forEach( qubo => {
+
+     //                     const position = { lat: qubo.latitude, lng: qubo.longitude };
+     //                     // console.log( "📍 Posición del marcador:", position );
+
+     //                     // Verificar que la subcategoría existe y tiene un icono
+     //                     let iconUrl = 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg'; // Icono por defecto
+
+     //                     // Intentar obtener el icono específico de la subcategoría
+     //                     if ( subcategoryIcons && subcategoryIcons.QUBO_ICONS && qubo.subcategory ) {
+     //                          const normalizedSubcategory = normalizeString( qubo.subcategory );
+     //                          let found = false;
+     //                          for ( const key in subcategoryIcons.QUBO_ICONS ) {
+     //                               if ( normalizeString( key ) === normalizedSubcategory ) {
+     //                                    iconUrl = subcategoryIcons.QUBO_ICONS[ key ];
+     //                                    found = true;
+     //                                    break;
+     //                               }
+     //                          }
+     //                          if ( !found ) {
+     //                               console.warn( `⚠️ No se encontró icono para subcategoría: ${ qubo.subcategory }` );
+     //                          }
+     //                     }
+
+
+     //                     // console.log( `🎨 Usando icono para ${ qubo.subcategory }:`, iconUrl );
+     //                     const marker = new google.maps.Marker( {
+     //                          position: position,
+     //                          map: map,
+     //                          title: qubo.title,
+     //                          icon: iconUrl
+     //                     } );
+
+     //                     // Guardar el marcador en activeMarkers (añade esta línea)
+     //                     // console.log( `✅ Marcador creado para: ${ qubo.title }` );
+     //                     activeMarkers.set( qubo._id, marker );
+
+     //                     marker.addListener( 'click', () => {
+     //                          const infoBox = document.querySelector( ".info-box" );
+     //                          infoBox.style.display = 'flex';
+     //                          const startDate = new Date( qubo.startDate );
+     //                          const finishDate = new Date( qubo.finishDate );
+
+     //                          infoBox.innerHTML = `
+     //                     <div class='nameContainer'>
+     //                     <p>${ qubo.subcategory }</p>
+     //                     <p>${ qubo.title }</p>
+     //                     </div>
+     //                     <div class='own'>
+     //                     <img src='${ qubo.img }'>
+     //                     </div>
+     //                     <p>Descripción: <span>${ qubo.description }</span> </p>
+     //                     <p>Categoría: <span>${ qubo.category }</span> </p>
+     //                     <p>Fecha de inicio: <span>${ startDate.toLocaleDateString() } a las ${ startDate.toLocaleTimeString() }</span> </p>
+     //                     <p>Fecha de finalización: ${ finishDate.toLocaleDateString() } a las ${ finishDate.toLocaleTimeString() }</p>
+     //                     <p>Link: <a href="${ qubo.link }" target="_blank">${ qubo.link }</a></p>
+     //                     <p>Anónimo: ${ qubo.anonymous ? "Sí" : "No" }</p>
+     //                     <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
+     //                     <button id="delete-qubo" data-qubo-id="${ qubo._id }" class="action-btn delete-btn" title="Eliminar">
+     //                     <i class="action-icon">🗑️</i>
+     //                     </button>
+     //                     `;
+     //                          // Eliminar listeners anteriores y crear nuevos
+     //                          const closeButton = document.getElementById( "cerrar-info-box" );
+     //                          const deleteButton = document.getElementById( "delete-qubo" );
+
+     //                          // Clonar y reemplazar los botones para eliminar listeners anteriores
+     //                          const newCloseButton = closeButton.cloneNode( true );
+     //                          const newDeleteButton = deleteButton.cloneNode( true );
+     //                          closeButton.parentNode.replaceChild( newCloseButton, closeButton );
+     //                          deleteButton.parentNode.replaceChild( newDeleteButton, deleteButton );
+
+     //                          newCloseButton.addEventListener( "click", () => {
+     //                               infoBox.style.display = "none";
+     //                          } );
+
+     //                          // Para Qubos existentes (en el fetch inicial)
+     //                          newDeleteButton.addEventListener( "click", handleQuboDelete( qubo._id, marker, infoBox, messageBox ) );
+
+
+     //                     } );
+
+     //                } );
+     //                console.log( "🏁 Todos los qubos procesados, finalizando carga..." );
+     //                if ( loadingController ) {
+     //                     loadingController.finishLoading();
+     //                }
+     //           } )
+     //           .catch( error => {
+     //                console.error( '❌  Error al cargar los Qubos:', error );
+     //                if ( loadingController ) {
+     //                     loadingController.finishLoading();
+     //                }
+     //           } );
+     // }
 
      function cargarQubos() {
-          const token = getCookie( 'access_token' );
-          // console.log( "🔑 Token para qubos:", token ? "Presente" : "No encontrado" );
-          fetch( '/api/v1/qubo', {
-               headers: {
-                    'Authorization': `Bearer ${ token }`,
-                    'Content-Type': 'application/json'
-               },
-               credentials: 'include'  // Importante para enviar cookies en solicitudes
-          } )
-               .then( response => {
-                    console.log( "📝 Respuesta de Qubos:", response.status );
-                    if ( !response.ok ) {
-                         throw new Error( `HTTP error! status: ${ response.status }` );
-                    }
-                    return response.json();
-               } )
-               .then( qubos => {
-                    console.log( "✅ Total de Qubos recibidos:", qubos.length );
-                    console.log( "🗺️ Estado del mapa:", !!map );
-                    qubos.forEach( qubo => {
-
-                         const position = { lat: qubo.latitude, lng: qubo.longitude };
-                         // console.log( "📍 Posición del marcador:", position );
-
-                         // Verificar que la subcategoría existe y tiene un icono
-                         let iconUrl = 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg'; // Icono por defecto
-
-                         // Intentar obtener el icono específico de la subcategoría
-                         if ( subcategoryIcons && subcategoryIcons.QUBO_ICONS && qubo.subcategory ) {
-                              const normalizedSubcategory = normalizeString( qubo.subcategory );
-                              let found = false;
-                              for ( const key in subcategoryIcons.QUBO_ICONS ) {
-                                   if ( normalizeString( key ) === normalizedSubcategory ) {
-                                        iconUrl = subcategoryIcons.QUBO_ICONS[ key ];
-                                        found = true;
-                                        break;
-                                   }
-                              }
-                              if ( !found ) {
-                                   console.warn( `⚠️ No se encontró icono para subcategoría: ${ qubo.subcategory }` );
-                              }
-                         }
-
-
-                         // console.log( `🎨 Usando icono para ${ qubo.subcategory }:`, iconUrl );
-                         const marker = new google.maps.Marker( {
-                              position: position,
-                              map: map,
-                              title: qubo.title,
-                              icon: iconUrl
-                         } );
-
-                         // Guardar el marcador en activeMarkers (añade esta línea)
-                         // console.log( `✅ Marcador creado para: ${ qubo.title }` );
-                         activeMarkers.set( qubo._id, marker );
-
-                         marker.addListener( 'click', () => {
-                              const infoBox = document.querySelector( ".info-box" );
-                              infoBox.style.display = 'flex';
-                              const startDate = new Date( qubo.startDate );
-                              const finishDate = new Date( qubo.finishDate );
-
-                              infoBox.innerHTML = `
-                         <div class='nameContainer'>
-                         <p>${ qubo.subcategory }</p>
-                         <p>${ qubo.title }</p>
-                         </div>
-                         <div class='own'>
-                         <img src='${ qubo.img }'>
-                         </div>
-                         <p>Descripción: <span>${ qubo.description }</span> </p>
-                         <p>Categoría: <span>${ qubo.category }</span> </p>
-                         <p>Fecha de inicio: <span>${ startDate.toLocaleDateString() } a las ${ startDate.toLocaleTimeString() }</span> </p>
-                         <p>Fecha de finalización: ${ finishDate.toLocaleDateString() } a las ${ finishDate.toLocaleTimeString() }</p>
-                         <p>Link: <a href="${ qubo.link }" target="_blank">${ qubo.link }</a></p>
-                         <p>Anónimo: ${ qubo.anonymous ? "Sí" : "No" }</p>
-                         <button id="cerrar-info-box"><img src='./assets/botonCerrar.svg'></button>
-                         <button id="delete-qubo" data-qubo-id="${ qubo._id }" class="action-btn delete-btn" title="Eliminar">
-                         <i class="action-icon">🗑️</i>
-                         </button>
-                         `;
-                              // Eliminar listeners anteriores y crear nuevos
-                              const closeButton = document.getElementById( "cerrar-info-box" );
-                              const deleteButton = document.getElementById( "delete-qubo" );
-
-                              // Clonar y reemplazar los botones para eliminar listeners anteriores
-                              const newCloseButton = closeButton.cloneNode( true );
-                              const newDeleteButton = deleteButton.cloneNode( true );
-                              closeButton.parentNode.replaceChild( newCloseButton, closeButton );
-                              deleteButton.parentNode.replaceChild( newDeleteButton, deleteButton );
-
-                              newCloseButton.addEventListener( "click", () => {
-                                   infoBox.style.display = "none";
-                              } );
-
-                              // Para Qubos existentes (en el fetch inicial)
-                              newDeleteButton.addEventListener( "click", handleQuboDelete( qubo._id, marker, infoBox, messageBox ) );
-
-
-                         } );
-
-                    } );
-                    console.log( "🏁 Todos los qubos procesados, finalizando carga..." );
-                    if ( loadingController ) {
-                         loadingController.finishLoading();
-                    }
-               } )
-               .catch( error => {
-                    console.error( '❌  Error al cargar los Qubos:', error );
-                    if ( loadingController ) {
-                         loadingController.finishLoading();
-                    }
-               } );
-     }
+          const token = getCookie('access_token');
+          fetch('/api/v1/qubo', {
+              headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+              },
+              credentials: 'include'  // Importante para enviar cookies en solicitudes
+          })
+          .then(response => {
+              console.log("📝 Respuesta de Qubos:", response.status);
+              if(!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+          })
+          .then(qubos => {
+              console.log("✅ Total de Qubos recibidos:", qubos.length);
+              console.log("🗺️ Estado del mapa:", !!map);
+              qubos.forEach(qubo => {
+                  const position = { lat: qubo.latitude, lng: qubo.longitude };
+      
+                  // Verificar que la subcategoría existe y tiene un icono
+                  let iconUrl = 'https://res.cloudinary.com/dafjggs2p/image/upload/v1741904028/qubo/qubos/quboNeutro_lhdee5.svg'; // Icono por defecto
+      
+                  // Intentar obtener el icono específico de la subcategoría
+                  if(subcategoryIcons && subcategoryIcons.QUBO_ICONS && qubo.subcategory) {
+                      const normalizedSubcategory = normalizeString(qubo.subcategory);
+                      let found = false;
+                      for(const key in subcategoryIcons.QUBO_ICONS) {
+                          if(normalizeString(key) === normalizedSubcategory) {
+                              iconUrl = subcategoryIcons.QUBO_ICONS[key];
+                              found = true;
+                              break;
+                          }
+                      }
+                      if(!found) {
+                          console.warn(`⚠️ No se encontró icono para subcategoría: ${qubo.subcategory}`);
+                      }
+                  }
+      
+                  const marker = new google.maps.Marker({
+                      position: position,
+                      map: map,
+                      title: qubo.title,
+                      icon: iconUrl
+                  });
+      
+                  activeMarkers.set(qubo._id, marker);
+      
+                  marker.addListener('click', () => {
+                      const infoBox = document.querySelector(".info-box");
+                      infoBox.style.display = 'flex';
+      
+                      infoBox.innerHTML = `
+                          <div class="info-header">
+                              <img src="${qubo.img}" alt="${qubo.title}" class="property-image"/>
+                              <div class="header-bar">
+                                  <div class="property-badges">
+                                      <div class="badge-container">
+                                          <span class="badge primary">${qubo.category}</span>
+                                          <div class="badge-location nameContainer">
+                                              <span>${qubo.title}</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="action-buttons">
+                                      <button class="action-btn pin-btn" title="Fijar ventana">
+                                          <i class="action-icon">📌</i>
+                                      </button>
+                                      <button class="action-btn share-btn" title="Compartir">
+                                          <i class="action-icon">📤</i>
+                                      </button>
+                                      <button class="action-btn" id="cerrar-info-box" title="Cerrar">
+                                          <i class="action-icon">✕</i>
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="info-content">
+                              <div class="id-row">
+                                  <div class="id-wrapper">
+                                      <span class="id-label">ID</span>
+                                      <span class="id-text">Qubo:${qubo.category}:${qubo._id}</span>
+                                      <div class="copy-container">
+                                          <button class="copy-btn" title="Copiar ID">
+                                              <i class="copy-icon">📋</i>
+                                          </button>
+                                      </div>
+                                  </div>
+                              </div>
+      
+                              <div class="info-grid">
+                                  <div class="info-row">
+                                      <div class="info-item">
+                                          <label>Subcategoría</label>
+                                          <span>${qubo.subcategory}</span>
+                                      </div>
+                                      <div class="info-item">
+                                          <label>Estado</label>
+                                          <span class="status-badge ${qubo.anonymous ? 'active' : ''}">${qubo.anonymous ? 'Anónimo' : 'Público'}</span>
+                                      </div>
+                                  </div>
+                              </div>
+      
+                              <div class="description">
+                                  <label>Descripción</label>
+                                  <p>${qubo.description}</p>
+                              </div>
+      
+                              <div class="info-grid">
+                                  <div class="info-row">
+                                      <div class="info-item">
+                                          <label>Fecha de inicio</label>
+                                          <span>${new Date(qubo.startDate).toLocaleDateString()} ${new Date(qubo.startDate).toLocaleTimeString()}</span>
+                                      </div>
+                                      <div class="info-item">
+                                          <label>Fecha de finalización</label>
+                                          <span>${new Date(qubo.finishDate).toLocaleDateString()} ${new Date(qubo.finishDate).toLocaleTimeString()}</span>
+                                      </div>
+                                  </div>
+                              </div>
+      
+                              <div class="external-links">
+                                  <label>Enlaces</label>
+                                  <a href="${qubo.link}" target="_blank" class="external-link">
+                                      <i class="source-icon">🔗</i>
+                                      <span>Visitar sitio web</span>
+                                  </a>
+                              </div>
+      
+                              <button id="delete-qubo" data-qubo-id="${qubo._id}" class="action-btn delete-btn">
+                                  <i class="action-icon">🗑️</i>
+                              </button>
+                          </div>
+                      `;
+      
+                      // Configurar los botones de acción
+                      const pinBtn = infoBox.querySelector(".pin-btn");
+                      const shareBtn = infoBox.querySelector(".share-btn");
+                      const copyBtn = infoBox.querySelector(".copy-btn");
+                      const closeBtnInfo = infoBox.querySelector("#cerrar-info-box");
+                      const deleteBtn = infoBox.querySelector("#delete-qubo");
+      
+                      // Pin button
+                      pinBtn.addEventListener("click", () => {
+                          if(infoBox.classList.contains("pinned")) {
+                              infoBox.classList.remove("pinned");
+                              pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                              pinBtn.title = "Fijar ventana";
+                          } else {
+                              infoBox.classList.add("pinned");
+                              pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                              pinBtn.title = "Desfijar ventana";
+                          }
+                      });
+      
+                      // Share button
+                      shareBtn.addEventListener("click", () => {
+                          shareMarker(
+                              'qubo',
+                              qubo._id,
+                              qubo.title,
+                              `📍 ${qubo.category} - ${qubo.subcategory}`
+                          );
+                      });
+      
+                      // Copy button
+                      copyBtn.addEventListener("click", async () => {
+                          try {
+                              await navigator.clipboard.writeText(`Qubo:${qubo.category}:${qubo._id}`);
+                              showNotification("¡ID copiado!");
+                          } catch(error) {
+                              console.error("Error al copiar:", error);
+                          }
+                      });
+      
+                      // Close button
+                      closeBtnInfo.addEventListener("click", () => {
+                          infoBox.style.display = "none";
+                      });
+      
+                      // Delete button
+                      deleteBtn.addEventListener("click", handleQuboDelete(qubo._id, marker, infoBox, messageBox));
+      
+                      // Inicializar el arrastre
+                      inicializarArrastre(infoBox);
+                  });
+              });
+              console.log("🏁 Todos los qubos procesados, finalizando carga...");
+              if(loadingController) {
+                  loadingController.finishLoading();
+              }
+          })
+          .catch(error => {
+              console.error('❌ Error al cargar los Qubos:', error);
+              if(loadingController) {
+                  loadingController.finishLoading();
+              }
+          });
+      }
 
 
      // Define la URL de la imagen del icono personalizado
