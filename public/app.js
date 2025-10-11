@@ -540,8 +540,15 @@ function initMap( fromSession = false ) {
                          activeMarkers.set( qubo._id, marker );
 
                          marker.addListener( 'click', () => {
-                              const infoBox = document.querySelector( ".info-box" );
-                              infoBox.style.display = 'flex';
+                              let infoBox = document.querySelector(".info-box:not(.pinned)");
+                if(!infoBox) {
+                    infoBox = document.createElement('div');
+                    infoBox.className = 'info-box';
+                    document.body.appendChild(infoBox);
+                }
+
+                infoBox.setAttribute('data-qubo-id', qubo._id);
+                infoBox.style.display = 'flex';
 
                               infoBox.innerHTML = `
                           <div class="info-header">
@@ -634,17 +641,24 @@ function initMap( fromSession = false ) {
                               const deleteBtn = infoBox.querySelector( "#delete-qubo" );
 
                               // Pin button
-                              pinBtn.addEventListener( "click", () => {
-                                   if ( infoBox.classList.contains( "pinned" ) ) {
-                                        infoBox.classList.remove( "pinned" );
-                                        pinBtn.innerHTML = '<i class="action-icon">📌</i>';
-                                        pinBtn.title = "Fijar ventana";
+                              pinBtn.addEventListener("click", (e) => {
+                                   const infoBoxElement = e.target.closest('.info-box');
+                                   if(infoBoxElement.classList.contains("pinned")) {
+                                       infoBoxElement.classList.remove("pinned");
+                                       pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                                       pinBtn.title = "Fijar ventana";
                                    } else {
-                                        infoBox.classList.add( "pinned" );
-                                        pinBtn.innerHTML = '<i class="action-icon">📍</i>';
-                                        pinBtn.title = "Desfijar ventana";
+                                       infoBoxElement.classList.add("pinned");
+                                       pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                                       pinBtn.title = "Desfijar ventana";
+               
+                                       // Crear nuevo infobox para futuras propiedades
+                                       const newInfoBox = document.createElement('div');
+                                       newInfoBox.className = 'info-box';
+                                       newInfoBox.style.display = 'none';
+                                       document.body.appendChild(newInfoBox);
                                    }
-                              } );
+                               });
 
                               // Share button
                               shareBtn.addEventListener( "click", () => {
@@ -668,7 +682,7 @@ function initMap( fromSession = false ) {
 
                               // Close button
                               closeBtnInfo.addEventListener( "click", () => {
-                                   infoBox.style.display = "none";
+                                   infoBox.remove();
                               } );
 
                               // Delete button
@@ -1358,8 +1372,15 @@ function initMap( fromSession = false ) {
       
                   // Agregar listener al marcador para mostrar un infobox con información
                   marker.addListener('click', function() {
-                      const infoBox = document.querySelector(".info-box");
-                      infoBox.style.display = 'flex';
+                    let infoBox = document.querySelector(".info-box:not(.pinned)");
+                    if(!infoBox) {
+                        infoBox = document.createElement('div');
+                        infoBox.className = 'info-box';
+                        document.body.appendChild(infoBox);
+                    }
+    
+                    infoBox.setAttribute('data-qubo-id', quboData._id);
+                    infoBox.style.display = 'flex';
                       infoBox.innerHTML = `
                           <div class="info-header">
                               <img src="${quboData.img}" alt="${quboData.title}" class="property-image"/>
@@ -1451,17 +1472,24 @@ function initMap( fromSession = false ) {
                       const deleteBtn = infoBox.querySelector("#delete-qubo");
       
                       // Pin button
-                      pinBtn.addEventListener("click", () => {
-                          if(infoBox.classList.contains("pinned")) {
-                              infoBox.classList.remove("pinned");
-                              pinBtn.innerHTML = '<i class="action-icon">📌</i>';
-                              pinBtn.title = "Fijar ventana";
-                          } else {
-                              infoBox.classList.add("pinned");
-                              pinBtn.innerHTML = '<i class="action-icon">📍</i>';
-                              pinBtn.title = "Desfijar ventana";
-                          }
-                      });
+                      pinBtn.addEventListener("click", (e) => {
+                         const infoBoxElement = e.target.closest('.info-box');
+                         if(infoBoxElement.classList.contains("pinned")) {
+                             infoBoxElement.classList.remove("pinned");
+                             pinBtn.innerHTML = '<i class="action-icon">📌</i>';
+                             pinBtn.title = "Fijar ventana";
+                         } else {
+                             infoBoxElement.classList.add("pinned");
+                             pinBtn.innerHTML = '<i class="action-icon">📍</i>';
+                             pinBtn.title = "Desfijar ventana";
+     
+                             // Crear nuevo infobox para futuras propiedades
+                             const newInfoBox = document.createElement('div');
+                             newInfoBox.className = 'info-box';
+                             newInfoBox.style.display = 'none';
+                             document.body.appendChild(newInfoBox);
+                         }
+                     });
       
                       // Share button
                       shareBtn.addEventListener("click", () => {
@@ -1485,7 +1513,7 @@ function initMap( fromSession = false ) {
       
                       // Close button
                       closeBtnInfo.addEventListener("click", () => {
-                          infoBox.style.display = "none";
+                          infoBox.remove();
                       });
       
                       // Delete button
