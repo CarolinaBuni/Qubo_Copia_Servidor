@@ -518,7 +518,7 @@ span {
      padding-right: 10px;
      scrollbar-width: thin;
      scrollbar-color: var(--primary-color) rgba(0, 0, 0, 0.2);
-     
+     overflow-x: hidden;
 }
 
 
