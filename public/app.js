@@ -544,85 +544,87 @@ function initMap( fromSession = false ) {
                               infoBox.style.display = 'flex';
 
                               infoBox.innerHTML = `
-    <div class="info-header">
-        <img src="${qubo.img}" alt="${qubo.title}" class="property-image"/>
-        <div class="header-bar">
-            <div class="property-badges">
-                <div class="badge-container">
-                    <span class="badge primary">${qubo.category}</span>
-                    <div class="badge-location nameContainer">
-                        <span>${qubo.title}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="action-buttons">
-                <button class="action-btn pin-btn" title="Fijar ventana">
-                    <i class="action-icon">📌</i>
-                </button>
-                <button class="action-btn share-btn" title="Compartir">
-                    <i class="action-icon">🔗</i>
-                </button>
-                <button class="action-btn close-btn" title="Cerrar">
-                    <i class="action-icon">✖️</i>
-                </button>
-            </div>
-        </div>
-    </div>
-    <div class="info-content">
-        <div class="info-grid">
-            <div class="info-row">
-                <div class="info-item">
-                    <label>Código identificador</label>
-                    <div class="id-value-container">
-                        <span>Qubo:${qubo.category}:${qubo._id}</span>
-                        <button class="copy-btn" title="Copiar código">
-                            <i class="copy-icon">📋</i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="info-row">
-                <div class="info-item">
-                    <label>Descripción</label>
-                    <span>${qubo.description}</span>
-                </div>
-            </div>
-            <div class="info-row">
-                <div class="info-item">
-                    <label>Subcategoría</label>
-                    <span>${qubo.subcategory}</span>
-                </div>
-            </div>
-            <div class="info-row">
-                <div class="info-item">
-                    <label>Fecha de inicio</label>
-                    <span>${new Date(qubo.startDate).toLocaleDateString()} a las ${new Date(qubo.startDate).toLocaleTimeString()}</span>
-                </div>
-            </div>
-            <div class="info-row">
-                <div class="info-item">
-                    <label>Fecha de finalización</label>
-                    <span>${new Date(qubo.finishDate).toLocaleDateString()} a las ${new Date(qubo.finishDate).toLocaleTimeString()}</span>
-                </div>
-            </div>
-            <div class="info-row">
-                <div class="info-item">
-                    <label>Link</label>
-                    <a href="${qubo.link}" target="_blank">${qubo.link}</a>
-                </div>
-            </div>
-            <div class="info-row">
-                <div class="info-item">
-                    <label>Anónimo</label>
-                    <span>${qubo.anonymous ? "Sí" : "No"}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <button id="delete-qubo" data-qubo-id="${qubo._id}" class="action-btn delete-btn" title="Eliminar">
-        <i class="action-icon">🗑️</i>
-    </button>
-`;
+                          <div class="info-header">
+                              <img src="${ qubo.img }" alt="${ qubo.title }" class="property-image"/>
+                              <div class="header-bar">
+                                  <div class="property-badges">
+                                      <div class="badge-container">
+                                          <span class="badge primary">${ qubo.category }</span>
+                                          <div class="badge-location nameContainer">
+                                              <span>${ qubo.title }</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="action-buttons">
+                                      <button class="action-btn pin-btn" title="Fijar ventana">
+                                          <i class="action-icon">📌</i>
+                                      </button>
+                                      <button class="action-btn share-btn" title="Compartir">
+                                          <i class="action-icon">📤</i>
+                                      </button>
+                                      <button class="action-btn" id="cerrar-info-box" title="Cerrar">
+                                          <i class="action-icon">✕</i>
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="info-content">
+                              <div class="id-row">
+                                  <div class="id-wrapper">
+                                      <span class="id-label">ID</span>
+                                      <span class="id-text">Qubo:${ qubo.category }:${ qubo._id }</span>
+                                      <div class="copy-container">
+                                          <button class="copy-btn" title="Copiar ID">
+                                              <i class="copy-icon">📋</i>
+                                          </button>
+                                      </div>
+                                  </div>
+                              </div>
+      
+                              <div class="info-grid">
+                                  <div class="info-row">
+                                      <div class="info-item">
+                                          <label>Subcategoría</label>
+                                          <span>${ qubo.subcategory }</span>
+                                      </div>
+                                      <div class="info-item">
+                                          <label>Estado</label>
+                                          <span class="status-badge ${ qubo.anonymous ? 'active' : '' }">${ qubo.anonymous ? 'Anónimo' : 'Público' }</span>
+                                      </div>
+                                  </div>
+                              </div>
+      
+                              <div class="description">
+                                  <label>Descripción</label>
+                                  <p>${ qubo.description }</p>
+                              </div>
+      
+                              <div class="info-grid">
+                                  <div class="info-row">
+                                      <div class="info-item">
+                                          <label>Fecha de inicio</label>
+                                          <span>${ new Date( qubo.startDate ).toLocaleDateString() } ${ new Date( qubo.startDate ).toLocaleTimeString() }</span>
+                                      </div>
+                                      <div class="info-item">
+                                          <label>Fecha de finalización</label>
+                                          <span>${ new Date( qubo.finishDate ).toLocaleDateString() } ${ new Date( qubo.finishDate ).toLocaleTimeString() }</span>
+                                      </div>
+                                  </div>
+                              </div>
+      
+                              <div class="external-links">
+                                  <label>Enlaces</label>
+                                  <a href="${ qubo.link }" target="_blank" class="external-link">
+                                      <i class="source-icon">🔗</i>
+                                      <span>Visitar sitio web</span>
+                                  </a>
+                              </div>
+      
+                              <button id="delete-qubo" data-qubo-id="${ qubo._id }" class="action-btn delete-btn">
+                                  <i class="action-icon">🗑️</i>
+                              </button>
+                          </div>
+                      `;
 
                               // Configurar los botones de acción
                               const pinBtn = infoBox.querySelector( ".pin-btn" );
@@ -1359,86 +1361,87 @@ function initMap( fromSession = false ) {
                       const infoBox = document.querySelector(".info-box");
                       infoBox.style.display = 'flex';
                       infoBox.innerHTML = `
-    <div class="info-header">
-        <img src="${quboData.img}" alt="${quboData.title}" class="property-image"/>
-        <div class="header-bar">
-            <div class="property-badges">
-                <div class="badge-container">
-                    <span class="badge primary">${quboData.category}</span>
-                    <div class="badge-location nameContainer">
-                        <span>${quboData.title}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="action-buttons">
-                <button class="action-btn pin-btn" title="Fijar ventana">
-                    <i class="action-icon">📌</i>
-                </button>
-                <button class="action-btn share-btn" title="Compartir">
-                    <i class="action-icon">📤</i>
-                </button>
-                <button class="action-btn" id="cerrar-info-box" title="Cerrar">
-                    <i class="action-icon">✕</i>
-                </button>
-            </div>
-        </div>
-    </div>
-    <div class="info-content">
-        <div class="info-grid">
-            <div class="info-row">
-                <div class="info-item">
-                    <label>Código identificador</label>
-                    <div class="id-value-container">
-                        <span>Qubo:${quboData.category}:${quboData._id}</span>
-                        <button class="copy-btn" title="Copiar código">
-                            <i class="copy-icon">📋</i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="info-row">
-                <div class="info-item">
-                    <label>Subcategoría</label>
-                    <span>${quboData.subcategory}</span>
-                </div>
-                <div class="info-item">
-                    <label>Estado</label>
-                    <span class="status-badge ${quboData.anonymous ? 'active' : ''}">${quboData.anonymous ? 'Anónimo' : 'Público'}</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="description">
-            <label>Descripción</label>
-            <p>${quboData.description}</p>
-        </div>
-
-        <div class="info-grid">
-            <div class="info-row">
-                <div class="info-item">
-                    <label>Fecha de inicio</label>
-                    <span>${new Date(quboData.startDate).toLocaleDateString()} ${new Date(quboData.startDate).toLocaleTimeString()}</span>
-                </div>
-                <div class="info-item">
-                    <label>Fecha de finalización</label>
-                    <span>${new Date(quboData.finishDate).toLocaleDateString()} ${new Date(quboData.finishDate).toLocaleTimeString()}</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="external-links">
-            <label>Enlaces</label>
-            <a href="${quboData.link}" target="_blank" class="external-link">
-                <i class="source-icon">🔗</i>
-                <span>Visitar sitio web</span>
-            </a>
-        </div>
-
-        <button id="delete-qubo" data-qubo-id="${quboData._id}" class="action-btn delete-btn">
-            <i class="action-icon">🗑️</i>
-        </button>
-    </div>
-`;
+                          <div class="info-header">
+                              <img src="${quboData.img}" alt="${quboData.title}" class="property-image"/>
+                              <div class="header-bar">
+                                  <div class="property-badges">
+                                      <div class="badge-container">
+                                          <span class="badge primary">${quboData.category}</span>
+                                          <div class="badge-location nameContainer">
+                                              <span>${quboData.title}</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="action-buttons">
+                                      <button class="action-btn pin-btn" title="Fijar ventana">
+                                          <i class="action-icon">📌</i>
+                                      </button>
+                                      <button class="action-btn share-btn" title="Compartir">
+                                          <i class="action-icon">📤</i>
+                                      </button>
+                                      <button class="action-btn" id="cerrar-info-box" title="Cerrar">
+                                          <i class="action-icon">✕</i>
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="info-content">
+                              <div class="id-row">
+                                  <div class="id-wrapper">
+                                      <span class="id-label">ID</span>
+                                      <span class="id-text">Qubo:${quboData.category}:${quboData._id}</span>
+                                      <div class="copy-container">
+                                          <button class="copy-btn" title="Copiar ID">
+                                              <i class="copy-icon">📋</i>
+                                          </button>
+                                      </div>
+                                  </div>
+                              </div>
+      
+                              <div class="info-grid">
+                                  <div class="info-row">
+                                      <div class="info-item">
+                                          <label>Subcategoría</label>
+                                          <span>${quboData.subcategory}</span>
+                                      </div>
+                                      <div class="info-item">
+                                          <label>Estado</label>
+                                          <span class="status-badge ${quboData.anonymous ? 'active' : ''}">${quboData.anonymous ? 'Anónimo' : 'Público'}</span>
+                                      </div>
+                                  </div>
+                              </div>
+      
+                              <div class="description">
+                                  <label>Descripción</label>
+                                  <p>${quboData.description}</p>
+                              </div>
+      
+                              <div class="info-grid">
+                                  <div class="info-row">
+                                      <div class="info-item">
+                                          <label>Fecha de inicio</label>
+                                          <span>${new Date(quboData.startDate).toLocaleDateString()} ${new Date(quboData.startDate).toLocaleTimeString()}</span>
+                                      </div>
+                                      <div class="info-item">
+                                          <label>Fecha de finalización</label>
+                                          <span>${new Date(quboData.finishDate).toLocaleDateString()} ${new Date(quboData.finishDate).toLocaleTimeString()}</span>
+                                      </div>
+                                  </div>
+                              </div>
+      
+                              <div class="external-links">
+                                  <label>Enlaces</label>
+                                  <a href="${quboData.link}" target="_blank" class="external-link">
+                                      <i class="source-icon">🔗</i>
+                                      <span>Visitar sitio web</span>
+                                  </a>
+                              </div>
+      
+                              <button id="delete-qubo" data-qubo-id="${quboData._id}" class="action-btn delete-btn">
+                                  <i class="action-icon">🗑️</i>
+                              </button>
+                          </div>
+                      `;
       
                       // Configurar los botones de acción
                       const pinBtn = infoBox.querySelector(".pin-btn");
